@@ -31,98 +31,163 @@ export const Step7Canvas: React.FC = () => {
     const avgAnxiety = Object.values(canvasData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
     
     const doc = new jsPDF();
+    const pageHeight = doc.internal.pageSize.height;
+    const pageWidth = doc.internal.pageSize.width;
+    let currentY = 20;
+    
+    // Set black background for entire page
+    doc.setFillColor(0, 0, 0);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    
+    // Function to check if we need a new page and add one if needed
+    const checkNewPage = (requiredHeight: number) => {
+      if (currentY + requiredHeight > pageHeight - 20) {
+        doc.addPage();
+        // Set black background for new page
+        doc.setFillColor(0, 0, 0);
+        doc.rect(0, 0, pageWidth, pageHeight, 'F');
+        currentY = 20;
+        return true;
+      }
+      return false;
+    };
+    
+    // Add logo (you'll need to convert to base64 or use a different approach)
+    // For now, we'll add a placeholder text for the logo
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.text('FRACTIONL', 20, currentY);
+    currentY += 15;
     
     // Add title
-    doc.setFontSize(20);
-    doc.text('AI TRANSFORMATION CANVAS', 20, 20);
+    doc.setFontSize(24);
+    doc.setTextColor(138, 43, 226); // Purple color
+    doc.text('AI TRANSFORMATION CANVAS', 20, currentY);
+    currentY += 25;
     
-    // Add organization info
+    // Organization info section
+    checkNewPage(40);
+    doc.setFontSize(14);
+    doc.setTextColor(138, 43, 226);
+    doc.text('CONTACT INFORMATION', 20, currentY);
+    currentY += 15;
+    
     doc.setFontSize(12);
-    let y = 40;
-    doc.text(`Organization: ${canvasData.businessName || 'N/A'}`, 20, y);
-    y += 10;
-    doc.text(`Contact: ${canvasData.userName || 'N/A'}`, 20, y);
-    y += 10;
-    doc.text(`Email: ${canvasData.businessEmail || 'N/A'}`, 20, y);
-    y += 20;
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Organization: ${canvasData.businessName || 'N/A'}`, 20, currentY);
+    currentY += 10;
+    doc.text(`Contact: ${canvasData.userName || 'N/A'}`, 20, currentY);
+    currentY += 10;
+    doc.text(`Email: ${canvasData.businessEmail || 'N/A'}`, 20, currentY);
+    currentY += 25;
     
-    // Organization snapshot
+    // Organization snapshot section
+    checkNewPage(60);
     doc.setFontSize(14);
-    doc.text('ORGANIZATION SNAPSHOT', 20, y);
-    y += 10;
-    doc.setFontSize(10);
-    doc.text(`Team Size: ${canvasData.employeeCount} employees`, 20, y);
-    y += 8;
-    doc.text(`Functions: ${canvasData.businessFunctions.join(', ')}`, 20, y);
-    y += 8;
-    doc.text(`AI Maturity: ${canvasData.aiAdoption}`, 20, y);
-    y += 15;
+    doc.setTextColor(138, 43, 226);
+    doc.text('ORGANIZATION SNAPSHOT', 20, currentY);
+    currentY += 15;
     
-    // Anxiety levels
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Team Size: ${canvasData.employeeCount} employees`, 20, currentY);
+    currentY += 10;
+    doc.text(`Functions: ${canvasData.businessFunctions.join(', ')}`, 20, currentY);
+    currentY += 10;
+    doc.text(`AI Maturity: ${canvasData.aiAdoption}`, 20, currentY);
+    currentY += 25;
+    
+    // Anxiety levels section
+    checkNewPage(80);
     doc.setFontSize(14);
-    doc.text(`ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)`, 20, y);
-    y += 10;
-    doc.setFontSize(10);
-    doc.text(`Executives: ${canvasData.anxietyLevels.executives}%`, 20, y);
-    y += 8;
-    doc.text(`Middle Management: ${canvasData.anxietyLevels.middleManagement}%`, 20, y);
-    y += 8;
-    doc.text(`Frontline Staff: ${canvasData.anxietyLevels.frontlineStaff}%`, 20, y);
-    y += 8;
-    doc.text(`Tech Team: ${canvasData.anxietyLevels.techTeam}%`, 20, y);
-    y += 8;
-    doc.text(`Non-Tech Team: ${canvasData.anxietyLevels.nonTechTeam}%`, 20, y);
-    y += 15;
+    doc.setTextColor(138, 43, 226);
+    doc.text(`ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)`, 20, currentY);
+    currentY += 15;
     
-    // Capabilities
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Executives: ${canvasData.anxietyLevels.executives}%`, 20, currentY);
+    currentY += 10;
+    doc.text(`Middle Management: ${canvasData.anxietyLevels.middleManagement}%`, 20, currentY);
+    currentY += 10;
+    doc.text(`Frontline Staff: ${canvasData.anxietyLevels.frontlineStaff}%`, 20, currentY);
+    currentY += 10;
+    doc.text(`Tech Team: ${canvasData.anxietyLevels.techTeam}%`, 20, currentY);
+    currentY += 10;
+    doc.text(`Non-Tech Team: ${canvasData.anxietyLevels.nonTechTeam}%`, 20, currentY);
+    currentY += 25;
+    
+    // Capabilities section
+    checkNewPage(50);
     doc.setFontSize(14);
-    doc.text('CAPABILITIES', 20, y);
-    y += 10;
-    doc.setFontSize(10);
-    doc.text(`AI Skills: ${canvasData.aiSkills.join(', ')}`, 20, y);
-    y += 8;
-    doc.text(`Automation Risks: ${canvasData.automationRisks.join(', ')}`, 20, y);
-    y += 15;
+    doc.setTextColor(138, 43, 226);
+    doc.text('CAPABILITIES', 20, currentY);
+    currentY += 15;
     
-    // Learning and change
-    doc.setFontSize(14);
-    doc.text('LEARNING & CHANGE', 20, y);
-    y += 10;
-    doc.setFontSize(10);
-    doc.text(`Learning Preference: ${canvasData.learningModality || 'Not specified'}`, 20, y);
-    y += 8;
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    const skillsText = `AI Skills: ${canvasData.aiSkills.join(', ')}`;
+    const skillsLines = doc.splitTextToSize(skillsText, 170);
+    doc.text(skillsLines, 20, currentY);
+    currentY += skillsLines.length * 6 + 5;
     
-    // Split change narrative into multiple lines if too long
+    const risksText = `Automation Risks: ${canvasData.automationRisks.join(', ')}`;
+    const risksLines = doc.splitTextToSize(risksText, 170);
+    doc.text(risksLines, 20, currentY);
+    currentY += risksLines.length * 6 + 25;
+    
+    // Learning and change section
     const changeText = canvasData.changeNarrative || 'Not provided';
-    const maxWidth = 170;
-    const changeLines = doc.splitTextToSize(`Change Experience: ${changeText}`, maxWidth);
-    doc.text(changeLines, 20, y);
-    y += changeLines.length * 6 + 10;
+    const changeLines = doc.splitTextToSize(`Change Experience: ${changeText}`, 170);
+    checkNewPage(40 + changeLines.length * 6);
     
-    // Success targets
     doc.setFontSize(14);
-    doc.text('SUCCESS TARGETS', 20, y);
-    y += 10;
-    doc.setFontSize(10);
+    doc.setTextColor(138, 43, 226);
+    doc.text('LEARNING & CHANGE', 20, currentY);
+    currentY += 15;
+    
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Learning Preference: ${canvasData.learningModality || 'Not specified'}`, 20, currentY);
+    currentY += 15;
+    
+    doc.text(changeLines, 20, currentY);
+    currentY += changeLines.length * 6 + 25;
+    
+    // Success targets section
+    checkNewPage(30 + canvasData.successTargets.length * 8);
+    doc.setFontSize(14);
+    doc.setTextColor(138, 43, 226);
+    doc.text('SUCCESS TARGETS', 20, currentY);
+    currentY += 15;
+    
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
     canvasData.successTargets.forEach(target => {
-      doc.text(`• ${target}`, 20, y);
-      y += 8;
+      doc.text(`• ${target}`, 20, currentY);
+      currentY += 8;
     });
-    y += 10;
+    currentY += 20;
     
-    // AI Recommendation
-    doc.setFontSize(14);
-    doc.text('AI RECOMMENDATION', 20, y);
-    y += 10;
-    doc.setFontSize(10);
+    // AI Recommendation section
     const recommendation = getAIRecommendation();
-    const recLines = doc.splitTextToSize(recommendation, maxWidth);
-    doc.text(recLines, 20, y);
-    y += recLines.length * 6 + 15;
+    const recLines = doc.splitTextToSize(recommendation, 170);
+    checkNewPage(30 + recLines.length * 6);
+    
+    doc.setFontSize(14);
+    doc.setTextColor(138, 43, 226);
+    doc.text('AI RECOMMENDATION', 20, currentY);
+    currentY += 15;
+    
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.text(recLines, 20, currentY);
+    currentY += recLines.length * 6 + 25;
     
     // Footer
-    doc.setFontSize(8);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, y);
+    doc.setFontSize(10);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, currentY);
     
     // Save the PDF
     doc.save(`ai-transformation-canvas-${canvasData.businessName || 'canvas'}.pdf`);
