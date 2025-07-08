@@ -29,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Attempting to send email to:", ["hello@krishraja.com", "krish@fractionl.ai"]);
     
     const baseEmailData = {
-      from: "AI Canvas <noreply@fractionl.ai>",
+      from: "AI Canvas <canvas@fractionl.ai>",
       subject: `${businessName} - AI Workshop for Teams`,
       html: `
         <h2>New AI Canvas Download</h2>
@@ -68,7 +68,7 @@ const handler = async (req: Request): Promise<Response> => {
       to: ["krish@fractionl.ai"]
     });
     
-    console.log("Email 2 response (krish@fractionl.ai):", emailResponse2);
+    console.log("Email 2 response (krish@fractionl.ai):", JSON.stringify(emailResponse2, null, 2));
 
     // Check for errors in either response
     if (emailResponse1.error) {
