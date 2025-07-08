@@ -358,7 +358,7 @@ export const Step7Mindmaker: React.FC = () => {
           Your AI Transformation Mindmaker
         </h1>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          Here's your personalized roadmap to AI success
+          Here's an initial draft proposal for your corporate workshop. Book a call to continue planning the perfect upskilling program for your team.
         </p>
       </div>
 
@@ -374,7 +374,7 @@ export const Step7Mindmaker: React.FC = () => {
             className="bg-white text-brand-purple hover:bg-white/90"
           >
             <Calendar className="w-4 h-4 mr-2" />
-            Book Strategy Session
+            Plan Your Workshop
           </Button>
         </CardContent>
       </Card>
