@@ -10,7 +10,7 @@ import { useCanvas } from '../../contexts/CanvasContext';
 import { Badge } from '../ui/badge';
 import { getAnxietyLevel } from '../../types/canvas';
 import { supabase } from '../../integrations/supabase/client';
-import { useToast } from '../ui/use-toast';
+import { useToast } from '../../hooks/use-toast';
 
 export const Step7Canvas: React.FC = () => {
   const { state, updateCanvasData, setCurrentStep, markStepCompleted } = useCanvas();

@@ -1,1 +1,4 @@
 project_id = "bkyuxvschuwngtcdhsyg"
+
+[functions.send-canvas-email]
+verify_jwt = false
