@@ -26,9 +26,10 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { businessName, userName, businessEmail, pdfData, fileName }: CanvasEmailRequest = await req.json();
 
-    const emailData: any = {
+    console.log("Attempting to send email to:", ["hello@krishraja.com", "krish@fractionl.ai"]);
+    
+    const baseEmailData = {
       from: "AI Canvas <onboarding@resend.dev>",
-      to: ["hello@krishraja.com", "krish@fractionl.ai"],  // Send to both addresses
       subject: `${businessName} - AI Workshop for Teams`,
       html: `
         <h2>New AI Canvas Download</h2>
@@ -46,33 +47,46 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Add PDF attachment if provided
     if (pdfData && fileName) {
-      emailData.attachments = [{
+      baseEmailData.attachments = [{
         filename: fileName,
         content: pdfData,
         type: 'application/pdf',
       }];
     }
 
-    console.log("Attempting to send email to:", ["hello@krishraja.com", "krish@fractionl.ai"]);
-    console.log("Email data:", {
-      from: "AI Canvas <onboarding@resend.dev>",
-      to: ["hello@krishraja.com", "krish@fractionl.ai"],
-      subject: `${businessName} - AI Workshop for Teams`,
-      hasAttachment: !!(pdfData && fileName)
+    // Send to first email
+    const emailResponse1 = await resend.emails.send({
+      ...baseEmailData,
+      to: ["hello@krishraja.com"]
     });
-
-    const emailResponse = await resend.emails.send(emailData);
-
-    console.log("Canvas email response:", emailResponse);
     
-    if (emailResponse.error) {
-      console.error("Resend API error details:", emailResponse.error);
-      throw new Error(`Email sending failed: ${emailResponse.error.message || emailResponse.error}`);
+    console.log("Email 1 response (hello@krishraja.com):", emailResponse1);
+
+    // Send to second email
+    const emailResponse2 = await resend.emails.send({
+      ...baseEmailData,
+      to: ["krish@fractionl.ai"]
+    });
+    
+    console.log("Email 2 response (krish@fractionl.ai):", emailResponse2);
+
+    // Check for errors in either response
+    if (emailResponse1.error) {
+      console.error("Resend API error for hello@krishraja.com:", emailResponse1.error);
+    }
+    
+    if (emailResponse2.error) {
+      console.error("Resend API error for krish@fractionl.ai:", emailResponse2.error);
     }
 
-    if (emailResponse.data) {
-      console.log("Email sent successfully with ID:", emailResponse.data.id);
-    }
+    const emailResponse = {
+      data: {
+        id: `${emailResponse1.data?.id || 'failed'}, ${emailResponse2.data?.id || 'failed'}`,
+        email1: emailResponse1,
+        email2: emailResponse2
+      },
+      error: emailResponse1.error || emailResponse2.error || null
+    };
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,
