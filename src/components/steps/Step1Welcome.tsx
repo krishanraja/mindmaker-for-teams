@@ -74,7 +74,7 @@ export const Step1Welcome: React.FC = () => {
           size="lg"
           className="bg-gradient-purple hover:opacity-90 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
         >
-          Start mapping your journey
+          Start mapping your workshop
           <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </Button>
 

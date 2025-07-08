@@ -26,12 +26,63 @@ export const Step7Canvas: React.FC = () => {
   };
 
   const handleDownloadPDF = () => {
-    // PDF generation would go here
-    console.log('Generating PDF...');
+    // Create PDF content
+    const { canvasData } = state;
+    const avgAnxiety = Object.values(canvasData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
+    
+    const pdfContent = `
+AI TRANSFORMATION CANVAS
+========================
+
+Organization: ${canvasData.businessName || 'N/A'}
+Contact: ${canvasData.userName || 'N/A'}
+Email: ${canvasData.businessEmail || 'N/A'}
+
+ORGANIZATION SNAPSHOT
+- Team Size: ${canvasData.employeeCount} employees
+- Business Functions: ${canvasData.businessFunctions.join(', ')}
+- AI Maturity: ${canvasData.aiAdoption}
+
+ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)
+- Executives: ${canvasData.anxietyLevels.executives}%
+- Middle Management: ${canvasData.anxietyLevels.middleManagement}%
+- Frontline Staff: ${canvasData.anxietyLevels.frontlineStaff}%
+- Tech Team: ${canvasData.anxietyLevels.techTeam}%
+- Non-Tech Team: ${canvasData.anxietyLevels.nonTechTeam}%
+
+CAPABILITIES
+- AI Skills: ${canvasData.aiSkills.join(', ')}
+- Automation Risks: ${canvasData.automationRisks.join(', ')}
+
+LEARNING PREFERENCE
+${canvasData.learningModality || 'Not specified'}
+
+CHANGE MANAGEMENT EXPERIENCE
+${canvasData.changeNarrative || 'Not provided'}
+
+SUCCESS TARGETS
+${canvasData.successTargets.map(target => `- ${target}`).join('\n')}
+
+AI RECOMMENDATION
+${getAIRecommendation()}
+
+Generated on: ${new Date().toLocaleDateString()}
+    `;
+    
+    // Create and download the file
+    const blob = new Blob([pdfContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ai-transformation-canvas-${canvasData.businessName || 'canvas'}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleBookSession = () => {
-    window.open('https://calendly.com/fractionl', '_blank');
+    window.open('https://calendly.com/krish-raja/krish-raja', '_blank');
   };
 
   const handlePrevious = () => {
@@ -168,7 +219,7 @@ export const Step7Canvas: React.FC = () => {
               onCheckedChange={(checked) => handleContactFormChange('ndaAccepted', checked)}
             />
             <Label htmlFor="nda" className="text-sm">
-              I accept the mutual NDA terms *
+              I am willing to sign/provide a Mutual NDA. *
             </Label>
           </div>
         </CardContent>

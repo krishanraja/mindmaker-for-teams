@@ -181,10 +181,13 @@ export const Step5HabitHooks: React.FC = () => {
               </p>
             </div>
             <div>
-              <Label className="text-sm font-medium">Change Narrative Length:</Label>
+              <Label className="text-sm font-medium">Change Appetite:</Label>
               <p className="text-sm text-muted-foreground mt-1">
-                {changeNarrative.length} characters
-                {changeNarrative.length === 0 && ' (Optional)'}
+                {changeNarrative.length > 0 
+                  ? changeNarrative.length > 100 
+                    ? `${changeNarrative.substring(0, 100)}...` 
+                    : changeNarrative
+                  : 'No change experience provided (Optional)'}
               </p>
             </div>
           </div>
