@@ -26,7 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "AI Canvas <onboarding@resend.dev>",
-      to: ["hello@krishraja.com"],  // Using verified email address
+      to: ["hello@krishraja.com", "krish@fractionl.ai"],  // Send to both addresses
       subject: `${businessName} - AI Workshop for Teams`,
       html: `
         <h2>New AI Canvas Download</h2>
