@@ -29,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Attempting to send email to:", ["hello@krishraja.com", "krish@fractionl.ai"]);
     
     const baseEmailData = {
-      from: "AI Canvas <onboarding@resend.dev>",
+      from: "AI Canvas <noreply@fractionl.ai>",
       subject: `${businessName} - AI Workshop for Teams`,
       html: `
         <h2>New AI Canvas Download</h2>
