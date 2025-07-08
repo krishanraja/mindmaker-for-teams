@@ -26,7 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "AI Canvas <onboarding@resend.dev>",
-      to: ["krish@fractionl.ai"],
+      to: ["hello@krishraja.com"],  // Using verified email address
       subject: `${businessName} - AI Workshop for Teams`,
       html: `
         <h2>New AI Canvas Download</h2>
@@ -43,6 +43,11 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     console.log("Canvas email sent successfully:", emailResponse);
+    
+    if (emailResponse.error) {
+      console.error("Resend API error:", emailResponse.error);
+      throw new Error(`Email sending failed: ${emailResponse.error.message || emailResponse.error}`);
+    }
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,
