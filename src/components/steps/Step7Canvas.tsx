@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import jsPDF from 'jspdf';
 import { ArrowLeft, Download, Calendar, Mail, Building, User, FileText, CheckCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -26,59 +27,105 @@ export const Step7Canvas: React.FC = () => {
   };
 
   const handleDownloadPDF = () => {
-    // Create PDF content
     const { canvasData } = state;
     const avgAnxiety = Object.values(canvasData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
     
-    const pdfContent = `
-AI TRANSFORMATION CANVAS
-========================
-
-Organization: ${canvasData.businessName || 'N/A'}
-Contact: ${canvasData.userName || 'N/A'}
-Email: ${canvasData.businessEmail || 'N/A'}
-
-ORGANIZATION SNAPSHOT
-- Team Size: ${canvasData.employeeCount} employees
-- Business Functions: ${canvasData.businessFunctions.join(', ')}
-- AI Maturity: ${canvasData.aiAdoption}
-
-ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)
-- Executives: ${canvasData.anxietyLevels.executives}%
-- Middle Management: ${canvasData.anxietyLevels.middleManagement}%
-- Frontline Staff: ${canvasData.anxietyLevels.frontlineStaff}%
-- Tech Team: ${canvasData.anxietyLevels.techTeam}%
-- Non-Tech Team: ${canvasData.anxietyLevels.nonTechTeam}%
-
-CAPABILITIES
-- AI Skills: ${canvasData.aiSkills.join(', ')}
-- Automation Risks: ${canvasData.automationRisks.join(', ')}
-
-LEARNING PREFERENCE
-${canvasData.learningModality || 'Not specified'}
-
-CHANGE MANAGEMENT EXPERIENCE
-${canvasData.changeNarrative || 'Not provided'}
-
-SUCCESS TARGETS
-${canvasData.successTargets.map(target => `- ${target}`).join('\n')}
-
-AI RECOMMENDATION
-${getAIRecommendation()}
-
-Generated on: ${new Date().toLocaleDateString()}
-    `;
+    const doc = new jsPDF();
     
-    // Create and download the file
-    const blob = new Blob([pdfContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ai-transformation-canvas-${canvasData.businessName || 'canvas'}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Add title
+    doc.setFontSize(20);
+    doc.text('AI TRANSFORMATION CANVAS', 20, 20);
+    
+    // Add organization info
+    doc.setFontSize(12);
+    let y = 40;
+    doc.text(`Organization: ${canvasData.businessName || 'N/A'}`, 20, y);
+    y += 10;
+    doc.text(`Contact: ${canvasData.userName || 'N/A'}`, 20, y);
+    y += 10;
+    doc.text(`Email: ${canvasData.businessEmail || 'N/A'}`, 20, y);
+    y += 20;
+    
+    // Organization snapshot
+    doc.setFontSize(14);
+    doc.text('ORGANIZATION SNAPSHOT', 20, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`Team Size: ${canvasData.employeeCount} employees`, 20, y);
+    y += 8;
+    doc.text(`Functions: ${canvasData.businessFunctions.join(', ')}`, 20, y);
+    y += 8;
+    doc.text(`AI Maturity: ${canvasData.aiAdoption}`, 20, y);
+    y += 15;
+    
+    // Anxiety levels
+    doc.setFontSize(14);
+    doc.text(`ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)`, 20, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`Executives: ${canvasData.anxietyLevels.executives}%`, 20, y);
+    y += 8;
+    doc.text(`Middle Management: ${canvasData.anxietyLevels.middleManagement}%`, 20, y);
+    y += 8;
+    doc.text(`Frontline Staff: ${canvasData.anxietyLevels.frontlineStaff}%`, 20, y);
+    y += 8;
+    doc.text(`Tech Team: ${canvasData.anxietyLevels.techTeam}%`, 20, y);
+    y += 8;
+    doc.text(`Non-Tech Team: ${canvasData.anxietyLevels.nonTechTeam}%`, 20, y);
+    y += 15;
+    
+    // Capabilities
+    doc.setFontSize(14);
+    doc.text('CAPABILITIES', 20, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`AI Skills: ${canvasData.aiSkills.join(', ')}`, 20, y);
+    y += 8;
+    doc.text(`Automation Risks: ${canvasData.automationRisks.join(', ')}`, 20, y);
+    y += 15;
+    
+    // Learning and change
+    doc.setFontSize(14);
+    doc.text('LEARNING & CHANGE', 20, y);
+    y += 10;
+    doc.setFontSize(10);
+    doc.text(`Learning Preference: ${canvasData.learningModality || 'Not specified'}`, 20, y);
+    y += 8;
+    
+    // Split change narrative into multiple lines if too long
+    const changeText = canvasData.changeNarrative || 'Not provided';
+    const maxWidth = 170;
+    const changeLines = doc.splitTextToSize(`Change Experience: ${changeText}`, maxWidth);
+    doc.text(changeLines, 20, y);
+    y += changeLines.length * 6 + 10;
+    
+    // Success targets
+    doc.setFontSize(14);
+    doc.text('SUCCESS TARGETS', 20, y);
+    y += 10;
+    doc.setFontSize(10);
+    canvasData.successTargets.forEach(target => {
+      doc.text(`• ${target}`, 20, y);
+      y += 8;
+    });
+    y += 10;
+    
+    // AI Recommendation
+    doc.setFontSize(14);
+    doc.text('AI RECOMMENDATION', 20, y);
+    y += 10;
+    doc.setFontSize(10);
+    const recommendation = getAIRecommendation();
+    const recLines = doc.splitTextToSize(recommendation, maxWidth);
+    doc.text(recLines, 20, y);
+    y += recLines.length * 6 + 15;
+    
+    // Footer
+    doc.setFontSize(8);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, y);
+    
+    // Save the PDF
+    doc.save(`ai-transformation-canvas-${canvasData.businessName || 'canvas'}.pdf`);
   };
 
   const handleBookSession = () => {
@@ -92,14 +139,28 @@ Generated on: ${new Date().toLocaleDateString()}
   const getAIRecommendation = () => {
     const { canvasData } = state;
     const avgAnxiety = Object.values(canvasData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
+    const teamSize = canvasData.employeeCount;
+    const hasChangeExp = canvasData.changeNarrative.length > 0;
+    const learningStyle = canvasData.learningModality;
+    const aiMaturity = canvasData.aiAdoption;
     
-    if (avgAnxiety > 70) {
-      return "Focus on anxiety reduction through gradual exposure and comprehensive training programs.";
-    } else if (avgAnxiety > 40) {
-      return "Implement balanced approach with strong change management and skill development.";
+    let recommendation = `Based on your ${teamSize}-person team's ${avgAnxiety.toFixed(0)}% average anxiety level and ${aiMaturity} AI maturity, `;
+    
+    if (avgAnxiety > 60) {
+      recommendation += `we recommend starting with comprehensive change management and ${learningStyle} training to build confidence before implementing AI tools. `;
+    } else if (avgAnxiety > 30) {
+      recommendation += `a balanced approach with ${learningStyle} training and gradual AI tool introduction will work best for your team. `;
     } else {
-      return "Accelerate AI adoption with advanced training and rapid deployment strategies.";
+      recommendation += `your team is ready for accelerated AI adoption through ${learningStyle} programs and rapid deployment strategies. `;
     }
+    
+    if (hasChangeExp) {
+      recommendation += `Given your previous transformation experience, we'll leverage those learnings to customize your AI journey.`;
+    } else {
+      recommendation += `We'll provide extra change management support to ensure smooth adoption across your organization.`;
+    }
+    
+    return recommendation;
   };
 
   const isFormValid = contactForm.businessName && contactForm.userName && 

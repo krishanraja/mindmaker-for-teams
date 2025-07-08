@@ -184,9 +184,22 @@ export const Step5HabitHooks: React.FC = () => {
               <Label className="text-sm font-medium">Change Appetite:</Label>
               <p className="text-sm text-muted-foreground mt-1">
                 {changeNarrative.length > 0 
-                  ? changeNarrative.length > 100 
-                    ? `${changeNarrative.substring(0, 100)}...` 
-                    : changeNarrative
+                  ? (() => {
+                      const words = changeNarrative.toLowerCase();
+                      if (words.includes('digital') || words.includes('transformation')) {
+                        return 'Has digital transformation experience';
+                      } else if (words.includes('success') || words.includes('worked')) {
+                        return 'Positive change management history';
+                      } else if (words.includes('challenge') || words.includes('difficult')) {
+                        return 'Experienced change challenges before';
+                      } else if (words.includes('rapid') || words.includes('fast')) {
+                        return 'Prefers rapid implementation approach';
+                      } else if (words.includes('gradual') || words.includes('slow')) {
+                        return 'Prefers gradual change approach';
+                      } else {
+                        return 'Has organizational change experience';
+                      }
+                    })()
                   : 'No change experience provided (Optional)'}
               </p>
             </div>
