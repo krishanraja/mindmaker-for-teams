@@ -72,6 +72,37 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
+    font-optical-sizing: auto;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  /* Typography Classes */
+  .font-display {
+    font-family: 'Outfit', sans-serif;
+    font-feature-settings: "ss01", "ss02";
+    letter-spacing: -0.02em;
+  }
+  
+  .font-heading {
+    font-family: 'Outfit', sans-serif;
+    font-feature-settings: "ss01", "ss02";
+    letter-spacing: -0.02em;
+  }
+  
+  .font-body {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  /* Heading Elements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+  
+  /* Body Elements */
+  p, span, div {
+    @apply font-body;
   }
 }
