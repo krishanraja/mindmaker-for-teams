@@ -42,7 +42,7 @@ export const Sidebar: React.FC = () => {
             AI Canvas
           </h2>
           <p className="text-sm text-muted-foreground">
-            Build your transformation plan
+            Build your AI workshop
           </p>
         </div>
 
