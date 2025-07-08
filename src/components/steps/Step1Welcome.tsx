@@ -52,11 +52,11 @@ export const Step1Welcome: React.FC = () => {
         {/* Main Heading */}
         <h1 className="font-outfit font-bold text-4xl md:text-6xl lg:text-7xl mb-6 leading-tight text-white">
           Let's turn your people from{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-purple">
+          <span className="text-white">
             anxious
           </span>{' '}
           to{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-purple-blue underline">
+          <span className="text-white underline">
             AI-ambitious
           </span>.
         </h1>
