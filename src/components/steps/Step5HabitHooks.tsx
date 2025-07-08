@@ -185,20 +185,64 @@ export const Step5HabitHooks: React.FC = () => {
               <p className="text-sm text-muted-foreground mt-1">
                 {changeNarrative.length > 0 
                   ? (() => {
-                      const words = changeNarrative.toLowerCase();
-                      if (words.includes('digital') || words.includes('transformation')) {
-                        return 'Has digital transformation experience';
-                      } else if (words.includes('success') || words.includes('worked')) {
-                        return 'Positive change management history';
-                      } else if (words.includes('challenge') || words.includes('difficult')) {
-                        return 'Experienced change challenges before';
-                      } else if (words.includes('rapid') || words.includes('fast')) {
-                        return 'Prefers rapid implementation approach';
-                      } else if (words.includes('gradual') || words.includes('slow')) {
-                        return 'Prefers gradual change approach';
-                      } else {
-                        return 'Has organizational change experience';
+                      const text = changeNarrative.toLowerCase();
+                      
+                      // Check for no experience indicators
+                      const noExperienceWords = ['no', 'never', 'first time', 'new to', 'haven\'t', 'limited', 'minimal'];
+                      const hasNoExperience = noExperienceWords.some(word => text.includes(word));
+                      
+                      if (hasNoExperience) {
+                        return 'Limited change experience, new to transformations';
                       }
+                      
+                      // Analyze sentiment and outcomes
+                      const positiveWords = ['success', 'successful', 'worked', 'effective', 'smooth', 'achieved', 'improved', 'positive', 'well', 'good', 'great', 'excellent', 'buy-in', 'adoption', 'embraced'];
+                      const negativeWords = ['failed', 'struggle', 'difficult', 'resistance', 'challenge', 'problem', 'issue', 'conflict', 'reject', 'opposed', 'slow', 'delayed', 'frustrated', 'pushback', 'disaster'];
+                      
+                      const positiveScore = positiveWords.filter(word => text.includes(word)).length;
+                      const negativeScore = negativeWords.filter(word => text.includes(word)).length;
+                      
+                      // Check for change types
+                      const digitalWords = ['digital', 'technology', 'system', 'software', 'platform', 'tool', 'automation', 'ai'];
+                      const hasDigitalExp = digitalWords.some(word => text.includes(word));
+                      
+                      // Check for timeline preferences
+                      const rapidWords = ['fast', 'quick', 'rapid', 'immediate', 'urgent', 'aggressive'];
+                      const gradualWords = ['gradual', 'slow', 'step-by-step', 'phased', 'careful', 'cautious'];
+                      const prefersRapid = rapidWords.some(word => text.includes(word));
+                      const prefersGradual = gradualWords.some(word => text.includes(word));
+                      
+                      // Generate summary based on analysis
+                      let summary = '';
+                      
+                      if (positiveScore > negativeScore) {
+                        if (hasDigitalExp) {
+                          summary = 'Successful digital transformation experience';
+                        } else {
+                          summary = 'Positive change management track record';
+                        }
+                      } else if (negativeScore > positiveScore) {
+                        if (text.includes('learn') || text.includes('better')) {
+                          summary = 'Challenging past experiences, learned from setbacks';
+                        } else {
+                          summary = 'Faced resistance and challenges in previous changes';
+                        }
+                      } else {
+                        if (hasDigitalExp) {
+                          summary = 'Mixed results from digital initiatives';
+                        } else {
+                          summary = 'Moderate change management experience';
+                        }
+                      }
+                      
+                      // Add timeline preference if clear
+                      if (prefersRapid && !prefersGradual) {
+                        summary += ', favors rapid implementation';
+                      } else if (prefersGradual && !prefersRapid) {
+                        summary += ', prefers gradual approach';
+                      }
+                      
+                      return summary;
                     })()
                   : 'No change experience provided (Optional)'}
               </p>
