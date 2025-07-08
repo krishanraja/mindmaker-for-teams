@@ -53,13 +53,25 @@ const handler = async (req: Request): Promise<Response> => {
       }];
     }
 
+    console.log("Attempting to send email to:", ["hello@krishraja.com", "krish@fractionl.ai"]);
+    console.log("Email data:", {
+      from: "AI Canvas <onboarding@resend.dev>",
+      to: ["hello@krishraja.com", "krish@fractionl.ai"],
+      subject: `${businessName} - AI Workshop for Teams`,
+      hasAttachment: !!(pdfData && fileName)
+    });
+
     const emailResponse = await resend.emails.send(emailData);
 
-    console.log("Canvas email sent successfully:", emailResponse);
+    console.log("Canvas email response:", emailResponse);
     
     if (emailResponse.error) {
-      console.error("Resend API error:", emailResponse.error);
+      console.error("Resend API error details:", emailResponse.error);
       throw new Error(`Email sending failed: ${emailResponse.error.message || emailResponse.error}`);
+    }
+
+    if (emailResponse.data) {
+      console.log("Email sent successfully with ID:", emailResponse.data.id);
     }
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
