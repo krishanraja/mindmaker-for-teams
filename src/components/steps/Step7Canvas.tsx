@@ -267,15 +267,15 @@ export const Step7Canvas: React.FC = () => {
         reader.readAsDataURL(pdfBlob);
       });
       
-      // Send email notification with PDF attachment
+      // Send email notification with canvas data
       try {
         const { error } = await supabase.functions.invoke('send-canvas-email', {
           body: {
             businessName: contactForm.businessName,
             userName: contactForm.userName,
             businessEmail: contactForm.businessEmail,
-            pdfData: pdfBase64,
-            fileName: `ai-transformation-canvas-${canvasData.businessName || 'canvas'}.pdf`
+            canvasData,
+            aiRecommendation: getAIRecommendation()
           }
         });
         
