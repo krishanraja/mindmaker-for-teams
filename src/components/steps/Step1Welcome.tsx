@@ -47,7 +47,7 @@ export const Step1Welcome: React.FC = () => {
         </div>
 
         {/* Main Heading */}
-        <h1 className="font-outfit font-bold text-4xl md:text-6xl lg:text-7xl mb-6 leading-tight text-white">
+        <h1 className="font-display font-bold text-3xl md:text-5xl lg:text-6xl mb-6 leading-tight text-white">
           Let's turn your people from{' '}
           <span className="text-white">
             anxious
@@ -59,7 +59,7 @@ export const Step1Welcome: React.FC = () => {
         </h1>
 
         {/* Subheading */}
-        <p className="text-xl md:text-2xl text-white mb-12 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed">
           Create your personalized AI transformation sprint mindmaker. 
           Get actionable insights tailored to your team's needs and readiness.
         </p>

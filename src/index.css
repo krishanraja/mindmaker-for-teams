@@ -27,11 +27,18 @@
     --anxiety-high: 38 92% 50%;       /* Orange */
     --anxiety-very-high: 0 84% 60%;   /* Red */
     
-    /* Component colors */
-    --card-background: 220 13% 9%;
-    --card-border: 220 13% 15%;
-    --input-background: 220 13% 12%;
-    --input-border: 220 13% 20%;
+  /* Component colors */
+  --card-background: 220 13% 9%;
+  --card-border: 220 13% 15%;
+  --input-background: 220 13% 12%;
+  --input-border: 220 13% 20%;
+  
+  /* Enhanced spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
     
     /* Shadcn compatibility */
     --background: var(--app-background);

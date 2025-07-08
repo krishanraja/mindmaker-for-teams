@@ -87,9 +87,9 @@ export const Sidebar: React.FC = () => {
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex-shrink-0">
+                   <div className="flex-shrink-0">
                     {isCompleted ? (
-                      <CheckCircle className="w-5 h-5 text-success" />
+                      <CheckCircle className="w-5 h-5 text-success fill-success" />
                     ) : (
                       <Circle className={cn(
                         "w-5 h-5",

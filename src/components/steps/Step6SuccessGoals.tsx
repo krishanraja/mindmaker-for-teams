@@ -54,11 +54,11 @@ export const Step6SuccessGoals: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="font-outfit font-bold text-3xl md:text-4xl mb-4">
+      <div className="text-center mb-6">
+        <h1 className="font-heading font-bold text-2xl md:text-3xl mb-3">
           Success North-Star Goals
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
           Define what success looks like for your AI transformation journey
         </p>
       </div>

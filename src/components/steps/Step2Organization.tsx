@@ -81,10 +81,10 @@ export const Step2Organization: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="font-outfit font-bold text-3xl md:text-4xl mb-4">
+        <h1 className="font-heading font-bold text-2xl md:text-3xl mb-3">
           Organization Snapshot
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
           Help us understand your team structure and current AI readiness
         </p>
       </div>
@@ -180,7 +180,7 @@ export const Step2Organization: React.FC = () => {
                 <Button
                   key={func}
                   variant={selectedFunctions.includes(func) ? "default" : "outline"}
-                  className={`h-auto p-4 ${selectedFunctions.includes(func) ? 'bg-brand-purple hover:bg-brand-purple/90' : ''}`}
+                  className={`h-auto p-3 text-sm ${selectedFunctions.includes(func) ? 'bg-brand-purple hover:bg-brand-purple/90' : ''}`}
                   onClick={() => toggleFunction(func)}
                 >
                   {func}

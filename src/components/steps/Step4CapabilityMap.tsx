@@ -45,11 +45,11 @@ export const Step4CapabilityMap: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="font-outfit font-bold text-3xl md:text-4xl mb-4">
+      <div className="text-center mb-6">
+        <h1 className="font-heading font-bold text-2xl md:text-3xl mb-3">
           Capability Mapping
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
           Identify AI skills your team needs and tasks at risk of automation
         </p>
       </div>
