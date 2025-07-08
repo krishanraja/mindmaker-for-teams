@@ -18,6 +18,12 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'outfit': ['Outfit', 'sans-serif'],
+				'inter': ['Inter', 'sans-serif'],
+				'sans': ['Inter', 'sans-serif'],
+				'display': ['Outfit', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -52,16 +58,26 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
-				}
+				// App-specific colors
+				'app-bg': 'hsl(var(--app-background))',
+				'app-fg': 'hsl(var(--app-foreground))',
+				'brand-purple': 'hsl(var(--primary-purple))',
+				'brand-purple-secondary': 'hsl(var(--secondary-purple))',
+				'brand-blue': 'hsl(var(--accent-blue))',
+				'success': 'hsl(var(--success-green))',
+				'warning': 'hsl(var(--warning-orange))',
+				'error': 'hsl(var(--error-red))',
+				// Anxiety levels
+				'anxiety-very-low': 'hsl(var(--anxiety-very-low))',
+				'anxiety-low': 'hsl(var(--anxiety-low))',
+				'anxiety-moderate': 'hsl(var(--anxiety-moderate))',
+				'anxiety-high': 'hsl(var(--anxiety-high))',
+				'anxiety-very-high': 'hsl(var(--anxiety-very-high))',
+			},
+			backgroundImage: {
+				'gradient-purple': 'var(--gradient-purple)',
+				'gradient-purple-blue': 'var(--gradient-purple-blue)',
+				'gradient-hero': 'var(--gradient-hero)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
