@@ -27,7 +27,7 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="fixed left-0 top-0 h-full w-70 bg-card border-r border-border z-10">
+    <div className="fixed left-0 top-0 h-full w-80 bg-card border-r border-border z-10">
       <div className="p-6">
         {/* Logo Area */}
         <div className="mb-8">

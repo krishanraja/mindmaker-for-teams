@@ -11,7 +11,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <div className="flex">
         <Sidebar />
         
-        <div className="flex-1 min-h-screen ml-70">
+        <div className="flex-1 pl-80">
           {/* Main Content Area */}
           <div className="flex min-h-screen">
             {/* Step Content */}
