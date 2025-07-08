@@ -13,6 +13,8 @@ interface CanvasEmailRequest {
   businessName: string;
   userName: string;
   businessEmail: string;
+  pdfData?: string;
+  fileName?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -22,9 +24,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { businessName, userName, businessEmail }: CanvasEmailRequest = await req.json();
+    const { businessName, userName, businessEmail, pdfData, fileName }: CanvasEmailRequest = await req.json();
 
-    const emailResponse = await resend.emails.send({
+    const emailData: any = {
       from: "AI Canvas <onboarding@resend.dev>",
       to: ["hello@krishraja.com", "krish@fractionl.ai"],  // Send to both addresses
       subject: `${businessName} - AI Workshop for Teams`,
@@ -40,7 +42,18 @@ const handler = async (req: Request): Promise<Response> => {
         <br>
         <p>This email was sent automatically when the user downloaded their AI Transformation Canvas PDF.</p>
       `,
-    });
+    };
+
+    // Add PDF attachment if provided
+    if (pdfData && fileName) {
+      emailData.attachments = [{
+        filename: fileName,
+        content: pdfData,
+        type: 'application/pdf',
+      }];
+    }
+
+    const emailResponse = await resend.emails.send(emailData);
 
     console.log("Canvas email sent successfully:", emailResponse);
     

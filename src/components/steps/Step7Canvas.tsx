@@ -253,16 +253,29 @@ export const Step7Canvas: React.FC = () => {
     doc.setTextColor(150, 150, 150);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, currentY);
     
-      // Save the PDF
+      // Save the PDF locally
       doc.save(`ai-transformation-canvas-${canvasData.businessName || 'canvas'}.pdf`);
       
-      // Send email notification
+      // Get PDF as base64 for email attachment
+      const pdfBlob = doc.output('blob');
+      const pdfBase64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(',')[1];
+          resolve(base64);
+        };
+        reader.readAsDataURL(pdfBlob);
+      });
+      
+      // Send email notification with PDF attachment
       try {
         const { error } = await supabase.functions.invoke('send-canvas-email', {
           body: {
             businessName: contactForm.businessName,
             userName: contactForm.userName,
-            businessEmail: contactForm.businessEmail
+            businessEmail: contactForm.businessEmail,
+            pdfData: pdfBase64,
+            fileName: `ai-transformation-canvas-${canvasData.businessName || 'canvas'}.pdf`
           }
         });
         
