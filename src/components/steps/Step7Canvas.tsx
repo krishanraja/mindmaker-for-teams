@@ -6,9 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Checkbox } from '../ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useCanvas } from '../../contexts/CanvasContext';
 import { Badge } from '../ui/badge';
-import { getAnxietyLevel } from '../../types/canvas';
+import { getAnxietyLevel, COMPANIES, COUNTRIES } from '../../types/canvas';
 import { supabase } from '../../integrations/supabase/client';
 import { useToast } from '../../hooks/use-toast';
 
@@ -20,6 +21,8 @@ export const Step7Canvas: React.FC = () => {
     businessName: state.canvasData.businessName,
     userName: state.canvasData.userName,
     businessEmail: state.canvasData.businessEmail,
+    company: state.canvasData.company,
+    country: state.canvasData.country,
     ndaAccepted: state.canvasData.ndaAccepted,
   });
 
@@ -342,7 +345,8 @@ export const Step7Canvas: React.FC = () => {
   };
 
   const isFormValid = contactForm.businessName && contactForm.userName && 
-                     contactForm.businessEmail && contactForm.ndaAccepted;
+                     contactForm.businessEmail && contactForm.company && 
+                     contactForm.country && contactForm.ndaAccepted;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -438,6 +442,36 @@ export const Step7Canvas: React.FC = () => {
                 onChange={(e) => handleContactFormChange('userName', e.target.value)}
                 placeholder="Your full name"
               />
+            </div>
+            <div>
+              <Label htmlFor="company">Company Type *</Label>
+              <Select value={contactForm.company} onValueChange={(value) => handleContactFormChange('company', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select company type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {COMPANIES.map((company) => (
+                    <SelectItem key={company} value={company}>
+                      {company}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="country">Country *</Label>
+              <Select value={contactForm.country} onValueChange={(value) => handleContactFormChange('country', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select country" />
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRIES.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="md:col-span-2">
               <Label htmlFor="businessEmail">Business Email *</Label>

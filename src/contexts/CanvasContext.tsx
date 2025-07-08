@@ -31,6 +31,8 @@ const initialCanvasData: CanvasData = {
   businessName: '',
   userName: '',
   businessEmail: '',
+  company: '',
+  country: '',
   logoFile: null,
   ndaAccepted: false,
 };

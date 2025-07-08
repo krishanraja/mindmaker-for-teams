@@ -28,6 +28,8 @@ export interface CanvasData {
   businessName: string;
   userName: string;
   businessEmail: string;
+  company: string;
+  country: string;
   logoFile: File | null;
   ndaAccepted: boolean;
 }
@@ -86,6 +88,79 @@ export const SUCCESS_TARGETS_SUGGESTIONS = [
   'Launch 3 AI-powered initiatives',
   'Achieve 80% AI confidence score',
   'Implement AI-powered customer service'
+];
+
+export const COMPANIES = [
+  'Startup (1-10 employees)',
+  'Small Business (11-50 employees)', 
+  'Medium Business (51-200 employees)',
+  'Large Enterprise (201-1000 employees)',
+  'Corporation (1000+ employees)',
+  'Non-profit',
+  'Government',
+  'Other'
+];
+
+export const COUNTRIES = [
+  'United States',
+  'Canada',
+  'United Kingdom',
+  'Australia',
+  'Germany',
+  'France',
+  'Netherlands',
+  'Sweden',
+  'Norway',
+  'Denmark',
+  'Finland',
+  'Switzerland',
+  'Austria',
+  'Belgium',
+  'Ireland',
+  'Spain',
+  'Italy',
+  'Portugal',
+  'Poland',
+  'Czech Republic',
+  'Hungary',
+  'Romania',
+  'Bulgaria',
+  'Croatia',
+  'Slovenia',
+  'Slovakia',
+  'Estonia',
+  'Latvia',
+  'Lithuania',
+  'Japan',
+  'South Korea',
+  'Singapore',
+  'Hong Kong',
+  'Taiwan',
+  'India',
+  'Brazil',
+  'Mexico',
+  'Argentina',
+  'Chile',
+  'Colombia',
+  'Peru',
+  'South Africa',
+  'Egypt',
+  'Israel',
+  'UAE',
+  'Saudi Arabia',
+  'Turkey',
+  'Russia',
+  'Ukraine',
+  'Belarus',
+  'Kazakhstan',
+  'China',
+  'Malaysia',
+  'Thailand',
+  'Indonesia',
+  'Philippines',
+  'Vietnam',
+  'New Zealand',
+  'Other'
 ];
 
 export const getAnxietyLevel = (percentage: number): {
