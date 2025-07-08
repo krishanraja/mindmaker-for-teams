@@ -31,8 +31,12 @@ export const Sidebar: React.FC = () => {
       <div className="p-6">
         {/* Logo Area */}
         <div className="mb-8">
-          <div className="w-12 h-12 bg-gradient-purple rounded-xl flex items-center justify-center mb-4">
-            <span className="text-white font-outfit font-bold text-xl">F</span>
+          <div className="w-12 h-12 mb-4 flex items-center justify-center">
+            <img 
+              src="/lovable-uploads/cda45e60-bf8b-4a41-bd29-0e6c465c1377.png" 
+              alt="Fractionl Logo" 
+              className="w-12 h-12 object-contain"
+            />
           </div>
           <h2 className="font-outfit font-semibold text-lg text-foreground">
             AI Canvas

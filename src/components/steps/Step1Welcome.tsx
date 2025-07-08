@@ -35,10 +35,14 @@ export const Step1Welcome: React.FC = () => {
 
       {/* Main Content */}
       <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-        {/* Logo Placeholder */}
+        {/* Logo */}
         <div className="mb-8">
-          <div className="w-16 h-16 bg-gradient-purple rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <img 
+              src="/lovable-uploads/cda45e60-bf8b-4a41-bd29-0e6c465c1377.png" 
+              alt="Fractionl Logo" 
+              className="w-16 h-16 object-contain"
+            />
           </div>
           <div className="text-sm font-medium text-muted-foreground">
             Fractionl AI Canvas
