@@ -59,12 +59,16 @@ export const Step7Canvas: React.FC = () => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
+          // Set base font to helvetica (closest to Inter)
+          doc.setFont('helvetica', 'normal');
+          
           // Add logo (30x30 pixels)
           doc.addImage(img, 'PNG', 20, currentY, 30, 30);
           
           // Add email beneath logo
           doc.setTextColor(255, 255, 255);
           doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
           doc.text('krish@fractionl.ai', 20, currentY + 40);
           currentY += 55;
           
@@ -73,9 +77,11 @@ export const Step7Canvas: React.FC = () => {
         };
         img.onerror = () => {
           // Fallback if logo doesn't load
+          doc.setFont('helvetica', 'bold');
           doc.setTextColor(255, 255, 255);
           doc.setFontSize(12);
           doc.text('FRACTIONL', 20, currentY);
+          doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
           doc.text('krish@fractionl.ai', 20, currentY + 15);
           currentY += 30;
@@ -84,9 +90,11 @@ export const Step7Canvas: React.FC = () => {
         img.src = '/lovable-uploads/32cd84ff-f45d-4007-963c-592cf3554f70.png';
       } catch (error) {
         // Fallback
+        doc.setFont('helvetica', 'bold');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(12);
         doc.text('FRACTIONL', 20, currentY);
+        doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         doc.text('krish@fractionl.ai', 20, currentY + 15);
         currentY += 30;
@@ -96,36 +104,41 @@ export const Step7Canvas: React.FC = () => {
     
     const generatePDFContent = () => {
     
-    // Add title
-    doc.setFontSize(24);
-    doc.setTextColor(138, 43, 226); // Purple color
-    doc.text('AI TRANSFORMATION CANVAS', 20, currentY);
-    currentY += 25;
+      // Add title
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold'); // Bold for main title (like font-outfit)
+      doc.setTextColor(138, 43, 226); // Purple color
+      doc.text('AI TRANSFORMATION CANVAS', 20, currentY);
+      currentY += 25;
     
     // Organization info section
-    checkNewPage(40);
-    doc.setFontSize(14);
-    doc.setTextColor(138, 43, 226);
-    doc.text('CONTACT INFORMATION', 20, currentY);
-    currentY += 15;
+      checkNewPage(40);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold'); // Bold for section headings
+      doc.setTextColor(138, 43, 226);
+      doc.text('CONTACT INFORMATION', 20, currentY);
+      currentY += 15;
     
-    doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal'); // Normal for body text
+      doc.setFontSize(12);
     doc.setTextColor(255, 255, 255);
-    doc.text(`Organization: ${canvasData.businessName || 'N/A'}`, 20, currentY);
-    currentY += 10;
-    doc.text(`Contact: ${canvasData.userName || 'N/A'}`, 20, currentY);
-    currentY += 10;
-    doc.text(`Email: ${canvasData.businessEmail || 'N/A'}`, 20, currentY);
-    currentY += 25;
+      doc.text(`Organization: ${canvasData.businessName || 'N/A'}`, 20, currentY);
+      currentY += 10;
+      doc.text(`Contact: ${canvasData.userName || 'N/A'}`, 20, currentY);
+      currentY += 10;
+      doc.text(`Email: ${canvasData.businessEmail || 'N/A'}`, 20, currentY);
+      currentY += 25;
     
     // Organization snapshot section
     checkNewPage(60);
     doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
     doc.text('ORGANIZATION SNAPSHOT', 20, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
     doc.text(`Team Size: ${canvasData.employeeCount} employees`, 20, currentY);
     currentY += 10;
@@ -137,11 +150,13 @@ export const Step7Canvas: React.FC = () => {
     // Anxiety levels section
     checkNewPage(80);
     doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
     doc.text(`ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)`, 20, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
     doc.text(`Executives: ${canvasData.anxietyLevels.executives}%`, 20, currentY);
     currentY += 10;
@@ -157,11 +172,13 @@ export const Step7Canvas: React.FC = () => {
     // Capabilities section
     checkNewPage(50);
     doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
     doc.text('CAPABILITIES', 20, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
     const skillsText = `AI Skills: ${canvasData.aiSkills.join(', ')}`;
     const skillsLines = doc.splitTextToSize(skillsText, 170);
@@ -179,11 +196,13 @@ export const Step7Canvas: React.FC = () => {
     checkNewPage(40 + changeLines.length * 6);
     
     doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
     doc.text('LEARNING & CHANGE', 20, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
     doc.text(`Learning Preference: ${canvasData.learningModality || 'Not specified'}`, 20, currentY);
     currentY += 15;
@@ -194,11 +213,13 @@ export const Step7Canvas: React.FC = () => {
     // Success targets section
     checkNewPage(30 + canvasData.successTargets.length * 8);
     doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
     doc.text('SUCCESS TARGETS', 20, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
     canvasData.successTargets.forEach(target => {
       doc.text(`• ${target}`, 20, currentY);
@@ -212,17 +233,20 @@ export const Step7Canvas: React.FC = () => {
     checkNewPage(30 + recLines.length * 6);
     
     doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
     doc.text('AI RECOMMENDATION', 20, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
     doc.text(recLines, 20, currentY);
     currentY += recLines.length * 6 + 25;
     
     // Footer
     doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal'); // Normal for footer text
     doc.setTextColor(150, 150, 150);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, currentY);
     
