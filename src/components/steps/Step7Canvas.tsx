@@ -9,9 +9,12 @@ import { Checkbox } from '../ui/checkbox';
 import { useCanvas } from '../../contexts/CanvasContext';
 import { Badge } from '../ui/badge';
 import { getAnxietyLevel } from '../../types/canvas';
+import { supabase } from '../../integrations/supabase/client';
+import { useToast } from '../ui/use-toast';
 
 export const Step7Canvas: React.FC = () => {
   const { state, updateCanvasData, setCurrentStep, markStepCompleted } = useCanvas();
+  const { toast } = useToast();
   
   const [contactForm, setContactForm] = useState({
     businessName: state.canvasData.businessName,
@@ -102,7 +105,7 @@ export const Step7Canvas: React.FC = () => {
       }
     };
     
-    const generatePDFContent = () => {
+    const generatePDFContent = async () => {
     
       // Add title
       doc.setFontSize(24);
@@ -252,6 +255,38 @@ export const Step7Canvas: React.FC = () => {
     
       // Save the PDF
       doc.save(`ai-transformation-canvas-${canvasData.businessName || 'canvas'}.pdf`);
+      
+      // Send email notification
+      try {
+        const { error } = await supabase.functions.invoke('send-canvas-email', {
+          body: {
+            businessName: contactForm.businessName,
+            userName: contactForm.userName,
+            businessEmail: contactForm.businessEmail
+          }
+        });
+        
+        if (error) {
+          console.error('Email sending error:', error);
+          toast({
+            title: "PDF Downloaded",
+            description: "Your canvas has been downloaded, but we couldn't send the email notification.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Success!",
+            description: "Your canvas has been downloaded and emailed to our team.",
+          });
+        }
+      } catch (error) {
+        console.error('Email function error:', error);
+        toast({
+          title: "PDF Downloaded",
+          description: "Your canvas has been downloaded, but we couldn't send the email notification.",
+          variant: "destructive"
+        });
+      }
     };
     
     // Start the process
