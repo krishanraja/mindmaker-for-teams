@@ -51,52 +51,48 @@ const handler = async (req: Request): Promise<Response> => {
       from: "AI Canvas <canvas@fractionl.ai>",
       subject: `${businessName} - AI Workshop for Teams`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #8A2BE2;">New AI Canvas Download</h2>
-          <p>A new AI Transformation Canvas has been completed.</p>
-          
-          <h3 style="color: #8A2BE2;">Contact Details:</h3>
-          <p><strong>Name:</strong> ${userName}</p>
-          <p><strong>Email:</strong> ${businessEmail}</p>
-          <p><strong>Business:</strong> ${businessName}</p>
-          
-          <hr style="margin: 30px 0; border: 1px solid #eee;">
-          
-          <h2 style="color: #8A2BE2;">AI TRANSFORMATION CANVAS</h2>
-          
-          <h3 style="color: #8A2BE2;">ORGANIZATION SNAPSHOT</h3>
-          <p><strong>Team Size:</strong> ${canvasData.employeeCount} employees</p>
-          <p><strong>Functions:</strong> ${canvasData.businessFunctions.join(', ')}</p>
-          <p><strong>AI Maturity:</strong> ${canvasData.aiAdoption}</p>
-          
-          <h3 style="color: #8A2BE2;">ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)</h3>
-          <p><strong>Executives:</strong> ${canvasData.anxietyLevels.executives}%</p>
-          <p><strong>Middle Management:</strong> ${canvasData.anxietyLevels.middleManagement}%</p>
-          <p><strong>Frontline Staff:</strong> ${canvasData.anxietyLevels.frontlineStaff}%</p>
-          <p><strong>Tech Team:</strong> ${canvasData.anxietyLevels.techTeam}%</p>
-          <p><strong>Non-Tech Team:</strong> ${canvasData.anxietyLevels.nonTechTeam}%</p>
-          
-          <h3 style="color: #8A2BE2;">CAPABILITIES</h3>
-          <p><strong>AI Skills:</strong> ${canvasData.aiSkills.join(', ')}</p>
-          <p><strong>Automation Risks:</strong> ${canvasData.automationRisks.join(', ')}</p>
-          
-          <h3 style="color: #8A2BE2;">LEARNING & CHANGE</h3>
-          <p><strong>Learning Preference:</strong> ${canvasData.learningModality || 'Not specified'}</p>
-          <p><strong>Change Experience:</strong> ${canvasData.changeNarrative || 'Not provided'}</p>
-          
-          <h3 style="color: #8A2BE2;">SUCCESS TARGETS</h3>
-          <ul>
-            ${canvasData.successTargets.map(target => `<li>${target}</li>`).join('')}
-          </ul>
-          
-          <h3 style="color: #8A2BE2;">AI RECOMMENDATION</h3>
-          <p>${aiRecommendation}</p>
-          
-          <hr style="margin: 30px 0; border: 1px solid #eee;">
-          
-          <p style="color: #666; font-size: 12px;">Generated on: ${new Date().toLocaleDateString()}</p>
-          <p style="color: #666; font-size: 12px;">This email was sent automatically when the user completed their AI Transformation Canvas.</p>
-        </div>
+        <h2>New AI Canvas Download</h2>
+        <p>A new AI Transformation Canvas has been completed.</p>
+        
+        <h3>Contact Details:</h3>
+        <p><strong>Name:</strong> ${userName}</p>
+        <p><strong>Email:</strong> ${businessEmail}</p>
+        <p><strong>Business:</strong> ${businessName}</p>
+        
+        <hr>
+        
+        <h2>AI TRANSFORMATION CANVAS</h2>
+        
+        <h3>ORGANIZATION SNAPSHOT</h3>
+        <p><strong>Team Size:</strong> ${canvasData.employeeCount} employees</p>
+        <p><strong>Functions:</strong> ${canvasData.businessFunctions.join(', ')}</p>
+        <p><strong>AI Maturity:</strong> ${canvasData.aiAdoption}</p>
+        
+        <h3>ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)</h3>
+        <p><strong>Executives:</strong> ${canvasData.anxietyLevels.executives}%</p>
+        <p><strong>Middle Management:</strong> ${canvasData.anxietyLevels.middleManagement}%</p>
+        <p><strong>Frontline Staff:</strong> ${canvasData.anxietyLevels.frontlineStaff}%</p>
+        <p><strong>Tech Team:</strong> ${canvasData.anxietyLevels.techTeam}%</p>
+        <p><strong>Non-Tech Team:</strong> ${canvasData.anxietyLevels.nonTechTeam}%</p>
+        
+        <h3>CAPABILITIES</h3>
+        <p><strong>AI Skills:</strong> ${canvasData.aiSkills.join(', ')}</p>
+        <p><strong>Automation Risks:</strong> ${canvasData.automationRisks.join(', ')}</p>
+        
+        <h3>LEARNING & CHANGE</h3>
+        <p><strong>Learning Preference:</strong> ${canvasData.learningModality || 'Not specified'}</p>
+        <p><strong>Change Experience:</strong> ${canvasData.changeNarrative || 'Not provided'}</p>
+        
+        <h3>SUCCESS TARGETS</h3>
+        ${canvasData.successTargets.map(target => `<p>• ${target}</p>`).join('')}
+        
+        <h3>AI RECOMMENDATION</h3>
+        <p>${aiRecommendation}</p>
+        
+        <hr>
+        
+        <p>Generated on: ${new Date().toLocaleDateString()}</p>
+        <p>This email was sent automatically when the user completed their AI Transformation Canvas.</p>
       `,
     };
 
