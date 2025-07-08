@@ -52,12 +52,49 @@ export const Step7Canvas: React.FC = () => {
       return false;
     };
     
-    // Add logo (you'll need to convert to base64 or use a different approach)
-    // For now, we'll add a placeholder text for the logo
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
-    doc.text('FRACTIONL', 20, currentY);
-    currentY += 15;
+    // Add logo and email
+    const loadLogoAndGenerate = async () => {
+      try {
+        // Load the logo image
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          // Add logo (30x30 pixels)
+          doc.addImage(img, 'PNG', 20, currentY, 30, 30);
+          
+          // Add email beneath logo
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(10);
+          doc.text('krish@fractionl.ai', 20, currentY + 40);
+          currentY += 55;
+          
+          // Continue with the rest of the PDF generation
+          generatePDFContent();
+        };
+        img.onerror = () => {
+          // Fallback if logo doesn't load
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(12);
+          doc.text('FRACTIONL', 20, currentY);
+          doc.setFontSize(10);
+          doc.text('krish@fractionl.ai', 20, currentY + 15);
+          currentY += 30;
+          generatePDFContent();
+        };
+        img.src = '/lovable-uploads/32cd84ff-f45d-4007-963c-592cf3554f70.png';
+      } catch (error) {
+        // Fallback
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        doc.text('FRACTIONL', 20, currentY);
+        doc.setFontSize(10);
+        doc.text('krish@fractionl.ai', 20, currentY + 15);
+        currentY += 30;
+        generatePDFContent();
+      }
+    };
+    
+    const generatePDFContent = () => {
     
     // Add title
     doc.setFontSize(24);
@@ -189,8 +226,12 @@ export const Step7Canvas: React.FC = () => {
     doc.setTextColor(150, 150, 150);
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, currentY);
     
-    // Save the PDF
-    doc.save(`ai-transformation-canvas-${canvasData.businessName || 'canvas'}.pdf`);
+      // Save the PDF
+      doc.save(`ai-transformation-canvas-${canvasData.businessName || 'canvas'}.pdf`);
+    };
+    
+    // Start the process
+    loadLogoAndGenerate();
   };
 
   const handleBookSession = () => {
