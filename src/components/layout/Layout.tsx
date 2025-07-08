@@ -1,20 +1,17 @@
 import React from 'react';
 import { Sidebar } from './Sidebar';
-import { useCanvas } from '../../contexts/CanvasContext';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { state } = useCanvas();
-  
   return (
     <div className="min-h-screen bg-app-bg text-app-fg font-inter">
       <div className="flex">
         <Sidebar />
         
-        <div className="flex-1 ml-70">
+        <div className="flex-1 min-h-screen ml-70">
           {/* Main Content Area */}
           <div className="flex min-h-screen">
             {/* Step Content */}
