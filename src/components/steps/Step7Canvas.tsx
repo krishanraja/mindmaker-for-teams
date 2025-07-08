@@ -368,7 +368,7 @@ export const Step7Mindmaker: React.FC = () => {
           <CardTitle className="text-xl">AI Recommendation</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-lg mb-4">{getAIRecommendation()}</p>
+          <p className="text-base mb-4">{getAIRecommendation()}</p>
           <Button 
             onClick={handleBookSession}
             className="bg-white text-brand-purple hover:bg-white/90"
