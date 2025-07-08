@@ -50,20 +50,19 @@ export const Step1Welcome: React.FC = () => {
         </div>
 
         {/* Main Heading */}
-        <h1 className="font-outfit font-bold text-4xl md:text-6xl lg:text-7xl mb-6 leading-tight">
+        <h1 className="font-outfit font-bold text-4xl md:text-6xl lg:text-7xl mb-6 leading-tight text-white">
           Let's turn your people from{' '}
           <span className="text-transparent bg-clip-text bg-gradient-purple">
             anxious
           </span>{' '}
           to{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-purple-blue">
+          <span className="text-transparent bg-clip-text bg-gradient-purple-blue underline">
             AI-ambitious
-          </span>{' '}
-          in 7 minutes
+          </span>.
         </h1>
 
         {/* Subheading */}
-        <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xl md:text-2xl text-white mb-12 max-w-2xl mx-auto leading-relaxed">
           Create your personalized AI transformation sprint canvas. 
           Get actionable insights tailored to your team's needs and readiness.
         </p>
