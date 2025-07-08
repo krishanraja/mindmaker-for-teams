@@ -125,6 +125,10 @@ export const CanvasProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
+        // Convert lastSaved string back to Date object if it exists
+        if (parsed.lastSaved) {
+          parsed.lastSaved = new Date(parsed.lastSaved);
+        }
         dispatch({ type: 'LOAD_FROM_STORAGE', payload: parsed });
       } catch (error) {
         console.error('Failed to load saved data:', error);

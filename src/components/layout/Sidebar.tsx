@@ -126,7 +126,7 @@ export const Sidebar: React.FC = () => {
         {state.lastSaved && (
           <div className="mt-6 pt-4 border-t border-border">
             <p className="text-xs text-muted-foreground">
-              Last saved: {state.lastSaved.toLocaleTimeString()}
+              Last saved: {state.lastSaved instanceof Date ? state.lastSaved.toLocaleTimeString() : 'Recently'}
             </p>
           </div>
         )}
