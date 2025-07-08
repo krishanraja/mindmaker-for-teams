@@ -7,34 +7,34 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Checkbox } from '../ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { useCanvas } from '../../contexts/CanvasContext';
+import { useMindmaker } from '../../contexts/MindmakerContext';
 import { Badge } from '../ui/badge';
 import { getAnxietyLevel, COMPANIES, COUNTRIES } from '../../types/canvas';
 import { supabase } from '../../integrations/supabase/client';
 import { useToast } from '../../hooks/use-toast';
 
-export const Step7Canvas: React.FC = () => {
-  const { state, updateCanvasData, setCurrentStep, markStepCompleted } = useCanvas();
+export const Step7Mindmaker: React.FC = () => {
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
   const { toast } = useToast();
   
   const [contactForm, setContactForm] = useState({
-    businessName: state.canvasData.businessName,
-    userName: state.canvasData.userName,
-    businessEmail: state.canvasData.businessEmail,
-    company: state.canvasData.company,
-    country: state.canvasData.country,
-    ndaAccepted: state.canvasData.ndaAccepted,
+    businessName: state.mindmakerData.businessName,
+    userName: state.mindmakerData.userName,
+    businessEmail: state.mindmakerData.businessEmail,
+    company: state.mindmakerData.company,
+    country: state.mindmakerData.country,
+    ndaAccepted: state.mindmakerData.ndaAccepted,
   });
 
   const handleContactFormChange = (field: string, value: string | boolean) => {
     const newForm = { ...contactForm, [field]: value };
     setContactForm(newForm);
-    updateCanvasData(newForm);
+    updateMindmakerData(newForm);
   };
 
   const handleDownloadPDF = () => {
-    const { canvasData } = state;
-    const avgAnxiety = Object.values(canvasData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
+    const { mindmakerData } = state;
+    const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
     
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
@@ -114,7 +114,7 @@ export const Step7Canvas: React.FC = () => {
       doc.setFontSize(24);
       doc.setFont('helvetica', 'bold'); // Bold for main title (like font-outfit)
       doc.setTextColor(138, 43, 226); // Purple color
-      doc.text('AI TRANSFORMATION CANVAS', 20, currentY);
+      doc.text('AI TRANSFORMATION MINDMAKER', 20, currentY);
       currentY += 25;
     
     // Organization info section
@@ -128,11 +128,11 @@ export const Step7Canvas: React.FC = () => {
       doc.setFont('helvetica', 'normal'); // Normal for body text
       doc.setFontSize(12);
     doc.setTextColor(255, 255, 255);
-      doc.text(`Organization: ${canvasData.businessName || 'N/A'}`, 20, currentY);
+      doc.text(`Organization: ${mindmakerData.businessName || 'N/A'}`, 20, currentY);
       currentY += 10;
-      doc.text(`Contact: ${canvasData.userName || 'N/A'}`, 20, currentY);
+      doc.text(`Contact: ${mindmakerData.userName || 'N/A'}`, 20, currentY);
       currentY += 10;
-      doc.text(`Email: ${canvasData.businessEmail || 'N/A'}`, 20, currentY);
+      doc.text(`Email: ${mindmakerData.businessEmail || 'N/A'}`, 20, currentY);
       currentY += 25;
     
     // Organization snapshot section
@@ -146,11 +146,11 @@ export const Step7Canvas: React.FC = () => {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
-    doc.text(`Team Size: ${canvasData.employeeCount} employees`, 20, currentY);
+    doc.text(`Team Size: ${mindmakerData.employeeCount} employees`, 20, currentY);
     currentY += 10;
-    doc.text(`Functions: ${canvasData.businessFunctions.join(', ')}`, 20, currentY);
+    doc.text(`Functions: ${mindmakerData.businessFunctions.join(', ')}`, 20, currentY);
     currentY += 10;
-    doc.text(`AI Maturity: ${canvasData.aiAdoption}`, 20, currentY);
+    doc.text(`AI Maturity: ${mindmakerData.aiAdoption}`, 20, currentY);
     currentY += 25;
     
     // Anxiety levels section
@@ -164,15 +164,15 @@ export const Step7Canvas: React.FC = () => {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
-    doc.text(`Executives: ${canvasData.anxietyLevels.executives}%`, 20, currentY);
+    doc.text(`Executives: ${mindmakerData.anxietyLevels.executives}%`, 20, currentY);
     currentY += 10;
-    doc.text(`Middle Management: ${canvasData.anxietyLevels.middleManagement}%`, 20, currentY);
+    doc.text(`Middle Management: ${mindmakerData.anxietyLevels.middleManagement}%`, 20, currentY);
     currentY += 10;
-    doc.text(`Frontline Staff: ${canvasData.anxietyLevels.frontlineStaff}%`, 20, currentY);
+    doc.text(`Frontline Staff: ${mindmakerData.anxietyLevels.frontlineStaff}%`, 20, currentY);
     currentY += 10;
-    doc.text(`Tech Team: ${canvasData.anxietyLevels.techTeam}%`, 20, currentY);
+    doc.text(`Tech Team: ${mindmakerData.anxietyLevels.techTeam}%`, 20, currentY);
     currentY += 10;
-    doc.text(`Non-Tech Team: ${canvasData.anxietyLevels.nonTechTeam}%`, 20, currentY);
+    doc.text(`Non-Tech Team: ${mindmakerData.anxietyLevels.nonTechTeam}%`, 20, currentY);
     currentY += 25;
     
     // Capabilities section
@@ -186,18 +186,18 @@ export const Step7Canvas: React.FC = () => {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
-    const skillsText = `AI Skills: ${canvasData.aiSkills.join(', ')}`;
+    const skillsText = `AI Skills: ${mindmakerData.aiSkills.join(', ')}`;
     const skillsLines = doc.splitTextToSize(skillsText, 170);
     doc.text(skillsLines, 20, currentY);
     currentY += skillsLines.length * 6 + 5;
     
-    const risksText = `Automation Risks: ${canvasData.automationRisks.join(', ')}`;
+    const risksText = `Automation Risks: ${mindmakerData.automationRisks.join(', ')}`;
     const risksLines = doc.splitTextToSize(risksText, 170);
     doc.text(risksLines, 20, currentY);
     currentY += risksLines.length * 6 + 25;
     
     // Learning and change section
-    const changeText = canvasData.changeNarrative || 'Not provided';
+    const changeText = mindmakerData.changeNarrative || 'Not provided';
     const changeLines = doc.splitTextToSize(`Change Experience: ${changeText}`, 170);
     checkNewPage(40 + changeLines.length * 6);
     
@@ -210,14 +210,14 @@ export const Step7Canvas: React.FC = () => {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
-    doc.text(`Learning Preference: ${canvasData.learningModality || 'Not specified'}`, 20, currentY);
+    doc.text(`Learning Preference: ${mindmakerData.learningModality || 'Not specified'}`, 20, currentY);
     currentY += 15;
     
     doc.text(changeLines, 20, currentY);
     currentY += changeLines.length * 6 + 25;
     
     // Success targets section
-    checkNewPage(30 + canvasData.successTargets.length * 8);
+    checkNewPage(30 + mindmakerData.successTargets.length * 8);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
@@ -227,7 +227,7 @@ export const Step7Canvas: React.FC = () => {
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
-    canvasData.successTargets.forEach(target => {
+    mindmakerData.successTargets.forEach(target => {
       doc.text(`• ${target}`, 20, currentY);
       currentY += 8;
     });
@@ -257,7 +257,7 @@ export const Step7Canvas: React.FC = () => {
     doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, currentY);
     
       // Save the PDF locally
-      doc.save(`ai-transformation-canvas-${canvasData.businessName || 'canvas'}.pdf`);
+      doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
       
       // Get PDF as base64 for email attachment
       const pdfBlob = doc.output('blob');
@@ -277,7 +277,7 @@ export const Step7Canvas: React.FC = () => {
             businessName: contactForm.businessName,
             userName: contactForm.userName,
             businessEmail: contactForm.businessEmail,
-            canvasData,
+            mindmakerData,
             aiRecommendation: getAIRecommendation()
           }
         });
@@ -286,20 +286,20 @@ export const Step7Canvas: React.FC = () => {
           console.error('Email sending error:', error);
           toast({
             title: "PDF Downloaded",
-            description: "Your canvas has been downloaded, but we couldn't send the email notification.",
+            description: "Your mindmaker has been downloaded, but we couldn't send the email notification.",
             variant: "destructive"
           });
         } else {
           toast({
             title: "Success!",
-            description: "Your canvas has been downloaded and emailed to our team.",
+            description: "Your mindmaker has been downloaded and emailed to our team.",
           });
         }
       } catch (error) {
         console.error('Email function error:', error);
         toast({
           title: "PDF Downloaded",
-          description: "Your canvas has been downloaded, but we couldn't send the email notification.",
+          description: "Your mindmaker has been downloaded, but we couldn't send the email notification.",
           variant: "destructive"
         });
       }
@@ -318,12 +318,12 @@ export const Step7Canvas: React.FC = () => {
   };
 
   const getAIRecommendation = () => {
-    const { canvasData } = state;
-    const avgAnxiety = Object.values(canvasData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
-    const teamSize = canvasData.employeeCount;
-    const hasChangeExp = canvasData.changeNarrative.length > 0;
-    const learningStyle = canvasData.learningModality;
-    const aiMaturity = canvasData.aiAdoption;
+    const { mindmakerData } = state;
+    const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
+    const teamSize = mindmakerData.employeeCount;
+    const hasChangeExp = mindmakerData.changeNarrative.length > 0;
+    const learningStyle = mindmakerData.learningModality;
+    const aiMaturity = mindmakerData.aiAdoption;
     
     let recommendation = `Based on your ${teamSize}-person team's ${avgAnxiety.toFixed(0)}% average anxiety level and ${aiMaturity} AI maturity, `;
     
@@ -353,7 +353,7 @@ export const Step7Canvas: React.FC = () => {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="font-outfit font-bold text-3xl md:text-4xl mb-4">
-          Your AI Transformation Canvas
+          Your AI Transformation Mindmaker
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Here's your personalized roadmap to AI success
@@ -388,9 +388,9 @@ export const Step7Canvas: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <p><strong>Team Size:</strong> {state.canvasData.employeeCount} employees</p>
-              <p><strong>Functions:</strong> {state.canvasData.businessFunctions.length}</p>
-              <p><strong>AI Maturity:</strong> {state.canvasData.aiAdoption}</p>
+              <p><strong>Team Size:</strong> {state.mindmakerData.employeeCount} employees</p>
+              <p><strong>Functions:</strong> {state.mindmakerData.businessFunctions.length}</p>
+              <p><strong>AI Maturity:</strong> {state.mindmakerData.aiAdoption}</p>
             </div>
           </CardContent>
         </Card>
@@ -401,15 +401,15 @@ export const Step7Canvas: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-1">
-              {state.canvasData.successTargets.slice(0, 3).map((target, idx) => (
+              {state.mindmakerData.successTargets.slice(0, 3).map((target, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-success" />
                   <span className="text-sm">{target}</span>
                 </div>
               ))}
-              {state.canvasData.successTargets.length > 3 && (
+              {state.mindmakerData.successTargets.length > 3 && (
                 <p className="text-sm text-muted-foreground">
-                  +{state.canvasData.successTargets.length - 3} more targets
+                  +{state.mindmakerData.successTargets.length - 3} more targets
                 </p>
               )}
             </div>
@@ -420,8 +420,8 @@ export const Step7Canvas: React.FC = () => {
       {/* Contact Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Get Your Canvas</CardTitle>
-          <CardDescription>Complete your details to download your personalized canvas</CardDescription>
+          <CardTitle>Get Your Mindmaker</CardTitle>
+          <CardDescription>Complete your details to download your personalized mindmaker</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
@@ -515,7 +515,7 @@ export const Step7Canvas: React.FC = () => {
           className="bg-gradient-purple hover:opacity-90 text-white flex items-center gap-2"
         >
           <Download className="w-4 h-4" />
-          Download Canvas PDF
+          Download Mindmaker PDF
         </Button>
       </div>
     </div>

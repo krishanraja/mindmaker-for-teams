@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { useCanvas } from '../../contexts/CanvasContext';
+import { useMindmaker } from '../../contexts/MindmakerContext';
 
 const LEARNING_MODALITIES = [
   {
@@ -46,14 +46,14 @@ const LEARNING_MODALITIES = [
 ];
 
 export const Step5HabitHooks: React.FC = () => {
-  const { state, updateCanvasData, setCurrentStep, markStepCompleted } = useCanvas();
-  
-  const [learningModality, setLearningModality] = useState(state.canvasData.learningModality);
-  const [changeNarrative, setChangeNarrative] = useState(state.canvasData.changeNarrative);
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+
+  const [learningModality, setLearningModality] = useState(state.mindmakerData.learningModality);
+  const [changeNarrative, setChangeNarrative] = useState(state.mindmakerData.changeNarrative);
 
   useEffect(() => {
-    updateCanvasData({ learningModality, changeNarrative });
-  }, [learningModality, changeNarrative, updateCanvasData]);
+    updateMindmakerData({ learningModality, changeNarrative });
+  }, [learningModality, changeNarrative, updateMindmakerData]);
 
   const handleNext = () => {
     markStepCompleted(5);

@@ -5,23 +5,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
-import { useCanvas } from '../../contexts/CanvasContext';
+import { useMindmaker } from '../../contexts/MindmakerContext';
 import { SUCCESS_TARGETS_SUGGESTIONS } from '../../types/canvas';
 
 export const Step6SuccessGoals: React.FC = () => {
-  const { state, updateCanvasData, setCurrentStep, markStepCompleted } = useCanvas();
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
   
-  const [successTargets, setSuccessTargets] = useState<string[]>(state.canvasData.successTargets);
-  const [newTarget, setNewTarget] = useState('');
+  const [successTargets, setSuccessTargets] = useState<string[]>(state.mindmakerData.successTargets);
+  const [customTarget, setCustomTarget] = useState('');
 
   useEffect(() => {
-    updateCanvasData({ successTargets });
-  }, [successTargets, updateCanvasData]);
+    updateMindmakerData({ successTargets });
+  }, [successTargets, updateMindmakerData]);
 
   const addTarget = () => {
-    if (newTarget.trim() && !successTargets.includes(newTarget.trim())) {
-      setSuccessTargets(prev => [...prev, newTarget.trim()]);
-      setNewTarget('');
+    if (customTarget.trim() && !successTargets.includes(customTarget.trim())) {
+      setSuccessTargets(prev => [...prev, customTarget.trim()]);
+      setCustomTarget('');
     }
   };
 
@@ -80,14 +80,14 @@ export const Step6SuccessGoals: React.FC = () => {
             <div className="flex gap-2">
               <Input
                 placeholder="e.g., 75% of team using AI tools daily within 6 months"
-                value={newTarget}
-                onChange={(e) => setNewTarget(e.target.value)}
+                value={customTarget}
+                onChange={(e) => setCustomTarget(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="flex-1"
               />
               <Button
                 onClick={addTarget}
-                disabled={!newTarget.trim()}
+                disabled={!customTarget.trim()}
                 className="bg-brand-purple hover:bg-brand-purple/90 text-white px-4"
               >
                 <Plus className="w-4 h-4" />

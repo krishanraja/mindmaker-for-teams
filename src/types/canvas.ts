@@ -1,4 +1,4 @@
-export interface CanvasData {
+export interface MindmakerData {
   // Step 2: Organization Snapshot
   employeeCount: number;
   businessFunctions: string[];
@@ -41,7 +41,7 @@ export interface StepProgress {
 
 export interface AppState {
   currentStep: number;
-  canvasData: CanvasData;
+  mindmakerData: MindmakerData;
   stepProgress: Record<number, StepProgress>;
   lastSaved: Date | null;
 }

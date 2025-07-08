@@ -6,24 +6,24 @@ import { Label } from '../ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { useCanvas } from '../../contexts/CanvasContext';
+import { useMindmaker } from '../../contexts/MindmakerContext';
 import { BUSINESS_FUNCTIONS } from '../../types/canvas';
 
 export const Step2Organization: React.FC = () => {
-  const { state, updateCanvasData, setCurrentStep, markStepCompleted } = useCanvas();
-  
-  const [employeeCount, setEmployeeCount] = useState(state.canvasData.employeeCount);
-  const [selectedFunctions, setSelectedFunctions] = useState<string[]>(state.canvasData.businessFunctions);
-  const [aiAdoption, setAiAdoption] = useState(state.canvasData.aiAdoption);
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+
+  const [employeeCount, setEmployeeCount] = useState(state.mindmakerData.employeeCount);
+  const [selectedFunctions, setSelectedFunctions] = useState<string[]>(state.mindmakerData.businessFunctions);
+  const [aiAdoption, setAiAdoption] = useState(state.mindmakerData.aiAdoption);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    updateCanvasData({
+    updateMindmakerData({
       employeeCount,
       businessFunctions: selectedFunctions,
       aiAdoption,
     });
-  }, [employeeCount, selectedFunctions, aiAdoption, updateCanvasData]);
+  }, [employeeCount, selectedFunctions, aiAdoption, updateMindmakerData]);
 
   const toggleFunction = (func: string) => {
     setSelectedFunctions(prev => 

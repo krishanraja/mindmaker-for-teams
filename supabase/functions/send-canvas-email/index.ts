@@ -9,11 +9,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-interface CanvasEmailRequest {
+interface MindmakerEmailRequest {
   businessName: string;
   userName: string;
   businessEmail: string;
-  canvasData: {
+  mindmakerData: {
     employeeCount: string;
     businessFunctions: string[];
     aiAdoption: string;
@@ -40,19 +40,19 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { businessName, userName, businessEmail, canvasData, aiRecommendation }: CanvasEmailRequest = await req.json();
+    const { businessName, userName, businessEmail, mindmakerData, aiRecommendation }: MindmakerEmailRequest = await req.json();
 
     console.log("Attempting to send email to:", ["hello@krishraja.com", "krish@fractionl.ai"]);
     
     // Calculate average anxiety
-    const avgAnxiety = Object.values(canvasData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
+    const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
     
     const baseEmailData = {
-      from: "AI Canvas <canvas@fractionl.ai>",
+      from: "AI Mindmaker <mindmaker@fractionl.ai>",
       subject: `${businessName} - AI Workshop for Teams`,
       html: `
-        <h2>New AI Canvas Download</h2>
-        <p>A new AI Transformation Canvas has been completed.</p>
+        <h2>New AI Mindmaker Download</h2>
+        <p>A new AI Transformation Mindmaker has been completed.</p>
         
         <h3>Contact Details:</h3>
         <p><strong>Name:</strong> ${userName}</p>
@@ -61,30 +61,30 @@ const handler = async (req: Request): Promise<Response> => {
         
         <hr>
         
-        <h2>AI TRANSFORMATION CANVAS</h2>
+        <h2>AI TRANSFORMATION MINDMAKER</h2>
         
         <h3>ORGANIZATION SNAPSHOT</h3>
-        <p><strong>Team Size:</strong> ${canvasData.employeeCount} employees</p>
-        <p><strong>Functions:</strong> ${canvasData.businessFunctions.join(', ')}</p>
-        <p><strong>AI Maturity:</strong> ${canvasData.aiAdoption}</p>
+        <p><strong>Team Size:</strong> ${mindmakerData.employeeCount} employees</p>
+        <p><strong>Functions:</strong> ${mindmakerData.businessFunctions.join(', ')}</p>
+        <p><strong>AI Maturity:</strong> ${mindmakerData.aiAdoption}</p>
         
         <h3>ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)</h3>
-        <p><strong>Executives:</strong> ${canvasData.anxietyLevels.executives}%</p>
-        <p><strong>Middle Management:</strong> ${canvasData.anxietyLevels.middleManagement}%</p>
-        <p><strong>Frontline Staff:</strong> ${canvasData.anxietyLevels.frontlineStaff}%</p>
-        <p><strong>Tech Team:</strong> ${canvasData.anxietyLevels.techTeam}%</p>
-        <p><strong>Non-Tech Team:</strong> ${canvasData.anxietyLevels.nonTechTeam}%</p>
+        <p><strong>Executives:</strong> ${mindmakerData.anxietyLevels.executives}%</p>
+        <p><strong>Middle Management:</strong> ${mindmakerData.anxietyLevels.middleManagement}%</p>
+        <p><strong>Frontline Staff:</strong> ${mindmakerData.anxietyLevels.frontlineStaff}%</p>
+        <p><strong>Tech Team:</strong> ${mindmakerData.anxietyLevels.techTeam}%</p>
+        <p><strong>Non-Tech Team:</strong> ${mindmakerData.anxietyLevels.nonTechTeam}%</p>
         
         <h3>CAPABILITIES</h3>
-        <p><strong>AI Skills:</strong> ${canvasData.aiSkills.join(', ')}</p>
-        <p><strong>Automation Risks:</strong> ${canvasData.automationRisks.join(', ')}</p>
+        <p><strong>AI Skills:</strong> ${mindmakerData.aiSkills.join(', ')}</p>
+        <p><strong>Automation Risks:</strong> ${mindmakerData.automationRisks.join(', ')}</p>
         
         <h3>LEARNING & CHANGE</h3>
-        <p><strong>Learning Preference:</strong> ${canvasData.learningModality || 'Not specified'}</p>
-        <p><strong>Change Experience:</strong> ${canvasData.changeNarrative || 'Not provided'}</p>
+        <p><strong>Learning Preference:</strong> ${mindmakerData.learningModality || 'Not specified'}</p>
+        <p><strong>Change Experience:</strong> ${mindmakerData.changeNarrative || 'Not provided'}</p>
         
         <h3>SUCCESS TARGETS</h3>
-        ${canvasData.successTargets.map(target => `<p>• ${target}</p>`).join('')}
+        ${mindmakerData.successTargets.map(target => `<p>• ${target}</p>`).join('')}
         
         <h3>AI RECOMMENDATION</h3>
         <p>${aiRecommendation}</p>
@@ -92,7 +92,7 @@ const handler = async (req: Request): Promise<Response> => {
         <hr>
         
         <p>Generated on: ${new Date().toLocaleDateString()}</p>
-        <p>This email was sent automatically when the user completed their AI Transformation Canvas.</p>
+        <p>This email was sent automatically when the user completed their AI Transformation Mindmaker.</p>
       `,
     };
 

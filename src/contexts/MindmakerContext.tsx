@@ -1,18 +1,18 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import { CanvasData, AppState, StepProgress } from '../types/canvas';
+import { MindmakerData, AppState, StepProgress } from '../types/canvas';
 import { toast } from 'sonner';
 
-interface CanvasContextType {
+interface MindmakerContextType {
   state: AppState;
-  updateCanvasData: (data: Partial<CanvasData>) => void;
+  updateMindmakerData: (data: Partial<MindmakerData>) => void;
   setCurrentStep: (step: number) => void;
   markStepCompleted: (step: number) => void;
   markStepVisited: (step: number) => void;
-  resetCanvas: () => void;
+  resetMindmaker: () => void;
   saveToStorage: () => void;
 }
 
-const initialCanvasData: CanvasData = {
+const initialMindmakerData: MindmakerData = {
   employeeCount: 0,
   businessFunctions: [],
   aiAdoption: 'none',
@@ -39,26 +39,26 @@ const initialCanvasData: CanvasData = {
 
 const initialState: AppState = {
   currentStep: 1,
-  canvasData: initialCanvasData,
+  mindmakerData: initialMindmakerData,
   stepProgress: {},
   lastSaved: null,
 };
 
 type Action = 
-  | { type: 'UPDATE_CANVAS_DATA'; payload: Partial<CanvasData> }
+  | { type: 'UPDATE_MINDMAKER_DATA'; payload: Partial<MindmakerData> }
   | { type: 'SET_CURRENT_STEP'; payload: number }
   | { type: 'MARK_STEP_COMPLETED'; payload: number }
   | { type: 'MARK_STEP_VISITED'; payload: number }
-  | { type: 'RESET_CANVAS' }
+  | { type: 'RESET_MINDMAKER' }
   | { type: 'LOAD_FROM_STORAGE'; payload: AppState }
   | { type: 'UPDATE_LAST_SAVED'; payload: Date };
 
-const canvasReducer = (state: AppState, action: Action): AppState => {
+const mindmakerReducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
-    case 'UPDATE_CANVAS_DATA':
+    case 'UPDATE_MINDMAKER_DATA':
       return {
         ...state,
-        canvasData: { ...state.canvasData, ...action.payload },
+        mindmakerData: { ...state.mindmakerData, ...action.payload },
       };
     case 'SET_CURRENT_STEP':
       return {
@@ -94,7 +94,7 @@ const canvasReducer = (state: AppState, action: Action): AppState => {
           },
         },
       };
-    case 'RESET_CANVAS':
+    case 'RESET_MINDMAKER':
       return initialState;
     case 'LOAD_FROM_STORAGE':
       return action.payload;
@@ -108,22 +108,22 @@ const canvasReducer = (state: AppState, action: Action): AppState => {
   }
 };
 
-const CanvasContext = createContext<CanvasContextType | null>(null);
+const MindmakerContext = createContext<MindmakerContextType | null>(null);
 
-export const useCanvas = () => {
-  const context = useContext(CanvasContext);
+export const useMindmaker = () => {
+  const context = useContext(MindmakerContext);
   if (!context) {
-    throw new Error('useCanvas must be used within a CanvasProvider');
+    throw new Error('useMindmaker must be used within a MindmakerProvider');
   }
   return context;
 };
 
-export const CanvasProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(canvasReducer, initialState);
+export const MindmakerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(mindmakerReducer, initialState);
 
   // Load from localStorage on mount
   useEffect(() => {
-    const savedData = localStorage.getItem('fractionl-canvas-data');
+    const savedData = localStorage.getItem('fractionl-mindmaker-data');
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
@@ -145,7 +145,7 @@ export const CanvasProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }, 3000);
 
     return () => clearTimeout(timeoutId);
-  }, [state.canvasData]);
+  }, [state.mindmakerData]);
 
   const saveToStorage = useCallback(() => {
     try {
@@ -153,7 +153,7 @@ export const CanvasProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ...state,
         lastSaved: new Date(),
       };
-      localStorage.setItem('fractionl-canvas-data', JSON.stringify(dataToSave));
+      localStorage.setItem('fractionl-mindmaker-data', JSON.stringify(dataToSave));
       dispatch({ type: 'UPDATE_LAST_SAVED', payload: new Date() });
     } catch (error) {
       console.error('Failed to save data:', error);
@@ -161,8 +161,8 @@ export const CanvasProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   }, [state]);
 
-  const updateCanvasData = useCallback((data: Partial<CanvasData>) => {
-    dispatch({ type: 'UPDATE_CANVAS_DATA', payload: data });
+  const updateMindmakerData = useCallback((data: Partial<MindmakerData>) => {
+    dispatch({ type: 'UPDATE_MINDMAKER_DATA', payload: data });
   }, []);
 
   const setCurrentStep = useCallback((step: number) => {
@@ -177,24 +177,24 @@ export const CanvasProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     dispatch({ type: 'MARK_STEP_VISITED', payload: step });
   }, []);
 
-  const resetCanvas = useCallback(() => {
-    localStorage.removeItem('fractionl-canvas-data');
-    dispatch({ type: 'RESET_CANVAS' });
+  const resetMindmaker = useCallback(() => {
+    localStorage.removeItem('fractionl-mindmaker-data');
+    dispatch({ type: 'RESET_MINDMAKER' });
   }, []);
 
-  const value: CanvasContextType = {
+  const value: MindmakerContextType = {
     state,
-    updateCanvasData,
+    updateMindmakerData,
     setCurrentStep,
     markStepCompleted,
     markStepVisited,
-    resetCanvas,
+    resetMindmaker,
     saveToStorage,
   };
 
   return (
-    <CanvasContext.Provider value={value}>
+    <MindmakerContext.Provider value={value}>
       {children}
-    </CanvasContext.Provider>
+    </MindmakerContext.Provider>
   );
 };

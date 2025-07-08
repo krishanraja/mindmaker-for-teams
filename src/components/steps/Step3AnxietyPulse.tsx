@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Slider } from '../ui/slider';
 import { Label } from '../ui/label';
-import { useCanvas } from '../../contexts/CanvasContext';
+import { useMindmaker } from '../../contexts/MindmakerContext';
 import { getAnxietyLevel } from '../../types/canvas';
 
 interface AnxietySliderProps {
@@ -74,13 +74,13 @@ const AnxietySlider: React.FC<AnxietySliderProps> = ({ label, description, icon,
 };
 
 export const Step3AnxietyPulse: React.FC = () => {
-  const { state, updateCanvasData, setCurrentStep, markStepCompleted } = useCanvas();
-  
-  const [anxietyLevels, setAnxietyLevels] = useState(state.canvasData.anxietyLevels);
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+
+  const [anxietyLevels, setAnxietyLevels] = useState(state.mindmakerData.anxietyLevels);
 
   useEffect(() => {
-    updateCanvasData({ anxietyLevels });
-  }, [anxietyLevels, updateCanvasData]);
+    updateMindmakerData({ anxietyLevels });
+  }, [anxietyLevels, updateMindmakerData]);
 
   const updateAnxietyLevel = (cohort: keyof typeof anxietyLevels, value: number) => {
     setAnxietyLevels(prev => ({

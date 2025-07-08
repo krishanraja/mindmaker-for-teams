@@ -1,10 +1,10 @@
 import React from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
-import { useCanvas } from '../../contexts/CanvasContext';
+import { useMindmaker } from '../../contexts/MindmakerContext';
 
 export const Step1Welcome: React.FC = () => {
-  const { setCurrentStep, markStepCompleted } = useCanvas();
+  const { setCurrentStep, markStepCompleted } = useMindmaker();
 
   const handleStart = () => {
     markStepCompleted(1);
@@ -60,7 +60,7 @@ export const Step1Welcome: React.FC = () => {
 
         {/* Subheading */}
         <p className="text-xl md:text-2xl text-white mb-12 max-w-2xl mx-auto leading-relaxed">
-          Create your personalized AI transformation sprint canvas. 
+          Create your personalized AI transformation sprint mindmaker. 
           Get actionable insights tailored to your team's needs and readiness.
         </p>
 
@@ -86,7 +86,7 @@ export const Step1Welcome: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-success rounded-full" />
-            <span>Downloadable canvas</span>
+            <span>Downloadable mindmaker</span>
           </div>
         </div>
       </div>

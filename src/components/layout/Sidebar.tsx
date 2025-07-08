@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCanvas } from '../../contexts/CanvasContext';
+import { useMindmaker } from '../../contexts/MindmakerContext';
 import { CheckCircle, Circle, ArrowRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -10,11 +10,11 @@ const STEPS = [
   { id: 4, title: 'Capability Map', description: 'Skills & risks' },
   { id: 5, title: 'Habit Hooks', description: 'Learning style' },
   { id: 6, title: 'Success Goals', description: 'Define targets' },
-  { id: 7, title: 'Canvas Results', description: 'Get your plan' },
+  { id: 7, title: 'Mindmaker Results', description: 'Get your plan' },
 ];
 
 export const Sidebar: React.FC = () => {
-  const { state, setCurrentStep } = useCanvas();
+  const { state, setCurrentStep } = useMindmaker();
   
   const handleStepClick = (stepId: number) => {
     // Allow navigation to visited steps or the next unvisited step
@@ -39,7 +39,7 @@ export const Sidebar: React.FC = () => {
             />
           </div>
           <h2 className="font-outfit font-semibold text-lg text-foreground">
-            AI Canvas
+            AI Mindmaker
           </h2>
           <p className="text-sm text-muted-foreground">
             Build your AI workshop

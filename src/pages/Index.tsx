@@ -1,15 +1,15 @@
 import React from 'react';
-import { CanvasProvider } from '../contexts/CanvasContext';
+import { MindmakerProvider } from '../contexts/MindmakerContext';
 import { Layout } from '../components/layout/Layout';
-import { CanvasApp } from '../components/CanvasApp';
+import { MindmakerApp } from '../components/CanvasApp';
 
 const Index = () => {
   return (
-    <CanvasProvider>
+    <MindmakerProvider>
       <Layout>
-        <CanvasApp />
+        <MindmakerApp />
       </Layout>
-    </CanvasProvider>
+    </MindmakerProvider>
   );
 };
 

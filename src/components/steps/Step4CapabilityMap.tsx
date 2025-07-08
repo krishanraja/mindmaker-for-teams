@@ -4,18 +4,18 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
-import { useCanvas } from '../../contexts/CanvasContext';
+import { useMindmaker } from '../../contexts/MindmakerContext';
 import { AI_SKILLS, AUTOMATION_RISKS } from '../../types/canvas';
 
 export const Step4CapabilityMap: React.FC = () => {
-  const { state, updateCanvasData, setCurrentStep, markStepCompleted } = useCanvas();
-  
-  const [aiSkills, setAiSkills] = useState<string[]>(state.canvasData.aiSkills);
-  const [automationRisks, setAutomationRisks] = useState<string[]>(state.canvasData.automationRisks);
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+
+  const [aiSkills, setAiSkills] = useState<string[]>(state.mindmakerData.aiSkills);
+  const [automationRisks, setAutomationRisks] = useState<string[]>(state.mindmakerData.automationRisks);
 
   useEffect(() => {
-    updateCanvasData({ aiSkills, automationRisks });
-  }, [aiSkills, automationRisks, updateCanvasData]);
+    updateMindmakerData({ aiSkills, automationRisks });
+  }, [aiSkills, automationRisks, updateMindmakerData]);
 
   const toggleSkill = (skill: string) => {
     setAiSkills(prev => 
