@@ -444,7 +444,7 @@ export const Step7Canvas: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="company">Company Type *</Label>
+              <Label htmlFor="company">Business Type *</Label>
               <Select value={contactForm.company} onValueChange={(value) => handleContactFormChange('company', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select company type" />
