@@ -119,21 +119,31 @@ export const Step7Mindmaker: React.FC = () => {
       doc.text('AI TRANSFORMATION MINDMAKER', 20, currentY);
       currentY += 25;
 
-      // AI Recommendation section (moved to top)
+      // AI Recommendation section (moved to top) - Enhanced layout
       const recommendation = getAIRecommendation();
-      const recLines = doc.splitTextToSize(recommendation, 170);
-      checkNewPage(30 + recLines.length * 6);
+      const maxWidth = pageWidth - 40; // 20px margin on each side
+      const recLines = doc.splitTextToSize(recommendation, maxWidth);
+      checkNewPage(50 + recLines.length * 6);
       
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold'); // Bold for section headings
-      doc.setTextColor(138, 43, 226);
-      doc.text('AI RECOMMENDATION', 20, currentY);
-      currentY += 15;
+      // Create a styled background box for the recommendation
+      doc.setFillColor(138, 43, 226); // Purple background
+      doc.roundedRect(20, currentY - 5, maxWidth, 25, 3, 3, 'F');
       
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal'); // Normal for body text
+      // Section heading with proper spacing
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold'); // Using helvetica as closest to Outfit
       doc.setTextColor(255, 255, 255);
-      doc.text(recLines, 20, currentY);
+      doc.text('AI RECOMMENDATION', 30, currentY + 12);
+      currentY += 35;
+      
+      // Recommendation content with better formatting
+      doc.setFillColor(40, 40, 45); // Dark background for content
+      doc.roundedRect(20, currentY - 10, maxWidth, recLines.length * 6 + 20, 5, 5, 'F');
+      
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal'); // Using helvetica as closest to Inter
+      doc.setTextColor(255, 255, 255);
+      doc.text(recLines, 30, currentY);
       currentY += recLines.length * 6 + 25;
     
     // Organization info section
