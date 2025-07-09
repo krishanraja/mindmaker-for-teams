@@ -280,47 +280,129 @@ export const Step7Mindmaker: React.FC = () => {
   const getAIRecommendation = async () => {
     const { mindmakerData } = state;
     
-    // Simple, reliable recommendation generation using only user inputs
-    const businessName = mindmakerData.businessName || 'Your organization';
-    const businessDescription = mindmakerData.businessDescription || 'your business';
-    const functions = mindmakerData.businessFunctions.join(' and ') || 'key business functions';
-    const modality = mindmakerData.learningModality;
+    // Helper function to intelligently paraphrase business description
+    const getBusinessContext = (description: string) => {
+      if (!description || description.trim() === '') return 'operates in their industry';
+      
+      // Extract key business activities and paraphrase naturally
+      const desc = description.toLowerCase().trim();
+      
+      // Handle different input formats
+      if (desc.includes('consulting') || desc.includes('advisory')) {
+        return 'provides consulting and advisory services';
+      } else if (desc.includes('software') || desc.includes('tech') || desc.includes('app')) {
+        return 'operates in the technology sector';
+      } else if (desc.includes('retail') || desc.includes('sell') || desc.includes('store')) {
+        return 'operates in retail and sales';
+      } else if (desc.includes('manufacturing') || desc.includes('production')) {
+        return 'operates in manufacturing and production';
+      } else if (desc.includes('healthcare') || desc.includes('medical')) {
+        return 'operates in the healthcare industry';
+      } else if (desc.includes('finance') || desc.includes('banking') || desc.includes('investment')) {
+        return 'operates in financial services';
+      } else if (desc.includes('education') || desc.includes('training') || desc.includes('learning')) {
+        return 'operates in education and training';
+      } else if (desc.includes('marketing') || desc.includes('advertising')) {
+        return 'operates in marketing and communications';
+      } else if (desc.includes('service') || desc.includes('support')) {
+        return 'provides professional services';
+      } else {
+        // For other cases, create a natural paraphrase
+        const words = desc.split(' ');
+        if (words.length > 8) {
+          return 'operates in a specialized industry sector';
+        } else {
+          return `specializes in ${desc.replace(/^(we|our|the company|this business)/i, '').trim()}`;
+        }
+      }
+    };
     
-    // Calculate average anxiety
+    // Helper function to analyze change narrative and create appropriate response
+    const getChangeContext = (narrative: string) => {
+      if (!narrative || narrative.trim() === '') return '';
+      
+      const text = narrative.toLowerCase();
+      
+      // Detect if it's about negative past experiences
+      const hasNegativeExperience = text.includes('failed') || text.includes('disaster') || 
+                                   text.includes('bad') || text.includes('terrible') || 
+                                   text.includes('awful') || text.includes('chaos') || 
+                                   text.includes('mess') || text.includes('nightmare') ||
+                                   text.includes('struggled') || text.includes('difficult');
+      
+      // Detect if it's about positive past experiences  
+      const hasPositiveExperience = text.includes('successful') || text.includes('good') ||
+                                   text.includes('smooth') || text.includes('effective') ||
+                                   text.includes('well') || text.includes('positive');
+      
+      if (hasNegativeExperience) {
+        return 'Drawing from previous organizational change experiences, this program will address common implementation challenges with a structured, gradual approach that prioritizes team confidence and practical skill development.';
+      } else if (hasPositiveExperience) {
+        return 'Building on your organization\'s previous success with change initiatives, this program will leverage proven methodologies while adapting to the unique aspects of AI adoption.';
+      } else {
+        return 'Understanding that change management is crucial for AI adoption success, this program incorporates proven change management principles throughout the learning journey.';
+      }
+    };
+    
+    // Calculate anxiety context
     const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((sum, val) => sum + val, 0) / 5;
-    const anxietyLevel = avgAnxiety > 60 ? 'significant concerns' : avgAnxiety > 40 ? 'some hesitation' : 'readiness';
+    const anxietyContext = avgAnxiety > 60 ? 'significant concerns about AI implementation' : 
+                          avgAnxiety > 40 ? 'some hesitation around AI adoption' : 
+                          'readiness to embrace AI transformation';
     
-    // Get learning approach description
-    const getModalityDescription = (modality: string) => {
+    // Get business functions context
+    const functionsContext = mindmakerData.businessFunctions.length > 0 ? 
+      `across ${mindmakerData.businessFunctions.join(', ')} functions` : 
+      'across multiple business functions';
+    
+    // Get learning modality recommendation
+    const getModalityRecommendation = (modality: string) => {
       switch (modality) {
-        case 'live-cohort': return 'live cohort training sessions with group collaboration';
-        case 'self-paced': return 'self-paced learning modules that team members can complete on their own schedule';
-        case 'coaching': return 'personalized one-on-one coaching sessions';
-        case 'chatbot': return 'AI-powered learning assistant for immediate support';
-        case 'blended': return 'blended learning approach combining multiple training methods';
-        default: return 'structured training program';
+        case 'live-cohort': 
+          return 'live cohort training sessions that foster collaboration and peer learning, creating a supportive environment for skill development';
+        case 'self-paced': 
+          return 'self-paced learning modules that allow team members to progress at their own speed while maintaining consistency in outcomes';
+        case 'coaching': 
+          return 'personalized one-on-one coaching sessions that provide targeted support and accelerate individual development';
+        case 'chatbot': 
+          return 'AI-powered learning assistant that provides immediate support and answers, enabling continuous learning and problem-solving';
+        case 'blended': 
+          return 'blended learning approach that combines multiple training methods to maximize engagement and retention';
+        default: 
+          return 'structured training program tailored to your team\'s learning preferences';
       }
     };
     
     // Get AI adoption context
     const getAdoptionContext = (adoption: string) => {
       switch (adoption) {
-        case 'none': return 'Currently, no AI tools are in use, making this an ideal time to establish a solid foundation for AI adoption.';
-        case 'pilots': return 'With AI pilots already underway, the organization is positioned to expand successful implementations.';
-        case 'team-level': return 'Some teams are using AI tools, creating an opportunity to standardize and scale best practices.';
-        case 'enterprise-wide': return 'With existing AI adoption, the focus will be on optimization and advanced skill development.';
-        default: return 'The organization is ready to begin its AI transformation journey.';
+        case 'none': 
+          return 'With no current AI tools in use, this presents an ideal opportunity to establish a strong foundation using the Fractionl AI methodology—focusing on mindset before mechanics to ensure sustainable adoption.';
+        case 'pilots': 
+          return 'Building on existing AI pilot programs, we\'ll help standardize successful practices while expanding capabilities through practical, hands-on learning experiences.';
+        case 'team-level': 
+          return 'With some teams already using AI tools, we\'ll work to democratize AI literacy across the organization while establishing governance frameworks and best practices.';
+        case 'enterprise-wide': 
+          return 'Given your existing AI adoption, the focus will be on optimization, advanced skill development, and creating agentic workflows that amplify human capabilities.';
+        default: 
+          return 'We\'ll meet your organization where it is in the AI journey, providing the right level of support for sustainable growth.';
       }
     };
     
-    // Build the recommendation
-    const recommendation = `${businessName}, ${businessDescription}, operates across ${functions} and shows ${anxietyLevel} regarding AI implementation. ${getAdoptionContext(mindmakerData.aiAdoption)} 
+    // Build the intelligent recommendation
+    const businessName = mindmakerData.businessName || 'Your organization';
+    const businessContext = getBusinessContext(mindmakerData.businessDescription);
+    const changeContext = getChangeContext(mindmakerData.changeNarrative);
+    const modalityRecommendation = getModalityRecommendation(mindmakerData.learningModality);
+    const adoptionContext = getAdoptionContext(mindmakerData.aiAdoption);
+    
+    const recommendation = `${businessName} ${businessContext} ${functionsContext} and demonstrates ${anxietyContext}. ${adoptionContext}
 
-We recommend implementing ${getModalityDescription(modality)} to build AI confidence and practical skills across your team. This approach will address current concerns while building the capabilities needed for successful AI integration.
+Our recommendation centers on ${modalityRecommendation}. This approach emphasizes the core Fractionl AI principle of "mindset before mechanics"—ensuring your team develops both the confidence and practical skills needed for effective AI integration.
 
-${mindmakerData.changeNarrative ? `The transformation will be guided by your vision: "${mindmakerData.changeNarrative}" ` : ''}The program will focus on developing practical AI skills that directly support your business operations, ensuring measurable improvements in efficiency and productivity.
+${changeContext}
 
-Expected outcomes include enhanced team confidence with AI tools, improved workflow efficiency, and sustainable adoption practices that align with your business goals.`;
+The program will focus on developing practical AI literacy that directly supports your business operations, with particular emphasis on spotting agentic opportunities and understanding how AI can augment rather than replace human capabilities. Expected outcomes include enhanced team confidence with AI tools, improved workflow efficiency, and sustainable adoption practices that align with your business goals.`;
 
     return recommendation;
   };
