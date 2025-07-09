@@ -362,22 +362,6 @@ export const Step7Mindmaker: React.FC = () => {
         </p>
       </div>
 
-      {/* AI Recommendation */}
-      <Card className="bg-gradient-purple text-white">
-        <CardHeader>
-          <CardTitle className="text-xl">AI Recommendation</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-base mb-4">{getAIRecommendation()}</p>
-          <Button 
-            onClick={handleBookSession}
-            className="bg-white text-brand-purple hover:bg-white/90"
-          >
-            <Calendar className="w-4 h-4 mr-2" />
-            Plan Your Workshop
-          </Button>
-        </CardContent>
-      </Card>
 
       {/* Canvas Summary */}
       <div className="grid md:grid-cols-2 gap-6">
@@ -501,7 +485,7 @@ export const Step7Mindmaker: React.FC = () => {
       </Card>
 
       {/* Actions */}
-      <div className="flex justify-between items-center pt-6">
+      <div className="flex justify-start items-center pt-6">
         <Button
           variant="outline"
           onClick={handlePrevious}
@@ -510,16 +494,34 @@ export const Step7Mindmaker: React.FC = () => {
           <ArrowLeft className="w-4 h-4" />
           Previous
         </Button>
-        
-        <Button
-          onClick={handleDownloadPDF}
-          disabled={!isFormValid}
-          className="bg-gradient-purple hover:opacity-90 text-white flex items-center gap-2"
-        >
-          <Download className="w-4 h-4" />
-          Download Mindmaker PDF
-        </Button>
       </div>
+
+      {/* AI Recommendation */}
+      <Card className="bg-gradient-purple text-white">
+        <CardHeader>
+          <CardTitle className="text-xl">AI Recommendation</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-base mb-6">{getAIRecommendation()}</p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              onClick={handleBookSession}
+              className="bg-white text-brand-purple hover:bg-white/90"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Plan Your Workshop
+            </Button>
+            <Button
+              onClick={handleDownloadPDF}
+              disabled={!isFormValid}
+              className="bg-white/10 border border-white/20 text-white hover:bg-white/20"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Download Mindmaker PDF
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
