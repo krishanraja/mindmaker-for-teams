@@ -187,62 +187,163 @@ export const Step5HabitHooks: React.FC = () => {
                   ? (() => {
                       const text = changeNarrative.toLowerCase();
                       
-                      // Check for no experience indicators
-                      const noExperienceWords = ['no', 'never', 'first time', 'new to', 'haven\'t', 'limited', 'minimal'];
-                      const hasNoExperience = noExperienceWords.some(word => text.includes(word));
+                      // 1. Scale & Scope Detection
+                      const largeScaleWords = ['entire business', 'whole company', 'complete overhaul', 'major transformation', 'comprehensive change', 'organization-wide', 'company-wide', 'across the business', 'full transformation', 'complete restructure'];
+                      const mediumScaleWords = ['department', 'division', 'team', 'specific area', 'business unit', 'function', 'process'];
+                      const hasLargeScale = largeScaleWords.some(phrase => text.includes(phrase));
+                      const hasMediumScale = mediumScaleWords.some(word => text.includes(word));
                       
-                      if (hasNoExperience) {
-                        return 'Limited change experience, new to transformations';
-                      }
+                      // 2. External Expertise Detection
+                      const externalHelpWords = ['consultant', 'consulting firm', 'external help', 'brought in', 'hired', 'specialists', 'experts', 'third party', 'outsourced', 'consulting company'];
+                      const hasExternalHelp = externalHelpWords.some(phrase => text.includes(phrase));
                       
-                      // Analyze sentiment and outcomes
-                      const positiveWords = ['success', 'successful', 'worked', 'effective', 'smooth', 'achieved', 'improved', 'positive', 'well', 'good', 'great', 'excellent', 'buy-in', 'adoption', 'embraced'];
-                      const negativeWords = ['failed', 'struggle', 'difficult', 'resistance', 'challenge', 'problem', 'issue', 'conflict', 'reject', 'opposed', 'slow', 'delayed', 'frustrated', 'pushback', 'disaster'];
+                      // 3. No Experience Detection
+                      const noExperienceWords = ['no', 'never', 'first time', 'new to', 'haven\'t', 'limited', 'minimal', 'no experience', 'never done'];
+                      const hasNoExperience = noExperienceWords.some(phrase => text.includes(phrase));
                       
-                      const positiveScore = positiveWords.filter(word => text.includes(word)).length;
-                      const negativeScore = negativeWords.filter(word => text.includes(word)).length;
+                      // 4. Outcome & Impact Analysis
+                      const successWords = ['success', 'successful', 'worked', 'effective', 'smooth', 'achieved', 'improved', 'positive', 'well', 'good', 'great', 'excellent', 'buy-in', 'adoption', 'embraced'];
+                      const failureWords = ['failed', 'disaster', 'went wrong', 'didn\'t work', 'unsuccessful', 'poor results'];
+                      const challengeWords = ['struggle', 'difficult', 'resistance', 'challenge', 'problem', 'issue', 'conflict', 'opposed', 'pushback', 'friction'];
+                      const peopleImpactWords = ['people left', 'turnover', 'resignations', 'team exodus', 'lost talent', 'staff left', 'employees quit', 'high turnover'];
+                      const skillsGapWords = ['wasn\'t upskilled', 'lack of training', 'unprepared', 'skill shortage', 'not trained', 'skills gap', 'training needed'];
                       
-                      // Check for change types
-                      const digitalWords = ['digital', 'technology', 'system', 'software', 'platform', 'tool', 'automation', 'ai'];
-                      const hasDigitalExp = digitalWords.some(word => text.includes(word));
+                      const hasSuccess = successWords.some(word => text.includes(word));
+                      const hasFailure = failureWords.some(phrase => text.includes(phrase));
+                      const hasChallenges = challengeWords.some(word => text.includes(word));
+                      const hasPeopleImpact = peopleImpactWords.some(phrase => text.includes(phrase));
+                      const hasSkillsGap = skillsGapWords.some(phrase => text.includes(phrase));
                       
-                      // Check for timeline preferences
+                      // 5. Implementation Quality Assessment
+                      const poorProcessWords = ['poorly managed', 'rushed', 'no planning', 'chaotic', 'disorganized', 'too fast', 'badly planned'];
+                      const poorCommunicationWords = ['poor communication', 'didn\'t explain', 'no buy-in', 'communication issues'];
+                      const badConsultantWords = ['consultants were not good', 'poor advice', 'didn\'t understand', 'bad consultants', 'waste of money'];
+                      
+                      const hasPoorProcess = poorProcessWords.some(phrase => text.includes(phrase));
+                      const hasPoorCommunication = poorCommunicationWords.some(phrase => text.includes(phrase));
+                      const hasBadConsultants = badConsultantWords.some(phrase => text.includes(phrase));
+                      
+                      // 6. Learning & Adaptation Detection
+                      const learningWords = ['learned that', 'next time', 'would do differently', 'now we know', 'learned from', 'better approach', 'lesson learned'];
+                      const hasLearning = learningWords.some(phrase => text.includes(phrase));
+                      
+                      // 7. Timeline & Pace Preferences
                       const rapidWords = ['fast', 'quick', 'rapid', 'immediate', 'urgent', 'aggressive'];
                       const gradualWords = ['gradual', 'slow', 'step-by-step', 'phased', 'careful', 'cautious'];
                       const prefersRapid = rapidWords.some(word => text.includes(word));
                       const prefersGradual = gradualWords.some(word => text.includes(word));
                       
-                      // Generate summary based on analysis
-                      let summary = '';
+                      // 8. Change Type Detection
+                      const digitalWords = ['digital', 'technology', 'system', 'software', 'platform', 'tool', 'automation', 'ai'];
+                      const hasDigitalExp = digitalWords.some(word => text.includes(word));
                       
-                      if (positiveScore > negativeScore) {
-                        if (hasDigitalExp) {
-                          summary = 'Successful digital transformation experience';
+                      // Smart Classification Logic
+                      if (hasNoExperience) {
+                        return 'First-time transformation, learning-focused approach needed';
+                      }
+                      
+                      // Major transformation with external expertise
+                      if (hasLargeScale && hasExternalHelp) {
+                        if (hasSuccess) {
+                          return 'Major transformation with proven external expertise';
+                        } else if (hasBadConsultants) {
+                          return 'Large-scale experience, prefer internal capability building';
+                        } else if (hasChallenges && hasLearning) {
+                          return 'Complex transformation wisdom, learned from challenges';
                         } else {
-                          summary = 'Positive change management track record';
-                        }
-                      } else if (negativeScore > positiveScore) {
-                        if (text.includes('learn') || text.includes('better')) {
-                          summary = 'Challenging past experiences, learned from setbacks';
-                        } else {
-                          summary = 'Faced resistance and challenges in previous changes';
-                        }
-                      } else {
-                        if (hasDigitalExp) {
-                          summary = 'Mixed results from digital initiatives';
-                        } else {
-                          summary = 'Moderate change management experience';
+                          return 'Major transformation with external expertise';
                         }
                       }
                       
-                      // Add timeline preference if clear
-                      if (prefersRapid && !prefersGradual) {
-                        summary += ', favors rapid implementation';
-                      } else if (prefersGradual && !prefersRapid) {
-                        summary += ', prefers gradual approach';
+                      // Large scale without external help
+                      if (hasLargeScale && !hasExternalHelp) {
+                        if (hasSuccess) {
+                          return 'Successful large-scale internal transformation';
+                        } else if (hasChallenges) {
+                          return 'Significant internal change experience, knows the challenges';
+                        } else {
+                          return 'Large-scale transformation background';
+                        }
                       }
                       
-                      return summary;
+                      // External help without large scale
+                      if (hasExternalHelp && !hasLargeScale) {
+                        if (hasBadConsultants) {
+                          return 'Previous consulting experience, prefers internal approach';
+                        } else if (hasSuccess) {
+                          return 'Successful professional change management experience';
+                        } else {
+                          return 'Professional change management background';
+                        }
+                      }
+                      
+                      // People impact focus
+                      if (hasPeopleImpact) {
+                        if (hasLearning) {
+                          return 'People-focused approach, learned from retention challenges';
+                        } else {
+                          return 'High people impact awareness, retention-focused strategy needed';
+                        }
+                      }
+                      
+                      // Skills gap awareness
+                      if (hasSkillsGap) {
+                        if (hasLearning) {
+                          return 'Skills development priority, training-first approach';
+                        } else {
+                          return 'Skills gap experience, upskilling-focused strategy';
+                        }
+                      }
+                      
+                      // Process quality issues
+                      if (hasPoorProcess || hasPoorCommunication) {
+                        if (hasLearning) {
+                          return 'Process improvement focus, communication-first approach';
+                        } else {
+                          return 'Structured change management needed, communication priority';
+                        }
+                      }
+                      
+                      // Success-focused
+                      if (hasSuccess && !hasChallenges) {
+                        if (hasDigitalExp) {
+                          return 'Successful digital transformation track record';
+                        } else {
+                          return 'Proven change management success';
+                        }
+                      }
+                      
+                      // Challenge-focused with learning
+                      if (hasChallenges && hasLearning) {
+                        return 'Hard-won transformation wisdom, challenge-ready approach';
+                      }
+                      
+                      // Failure with learning
+                      if (hasFailure && hasLearning) {
+                        return 'Resilient change approach, learned from setbacks';
+                      }
+                      
+                      // Mixed results
+                      if (hasSuccess && hasChallenges) {
+                        return 'Mixed transformation results, balanced approach needed';
+                      }
+                      
+                      // Digital focus
+                      if (hasDigitalExp) {
+                        return 'Digital transformation experience';
+                      }
+                      
+                      // Timeline preferences
+                      if (prefersGradual) {
+                        return 'Cautious change approach, prefers gradual implementation';
+                      }
+                      
+                      if (prefersRapid) {
+                        return 'Rapid change preference, fast implementation ready';
+                      }
+                      
+                      // Default for any other input
+                      return 'Change management experience, tailored approach needed';
                     })()
                   : 'No change experience provided (Optional)'}
               </p>
