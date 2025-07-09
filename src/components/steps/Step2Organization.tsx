@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useMindmaker } from '../../contexts/MindmakerContext';
+import { COMPANIES, BUSINESS_FUNCTIONS } from '../../types/canvas';
 
 export const Step2Organization: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
