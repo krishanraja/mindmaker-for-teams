@@ -94,10 +94,15 @@ export const Step7Mindmaker: React.FC = () => {
         doc.text(line, 20, startY + (index * 6));
       });
       
-      // Why We're Different Section
-      const sectionStartY = startY + (recLines.length * 6) + 30;
+      // Why We're Different Section - Start new page
+      doc.addPage();
+      doc.setFillColor(0, 0, 0);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      
+      const sectionStartY = 30;
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(16);
+      doc.setTextColor(255, 255, 255);
       doc.text("Why We're Different", 20, sectionStartY);
       
       // The 5 reasons from the template
@@ -296,11 +301,13 @@ export const Step7Mindmaker: React.FC = () => {
       }
     }
     
-    // Build personalized recommendation
+    // Build personalized training recommendation
     let recommendation = `For ${businessName}`;
     
-    if (businessInfo) {
-      recommendation += `, a ${businessInfo.companyDescription} in the ${businessInfo.industry} sector,`;
+    if (businessInfo && businessInfo.companyDescription !== `professional ${businessInfo.industry} organization`) {
+      recommendation += `, ${businessInfo.companyDescription},`;
+    } else if (businessInfo && businessInfo.industry !== 'business') {
+      recommendation += `, operating in the ${businessInfo.industry} sector,`;
     }
     
     recommendation += ` with your team spanning ${functions.join(', ')}, `;
@@ -308,70 +315,70 @@ export const Step7Mindmaker: React.FC = () => {
     // Address specific AI skills and capabilities
     if (skills.length > 0) {
       const topSkills = skills.slice(0, 3);
-      recommendation += `we'll build upon your existing strengths in ${topSkills.join(' and ')} while `;
+      recommendation += `we'll develop training workshops that build upon your existing strengths in ${topSkills.join(' and ')} while `;
     }
     
     // Address automation risks with empathy
     if (risks.length > 0 && avgAnxiety > 40) {
-      recommendation += `addressing team concerns about automation in areas like ${risks.slice(0, 2).join(' and ')}. `;
+      recommendation += `coaching your team through concerns about automation in areas like ${risks.slice(0, 2).join(' and ')}. `;
     }
     
     // Anxiety-informed approach
     if (avgAnxiety > 60) {
-      recommendation += `Given the ${avgAnxiety.toFixed(0)}% anxiety level across your organization, we recommend starting with confidence-building sessions that demonstrate AI as an enhancement tool rather than replacement. `;
+      recommendation += `Given the ${avgAnxiety.toFixed(0)}% anxiety level across your organization, we recommend starting with confidence-building workshops that train your team to see AI as an enhancement tool rather than replacement. `;
     } else if (avgAnxiety > 30) {
-      recommendation += `With a ${avgAnxiety.toFixed(0)}% team anxiety level, we'll balance practical AI implementation with change management support. `;
+      recommendation += `With a ${avgAnxiety.toFixed(0)}% team anxiety level, our training will balance practical AI education with change management coaching. `;
     } else {
-      recommendation += `Your team's low ${avgAnxiety.toFixed(0)}% anxiety level positions you for accelerated AI adoption. `;
+      recommendation += `Your team's low ${avgAnxiety.toFixed(0)}% anxiety level positions you for accelerated AI learning workshops. `;
     }
     
     // AI maturity and learning approach
     if (aiMaturity === 'none') {
-      recommendation += `Starting from ground zero, our ${learningStyle} approach will establish foundational AI literacy through `;
+      recommendation += `Starting from ground zero, our ${learningStyle} training approach will teach foundational AI literacy through `;
     } else if (aiMaturity === 'pilots') {
-      recommendation += `Building on your pilot experience, we'll scale successful initiatives through ${learningStyle} workshops that `;
+      recommendation += `Building on your pilot experience, we'll coach you to scale successful initiatives through ${learningStyle} workshops that `;
     } else {
-      recommendation += `Leveraging your ${aiMaturity} AI maturity, we'll optimize existing systems via ${learningStyle} sessions that `;
+      recommendation += `Leveraging your ${aiMaturity} AI maturity, we'll train your team to optimize existing systems via ${learningStyle} sessions that `;
     }
     
-    // Business-specific recommendations based on functions
+    // Business-specific training recommendations based on functions
     if (functions.includes('Sales')) {
-      recommendation += `focus on AI-powered lead qualification and customer engagement, `;
+      recommendation += `teach AI-powered lead qualification and customer engagement techniques, `;
     }
     if (functions.includes('Ops')) {
-      recommendation += `emphasize workflow automation and process optimization, `;
+      recommendation += `focus on training workflow automation and process optimization skills, `;
     }
     if (functions.includes('HR')) {
-      recommendation += `introduce AI for talent acquisition and employee experience enhancement, `;
+      recommendation += `educate on AI for talent acquisition and employee experience enhancement, `;
     }
     if (functions.includes('CX')) {
-      recommendation += `implement intelligent customer service and personalization tools, `;
+      recommendation += `train on intelligent customer service and personalization approaches, `;
     }
     
-    // Specific skill development
+    // Specific skill development training
     if (skills.includes('Data Analysis')) {
-      recommendation += `advancing your analytical capabilities with predictive modeling and automated insights. `;
+      recommendation += `coaching advanced analytical capabilities with predictive modeling workshops. `;
     } else if (skills.includes('Content Creation')) {
-      recommendation += `scaling your content operations with AI-assisted writing and creative workflows. `;
+      recommendation += `training on AI-assisted writing and creative workflow techniques. `;
     } else {
-      recommendation += `developing core AI competencies tailored to your industry needs. `;
+      recommendation += `developing core AI competency training tailored to your industry needs. `;
     }
     
     // Success targets integration
     if (targets.length > 0) {
-      recommendation += `To achieve your goals of ${targets.slice(0, 2).join(' and ')}, `;
+      recommendation += `To help you achieve your goals of ${targets.slice(0, 2).join(' and ')}, `;
     }
     
     // Business context from website
-    if (businessInfo?.services) {
-      recommendation += `we'll create AI applications specifically for ${businessInfo.services.slice(0, 2).join(' and ')} that align with your `;
+    if (businessInfo?.services && businessInfo.services.length > 0 && !businessInfo.services.includes('professional services')) {
+      recommendation += `our workshops will include AI training specifically for ${businessInfo.services.slice(0, 2).join(' and ')} that supports your `;
     }
     
     // Closing with change experience consideration
     if (hasChangeExp) {
-      recommendation += `proven transformation experience. Our program includes executive briefings, hands-on workshops, and personalized coaching to ensure sustainable adoption across your ${businessName} team.`;
+      recommendation += `proven transformation experience. Our program includes executive briefings, hands-on training workshops, and personalized coaching to ensure your ${businessName} team develops sustainable AI capabilities.`;
     } else {
-      recommendation += `business objectives. We'll provide comprehensive change management support, practical implementation toolkits, and ongoing mentorship to drive lasting transformation at ${businessName}.`;
+      recommendation += `business objectives. We'll provide comprehensive change management coaching, practical learning toolkits, and ongoing mentorship to train your ${businessName} team for lasting AI transformation.`;
     }
     
     return recommendation;
