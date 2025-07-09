@@ -142,10 +142,10 @@ export const Step2Organization: React.FC = () => {
                   <SelectValue placeholder="Select adoption level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None - No AI tools</SelectItem>
-                  <SelectItem value="pilots">Pilots - Testing phase</SelectItem>
-                  <SelectItem value="team-level">Team-level - Some teams using AI</SelectItem>
-                  <SelectItem value="enterprise-wide">Enterprise-wide - Full adoption</SelectItem>
+                  <SelectItem value="none">No AI tools</SelectItem>
+                  <SelectItem value="pilots">Testing phase</SelectItem>
+                  <SelectItem value="team-level">Some teams using AI</SelectItem>
+                  <SelectItem value="enterprise-wide">Full adoption</SelectItem>
                 </SelectContent>
               </Select>
               {aiAdoption && (
