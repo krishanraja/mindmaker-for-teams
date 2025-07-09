@@ -274,7 +274,6 @@ export const Step7Mindmaker: React.FC = () => {
   const getAIRecommendation = async () => {
     const { mindmakerData } = state;
     const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
-    const teamSize = mindmakerData.employeeCount;
     const hasChangeExp = mindmakerData.changeNarrative.length > 0;
     const learningStyle = mindmakerData.learningModality;
     const aiMaturity = mindmakerData.aiAdoption;
@@ -304,7 +303,7 @@ export const Step7Mindmaker: React.FC = () => {
       recommendation += `, a ${businessInfo.companyDescription} in the ${businessInfo.industry} sector,`;
     }
     
-    recommendation += ` with your ${teamSize}-person team spanning ${functions.join(', ')}, `;
+    recommendation += ` with your team spanning ${functions.join(', ')}, `;
     
     // Address specific AI skills and capabilities
     if (skills.length > 0) {
@@ -412,7 +411,6 @@ export const Step7Mindmaker: React.FC = () => {
             <div className="space-y-2">
               <p><strong>Business:</strong> {state.mindmakerData.businessName}</p>
               <p><strong>Type:</strong> {state.mindmakerData.company}</p>
-              <p><strong>Team Size:</strong> {state.mindmakerData.employeeCount} employees</p>
               <p><strong>Functions:</strong> {state.mindmakerData.businessFunctions.length}</p>
               <p><strong>AI Maturity:</strong> {state.mindmakerData.aiAdoption}</p>
             </div>

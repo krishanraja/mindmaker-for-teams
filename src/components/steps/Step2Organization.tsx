@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Users, Building, TrendingUp, X, Globe } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Building, TrendingUp, X, Globe } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -15,7 +15,6 @@ export const Step2Organization: React.FC = () => {
   const [businessName, setBusinessName] = useState(state.mindmakerData.businessName);
   const [company, setCompany] = useState(state.mindmakerData.company);
   const [businessUrl, setBusinessUrl] = useState(state.mindmakerData.businessUrl);
-  const [employeeCount, setEmployeeCount] = useState(state.mindmakerData.employeeCount);
   const [selectedFunctions, setSelectedFunctions] = useState<string[]>(state.mindmakerData.businessFunctions);
   const [aiAdoption, setAiAdoption] = useState(state.mindmakerData.aiAdoption);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -25,11 +24,10 @@ export const Step2Organization: React.FC = () => {
       businessName,
       company,
       businessUrl,
-      employeeCount,
       businessFunctions: selectedFunctions,
       aiAdoption,
     });
-  }, [businessName, company, businessUrl, employeeCount, selectedFunctions, aiAdoption, updateMindmakerData]);
+  }, [businessName, company, businessUrl, selectedFunctions, aiAdoption, updateMindmakerData]);
 
   const toggleFunction = (func: string) => {
     setSelectedFunctions(prev => 
@@ -52,10 +50,6 @@ export const Step2Organization: React.FC = () => {
     
     if (!company) {
       newErrors.company = 'Please select your business type';
-    }
-    
-    if (employeeCount <= 0) {
-      newErrors.employeeCount = 'Please enter a valid number of employees';
     }
     
     if (selectedFunctions.length === 0) {
@@ -164,77 +158,45 @@ export const Step2Organization: React.FC = () => {
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Team Size */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-brand-purple" />
-              Team Size
-            </CardTitle>
-            <CardDescription>
-              How many full-time employees does your organization have?
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Label htmlFor="employeeCount">Number of employees</Label>
-              <Input
-                id="employeeCount"
-                type="number"
-                min="1"
-                placeholder="e.g., 50"
-                value={employeeCount || ''}
-                onChange={(e) => setEmployeeCount(parseInt(e.target.value) || 0)}
-                className={errors.employeeCount ? 'border-error' : ''}
-              />
-              {errors.employeeCount && (
-                <p className="text-sm text-error">{errors.employeeCount}</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* AI Adoption Level */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-brand-blue" />
-              AI Adoption Level
-            </CardTitle>
-            <CardDescription>
-              What's your current level of AI adoption?
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Label>Current AI adoption</Label>
-              <Select
-                value={aiAdoption}
-                onValueChange={(value: any) => setAiAdoption(value)}
-              >
-                <SelectTrigger className={errors.aiAdoption ? 'border-error' : ''}>
-                  <SelectValue placeholder="Select adoption level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No AI tools</SelectItem>
-                  <SelectItem value="pilots">Testing phase</SelectItem>
-                  <SelectItem value="team-level">Some teams using AI</SelectItem>
-                  <SelectItem value="enterprise-wide">Full adoption</SelectItem>
-                </SelectContent>
-              </Select>
-              {aiAdoption && (
-                <p className="text-sm text-muted-foreground">
-                  {getAiAdoptionDescription(aiAdoption)}
-                </p>
-              )}
-              {errors.aiAdoption && (
-                <p className="text-sm text-error">{errors.aiAdoption}</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* AI Adoption Level */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-brand-blue" />
+            AI Adoption Level
+          </CardTitle>
+          <CardDescription>
+            What's your current level of AI adoption?
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label>Current AI adoption</Label>
+            <Select
+              value={aiAdoption}
+              onValueChange={(value: any) => setAiAdoption(value)}
+            >
+              <SelectTrigger className={errors.aiAdoption ? 'border-error' : ''}>
+                <SelectValue placeholder="Select adoption level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No AI tools</SelectItem>
+                <SelectItem value="pilots">Testing phase</SelectItem>
+                <SelectItem value="team-level">Some teams using AI</SelectItem>
+                <SelectItem value="enterprise-wide">Full adoption</SelectItem>
+              </SelectContent>
+            </Select>
+            {aiAdoption && (
+              <p className="text-sm text-muted-foreground">
+                {getAiAdoptionDescription(aiAdoption)}
+              </p>
+            )}
+            {errors.aiAdoption && (
+              <p className="text-sm text-error">{errors.aiAdoption}</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Business Functions */}
       <Card>
