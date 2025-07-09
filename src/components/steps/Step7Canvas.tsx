@@ -119,53 +119,57 @@ export const Step7Mindmaker: React.FC = () => {
       doc.text('AI TRANSFORMATION MINDMAKER', 20, currentY);
       currentY += 25;
 
-      // AI Recommendation section (moved to top) - Enhanced layout
+      // AI Recommendation section (moved to top) - Fixed layout
       const recommendation = getAIRecommendation();
-      const maxWidth = pageWidth - 40; // 20px margin on each side
-      const recLines = doc.splitTextToSize(recommendation, maxWidth - 20); // Additional margin for content
-      checkNewPage(50 + recLines.length * 7);
+      const leftMargin = 20;
+      const rightMargin = 20;
+      const contentWidth = pageWidth - leftMargin - rightMargin;
+      const recLines = doc.splitTextToSize(recommendation, contentWidth - 20); // Additional padding
+      checkNewPage(60 + recLines.length * 8);
       
       // Create a styled background box for the recommendation header
       doc.setFillColor(88, 28, 135); // Darker purple background
-      doc.roundedRect(20, currentY - 5, maxWidth, 25, 3, 3, 'F');
+      doc.roundedRect(leftMargin, currentY - 5, contentWidth, 30, 3, 3, 'F');
       
-      // Section heading centered vertically and horizontally
+      // Section heading - left justified horizontally, center justified vertically
       doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold'); // Using helvetica as closest to Outfit
+      doc.setFont('helvetica', 'bold');
       doc.setTextColor(255, 255, 255);
-      const headerText = 'AI RECOMMENDATION';
-      const textWidth = doc.getTextWidth(headerText);
-      const centerX = 20 + (maxWidth - textWidth) / 2;
-      doc.text(headerText, centerX, currentY + 14); // Centered vertically in 25px header
-      currentY += 35;
+      doc.text('AI RECOMMENDATION', leftMargin + 10, currentY + 15); // Left aligned with padding, vertically centered
+      currentY += 40;
       
-      // Recommendation content with better formatting and proper spacing
+      // Recommendation content with proper formatting and spacing
       doc.setFillColor(40, 40, 45); // Dark background for content
-      const contentHeight = recLines.length * 7 + 30; // More spacing between lines
-      doc.roundedRect(20, currentY - 15, maxWidth, contentHeight, 5, 5, 'F');
+      const contentHeight = recLines.length * 8 + 30; // More spacing between lines
+      doc.roundedRect(leftMargin, currentY - 15, contentWidth, contentHeight, 5, 5, 'F');
       
       doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal'); // Using helvetica as closest to Inter
+      doc.setFont('helvetica', 'normal');
       doc.setTextColor(255, 255, 255);
-      doc.text(recLines, 30, currentY, { lineHeightFactor: 1.4 }); // Better line spacing
-      currentY += recLines.length * 7 + 25;
+      
+      // Properly position each line of text with consistent spacing
+      let textY = currentY;
+      recLines.forEach((line: string, index: number) => {
+        doc.text(line, leftMargin + 15, textY + (index * 8)); // Consistent left margin and line spacing
+      });
+      currentY += recLines.length * 8 + 30;
     
     // Organization info section
       checkNewPage(40);
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold'); // Bold for section headings
       doc.setTextColor(138, 43, 226);
-      doc.text('CONTACT INFORMATION', 20, currentY);
+      doc.text('CONTACT INFORMATION', leftMargin, currentY);
       currentY += 15;
     
       doc.setFont('helvetica', 'normal'); // Normal for body text
       doc.setFontSize(12);
-    doc.setTextColor(255, 255, 255);
-      doc.text(`Organization: ${mindmakerData.businessName || 'N/A'}`, 20, currentY);
+      doc.setTextColor(255, 255, 255);
+      doc.text(`Organization: ${mindmakerData.businessName || 'N/A'}`, leftMargin, currentY);
       currentY += 10;
-      doc.text(`Contact: ${mindmakerData.userName || 'N/A'}`, 20, currentY);
+      doc.text(`Contact: ${mindmakerData.userName || 'N/A'}`, leftMargin, currentY);
       currentY += 10;
-      doc.text(`Email: ${mindmakerData.businessEmail || 'N/A'}`, 20, currentY);
+      doc.text(`Email: ${mindmakerData.businessEmail || 'N/A'}`, leftMargin, currentY);
       currentY += 25;
     
     // Organization snapshot section
@@ -173,17 +177,17 @@ export const Step7Mindmaker: React.FC = () => {
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
-    doc.text('ORGANIZATION SNAPSHOT', 20, currentY);
+    doc.text('ORGANIZATION SNAPSHOT', leftMargin, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
-    doc.text(`Team Size: ${mindmakerData.employeeCount} employees`, 20, currentY);
+    doc.text(`Team Size: ${mindmakerData.employeeCount} employees`, leftMargin, currentY);
     currentY += 10;
-    doc.text(`Functions: ${mindmakerData.businessFunctions.join(', ')}`, 20, currentY);
+    doc.text(`Functions: ${mindmakerData.businessFunctions.join(', ')}`, leftMargin, currentY);
     currentY += 10;
-    doc.text(`AI Maturity: ${mindmakerData.aiAdoption}`, 20, currentY);
+    doc.text(`AI Maturity: ${mindmakerData.aiAdoption}`, leftMargin, currentY);
     currentY += 25;
     
     // Anxiety levels section
@@ -191,21 +195,21 @@ export const Step7Mindmaker: React.FC = () => {
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
-    doc.text(`ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)`, 20, currentY);
+    doc.text(`ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)`, leftMargin, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
-    doc.text(`Executives: ${mindmakerData.anxietyLevels.executives}%`, 20, currentY);
+    doc.text(`Executives: ${mindmakerData.anxietyLevels.executives}%`, leftMargin, currentY);
     currentY += 10;
-    doc.text(`Middle Management: ${mindmakerData.anxietyLevels.middleManagement}%`, 20, currentY);
+    doc.text(`Middle Management: ${mindmakerData.anxietyLevels.middleManagement}%`, leftMargin, currentY);
     currentY += 10;
-    doc.text(`Frontline Staff: ${mindmakerData.anxietyLevels.frontlineStaff}%`, 20, currentY);
+    doc.text(`Frontline Staff: ${mindmakerData.anxietyLevels.frontlineStaff}%`, leftMargin, currentY);
     currentY += 10;
-    doc.text(`Tech Team: ${mindmakerData.anxietyLevels.techTeam}%`, 20, currentY);
+    doc.text(`Tech Team: ${mindmakerData.anxietyLevels.techTeam}%`, leftMargin, currentY);
     currentY += 10;
-    doc.text(`Non-Tech Team: ${mindmakerData.anxietyLevels.nonTechTeam}%`, 20, currentY);
+    doc.text(`Non-Tech Team: ${mindmakerData.anxietyLevels.nonTechTeam}%`, leftMargin, currentY);
     currentY += 25;
     
     // Capabilities section
@@ -213,55 +217,61 @@ export const Step7Mindmaker: React.FC = () => {
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
-    doc.text('CAPABILITIES', 20, currentY);
+    doc.text('CAPABILITIES', leftMargin, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
     const skillsText = `AI Skills: ${mindmakerData.aiSkills.join(', ')}`;
-    const skillsLines = doc.splitTextToSize(skillsText, 170);
-    doc.text(skillsLines, 20, currentY);
-    currentY += skillsLines.length * 6 + 5;
+    const skillsLines = doc.splitTextToSize(skillsText, contentWidth - 20);
+    skillsLines.forEach((line: string, index: number) => {
+      doc.text(line, leftMargin, currentY + (index * 8));
+    });
+    currentY += skillsLines.length * 8 + 10;
     
     const risksText = `Automation Risks: ${mindmakerData.automationRisks.join(', ')}`;
-    const risksLines = doc.splitTextToSize(risksText, 170);
-    doc.text(risksLines, 20, currentY);
-    currentY += risksLines.length * 6 + 25;
+    const risksLines = doc.splitTextToSize(risksText, contentWidth - 20);
+    risksLines.forEach((line: string, index: number) => {
+      doc.text(line, leftMargin, currentY + (index * 8));
+    });
+    currentY += risksLines.length * 8 + 25;
     
     // Learning and change section
     const changeText = mindmakerData.changeNarrative || 'Not provided';
-    const changeLines = doc.splitTextToSize(`Change Experience: ${changeText}`, 170);
-    checkNewPage(40 + changeLines.length * 6);
+    const changeLines = doc.splitTextToSize(`Change Experience: ${changeText}`, contentWidth - 20);
+    checkNewPage(40 + changeLines.length * 8);
     
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
-    doc.text('LEARNING & CHANGE', 20, currentY);
+    doc.text('LEARNING & CHANGE', leftMargin, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
-    doc.text(`Learning Preference: ${mindmakerData.learningModality || 'Not specified'}`, 20, currentY);
+    doc.text(`Learning Preference: ${mindmakerData.learningModality || 'Not specified'}`, leftMargin, currentY);
     currentY += 15;
     
-    doc.text(changeLines, 20, currentY);
-    currentY += changeLines.length * 6 + 25;
+    changeLines.forEach((line: string, index: number) => {
+      doc.text(line, leftMargin, currentY + (index * 8));
+    });
+    currentY += changeLines.length * 8 + 25;
     
     // Success targets section
     checkNewPage(30 + mindmakerData.successTargets.length * 8);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold'); // Bold for section headings
     doc.setTextColor(138, 43, 226);
-    doc.text('SUCCESS TARGETS', 20, currentY);
+    doc.text('SUCCESS TARGETS', leftMargin, currentY);
     currentY += 15;
     
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal'); // Normal for body text
     doc.setTextColor(255, 255, 255);
     mindmakerData.successTargets.forEach(target => {
-      doc.text(`• ${target}`, 20, currentY);
+      doc.text(`• ${target}`, leftMargin, currentY);
       currentY += 8;
     });
     currentY += 25;
@@ -273,17 +283,17 @@ export const Step7Mindmaker: React.FC = () => {
     doc.rect(0, 0, pageWidth, pageHeight, 'F');
     currentY = 30;
     
-    // Why Us? section header
+    // Redefine content width for this page
+    const whyUsContentWidth = pageWidth - leftMargin - rightMargin;
+    
+    // Why Us? section header - left justified horizontally, center justified vertically
     doc.setFillColor(88, 28, 135); // Darker purple background
-    doc.roundedRect(20, currentY - 5, maxWidth, 25, 3, 3, 'F');
+    doc.roundedRect(leftMargin, currentY - 5, whyUsContentWidth, 30, 3, 3, 'F');
     
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(255, 255, 255);
-    const whyUsText = 'WHY US?';
-    const whyUsWidth = doc.getTextWidth(whyUsText);
-    const whyUsCenterX = 20 + (maxWidth - whyUsWidth) / 2;
-    doc.text(whyUsText, whyUsCenterX, currentY + 14);
+    doc.text('WHY US?', leftMargin + 10, currentY + 15); // Left aligned with padding, vertically centered
     currentY += 40;
     
     // Why Us reasons
@@ -312,22 +322,24 @@ export const Step7Mindmaker: React.FC = () => {
     
     whyUsReasons.forEach((reason, index) => {
       // Check if we need a new page
-      const reasonLines = doc.splitTextToSize(reason.content, maxWidth - 40);
-      checkNewPage(20 + reasonLines.length * 6);
+      const reasonLines = doc.splitTextToSize(reason.content, whyUsContentWidth - 40);
+      checkNewPage(25 + reasonLines.length * 8);
       
       // Reason title
       doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(138, 43, 226);
-      doc.text(`${index + 1}. ${reason.title}`, 20, currentY);
+      doc.text(`${index + 1}. ${reason.title}`, leftMargin, currentY);
       currentY += 15;
       
-      // Reason content
+      // Reason content with proper spacing
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(255, 255, 255);
-      doc.text(reasonLines, 30, currentY, { lineHeightFactor: 1.3 });
-      currentY += reasonLines.length * 6 + 20;
+      reasonLines.forEach((line: string, lineIndex: number) => {
+        doc.text(line, leftMargin + 15, currentY + (lineIndex * 8)); // Consistent left margin and spacing
+      });
+      currentY += reasonLines.length * 8 + 20;
     });
     
     // Footer
@@ -335,7 +347,7 @@ export const Step7Mindmaker: React.FC = () => {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal'); // Normal for footer text
     doc.setTextColor(150, 150, 150);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, currentY);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, leftMargin, currentY);
     
       // Save the PDF locally
       doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
