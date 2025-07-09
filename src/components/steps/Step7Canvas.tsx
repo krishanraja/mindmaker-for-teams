@@ -278,15 +278,6 @@ export const Step7Mindmaker: React.FC = () => {
 
   const getAIRecommendation = async () => {
     const { mindmakerData } = state;
-    const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
-    const hasChangeExp = mindmakerData.changeNarrative.length > 0;
-    const learningStyle = mindmakerData.learningModality;
-    const aiMaturity = mindmakerData.aiAdoption;
-    const functions = mindmakerData.businessFunctions;
-    const skills = mindmakerData.aiSkills;
-    const risks = mindmakerData.automationRisks;
-    const targets = mindmakerData.successTargets;
-    const businessName = mindmakerData.businessName || '{BUSINESS NAME}';
     
     // Get business information from website
     let businessInfo = null;
@@ -301,87 +292,153 @@ export const Step7Mindmaker: React.FC = () => {
       }
     }
     
-    // Build personalized training recommendation
-    let recommendation = `For ${businessName}`;
+    // Structure the recommendation in logical sections
+    const generateStructuredRecommendation = () => {
+      const businessName = mindmakerData.businessName || 'your organization';
+      const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
+      
+      // 1. INTRODUCTION - Business context and understanding
+      const introduction = generateIntroduction(businessName, businessInfo, mindmakerData.businessFunctions);
+      
+      // 2. ASSESSMENT - Current state analysis
+      const assessment = generateAssessment(avgAnxiety, mindmakerData.aiAdoption, mindmakerData.aiSkills, mindmakerData.automationRisks);
+      
+      // 3. APPROACH - Training methodology and focus
+      const approach = generateApproach(mindmakerData.learningModality, avgAnxiety, mindmakerData.businessFunctions, mindmakerData.aiSkills);
+      
+      // 4. OUTCOMES - Expected results and success targets
+      const outcomes = generateOutcomes(mindmakerData.successTargets, businessName);
+      
+      return [introduction, assessment, approach, outcomes].join(' ');
+    };
     
-    if (businessInfo && businessInfo.companyDescription !== `professional ${businessInfo.industry} organization`) {
-      recommendation += `, ${businessInfo.companyDescription},`;
-    } else if (businessInfo && businessInfo.industry !== 'business') {
-      recommendation += `, operating in the ${businessInfo.industry} sector,`;
-    }
+    const generateIntroduction = (businessName: string, businessInfo: any, functions: string[]) => {
+      let intro = `For ${businessName}`;
+      
+      // Add business context if available
+      if (businessInfo?.industry && businessInfo.industry !== 'business') {
+        intro += `, operating in the ${businessInfo.industry} sector`;
+      }
+      
+      if (businessInfo?.companyDescription && businessInfo.companyDescription.length > 50) {
+        // Use a portion of the company description for context
+        const descWords = businessInfo.companyDescription.split(' ').slice(0, 15).join(' ');
+        intro += ` (${descWords})`;
+      }
+      
+      // Add team structure context
+      if (functions.length > 0) {
+        intro += `, with teams spanning ${functions.slice(0, 3).join(', ')},`;
+      }
+      
+      return intro;
+    };
     
-    recommendation += ` with your team spanning ${functions.join(', ')}, `;
+    const generateAssessment = (avgAnxiety: number, aiAdoption: string, skills: string[], risks: string[]) => {
+      let assessment = '';
+      
+      // Anxiety level analysis
+      if (avgAnxiety > 60) {
+        assessment += `our assessment reveals significant organizational anxiety about AI transformation (${avgAnxiety.toFixed(0)}% average). This indicates a need for confidence-building and change management support.`;
+      } else if (avgAnxiety > 30) {
+        assessment += `with moderate organizational readiness for AI adoption (${avgAnxiety.toFixed(0)}% anxiety level), your team is positioned for balanced education and practical application.`;
+      } else {
+        assessment += `your team demonstrates strong readiness for AI adoption (low ${avgAnxiety.toFixed(0)}% anxiety level), enabling accelerated learning approaches.`;
+      }
+      
+      // AI maturity context
+      if (aiAdoption === 'none') {
+        assessment += ` Starting from foundational AI literacy,`;
+      } else if (aiAdoption === 'pilots') {
+        assessment += ` Building on your pilot program experience,`;
+      } else {
+        assessment += ` Leveraging your existing AI implementation experience,`;
+      }
+      
+      // Skills and risk context
+      if (skills.length > 0) {
+        assessment += ` we'll strengthen current capabilities in ${skills.slice(0, 2).join(' and ')}`;
+      }
+      
+      if (risks.length > 0 && avgAnxiety > 40) {
+        assessment += ` while addressing automation concerns in ${risks.slice(0, 2).join(' and ')}.`;
+      } else {
+        assessment += `.`;
+      }
+      
+      return assessment;
+    };
     
-    // Address specific AI skills and capabilities
-    if (skills.length > 0) {
-      const topSkills = skills.slice(0, 3);
-      recommendation += `we'll develop training workshops that build upon your existing strengths in ${topSkills.join(' and ')} while `;
-    }
+    const generateApproach = (learningModality: string, avgAnxiety: number, functions: string[], skills: string[]) => {
+      let approach = `Our training methodology will use ${learningModality.replace('-', ' ')} delivery`;
+      
+      // Anxiety-informed training approach
+      if (avgAnxiety > 50) {
+        approach += ` with emphasis on hands-on practice and confidence building. We'll focus on demonstrating AI as a productivity enhancement tool rather than replacement technology.`;
+      } else {
+        approach += ` designed for practical skill development and immediate application. Training will emphasize real-world implementation and measurable outcomes.`;
+      }
+      
+      // Function-specific training elements
+      const trainingFocus = generateTrainingFocus(functions, skills);
+      if (trainingFocus) {
+        approach += ` ${trainingFocus}`;
+      }
+      
+      return approach;
+    };
     
-    // Address automation risks with empathy
-    if (risks.length > 0 && avgAnxiety > 40) {
-      recommendation += `coaching your team through concerns about automation in areas like ${risks.slice(0, 2).join(' and ')}. `;
-    }
+    const generateTrainingFocus = (functions: string[], skills: string[]) => {
+      const focusAreas = [];
+      
+      if (functions.includes('Sales')) {
+        focusAreas.push('AI-powered lead qualification and customer engagement');
+      }
+      if (functions.includes('Ops')) {
+        focusAreas.push('workflow automation and process optimization');
+      }
+      if (functions.includes('HR')) {
+        focusAreas.push('talent acquisition and employee experience enhancement');
+      }
+      if (functions.includes('CX')) {
+        focusAreas.push('intelligent customer service and personalization');
+      }
+      if (functions.includes('Marketing')) {
+        focusAreas.push('content creation and campaign optimization');
+      }
+      
+      // Add skill-specific focus
+      if (skills.includes('Data Analysis')) {
+        focusAreas.push('advanced analytics and predictive modeling');
+      }
+      if (skills.includes('Content Creation')) {
+        focusAreas.push('AI-assisted writing and creative workflows');
+      }
+      
+      if (focusAreas.length === 0) return '';
+      
+      if (focusAreas.length === 1) {
+        return `Specific training modules will cover ${focusAreas[0]}.`;
+      } else {
+        return `Training modules will include ${focusAreas.slice(0, 2).join(' and ')}, among other relevant applications.`;
+      }
+    };
     
-    // Anxiety-informed approach
-    if (avgAnxiety > 60) {
-      recommendation += `Given the ${avgAnxiety.toFixed(0)}% anxiety level across your organization, we recommend starting with confidence-building workshops that train your team to see AI as an enhancement tool rather than replacement. `;
-    } else if (avgAnxiety > 30) {
-      recommendation += `With a ${avgAnxiety.toFixed(0)}% team anxiety level, our training will balance practical AI education with change management coaching. `;
-    } else {
-      recommendation += `Your team's low ${avgAnxiety.toFixed(0)}% anxiety level positions you for accelerated AI learning workshops. `;
-    }
+    const generateOutcomes = (targets: string[], businessName: string) => {
+      let outcomes = `The program is designed to deliver measurable results`;
+      
+      if (targets.length > 0) {
+        outcomes += `, specifically targeting your objectives of ${targets.slice(0, 2).join(' and ')}.`;
+      } else {
+        outcomes += ` in AI capability development and organizational readiness.`;
+      }
+      
+      outcomes += ` Upon completion, ${businessName} will have developed sustainable AI competencies, reduced transformation anxiety, and established clear pathways for continued innovation and growth.`;
+      
+      return outcomes;
+    };
     
-    // AI maturity and learning approach
-    if (aiMaturity === 'none') {
-      recommendation += `Starting from ground zero, our ${learningStyle} training approach will teach foundational AI literacy through `;
-    } else if (aiMaturity === 'pilots') {
-      recommendation += `Building on your pilot experience, we'll coach you to scale successful initiatives through ${learningStyle} workshops that `;
-    } else {
-      recommendation += `Leveraging your ${aiMaturity} AI maturity, we'll train your team to optimize existing systems via ${learningStyle} sessions that `;
-    }
-    
-    // Business-specific training recommendations based on functions
-    if (functions.includes('Sales')) {
-      recommendation += `teach AI-powered lead qualification and customer engagement techniques, `;
-    }
-    if (functions.includes('Ops')) {
-      recommendation += `focus on training workflow automation and process optimization skills, `;
-    }
-    if (functions.includes('HR')) {
-      recommendation += `educate on AI for talent acquisition and employee experience enhancement, `;
-    }
-    if (functions.includes('CX')) {
-      recommendation += `train on intelligent customer service and personalization approaches, `;
-    }
-    
-    // Specific skill development training
-    if (skills.includes('Data Analysis')) {
-      recommendation += `coaching advanced analytical capabilities with predictive modeling workshops. `;
-    } else if (skills.includes('Content Creation')) {
-      recommendation += `training on AI-assisted writing and creative workflow techniques. `;
-    } else {
-      recommendation += `developing core AI competency training tailored to your industry needs. `;
-    }
-    
-    // Success targets integration
-    if (targets.length > 0) {
-      recommendation += `To help you achieve your goals of ${targets.slice(0, 2).join(' and ')}, `;
-    }
-    
-    // Business context from website
-    if (businessInfo?.services && businessInfo.services.length > 0 && !businessInfo.services.includes('professional services')) {
-      recommendation += `our workshops will include AI training specifically for ${businessInfo.services.slice(0, 2).join(' and ')} that supports your `;
-    }
-    
-    // Closing with change experience consideration
-    if (hasChangeExp) {
-      recommendation += `proven transformation experience. Our program includes executive briefings, hands-on training workshops, and personalized coaching to ensure your ${businessName} team develops sustainable AI capabilities.`;
-    } else {
-      recommendation += `business objectives. We'll provide comprehensive change management coaching, practical learning toolkits, and ongoing mentorship to train your ${businessName} team for lasting AI transformation.`;
-    }
-    
-    return recommendation;
+    return generateStructuredRecommendation();
   };
 
   const isFormValid = contactForm.userName && contactForm.userEmail && 
