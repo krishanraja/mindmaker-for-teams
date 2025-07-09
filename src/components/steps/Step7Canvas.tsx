@@ -657,19 +657,8 @@ export const Step7Mindmaker: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Start Over Button */}
-      <div className="flex justify-end">
-        <Button
-          variant="outline"
-          onClick={handleStartOver}
-          className="flex items-center gap-2"
-        >
-          Start Over
-        </Button>
-      </div>
-
-      {/* Previous Button */}
-      <div className="flex justify-start pt-6">
+      {/* Navigation Buttons */}
+      <div className="flex justify-between pt-6">
         <Button
           variant="outline"
           onClick={handlePrevious}
@@ -677,6 +666,13 @@ export const Step7Mindmaker: React.FC = () => {
         >
           <ArrowLeft className="w-4 h-4" />
           Previous
+        </Button>
+        <Button
+          variant="outline"
+          onClick={handleStartOver}
+          className="flex items-center gap-2"
+        >
+          Start Over
         </Button>
       </div>
     </div>
