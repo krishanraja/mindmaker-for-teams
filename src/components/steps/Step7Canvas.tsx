@@ -398,6 +398,52 @@ export const Step7Mindmaker: React.FC = () => {
     setCurrentStep(6);
   };
 
+  const handleStartOver = () => {
+    // Reset all form data to initial state
+    const initialData = {
+      businessName: '',
+      userName: '',
+      businessEmail: '',
+      company: '',
+      country: '',
+      ndaAccepted: false,
+      employeeCount: 0,
+      businessFunctions: [],
+      aiAdoption: 'none' as const,
+      anxietyLevels: {
+        executives: 0,
+        middleManagement: 0,
+        frontlineStaff: 0,
+        techTeam: 0,
+        nonTechTeam: 0
+      },
+      aiSkills: [],
+      automationRisks: [],
+      learningModality: 'live-cohort' as const,
+      changeNarrative: '',
+      successTargets: [],
+      logoFile: null
+    };
+    
+    updateMindmakerData(initialData);
+    setContactForm({
+      businessName: '',
+      userName: '',
+      businessEmail: '',
+      company: '',
+      country: '',
+      ndaAccepted: false,
+    });
+    
+    // Navigate back to step 1
+    setCurrentStep(1);
+    
+    toast({
+      title: "Form Reset",
+      description: "All data has been cleared. Starting over from the beginning.",
+    });
+  };
+
   const getAIRecommendation = () => {
     const { mindmakerData } = state;
     const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
@@ -583,6 +629,7 @@ export const Step7Mindmaker: React.FC = () => {
       </Card>
 
 
+
       {/* AI Recommendation */}
       <Card className="bg-gradient-purple text-white">
         <CardHeader>
@@ -609,6 +656,17 @@ export const Step7Mindmaker: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Start Over Button */}
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          onClick={handleStartOver}
+          className="flex items-center gap-2"
+        >
+          Start Over
+        </Button>
+      </div>
 
       {/* Previous Button */}
       <div className="flex justify-start pt-6">
