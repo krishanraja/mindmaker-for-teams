@@ -61,6 +61,9 @@ export const Step6SuccessGoals: React.FC = () => {
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
           Define what success looks like for your AI transformation journey
         </p>
+        <p className="text-sm text-muted-foreground max-w-2xl mx-auto mt-2 italic">
+          Don't worry, this is just a draft - we'll finesse these later!
+        </p>
       </div>
 
       {/* Current Success Targets */}
