@@ -36,7 +36,6 @@ export const Step7Mindmaker: React.FC = () => {
     // Mark step 7 as completed when user downloads PDF
     markStepCompleted(7);
     const { mindmakerData } = state;
-    const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
     
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
@@ -111,243 +110,116 @@ export const Step7Mindmaker: React.FC = () => {
     };
     
     const generatePDFContent = async () => {
-    
-      // Add title
-      doc.setFontSize(24);
-      doc.setFont('helvetica', 'bold'); // Bold for main title (like font-outfit)
-      doc.setTextColor(138, 43, 226); // Purple color
-      doc.text('AI TRANSFORMATION MINDMAKER', 20, currentY);
-      currentY += 25;
-
-      // AI Recommendation section (moved to top) - Fixed layout
-      const recommendation = getAIRecommendation();
-      const leftMargin = 20;
-      const rightMargin = 20;
+      const leftMargin = 40;
+      const rightMargin = 40;
       const contentWidth = pageWidth - leftMargin - rightMargin;
-      const recLines = doc.splitTextToSize(recommendation, contentWidth - 20); // Additional padding
-      checkNewPage(60 + recLines.length * 8);
       
-      // Create a styled background box for the recommendation header
-      doc.setFillColor(88, 28, 135); // Darker purple background
-      doc.roundedRect(leftMargin, currentY - 5, contentWidth, 30, 3, 3, 'F');
-      
-      // Section heading - left justified horizontally, center justified vertically
-      doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(255, 255, 255);
-      doc.text('AI RECOMMENDATION', leftMargin + 10, currentY + 15); // Left aligned with padding, vertically centered
-      currentY += 40;
-      
-      // Recommendation content with proper formatting and spacing
-      doc.setFillColor(40, 40, 45); // Dark background for content
-      const contentHeight = recLines.length * 8 + 30; // More spacing between lines
-      doc.roundedRect(leftMargin, currentY - 15, contentWidth, contentHeight, 5, 5, 'F');
-      
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(255, 255, 255);
-      
-      // Properly position each line of text with consistent spacing
-      let textY = currentY;
-      recLines.forEach((line: string, index: number) => {
-        doc.text(line, leftMargin + 15, textY + (index * 8)); // Consistent left margin and line spacing
-      });
-      currentY += recLines.length * 8 + 30;
-    
-    // Organization info section
-      checkNewPage(40);
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold'); // Bold for section headings
-      doc.setTextColor(138, 43, 226);
-      doc.text('CONTACT INFORMATION', leftMargin, currentY);
-      currentY += 15;
-    
-      doc.setFont('helvetica', 'normal'); // Normal for body text
-      doc.setFontSize(12);
-      doc.setTextColor(255, 255, 255);
-      doc.text(`Organization: ${mindmakerData.businessName || 'N/A'}`, leftMargin, currentY);
-      currentY += 10;
-      doc.text(`Contact: ${mindmakerData.userName || 'N/A'}`, leftMargin, currentY);
-      currentY += 10;
-      doc.text(`Email: ${mindmakerData.businessEmail || 'N/A'}`, leftMargin, currentY);
-      currentY += 25;
-    
-    // Organization snapshot section
-    checkNewPage(60);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold'); // Bold for section headings
-    doc.setTextColor(138, 43, 226);
-    doc.text('ORGANIZATION SNAPSHOT', leftMargin, currentY);
-    currentY += 15;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal'); // Normal for body text
-    doc.setTextColor(255, 255, 255);
-    doc.text(`Team Size: ${mindmakerData.employeeCount} employees`, leftMargin, currentY);
-    currentY += 10;
-    doc.text(`Functions: ${mindmakerData.businessFunctions.join(', ')}`, leftMargin, currentY);
-    currentY += 10;
-    doc.text(`AI Maturity: ${mindmakerData.aiAdoption}`, leftMargin, currentY);
-    currentY += 25;
-    
-    // Anxiety levels section
-    checkNewPage(80);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold'); // Bold for section headings
-    doc.setTextColor(138, 43, 226);
-    doc.text(`ANXIETY LEVELS (Average: ${avgAnxiety.toFixed(1)}%)`, leftMargin, currentY);
-    currentY += 15;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal'); // Normal for body text
-    doc.setTextColor(255, 255, 255);
-    doc.text(`Executives: ${mindmakerData.anxietyLevels.executives}%`, leftMargin, currentY);
-    currentY += 10;
-    doc.text(`Middle Management: ${mindmakerData.anxietyLevels.middleManagement}%`, leftMargin, currentY);
-    currentY += 10;
-    doc.text(`Frontline Staff: ${mindmakerData.anxietyLevels.frontlineStaff}%`, leftMargin, currentY);
-    currentY += 10;
-    doc.text(`Tech Team: ${mindmakerData.anxietyLevels.techTeam}%`, leftMargin, currentY);
-    currentY += 10;
-    doc.text(`Non-Tech Team: ${mindmakerData.anxietyLevels.nonTechTeam}%`, leftMargin, currentY);
-    currentY += 25;
-    
-    // Capabilities section
-    checkNewPage(50);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold'); // Bold for section headings
-    doc.setTextColor(138, 43, 226);
-    doc.text('CAPABILITIES', leftMargin, currentY);
-    currentY += 15;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal'); // Normal for body text
-    doc.setTextColor(255, 255, 255);
-    const skillsText = `AI Skills: ${mindmakerData.aiSkills.join(', ')}`;
-    const skillsLines = doc.splitTextToSize(skillsText, contentWidth - 20);
-    skillsLines.forEach((line: string, index: number) => {
-      doc.text(line, leftMargin, currentY + (index * 8));
-    });
-    currentY += skillsLines.length * 8 + 10;
-    
-    const risksText = `Automation Risks: ${mindmakerData.automationRisks.join(', ')}`;
-    const risksLines = doc.splitTextToSize(risksText, contentWidth - 20);
-    risksLines.forEach((line: string, index: number) => {
-      doc.text(line, leftMargin, currentY + (index * 8));
-    });
-    currentY += risksLines.length * 8 + 25;
-    
-    // Learning and change section
-    const changeText = mindmakerData.changeNarrative || 'Not provided';
-    const changeLines = doc.splitTextToSize(`Change Experience: ${changeText}`, contentWidth - 20);
-    checkNewPage(40 + changeLines.length * 8);
-    
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold'); // Bold for section headings
-    doc.setTextColor(138, 43, 226);
-    doc.text('LEARNING & CHANGE', leftMargin, currentY);
-    currentY += 15;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal'); // Normal for body text
-    doc.setTextColor(255, 255, 255);
-    doc.text(`Learning Preference: ${mindmakerData.learningModality || 'Not specified'}`, leftMargin, currentY);
-    currentY += 15;
-    
-    changeLines.forEach((line: string, index: number) => {
-      doc.text(line, leftMargin, currentY + (index * 8));
-    });
-    currentY += changeLines.length * 8 + 25;
-    
-    // Success targets section
-    checkNewPage(30 + mindmakerData.successTargets.length * 8);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold'); // Bold for section headings
-    doc.setTextColor(138, 43, 226);
-    doc.text('SUCCESS TARGETS', leftMargin, currentY);
-    currentY += 15;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal'); // Normal for body text
-    doc.setTextColor(255, 255, 255);
-    mindmakerData.successTargets.forEach(target => {
-      doc.text(`• ${target}`, leftMargin, currentY);
-      currentY += 8;
-    });
-    currentY += 25;
-    
-    // Why Us? section on new page
-    doc.addPage();
-    // Set black background for new page
-    doc.setFillColor(0, 0, 0);
-    doc.rect(0, 0, pageWidth, pageHeight, 'F');
-    currentY = 30;
-    
-    // Redefine content width for this page
-    const whyUsContentWidth = pageWidth - leftMargin - rightMargin;
-    
-    // Why Us? section header - left justified horizontally, center justified vertically
-    doc.setFillColor(88, 28, 135); // Darker purple background
-    doc.roundedRect(leftMargin, currentY - 5, whyUsContentWidth, 30, 3, 3, 'F');
-    
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(255, 255, 255);
-    doc.text('WHY US?', leftMargin + 10, currentY + 15); // Left aligned with padding, vertically centered
-    currentY += 40;
-    
-    // Why Us reasons
-    const whyUsReasons = [
-      {
-        title: "Mindset before mechanics",
-        content: "The focus is on cognitive reframing & \"agent opportunity spotting,\" using linguistic techniques for better prompting, learning what APIs / other technical elements actually are in plain English, and why they'll need to know it in the future."
-      },
-      {
-        title: "Practicality and learning",
-        content: "Most workshops show off the speaker's knowledge. Fractionl AI gets you on the ramp to self education with wireframes and examples that everyone can relate to and pick up."
-      },
-      {
-        title: "Fractional future lens",
-        content: "Heavy focus on creating value as a stand-alone micro-service. Monetize your mind and amplify with agents to ensure a healthy future for your people & business."
-      },
-      {
-        title: "Tech-agnostic guard-rails",
-        content: "With decades long background in data privacy and AI automation, Fractional AI advises on how to protect your IP & assess vendor-risk so clients aren't trapped by short-lived hype platforms and can build an agentic future that survives any one AI tool."
-      },
-      {
-        title: "Teacher-founder",
-        content: "Krish's qualified-teacher background + coder mindset + business acumen translates complex agent concepts into plain-language, high-retention learning."
+      // Header with logo and title
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = '/lovable-uploads/32cd84ff-f45d-4007-963c-592cf3554f70.png';
+        doc.addImage(img, 'PNG', leftMargin, currentY, 20, 20);
+      } catch (error) {
+        // Logo fallback
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.text('FRACTIONL', leftMargin, currentY + 15);
       }
-    ];
-    
-    whyUsReasons.forEach((reason, index) => {
-      // Check if we need a new page
-      const reasonLines = doc.splitTextToSize(reason.content, whyUsContentWidth - 40);
-      checkNewPage(25 + reasonLines.length * 8);
       
-      // Reason title
-      doc.setFontSize(13);
+      // Main title with business name
+      currentY += 50;
+      doc.setFontSize(24);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(138, 43, 226);
-      doc.text(`${index + 1}. ${reason.title}`, leftMargin, currentY);
-      currentY += 15;
+      doc.setTextColor(255, 255, 255);
+      const titleText = `AI TRANSFORMATION MINDMAKER FOR ${mindmakerData.businessName || '{BUSINESS NAME}'}`;
+      doc.text(titleText, leftMargin, currentY);
       
-      // Reason content with proper spacing
-      doc.setFontSize(11);
+      currentY += 60;
+      
+      // AI Recommendation Section
+      const recommendation = getAIRecommendation();
+      const recLines = doc.splitTextToSize(recommendation, contentWidth);
+      
+      doc.setFontSize(14);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(255, 255, 255);
-      reasonLines.forEach((line: string, lineIndex: number) => {
-        doc.text(line, leftMargin + 15, currentY + (lineIndex * 8)); // Consistent left margin and spacing
+      
+      recLines.forEach((line: string, index: number) => {
+        doc.text(line, leftMargin, currentY + (index * 7));
       });
-      currentY += reasonLines.length * 8 + 20;
-    });
-    
-    // Footer
-    currentY += 10;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal'); // Normal for footer text
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, leftMargin, currentY);
+      
+      currentY += (recLines.length * 7) + 60;
+      
+      // Why We're Different Section
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(255, 255, 255);
+      doc.text('Why We\'re Different', leftMargin, currentY);
+      
+      currentY += 30;
+      
+      // The 5 reasons exactly as shown in template
+      const reasons = [
+        {
+          title: "Mindset before mechanics",
+          content: "The focus is on cognitive reframing & \"agent opportunity spotting,\" using linguistic techniques for better prompting, learning what APIs / other technical elements actually are in plain English, and why they'll need to know it in the future."
+        },
+        {
+          title: "Practicality and learning",
+          content: "Most workshops show off the speaker's knowledge. Fractionl AI gets you on the ramp to self education with wireframes and examples that everyone can relate to and pick up."
+        },
+        {
+          title: "Fractional future lens",
+          content: "Heavy focus on creating value as a stand-alone micro-service. Monetize your mind and amplify with agents to ensure a healthy future for your people & business."
+        },
+        {
+          title: "Tech-agnostic guard-rails",
+          content: "With decades long background in data privacy and AI automation, Fractional AI advises on how to protect your IP & assess vendor-risk so clients aren't trapped by short-lived hype platforms and can build an agentic future that survives any one AI tool."
+        },
+        {
+          title: "Teacher-founder",
+          content: "Krish's qualified-teacher background + coder mindset + business acumen translates complex agent concepts into plain-language, high-retention learning."
+        }
+      ];
+      
+      reasons.forEach((reason, index) => {
+        // Check if we need a new page
+        if (currentY > pageHeight - 80) {
+          doc.addPage();
+          doc.setFillColor(0, 0, 0);
+          doc.rect(0, 0, pageWidth, pageHeight, 'F');
+          currentY = 40;
+        }
+        
+        // Number and title
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.text(`${index + 1}. ${reason.title}`, leftMargin, currentY);
+        
+        currentY += 15;
+        
+        // Content
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(255, 255, 255);
+        
+        const contentLines = doc.splitTextToSize(reason.content, contentWidth - 20);
+        contentLines.forEach((line: string, lineIndex: number) => {
+          doc.text(line, leftMargin + 20, currentY + (lineIndex * 6));
+        });
+        
+        currentY += (contentLines.length * 6) + 25;
+      });
+      
+      // Footer
+      currentY += 20;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, leftMargin, currentY);
     
       // Save the PDF locally
       doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
