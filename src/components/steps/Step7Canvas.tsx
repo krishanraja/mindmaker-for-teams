@@ -16,6 +16,7 @@ import { useToast } from '../../hooks/use-toast';
 export const Step7Mindmaker: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
   const { toast } = useToast();
+  const [recommendation, setRecommendation] = useState<string>('');
   
   const [contactForm, setContactForm] = useState({
     businessName: state.mindmakerData.businessName,
@@ -31,7 +32,21 @@ export const Step7Mindmaker: React.FC = () => {
     const newForm = { ...contactForm, [field]: value };
     setContactForm(newForm);
     updateMindmakerData(newForm);
+    // Regenerate recommendation when form changes
+    if (field === 'businessUrl' && value) {
+      generateRecommendation();
+    }
   };
+
+  const generateRecommendation = async () => {
+    const rec = await getAIRecommendation();
+    setRecommendation(rec);
+  };
+
+  // Generate initial recommendation
+  React.useEffect(() => {
+    generateRecommendation();
+  }, [state.mindmakerData]);
 
   const handleDownloadPDF = async () => {
     // Mark step 7 as completed when user downloads PDF
@@ -46,7 +61,7 @@ export const Step7Mindmaker: React.FC = () => {
     doc.setFillColor(0, 0, 0);
     doc.rect(0, 0, pageWidth, pageHeight, 'F');
     
-    const generateContent = () => {
+    const generateContent = async () => {
       // Email below logo
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(255, 255, 255);
@@ -65,7 +80,7 @@ export const Step7Mindmaker: React.FC = () => {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
       doc.setTextColor(255, 255, 255);
-      const recommendation = getAIRecommendation();
+      const recommendation = await getAIRecommendation();
       const recLines = doc.splitTextToSize(recommendation, 170);
       
       let startY = 120;
@@ -143,24 +158,25 @@ export const Step7Mindmaker: React.FC = () => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.src = '/lovable-uploads/32cd84ff-f45d-4007-963c-592cf3554f70.png';
-      img.onload = () => {
+      img.onload = async () => {
         doc.addImage(img, 'PNG', 20, 20, 20, 20);
-        generateContent();
+        await generateContent();
       };
-      img.onerror = () => {
+      img.onerror = async () => {
         // Logo fallback
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(10);
         doc.text('FRACTIONL', 20, 35);
-        generateContent();
+        await generateContent();
       };
     } catch (error) {
-      generateContent();
+      await generateContent();
     }
     
     const sendEmailNotification = async () => {
       try {
+        const emailRecommendation = await getAIRecommendation();
         const { error } = await supabase.functions.invoke('send-canvas-email', {
           body: {
             businessName: contactForm.businessName,
@@ -168,7 +184,7 @@ export const Step7Mindmaker: React.FC = () => {
             businessEmail: contactForm.businessEmail,
             businessUrl: contactForm.businessUrl,
             mindmakerData,
-            aiRecommendation: getAIRecommendation()
+            aiRecommendation: emailRecommendation
           }
         });
         
@@ -252,7 +268,7 @@ export const Step7Mindmaker: React.FC = () => {
     });
   };
 
-  const getAIRecommendation = () => {
+  const getAIRecommendation = async () => {
     const { mindmakerData } = state;
     const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
     const teamSize = mindmakerData.employeeCount;
@@ -261,38 +277,99 @@ export const Step7Mindmaker: React.FC = () => {
     const aiMaturity = mindmakerData.aiAdoption;
     const functions = mindmakerData.businessFunctions;
     const skills = mindmakerData.aiSkills;
+    const risks = mindmakerData.automationRisks;
     const targets = mindmakerData.successTargets;
+    const businessName = mindmakerData.businessName || '{BUSINESS NAME}';
     
-    let recommendation = `For your ${teamSize}-person team across ${functions.join(', ')}, `;
+    // Get business information from website
+    let businessInfo = null;
+    if (contactForm.businessUrl) {
+      try {
+        const { data } = await supabase.functions.invoke('analyze-business-website', {
+          body: { businessUrl: contactForm.businessUrl }
+        });
+        businessInfo = data?.businessInfo;
+      } catch (error) {
+        console.log('Could not analyze business website:', error);
+      }
+    }
     
-    // Personalize based on anxiety and AI maturity
+    // Build personalized recommendation
+    let recommendation = `For ${businessName}`;
+    
+    if (businessInfo) {
+      recommendation += `, a ${businessInfo.companyDescription} in the ${businessInfo.industry} sector,`;
+    }
+    
+    recommendation += ` with your ${teamSize}-person team spanning ${functions.join(', ')}, `;
+    
+    // Address specific AI skills and capabilities
+    if (skills.length > 0) {
+      const topSkills = skills.slice(0, 3);
+      recommendation += `we'll build upon your existing strengths in ${topSkills.join(' and ')} while `;
+    }
+    
+    // Address automation risks with empathy
+    if (risks.length > 0 && avgAnxiety > 40) {
+      recommendation += `addressing team concerns about automation in areas like ${risks.slice(0, 2).join(' and ')}. `;
+    }
+    
+    // Anxiety-informed approach
     if (avgAnxiety > 60) {
-      recommendation += `we recommend starting with confidence-building sessions to address the ${avgAnxiety.toFixed(0)}% anxiety level. Given your ${aiMaturity} AI experience, `;
+      recommendation += `Given the ${avgAnxiety.toFixed(0)}% anxiety level across your organization, we recommend starting with confidence-building sessions that demonstrate AI as an enhancement tool rather than replacement. `;
     } else if (avgAnxiety > 30) {
-      recommendation += `with a ${avgAnxiety.toFixed(0)}% anxiety level and ${aiMaturity} AI maturity, `;
+      recommendation += `With a ${avgAnxiety.toFixed(0)}% team anxiety level, we'll balance practical AI implementation with change management support. `;
     } else {
-      recommendation += `your team's low ${avgAnxiety.toFixed(0)}% anxiety and ${aiMaturity} experience positions you for `;
+      recommendation += `Your team's low ${avgAnxiety.toFixed(0)}% anxiety level positions you for accelerated AI adoption. `;
     }
     
-    // Customize approach based on learning style and skills
+    // AI maturity and learning approach
+    if (aiMaturity === 'none') {
+      recommendation += `Starting from ground zero, our ${learningStyle} approach will establish foundational AI literacy through `;
+    } else if (aiMaturity === 'pilots') {
+      recommendation += `Building on your pilot experience, we'll scale successful initiatives through ${learningStyle} workshops that `;
+    } else {
+      recommendation += `Leveraging your ${aiMaturity} AI maturity, we'll optimize existing systems via ${learningStyle} sessions that `;
+    }
+    
+    // Business-specific recommendations based on functions
+    if (functions.includes('Sales')) {
+      recommendation += `focus on AI-powered lead qualification and customer engagement, `;
+    }
+    if (functions.includes('Ops')) {
+      recommendation += `emphasize workflow automation and process optimization, `;
+    }
+    if (functions.includes('HR')) {
+      recommendation += `introduce AI for talent acquisition and employee experience enhancement, `;
+    }
+    if (functions.includes('CX')) {
+      recommendation += `implement intelligent customer service and personalization tools, `;
+    }
+    
+    // Specific skill development
     if (skills.includes('Data Analysis')) {
-      recommendation += `we'll leverage your existing data analysis skills through ${learningStyle} workshops focusing on advanced AI applications. `;
-    } else if (skills.includes('Digital Marketing')) {
-      recommendation += `we'll build on your digital marketing expertise with ${learningStyle} sessions on AI-powered marketing automation. `;
+      recommendation += `advancing your analytical capabilities with predictive modeling and automated insights. `;
+    } else if (skills.includes('Content Creation')) {
+      recommendation += `scaling your content operations with AI-assisted writing and creative workflows. `;
     } else {
-      recommendation += `we'll design ${learningStyle} workshops tailored to build foundational AI skills for your team. `;
+      recommendation += `developing core AI competencies tailored to your industry needs. `;
     }
     
-    // Include specific targets
+    // Success targets integration
     if (targets.length > 0) {
       recommendation += `To achieve your goals of ${targets.slice(0, 2).join(' and ')}, `;
     }
     
-    // Final recommendation based on experience
+    // Business context from website
+    if (businessInfo?.services) {
+      recommendation += `we'll create AI applications specifically for ${businessInfo.services.slice(0, 2).join(' and ')} that align with your `;
+    }
+    
+    // Closing with change experience consideration
     if (hasChangeExp) {
-      recommendation += `we'll customize the workshop using your transformation experience and provide additional toolkits, plus enable you to select key employees for individual follow-up sessions.`;
+      recommendation += `proven transformation experience. Our program includes executive briefings, hands-on workshops, and personalized coaching to ensure sustainable adoption across your ${businessName} team.`;
     } else {
-      recommendation += `we'll provide comprehensive practical learning materials, implementation toolkits, and enable you to choose specific employees for targeted follow-up workshops to maximize adoption.`;
+      recommendation += `business objectives. We'll provide comprehensive change management support, practical implementation toolkits, and ongoing mentorship to drive lasting transformation at ${businessName}.`;
     }
     
     return recommendation;
@@ -454,7 +531,7 @@ export const Step7Mindmaker: React.FC = () => {
           <CardTitle className="text-xl">AI Recommendation</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-base mb-6">{getAIRecommendation()}</p>
+          <p className="text-base mb-6">{recommendation || 'Generating personalized recommendation...'}</p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Button 
               onClick={handleBookSession}
