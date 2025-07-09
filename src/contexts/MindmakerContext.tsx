@@ -31,6 +31,7 @@ const initialMindmakerData: MindmakerData = {
   businessName: '',
   userName: '',
   businessEmail: '',
+  businessUrl: '',
   company: '',
   country: '',
   logoFile: null,

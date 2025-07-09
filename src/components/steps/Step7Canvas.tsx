@@ -21,6 +21,7 @@ export const Step7Mindmaker: React.FC = () => {
     businessName: state.mindmakerData.businessName,
     userName: state.mindmakerData.userName,
     businessEmail: state.mindmakerData.businessEmail,
+    businessUrl: state.mindmakerData.businessUrl || '',
     company: state.mindmakerData.company,
     country: state.mindmakerData.country,
     ndaAccepted: state.mindmakerData.ndaAccepted,
@@ -165,6 +166,7 @@ export const Step7Mindmaker: React.FC = () => {
             businessName: contactForm.businessName,
             userName: contactForm.userName,
             businessEmail: contactForm.businessEmail,
+            businessUrl: contactForm.businessUrl,
             mindmakerData,
             aiRecommendation: getAIRecommendation()
           }
@@ -208,6 +210,7 @@ export const Step7Mindmaker: React.FC = () => {
       businessName: '',
       userName: '',
       businessEmail: '',
+      businessUrl: '',
       company: '',
       country: '',
       ndaAccepted: false,
@@ -234,6 +237,7 @@ export const Step7Mindmaker: React.FC = () => {
       businessName: '',
       userName: '',
       businessEmail: '',
+      businessUrl: '',
       company: '',
       country: '',
       ndaAccepted: false,
@@ -415,6 +419,16 @@ export const Step7Mindmaker: React.FC = () => {
                 value={contactForm.businessEmail}
                 onChange={(e) => handleContactFormChange('businessEmail', e.target.value)}
                 placeholder="your.email@company.com"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <Label htmlFor="businessUrl">Business Website URL</Label>
+              <Input
+                id="businessUrl"
+                type="url"
+                value={contactForm.businessUrl}
+                onChange={(e) => handleContactFormChange('businessUrl', e.target.value)}
+                placeholder="https://www.yourcompany.com"
               />
             </div>
           </div>

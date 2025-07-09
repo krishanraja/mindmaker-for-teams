@@ -28,6 +28,7 @@ export interface MindmakerData {
   businessName: string;
   userName: string;
   businessEmail: string;
+  businessUrl: string;
   company: string;
   country: string;
   logoFile: File | null;
