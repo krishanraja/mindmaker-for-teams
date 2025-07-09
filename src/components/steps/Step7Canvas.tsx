@@ -32,7 +32,7 @@ export const Step7Mindmaker: React.FC = () => {
     updateMindmakerData(newForm);
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     // Mark step 7 as completed when user downloads PDF
     markStepCompleted(7);
     const { mindmakerData } = state;
@@ -40,134 +40,52 @@ export const Step7Mindmaker: React.FC = () => {
     const doc = new jsPDF();
     const pageHeight = doc.internal.pageSize.height;
     const pageWidth = doc.internal.pageSize.width;
-    let currentY = 20;
     
     // Set black background for entire page
     doc.setFillColor(0, 0, 0);
     doc.rect(0, 0, pageWidth, pageHeight, 'F');
     
-    // Function to check if we need a new page and add one if needed
-    const checkNewPage = (requiredHeight: number) => {
-      if (currentY + requiredHeight > pageHeight - 20) {
-        doc.addPage();
-        // Set black background for new page
-        doc.setFillColor(0, 0, 0);
-        doc.rect(0, 0, pageWidth, pageHeight, 'F');
-        currentY = 20;
-        return true;
-      }
-      return false;
-    };
-    
-    // Add logo and email
-    const loadLogoAndGenerate = async () => {
-      try {
-        // Load the logo image
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => {
-          // Set base font to helvetica (closest to Inter)
-          doc.setFont('helvetica', 'normal');
-          
-          // Add logo (30x30 pixels)
-          doc.addImage(img, 'PNG', 20, currentY, 30, 30);
-          
-          // Add email beneath logo
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(10);
-          doc.setFont('helvetica', 'normal');
-          doc.text('krish@fractionl.ai', 20, currentY + 40);
-          currentY += 55;
-          
-          // Continue with the rest of the PDF generation
-          generatePDFContent();
-        };
-        img.onerror = () => {
-          // Fallback if logo doesn't load
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(12);
-          doc.text('FRACTIONL', 20, currentY);
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(10);
-          doc.text('krish@fractionl.ai', 20, currentY + 15);
-          currentY += 30;
-          generatePDFContent();
-        };
-        img.src = '/lovable-uploads/32cd84ff-f45d-4007-963c-592cf3554f70.png';
-      } catch (error) {
-        // Fallback
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(12);
-        doc.text('FRACTIONL', 20, currentY);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.text('krish@fractionl.ai', 20, currentY + 15);
-        currentY += 30;
-        generatePDFContent();
-      }
-    };
-    
-    const generatePDFContent = async () => {
-      const leftMargin = 40;
-      const rightMargin = 40;
-      const contentWidth = pageWidth - leftMargin - rightMargin;
-      
-      // Header with logo and title
-      try {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = '/lovable-uploads/32cd84ff-f45d-4007-963c-592cf3554f70.png';
-        doc.addImage(img, 'PNG', leftMargin, currentY, 20, 20);
-      } catch (error) {
-        // Logo fallback
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(255, 255, 255);
-        doc.text('FRACTIONL', leftMargin, currentY + 15);
-      }
-      
-      // Main title with business name
-      currentY += 50;
-      doc.setFontSize(24);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(255, 255, 255);
-      const titleText = `AI TRANSFORMATION MINDMAKER FOR ${mindmakerData.businessName || '{BUSINESS NAME}'}`;
-      doc.text(titleText, leftMargin, currentY);
-      
-      currentY += 60;
-      
-      // AI Recommendation Section
-      const recommendation = getAIRecommendation();
-      const recLines = doc.splitTextToSize(recommendation, contentWidth);
-      
-      doc.setFontSize(14);
+    const generateContent = () => {
+      // Email below logo
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.text('krish@fractionl.ai', 20, 50);
       
-      recLines.forEach((line: string, index: number) => {
-        doc.text(line, leftMargin, currentY + (index * 7));
-      });
-      
-      currentY += (recLines.length * 7) + 60;
-      
-      // Why We're Different Section
-      doc.setFontSize(20);
+      // Main Title
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(255, 255, 255);
-      doc.text('Why We\'re Different', leftMargin, currentY);
+      doc.setFontSize(20);
+      const businessName = mindmakerData.businessName || '{BUSINESS NAME}';
+      const titleText = `AI TRANSFORMATION MINDMAKER FOR ${businessName.toUpperCase()}`;
+      doc.text(titleText, 20, 90, { maxWidth: 170 });
       
-      currentY += 30;
+      // AI Recommendation Section
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(12);
+      doc.setTextColor(255, 255, 255);
+      const recommendation = getAIRecommendation();
+      const recLines = doc.splitTextToSize(recommendation, 170);
       
-      // The 5 reasons exactly as shown in template
+      let startY = 120;
+      recLines.forEach((line: string, index: number) => {
+        doc.text(line, 20, startY + (index * 6));
+      });
+      
+      // Why We're Different Section
+      const sectionStartY = startY + (recLines.length * 6) + 30;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text("Why We're Different", 20, sectionStartY);
+      
+      // The 5 reasons from the template
       const reasons = [
         {
           title: "Mindset before mechanics",
           content: "The focus is on cognitive reframing & \"agent opportunity spotting,\" using linguistic techniques for better prompting, learning what APIs / other technical elements actually are in plain English, and why they'll need to know it in the future."
         },
         {
-          title: "Practicality and learning",
+          title: "Practicality and learning", 
           content: "Most workshops show off the speaker's knowledge. Fractionl AI gets you on the ramp to self education with wireframes and examples that everyone can relate to and pick up."
         },
         {
@@ -184,58 +102,63 @@ export const Step7Mindmaker: React.FC = () => {
         }
       ];
       
+      let currentY = sectionStartY + 20;
+      
       reasons.forEach((reason, index) => {
         // Check if we need a new page
-        if (currentY > pageHeight - 80) {
+        if (currentY > pageHeight - 60) {
           doc.addPage();
           doc.setFillColor(0, 0, 0);
           doc.rect(0, 0, pageWidth, pageHeight, 'F');
-          currentY = 40;
+          currentY = 30;
         }
         
         // Number and title
-        doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
         doc.setTextColor(255, 255, 255);
-        doc.text(`${index + 1}. ${reason.title}`, leftMargin, currentY);
-        
-        currentY += 15;
+        doc.text(`${index + 1}. ${reason.title}`, 20, currentY);
         
         // Content
-        doc.setFontSize(11);
         doc.setFont('helvetica', 'normal');
-        doc.setTextColor(255, 255, 255);
-        
-        const contentLines = doc.splitTextToSize(reason.content, contentWidth - 20);
+        doc.setFontSize(11);
+        const contentLines = doc.splitTextToSize(reason.content, 160);
         contentLines.forEach((line: string, lineIndex: number) => {
-          doc.text(line, leftMargin + 20, currentY + (lineIndex * 6));
+          doc.text(line, 30, currentY + 10 + (lineIndex * 5));
         });
         
-        currentY += (contentLines.length * 6) + 25;
+        currentY += 10 + (contentLines.length * 5) + 15;
       });
       
-      // Footer
-      currentY += 20;
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(150, 150, 150);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, leftMargin, currentY);
-    
-      // Save the PDF locally
+      // Save the PDF
       doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
       
-      // Get PDF as base64 for email attachment
-      const pdfBlob = doc.output('blob');
-      const pdfBase64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = (reader.result as string).split(',')[1];
-          resolve(base64);
-        };
-        reader.readAsDataURL(pdfBlob);
-      });
-      
-      // Send email notification with canvas data
+      // Send email notification
+      sendEmailNotification();
+    };
+    
+    // Header - Logo and Email (top left)
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = '/lovable-uploads/32cd84ff-f45d-4007-963c-592cf3554f70.png';
+      img.onload = () => {
+        doc.addImage(img, 'PNG', 20, 20, 20, 20);
+        generateContent();
+      };
+      img.onerror = () => {
+        // Logo fallback
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.text('FRACTIONL', 20, 35);
+        generateContent();
+      };
+    } catch (error) {
+      generateContent();
+    }
+    
+    const sendEmailNotification = async () => {
       try {
         const { error } = await supabase.functions.invoke('send-canvas-email', {
           body: {
@@ -269,9 +192,6 @@ export const Step7Mindmaker: React.FC = () => {
         });
       }
     };
-    
-    // Start the process
-    loadLogoAndGenerate();
   };
 
   const handleBookSession = () => {
