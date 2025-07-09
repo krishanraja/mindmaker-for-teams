@@ -122,29 +122,33 @@ export const Step7Mindmaker: React.FC = () => {
       // AI Recommendation section (moved to top) - Enhanced layout
       const recommendation = getAIRecommendation();
       const maxWidth = pageWidth - 40; // 20px margin on each side
-      const recLines = doc.splitTextToSize(recommendation, maxWidth);
-      checkNewPage(50 + recLines.length * 6);
+      const recLines = doc.splitTextToSize(recommendation, maxWidth - 20); // Additional margin for content
+      checkNewPage(50 + recLines.length * 7);
       
-      // Create a styled background box for the recommendation
-      doc.setFillColor(138, 43, 226); // Purple background
+      // Create a styled background box for the recommendation header
+      doc.setFillColor(88, 28, 135); // Darker purple background
       doc.roundedRect(20, currentY - 5, maxWidth, 25, 3, 3, 'F');
       
-      // Section heading with proper spacing
+      // Section heading centered vertically and horizontally
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold'); // Using helvetica as closest to Outfit
       doc.setTextColor(255, 255, 255);
-      doc.text('AI RECOMMENDATION', 30, currentY + 12);
+      const headerText = 'AI RECOMMENDATION';
+      const textWidth = doc.getTextWidth(headerText);
+      const centerX = 20 + (maxWidth - textWidth) / 2;
+      doc.text(headerText, centerX, currentY + 14); // Centered vertically in 25px header
       currentY += 35;
       
-      // Recommendation content with better formatting
+      // Recommendation content with better formatting and proper spacing
       doc.setFillColor(40, 40, 45); // Dark background for content
-      doc.roundedRect(20, currentY - 10, maxWidth, recLines.length * 6 + 20, 5, 5, 'F');
+      const contentHeight = recLines.length * 7 + 30; // More spacing between lines
+      doc.roundedRect(20, currentY - 15, maxWidth, contentHeight, 5, 5, 'F');
       
-      doc.setFontSize(11);
+      doc.setFontSize(12);
       doc.setFont('helvetica', 'normal'); // Using helvetica as closest to Inter
       doc.setTextColor(255, 255, 255);
-      doc.text(recLines, 30, currentY);
-      currentY += recLines.length * 6 + 25;
+      doc.text(recLines, 30, currentY, { lineHeightFactor: 1.4 }); // Better line spacing
+      currentY += recLines.length * 7 + 25;
     
     // Organization info section
       checkNewPage(40);
@@ -260,9 +264,74 @@ export const Step7Mindmaker: React.FC = () => {
       doc.text(`• ${target}`, 20, currentY);
       currentY += 8;
     });
-    currentY += 20;
+    currentY += 25;
+    
+    // Why Us? section on new page
+    doc.addPage();
+    // Set black background for new page
+    doc.setFillColor(0, 0, 0);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    currentY = 30;
+    
+    // Why Us? section header
+    doc.setFillColor(88, 28, 135); // Darker purple background
+    doc.roundedRect(20, currentY - 5, maxWidth, 25, 3, 3, 'F');
+    
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255);
+    const whyUsText = 'WHY US?';
+    const whyUsWidth = doc.getTextWidth(whyUsText);
+    const whyUsCenterX = 20 + (maxWidth - whyUsWidth) / 2;
+    doc.text(whyUsText, whyUsCenterX, currentY + 14);
+    currentY += 40;
+    
+    // Why Us reasons
+    const whyUsReasons = [
+      {
+        title: "Mindset before mechanics",
+        content: "The focus is on cognitive reframing & \"agent opportunity spotting,\" using linguistic techniques for better prompting, learning what APIs / other technical elements actually are in plain English, and why they'll need to know it in the future."
+      },
+      {
+        title: "Practicality and learning",
+        content: "Most workshops show off the speaker's knowledge. Fractionl AI gets you on the ramp to self education with wireframes and examples that everyone can relate to and pick up."
+      },
+      {
+        title: "Fractional future lens",
+        content: "Heavy focus on creating value as a stand-alone micro-service. Monetize your mind and amplify with agents to ensure a healthy future for your people & business."
+      },
+      {
+        title: "Tech-agnostic guard-rails",
+        content: "With decades long background in data privacy and AI automation, Fractional AI advises on how to protect your IP & assess vendor-risk so clients aren't trapped by short-lived hype platforms and can build an agentic future that survives any one AI tool."
+      },
+      {
+        title: "Teacher-founder",
+        content: "Krish's qualified-teacher background + coder mindset + business acumen translates complex agent concepts into plain-language, high-retention learning."
+      }
+    ];
+    
+    whyUsReasons.forEach((reason, index) => {
+      // Check if we need a new page
+      const reasonLines = doc.splitTextToSize(reason.content, maxWidth - 40);
+      checkNewPage(20 + reasonLines.length * 6);
+      
+      // Reason title
+      doc.setFontSize(13);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(138, 43, 226);
+      doc.text(`${index + 1}. ${reason.title}`, 20, currentY);
+      currentY += 15;
+      
+      // Reason content
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(255, 255, 255);
+      doc.text(reasonLines, 30, currentY, { lineHeightFactor: 1.3 });
+      currentY += reasonLines.length * 6 + 20;
+    });
     
     // Footer
+    currentY += 10;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal'); // Normal for footer text
     doc.setTextColor(150, 150, 150);
