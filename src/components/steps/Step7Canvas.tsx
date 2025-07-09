@@ -118,6 +118,23 @@ export const Step7Mindmaker: React.FC = () => {
       doc.setTextColor(138, 43, 226); // Purple color
       doc.text('AI TRANSFORMATION MINDMAKER', 20, currentY);
       currentY += 25;
+
+      // AI Recommendation section (moved to top)
+      const recommendation = getAIRecommendation();
+      const recLines = doc.splitTextToSize(recommendation, 170);
+      checkNewPage(30 + recLines.length * 6);
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold'); // Bold for section headings
+      doc.setTextColor(138, 43, 226);
+      doc.text('AI RECOMMENDATION', 20, currentY);
+      currentY += 15;
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'normal'); // Normal for body text
+      doc.setTextColor(255, 255, 255);
+      doc.text(recLines, 20, currentY);
+      currentY += recLines.length * 6 + 25;
     
     // Organization info section
       checkNewPage(40);
@@ -235,23 +252,6 @@ export const Step7Mindmaker: React.FC = () => {
     });
     currentY += 20;
     
-    // AI Recommendation section
-    const recommendation = getAIRecommendation();
-    const recLines = doc.splitTextToSize(recommendation, 170);
-    checkNewPage(30 + recLines.length * 6);
-    
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold'); // Bold for section headings
-    doc.setTextColor(138, 43, 226);
-    doc.text('AI RECOMMENDATION', 20, currentY);
-    currentY += 15;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal'); // Normal for body text
-    doc.setTextColor(255, 255, 255);
-    doc.text(recLines, 20, currentY);
-    currentY += recLines.length * 6 + 25;
-    
     // Footer
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal'); // Normal for footer text
@@ -326,21 +326,40 @@ export const Step7Mindmaker: React.FC = () => {
     const hasChangeExp = mindmakerData.changeNarrative.length > 0;
     const learningStyle = mindmakerData.learningModality;
     const aiMaturity = mindmakerData.aiAdoption;
+    const functions = mindmakerData.businessFunctions;
+    const skills = mindmakerData.aiSkills;
+    const targets = mindmakerData.successTargets;
     
-    let recommendation = `Based on your ${teamSize}-person team's ${avgAnxiety.toFixed(0)}% average anxiety level and ${aiMaturity} AI maturity, `;
+    let recommendation = `For your ${teamSize}-person team across ${functions.join(', ')}, `;
     
+    // Personalize based on anxiety and AI maturity
     if (avgAnxiety > 60) {
-      recommendation += `we recommend starting with comprehensive change management and ${learningStyle} training to build confidence before implementing AI tools. `;
+      recommendation += `we recommend starting with confidence-building sessions to address the ${avgAnxiety.toFixed(0)}% anxiety level. Given your ${aiMaturity} AI experience, `;
     } else if (avgAnxiety > 30) {
-      recommendation += `a balanced approach with ${learningStyle} training and gradual AI tool introduction will work best for your team. `;
+      recommendation += `with a ${avgAnxiety.toFixed(0)}% anxiety level and ${aiMaturity} AI maturity, `;
     } else {
-      recommendation += `your team is ready for accelerated AI adoption through ${learningStyle} programs and rapid deployment strategies. `;
+      recommendation += `your team's low ${avgAnxiety.toFixed(0)}% anxiety and ${aiMaturity} experience positions you for `;
     }
     
-    if (hasChangeExp) {
-      recommendation += `Given your previous transformation experience, we'll leverage those learnings to customize your workshop and provide additional toolkits and resources.`;
+    // Customize approach based on learning style and skills
+    if (skills.includes('Data Analysis')) {
+      recommendation += `we'll leverage your existing data analysis skills through ${learningStyle} workshops focusing on advanced AI applications. `;
+    } else if (skills.includes('Digital Marketing')) {
+      recommendation += `we'll build on your digital marketing expertise with ${learningStyle} sessions on AI-powered marketing automation. `;
     } else {
-      recommendation += `We'll provide practical learning materials, toolkits, and enable you to choose employees for individual follow-up workshops to maximize impact.`;
+      recommendation += `we'll design ${learningStyle} workshops tailored to build foundational AI skills for your team. `;
+    }
+    
+    // Include specific targets
+    if (targets.length > 0) {
+      recommendation += `To achieve your goals of ${targets.slice(0, 2).join(' and ')}, `;
+    }
+    
+    // Final recommendation based on experience
+    if (hasChangeExp) {
+      recommendation += `we'll customize the workshop using your transformation experience and provide additional toolkits, plus enable you to select key employees for individual follow-up sessions.`;
+    } else {
+      recommendation += `we'll provide comprehensive practical learning materials, implementation toolkits, and enable you to choose specific employees for targeted follow-up workshops to maximize adoption.`;
     }
     
     return recommendation;
