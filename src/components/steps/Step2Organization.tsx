@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Users, Building, TrendingUp, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Users, Building, TrendingUp, X, Globe } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -7,11 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useMindmaker } from '../../contexts/MindmakerContext';
-import { BUSINESS_FUNCTIONS } from '../../types/canvas';
+import { BUSINESS_FUNCTIONS, COMPANIES } from '../../types/canvas';
 
 export const Step2Organization: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
 
+  const [businessName, setBusinessName] = useState(state.mindmakerData.businessName);
+  const [company, setCompany] = useState(state.mindmakerData.company);
+  const [businessUrl, setBusinessUrl] = useState(state.mindmakerData.businessUrl);
   const [employeeCount, setEmployeeCount] = useState(state.mindmakerData.employeeCount);
   const [selectedFunctions, setSelectedFunctions] = useState<string[]>(state.mindmakerData.businessFunctions);
   const [aiAdoption, setAiAdoption] = useState(state.mindmakerData.aiAdoption);
@@ -19,11 +22,14 @@ export const Step2Organization: React.FC = () => {
 
   useEffect(() => {
     updateMindmakerData({
+      businessName,
+      company,
+      businessUrl,
       employeeCount,
       businessFunctions: selectedFunctions,
       aiAdoption,
     });
-  }, [employeeCount, selectedFunctions, aiAdoption, updateMindmakerData]);
+  }, [businessName, company, businessUrl, employeeCount, selectedFunctions, aiAdoption, updateMindmakerData]);
 
   const toggleFunction = (func: string) => {
     setSelectedFunctions(prev => 
@@ -39,6 +45,14 @@ export const Step2Organization: React.FC = () => {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+    
+    if (!businessName.trim()) {
+      newErrors.businessName = 'Please enter your business name';
+    }
+    
+    if (!company) {
+      newErrors.company = 'Please select your business type';
+    }
     
     if (employeeCount <= 0) {
       newErrors.employeeCount = 'Please enter a valid number of employees';
@@ -88,6 +102,67 @@ export const Step2Organization: React.FC = () => {
           Help us understand your team structure and current AI readiness
         </p>
       </div>
+
+      {/* Business Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building className="w-5 h-5 text-brand-purple" />
+            Business Information
+          </CardTitle>
+          <CardDescription>
+            Tell us about your business
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="businessName">Business Name *</Label>
+              <Input
+                id="businessName"
+                placeholder="Your company name"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                className={errors.businessName ? 'border-error' : ''}
+              />
+              {errors.businessName && (
+                <p className="text-sm text-error">{errors.businessName}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="company">Business Type *</Label>
+              <Select value={company} onValueChange={setCompany}>
+                <SelectTrigger className={errors.company ? 'border-error' : ''}>
+                  <SelectValue placeholder="Select business type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {COMPANIES.map((comp) => (
+                    <SelectItem key={comp} value={comp}>
+                      {comp}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.company && (
+                <p className="text-sm text-error">{errors.company}</p>
+              )}
+            </div>
+            <div className="md:col-span-2 space-y-2">
+              <Label htmlFor="businessUrl">Business Website URL</Label>
+              <div className="flex items-center space-x-2">
+                <Globe className="w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="businessUrl"
+                  type="url"
+                  placeholder="https://www.yourcompany.com"
+                  value={businessUrl}
+                  onChange={(e) => setBusinessUrl(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Team Size */}

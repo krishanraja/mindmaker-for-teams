@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import jsPDF from 'jspdf';
-import { ArrowLeft, Download, Calendar, Mail, Building, User, FileText, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Download, Calendar, User, FileText, CheckCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
@@ -9,21 +9,21 @@ import { Checkbox } from '../ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useMindmaker } from '../../contexts/MindmakerContext';
 import { Badge } from '../ui/badge';
-import { getAnxietyLevel, COMPANIES, COUNTRIES } from '../../types/canvas';
+import { COUNTRIES } from '../../types/canvas';
 import { supabase } from '../../integrations/supabase/client';
 import { useToast } from '../../hooks/use-toast';
+import { LoadingScreen } from '../LoadingScreen';
 
 export const Step7Mindmaker: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
   const { toast } = useToast();
   const [recommendation, setRecommendation] = useState<string>('');
+  const [showLoading, setShowLoading] = useState(true);
+  const [showResults, setShowResults] = useState(false);
   
   const [contactForm, setContactForm] = useState({
-    businessName: state.mindmakerData.businessName,
     userName: state.mindmakerData.userName,
-    businessEmail: state.mindmakerData.businessEmail,
-    businessUrl: state.mindmakerData.businessUrl || '',
-    company: state.mindmakerData.company,
+    userEmail: state.mindmakerData.businessEmail,
     country: state.mindmakerData.country,
     ndaAccepted: state.mindmakerData.ndaAccepted,
   });
@@ -31,11 +31,12 @@ export const Step7Mindmaker: React.FC = () => {
   const handleContactFormChange = (field: string, value: string | boolean) => {
     const newForm = { ...contactForm, [field]: value };
     setContactForm(newForm);
-    updateMindmakerData(newForm);
-    // Regenerate recommendation when form changes
-    if (field === 'businessUrl' && value) {
-      generateRecommendation();
-    }
+    updateMindmakerData({ 
+      userName: newForm.userName,
+      businessEmail: newForm.userEmail,
+      country: newForm.country,
+      ndaAccepted: newForm.ndaAccepted
+    });
   };
 
   const generateRecommendation = async () => {
@@ -43,10 +44,15 @@ export const Step7Mindmaker: React.FC = () => {
     setRecommendation(rec);
   };
 
-  // Generate initial recommendation
+  const handleLoadingComplete = () => {
+    setShowLoading(false);
+    setShowResults(true);
+  };
+
+  // Generate initial recommendation when component mounts
   React.useEffect(() => {
     generateRecommendation();
-  }, [state.mindmakerData]);
+  }, []);
 
   const handleDownloadPDF = async () => {
     // Mark step 7 as completed when user downloads PDF
@@ -179,10 +185,10 @@ export const Step7Mindmaker: React.FC = () => {
         const emailRecommendation = await getAIRecommendation();
         const { error } = await supabase.functions.invoke('send-canvas-email', {
           body: {
-            businessName: contactForm.businessName,
+            businessName: state.mindmakerData.businessName,
             userName: contactForm.userName,
-            businessEmail: contactForm.businessEmail,
-            businessUrl: contactForm.businessUrl,
+            businessEmail: contactForm.userEmail,
+            businessUrl: state.mindmakerData.businessUrl,
             mindmakerData,
             aiRecommendation: emailRecommendation
           }
@@ -250,11 +256,8 @@ export const Step7Mindmaker: React.FC = () => {
     
     updateMindmakerData(initialData);
     setContactForm({
-      businessName: '',
       userName: '',
-      businessEmail: '',
-      businessUrl: '',
-      company: '',
+      userEmail: '',
       country: '',
       ndaAccepted: false,
     });
@@ -283,10 +286,10 @@ export const Step7Mindmaker: React.FC = () => {
     
     // Get business information from website
     let businessInfo = null;
-    if (contactForm.businessUrl) {
+    if (state.mindmakerData.businessUrl) {
       try {
         const { data } = await supabase.functions.invoke('analyze-business-website', {
-          body: { businessUrl: contactForm.businessUrl }
+          body: { businessUrl: state.mindmakerData.businessUrl }
         });
         businessInfo = data?.businessInfo;
       } catch (error) {
@@ -375,9 +378,13 @@ export const Step7Mindmaker: React.FC = () => {
     return recommendation;
   };
 
-  const isFormValid = contactForm.businessName && contactForm.userName && 
-                     contactForm.businessEmail && contactForm.company && 
+  const isFormValid = contactForm.userName && contactForm.userEmail && 
                      contactForm.country && contactForm.ndaAccepted;
+
+  // Show loading screen first
+  if (showLoading) {
+    return <LoadingScreen onComplete={handleLoadingComplete} />;
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -397,12 +404,14 @@ export const Step7Mindmaker: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Building className="w-5 h-5" />
-              Organization Snapshot
+              <User className="w-5 h-5" />
+              Organization Summary
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
+              <p><strong>Business:</strong> {state.mindmakerData.businessName}</p>
+              <p><strong>Type:</strong> {state.mindmakerData.company}</p>
               <p><strong>Team Size:</strong> {state.mindmakerData.employeeCount} employees</p>
               <p><strong>Functions:</strong> {state.mindmakerData.businessFunctions.length}</p>
               <p><strong>AI Maturity:</strong> {state.mindmakerData.aiAdoption}</p>
@@ -435,20 +444,11 @@ export const Step7Mindmaker: React.FC = () => {
       {/* Contact Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Get Your Mindmaker</CardTitle>
-          <CardDescription>Complete your details to download your personalized mindmaker</CardDescription>
+          <CardTitle>Complete Your Details</CardTitle>
+          <CardDescription>Provide your contact information to receive your personalized mindmaker</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="businessName">Business Name *</Label>
-              <Input
-                id="businessName"
-                value={contactForm.businessName}
-                onChange={(e) => handleContactFormChange('businessName', e.target.value)}
-                placeholder="Your company name"
-              />
-            </div>
             <div>
               <Label htmlFor="userName">Your Name *</Label>
               <Input
@@ -459,21 +459,16 @@ export const Step7Mindmaker: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="company">Business Type *</Label>
-              <Select value={contactForm.company} onValueChange={(value) => handleContactFormChange('company', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select company type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {COMPANIES.map((company) => (
-                    <SelectItem key={company} value={company}>
-                      {company}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="userEmail">Your Email *</Label>
+              <Input
+                id="userEmail"
+                type="email"
+                value={contactForm.userEmail}
+                onChange={(e) => handleContactFormChange('userEmail', e.target.value)}
+                placeholder="your.email@company.com"
+              />
             </div>
-            <div>
+            <div className="md:col-span-2">
               <Label htmlFor="country">Country *</Label>
               <Select value={contactForm.country} onValueChange={(value) => handleContactFormChange('country', value)}>
                 <SelectTrigger>
@@ -487,26 +482,6 @@ export const Step7Mindmaker: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="md:col-span-2">
-              <Label htmlFor="businessEmail">Business Email *</Label>
-              <Input
-                id="businessEmail"
-                type="email"
-                value={contactForm.businessEmail}
-                onChange={(e) => handleContactFormChange('businessEmail', e.target.value)}
-                placeholder="your.email@company.com"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <Label htmlFor="businessUrl">Business Website URL</Label>
-              <Input
-                id="businessUrl"
-                type="url"
-                value={contactForm.businessUrl}
-                onChange={(e) => handleContactFormChange('businessUrl', e.target.value)}
-                placeholder="https://www.yourcompany.com"
-              />
             </div>
           </div>
           
