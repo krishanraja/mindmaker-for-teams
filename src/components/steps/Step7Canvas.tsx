@@ -231,10 +231,11 @@ export const Step7Mindmaker: React.FC = () => {
     setCurrentStep(6);
   };
 
-  const handleStartOver = () => {
+    const handleStartOver = () => {
     // Reset all form data to initial state
     const initialData = {
       businessName: '',
+      businessDescription: '',
       userName: '',
       businessEmail: '',
       businessUrl: '',
@@ -279,166 +280,49 @@ export const Step7Mindmaker: React.FC = () => {
   const getAIRecommendation = async () => {
     const { mindmakerData } = state;
     
-    // Get business information from website
-    let businessInfo = null;
-    if (state.mindmakerData.businessUrl) {
-      try {
-        const { data } = await supabase.functions.invoke('analyze-business-website', {
-          body: { businessUrl: state.mindmakerData.businessUrl }
-        });
-        businessInfo = data?.businessInfo;
-      } catch (error) {
-        console.log('Could not analyze business website:', error);
-      }
-    }
+    // Simple, reliable recommendation generation using only user inputs
+    const businessName = mindmakerData.businessName || 'Your organization';
+    const businessDescription = mindmakerData.businessDescription || 'your business';
+    const functions = mindmakerData.businessFunctions.join(' and ') || 'key business functions';
+    const modality = mindmakerData.learningModality;
     
-    // Structure the recommendation in logical sections
-    const generateStructuredRecommendation = () => {
-      const businessName = mindmakerData.businessName || 'your organization';
-      const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
-      
-      // 1. INTRODUCTION - Business context and understanding
-      const introduction = generateIntroduction(businessName, businessInfo, mindmakerData.businessFunctions);
-      
-      // 2. ASSESSMENT - Current state analysis
-      const assessment = generateAssessment(avgAnxiety, mindmakerData.aiAdoption, mindmakerData.aiSkills, mindmakerData.automationRisks);
-      
-      // 3. APPROACH - Training methodology and focus
-      const approach = generateApproach(mindmakerData.learningModality, avgAnxiety, mindmakerData.businessFunctions, mindmakerData.aiSkills);
-      
-      // 4. OUTCOMES - Expected results and success targets
-      const outcomes = generateOutcomes(mindmakerData.successTargets, businessName);
-      
-      return [introduction, assessment, approach, outcomes].join(' ');
-    };
+    // Calculate average anxiety
+    const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((sum, val) => sum + val, 0) / 5;
+    const anxietyLevel = avgAnxiety > 60 ? 'significant concerns' : avgAnxiety > 40 ? 'some hesitation' : 'readiness';
     
-    const generateIntroduction = (businessName: string, businessInfo: any, functions: string[]) => {
-      let intro = `For ${businessName}`;
-      
-      // Add business context if available
-      if (businessInfo?.industry && businessInfo.industry !== 'business') {
-        intro += `, operating in the ${businessInfo.industry} sector`;
-      }
-      
-      if (businessInfo?.companyDescription && businessInfo.companyDescription.length > 50) {
-        // Use a portion of the company description for context
-        const descWords = businessInfo.companyDescription.split(' ').slice(0, 15).join(' ');
-        intro += ` (${descWords})`;
-      }
-      
-      // Add team structure context
-      if (functions.length > 0) {
-        intro += `, with teams spanning ${functions.slice(0, 3).join(', ')},`;
-      }
-      
-      return intro;
-    };
-    
-    const generateAssessment = (avgAnxiety: number, aiAdoption: string, skills: string[], risks: string[]) => {
-      let assessment = '';
-      
-      // Anxiety level analysis
-      if (avgAnxiety > 60) {
-        assessment += `our assessment reveals significant organizational anxiety about AI transformation (${avgAnxiety.toFixed(0)}% average). This indicates a need for confidence-building and change management support.`;
-      } else if (avgAnxiety > 30) {
-        assessment += `with moderate organizational readiness for AI adoption (${avgAnxiety.toFixed(0)}% anxiety level), your team is positioned for balanced education and practical application.`;
-      } else {
-        assessment += `your team demonstrates strong readiness for AI adoption (low ${avgAnxiety.toFixed(0)}% anxiety level), enabling accelerated learning approaches.`;
-      }
-      
-      // AI maturity context
-      if (aiAdoption === 'none') {
-        assessment += ` Starting from foundational AI literacy,`;
-      } else if (aiAdoption === 'pilots') {
-        assessment += ` Building on your pilot program experience,`;
-      } else {
-        assessment += ` Leveraging your existing AI implementation experience,`;
-      }
-      
-      // Skills and risk context
-      if (skills.length > 0) {
-        assessment += ` we'll strengthen current capabilities in ${skills.slice(0, 2).join(' and ')}`;
-      }
-      
-      if (risks.length > 0 && avgAnxiety > 40) {
-        assessment += ` while addressing automation concerns in ${risks.slice(0, 2).join(' and ')}.`;
-      } else {
-        assessment += `.`;
-      }
-      
-      return assessment;
-    };
-    
-    const generateApproach = (learningModality: string, avgAnxiety: number, functions: string[], skills: string[]) => {
-      let approach = `Our training methodology will use ${learningModality.replace('-', ' ')} delivery`;
-      
-      // Anxiety-informed training approach
-      if (avgAnxiety > 50) {
-        approach += ` with emphasis on hands-on practice and confidence building. We'll focus on demonstrating AI as a productivity enhancement tool rather than replacement technology.`;
-      } else {
-        approach += ` designed for practical skill development and immediate application. Training will emphasize real-world implementation and measurable outcomes.`;
-      }
-      
-      // Function-specific training elements
-      const trainingFocus = generateTrainingFocus(functions, skills);
-      if (trainingFocus) {
-        approach += ` ${trainingFocus}`;
-      }
-      
-      return approach;
-    };
-    
-    const generateTrainingFocus = (functions: string[], skills: string[]) => {
-      const focusAreas = [];
-      
-      if (functions.includes('Sales')) {
-        focusAreas.push('AI-powered lead qualification and customer engagement');
-      }
-      if (functions.includes('Ops')) {
-        focusAreas.push('workflow automation and process optimization');
-      }
-      if (functions.includes('HR')) {
-        focusAreas.push('talent acquisition and employee experience enhancement');
-      }
-      if (functions.includes('CX')) {
-        focusAreas.push('intelligent customer service and personalization');
-      }
-      if (functions.includes('Marketing')) {
-        focusAreas.push('content creation and campaign optimization');
-      }
-      
-      // Add skill-specific focus
-      if (skills.includes('Data Analysis')) {
-        focusAreas.push('advanced analytics and predictive modeling');
-      }
-      if (skills.includes('Content Creation')) {
-        focusAreas.push('AI-assisted writing and creative workflows');
-      }
-      
-      if (focusAreas.length === 0) return '';
-      
-      if (focusAreas.length === 1) {
-        return `Specific training modules will cover ${focusAreas[0]}.`;
-      } else {
-        return `Training modules will include ${focusAreas.slice(0, 2).join(' and ')}, among other relevant applications.`;
+    // Get learning approach description
+    const getModalityDescription = (modality: string) => {
+      switch (modality) {
+        case 'live-cohort': return 'live cohort training sessions with group collaboration';
+        case 'self-paced': return 'self-paced learning modules that team members can complete on their own schedule';
+        case 'coaching': return 'personalized one-on-one coaching sessions';
+        case 'chatbot': return 'AI-powered learning assistant for immediate support';
+        case 'blended': return 'blended learning approach combining multiple training methods';
+        default: return 'structured training program';
       }
     };
     
-    const generateOutcomes = (targets: string[], businessName: string) => {
-      let outcomes = `The program is designed to deliver measurable results`;
-      
-      if (targets.length > 0) {
-        outcomes += `, specifically targeting your objectives of ${targets.slice(0, 2).join(' and ')}.`;
-      } else {
-        outcomes += ` in AI capability development and organizational readiness.`;
+    // Get AI adoption context
+    const getAdoptionContext = (adoption: string) => {
+      switch (adoption) {
+        case 'none': return 'Currently, no AI tools are in use, making this an ideal time to establish a solid foundation for AI adoption.';
+        case 'pilots': return 'With AI pilots already underway, the organization is positioned to expand successful implementations.';
+        case 'team-level': return 'Some teams are using AI tools, creating an opportunity to standardize and scale best practices.';
+        case 'enterprise-wide': return 'With existing AI adoption, the focus will be on optimization and advanced skill development.';
+        default: return 'The organization is ready to begin its AI transformation journey.';
       }
-      
-      outcomes += ` Upon completion, ${businessName} will have developed sustainable AI competencies, reduced transformation anxiety, and established clear pathways for continued innovation and growth.`;
-      
-      return outcomes;
     };
     
-    return generateStructuredRecommendation();
+    // Build the recommendation
+    const recommendation = `${businessName}, ${businessDescription}, operates across ${functions} and shows ${anxietyLevel} regarding AI implementation. ${getAdoptionContext(mindmakerData.aiAdoption)} 
+
+We recommend implementing ${getModalityDescription(modality)} to build AI confidence and practical skills across your team. This approach will address current concerns while building the capabilities needed for successful AI integration.
+
+${mindmakerData.changeNarrative ? `The transformation will be guided by your vision: "${mindmakerData.changeNarrative}" ` : ''}The program will focus on developing practical AI skills that directly support your business operations, ensuring measurable improvements in efficiency and productivity.
+
+Expected outcomes include enhanced team confidence with AI tools, improved workflow efficiency, and sustainable adoption practices that align with your business goals.`;
+
+    return recommendation;
   };
 
   const isFormValid = contactForm.userName && contactForm.userEmail && 
@@ -474,6 +358,7 @@ export const Step7Mindmaker: React.FC = () => {
           <CardContent>
             <div className="space-y-2">
               <p><strong>Business:</strong> {state.mindmakerData.businessName}</p>
+              <p><strong>Description:</strong> {state.mindmakerData.businessDescription}</p>
               <p><strong>Type:</strong> {state.mindmakerData.company}</p>
               <p><strong>Functions:</strong> {state.mindmakerData.businessFunctions.length}</p>
               <p><strong>AI Maturity:</strong> {state.mindmakerData.aiAdoption}</p>

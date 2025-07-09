@@ -26,6 +26,7 @@ export interface MindmakerData {
   
   // Step 7: Contact Details
   businessName: string;
+  businessDescription: string;
   userName: string;
   businessEmail: string;
   businessUrl: string;

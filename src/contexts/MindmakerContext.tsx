@@ -29,6 +29,7 @@ const initialMindmakerData: MindmakerData = {
   changeNarrative: '',
   successTargets: [],
   businessName: '',
+  businessDescription: '',
   userName: '',
   businessEmail: '',
   businessUrl: '',

@@ -7,12 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useMindmaker } from '../../contexts/MindmakerContext';
-import { BUSINESS_FUNCTIONS, COMPANIES } from '../../types/canvas';
 
 export const Step2Organization: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
 
   const [businessName, setBusinessName] = useState(state.mindmakerData.businessName);
+  const [businessDescription, setBusinessDescription] = useState(state.mindmakerData.businessDescription);
   const [company, setCompany] = useState(state.mindmakerData.company);
   const [businessUrl, setBusinessUrl] = useState(state.mindmakerData.businessUrl);
   const [selectedFunctions, setSelectedFunctions] = useState<string[]>(state.mindmakerData.businessFunctions);
@@ -22,12 +22,13 @@ export const Step2Organization: React.FC = () => {
   useEffect(() => {
     updateMindmakerData({
       businessName,
+      businessDescription,
       company,
       businessUrl,
       businessFunctions: selectedFunctions,
       aiAdoption,
     });
-  }, [businessName, company, businessUrl, selectedFunctions, aiAdoption, updateMindmakerData]);
+  }, [businessName, businessDescription, company, businessUrl, selectedFunctions, aiAdoption, updateMindmakerData]);
 
   const toggleFunction = (func: string) => {
     setSelectedFunctions(prev => 
@@ -46,6 +47,10 @@ export const Step2Organization: React.FC = () => {
     
     if (!businessName.trim()) {
       newErrors.businessName = 'Please enter your business name';
+    }
+    
+    if (!businessDescription.trim()) {
+      newErrors.businessDescription = 'Please describe what your business does';
     }
     
     if (!company) {
@@ -142,7 +147,21 @@ export const Step2Organization: React.FC = () => {
               )}
             </div>
             <div className="md:col-span-2 space-y-2">
-              <Label htmlFor="businessUrl">Business Website URL</Label>
+              <Label htmlFor="businessDescription">What does your business do? *</Label>
+              <textarea
+                id="businessDescription"
+                placeholder="Describe your business in 1-2 sentences (e.g., We provide accounting services for small businesses, helping them manage their finances and stay compliant with tax regulations.)"
+                value={businessDescription}
+                onChange={(e) => setBusinessDescription(e.target.value)}
+                className={`w-full min-h-[80px] px-3 py-2 text-sm rounded-md border ${errors.businessDescription ? 'border-red-500' : 'border-input'} bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+                rows={3}
+              />
+              {errors.businessDescription && (
+                <p className="text-sm text-red-600">{errors.businessDescription}</p>
+              )}
+            </div>
+            <div className="md:col-span-2 space-y-2">
+              <Label htmlFor="businessUrl">Business Website URL (optional)</Label>
               <div className="flex items-center space-x-2">
                 <Globe className="w-4 h-4 text-muted-foreground" />
                 <Input
