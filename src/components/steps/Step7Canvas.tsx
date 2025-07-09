@@ -338,9 +338,9 @@ export const Step7Mindmaker: React.FC = () => {
     }
     
     if (hasChangeExp) {
-      recommendation += `Given your previous transformation experience, we'll leverage those learnings to customize your AI journey.`;
+      recommendation += `Given your previous transformation experience, we'll leverage those learnings to customize your workshop and provide additional toolkits and resources.`;
     } else {
-      recommendation += `We'll provide extra change management support to ensure smooth adoption across your organization.`;
+      recommendation += `We'll provide practical learning materials, toolkits, and enable you to choose employees for individual follow-up workshops to maximize impact.`;
     }
     
     return recommendation;
