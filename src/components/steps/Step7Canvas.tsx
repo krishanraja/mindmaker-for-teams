@@ -77,7 +77,7 @@ export const Step7Mindmaker: React.FC = () => {
       // Main Title
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(20);
+      doc.setFontSize(24);
       const businessName = mindmakerData.businessName || '{BUSINESS NAME}';
       const titleText = `AI TRANSFORMATION MINDMAKER FOR ${businessName.toUpperCase()}`;
       doc.text(titleText, 20, 90, { maxWidth: 170 });
@@ -158,7 +158,7 @@ export const Step7Mindmaker: React.FC = () => {
       });
       
       // Add image and closing text at the bottom of page 2
-      const bottomY = pageHeight - 80;
+      const bottomY = pageHeight - 59; // Moved down by 3 lines (21 pixels)
       
       // Add the profile image
       try {
