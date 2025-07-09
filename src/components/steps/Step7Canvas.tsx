@@ -484,17 +484,6 @@ export const Step7Mindmaker: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Actions */}
-      <div className="flex justify-start items-center pt-6">
-        <Button
-          variant="outline"
-          onClick={handlePrevious}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Previous
-        </Button>
-      </div>
 
       {/* AI Recommendation */}
       <Card className="bg-gradient-purple text-white">
@@ -522,6 +511,18 @@ export const Step7Mindmaker: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Previous Button */}
+      <div className="flex justify-start pt-6">
+        <Button
+          variant="outline"
+          onClick={handlePrevious}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Previous
+        </Button>
+      </div>
     </div>
   );
 };
