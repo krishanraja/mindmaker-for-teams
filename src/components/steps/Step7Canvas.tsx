@@ -15,7 +15,7 @@ import { useToast } from '../../hooks/use-toast';
 import { LoadingScreen } from '../LoadingScreen';
 
 export const Step7Mindmaker: React.FC = () => {
-  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetMindmaker } = useMindmaker();
   const { toast } = useToast();
   const [recommendation, setRecommendation] = useState<string>('');
   const [showLoading, setShowLoading] = useState(true);
@@ -268,6 +268,9 @@ export const Step7Mindmaker: React.FC = () => {
       ndaAccepted: false,
     });
     
+    // Reset everything including step progress to clear green ticks
+    resetMindmaker();
+    
     // Navigate back to step 1
     setCurrentStep(1);
     
@@ -319,29 +322,73 @@ export const Step7Mindmaker: React.FC = () => {
     
     // Helper function to analyze change narrative and create appropriate response
     const getChangeContext = (narrative: string) => {
-      if (!narrative || narrative.trim() === '') return '';
-      
-      const text = narrative.toLowerCase();
-      
-      // Detect if it's about negative past experiences
-      const hasNegativeExperience = text.includes('failed') || text.includes('disaster') || 
-                                   text.includes('bad') || text.includes('terrible') || 
-                                   text.includes('awful') || text.includes('chaos') || 
-                                   text.includes('mess') || text.includes('nightmare') ||
-                                   text.includes('struggled') || text.includes('difficult');
-      
-      // Detect if it's about positive past experiences  
-      const hasPositiveExperience = text.includes('successful') || text.includes('good') ||
-                                   text.includes('smooth') || text.includes('effective') ||
-                                   text.includes('well') || text.includes('positive');
-      
-      if (hasNegativeExperience) {
-        return 'Drawing from previous organizational change experiences, this program will address common implementation challenges with a structured, gradual approach that prioritizes team confidence and practical skill development.';
-      } else if (hasPositiveExperience) {
-        return 'Building on your organization\'s previous success with change initiatives, this program will leverage proven methodologies while adapting to the unique aspects of AI adoption.';
-      } else {
-        return 'Understanding that change management is crucial for AI adoption success, this program incorporates proven change management principles throughout the learning journey.';
+      if (!narrative || narrative.trim() === '') {
+        return 'Given that this will be a new organizational change initiative, the program will incorporate proven change management principles with particular emphasis on building confidence and reducing resistance through transparent communication and gradual skill development.';
       }
+      
+      const text = narrative.toLowerCase().trim();
+      
+      // Check for no experience indicators
+      const noExperienceWords = ['no', 'never', 'first time', 'new to', 'haven\'t', 'limited', 'minimal'];
+      const hasNoExperience = noExperienceWords.some(word => text.includes(word));
+      
+      if (hasNoExperience) {
+        return 'Since this represents new territory for your organization, the program will emphasize foundational change management principles with extra focus on clear communication, expectation setting, and building early wins to establish confidence and momentum.';
+      }
+      
+      // Analyze sentiment and outcomes using more comprehensive word lists
+      const positiveWords = ['success', 'successful', 'worked', 'effective', 'smooth', 'achieved', 'improved', 'positive', 'well', 'good', 'great', 'excellent', 'buy-in', 'adoption', 'embraced', 'champion', 'enthusiastic', 'ready', 'excited', 'open'];
+      const negativeWords = ['failed', 'struggle', 'difficult', 'resistance', 'challenge', 'problem', 'issue', 'conflict', 'reject', 'opposed', 'slow', 'delayed', 'frustrated', 'pushback', 'disaster', 'terrible', 'awful', 'chaos', 'mess', 'nightmare'];
+      
+      const positiveScore = positiveWords.filter(word => text.includes(word)).length;
+      const negativeScore = negativeWords.filter(word => text.includes(word)).length;
+      
+      // Check for change types and contexts
+      const digitalWords = ['digital', 'technology', 'system', 'software', 'platform', 'tool', 'automation', 'ai'];
+      const hasDigitalExp = digitalWords.some(word => text.includes(word));
+      
+      // Check for timeline preferences
+      const rapidWords = ['fast', 'quick', 'rapid', 'immediate', 'urgent', 'aggressive'];
+      const gradualWords = ['gradual', 'slow', 'step-by-step', 'phased', 'careful', 'cautious'];
+      const prefersRapid = rapidWords.some(word => text.includes(word));
+      const prefersGradual = gradualWords.some(word => text.includes(word));
+      
+      // Check for learning from setbacks
+      const learningWords = ['learn', 'learned', 'lesson', 'better', 'improve', 'adjust'];
+      const hasLearned = learningWords.some(word => text.includes(word));
+      
+      // Generate contextual response based on analysis
+      let response = '';
+      
+      if (positiveScore > negativeScore) {
+        if (hasDigitalExp) {
+          response = 'Building on your proven success with digital transformations, this program will leverage your existing change management strengths while adapting proven methodologies specifically for AI adoption challenges.';
+        } else {
+          response = 'Drawing from your organization\'s track record of successful change initiatives, the program will accelerate through foundational concepts and focus on advanced AI integration strategies that align with your established transformation capabilities.';
+        }
+      } else if (negativeScore > positiveScore) {
+        if (hasLearned) {
+          response = 'Recognizing the valuable lessons learned from previous change challenges, this program is specifically designed to address common implementation pitfalls through incremental skill building, transparent communication, and hands-on practice that builds confidence before expanding scope.';
+        } else {
+          response = 'Understanding the resistance and challenges faced in previous initiatives, the program emphasizes practical demonstration of AI value, peer learning opportunities, and gradual exposure that allows team members to build confidence at their own pace while addressing skepticism through tangible results.';
+        }
+      } else {
+        // Mixed or neutral experience
+        if (hasDigitalExp) {
+          response = 'Given your mixed results from digital initiatives, the program will emphasize proven change management frameworks while providing extra focus on communication strategies and stakeholder engagement to ensure more consistent adoption outcomes.';
+        } else {
+          response = 'The program will incorporate adaptive change management strategies that can flex based on team dynamics, ensuring both skeptics and early adopters are supported through the AI adoption journey.';
+        }
+      }
+      
+      // Add timeline considerations if clear preferences exist
+      if (prefersRapid && !prefersGradual) {
+        response += ' The accelerated timeline approach will include intensive workshops and concentrated learning periods to meet your preference for rapid implementation.';
+      } else if (prefersGradual && !prefersRapid) {
+        response += ' The gradual rollout approach will include extended pilot phases and careful progression to align with your preference for measured, step-by-step implementation.';
+      }
+      
+      return response;
     };
     
     // Calculate anxiety context

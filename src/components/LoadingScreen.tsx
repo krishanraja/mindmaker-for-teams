@@ -15,7 +15,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
   }, [onComplete]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-purple via-brand-blue to-brand-teal">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-purple via-brand-purple-secondary to-brand-purple">
       <div className="text-center space-y-8 max-w-md mx-auto px-6">
         {/* Animated Logo/Icon */}
         <div className="relative mx-auto w-24 h-24">
@@ -30,7 +30,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
         <div className="space-y-4">
           <h1 className="text-2xl md:text-3xl font-bold text-white animate-fade-in">
             We're pulling together your 
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-pink-200 mt-2">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white/90 to-white/70 mt-2">
               Agentic Mindmaker Workshop Proposal...
             </span>
           </h1>
@@ -44,7 +44,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
             
             <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-yellow-200 to-pink-200 rounded-full animate-[scale-in_5s_ease-out_forwards] origin-left"
+                className="h-full bg-gradient-to-r from-white/90 to-white/70 rounded-full animate-[scale-in_5s_ease-out_forwards] origin-left"
                 style={{ 
                   animation: 'width-grow 5s ease-out forwards',
                   width: '0%'
@@ -56,10 +56,10 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({ onComplete }) => {
 
         {/* Floating elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <Sparkles className="absolute top-1/4 left-1/4 w-6 h-6 text-yellow-200 animate-pulse" style={{ animationDelay: '0.5s' }} />
-          <Sparkles className="absolute top-1/3 right-1/4 w-4 h-4 text-pink-200 animate-pulse" style={{ animationDelay: '1.5s' }} />
-          <Sparkles className="absolute bottom-1/3 left-1/3 w-5 h-5 text-blue-200 animate-pulse" style={{ animationDelay: '2.5s' }} />
-          <Sparkles className="absolute bottom-1/4 right-1/3 w-4 h-4 text-purple-200 animate-pulse" style={{ animationDelay: '3.5s' }} />
+          <Sparkles className="absolute top-1/4 left-1/4 w-6 h-6 text-white/60 animate-pulse" style={{ animationDelay: '0.5s' }} />
+          <Sparkles className="absolute top-1/3 right-1/4 w-4 h-4 text-white/50 animate-pulse" style={{ animationDelay: '1.5s' }} />
+          <Sparkles className="absolute bottom-1/3 left-1/3 w-5 h-5 text-white/60 animate-pulse" style={{ animationDelay: '2.5s' }} />
+          <Sparkles className="absolute bottom-1/4 right-1/3 w-4 h-4 text-white/50 animate-pulse" style={{ animationDelay: '3.5s' }} />
         </div>
       </div>
 
