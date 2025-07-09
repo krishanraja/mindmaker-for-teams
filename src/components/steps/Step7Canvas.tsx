@@ -151,17 +151,74 @@ export const Step7Mindmaker: React.FC = () => {
         doc.setFontSize(11);
         const contentLines = doc.splitTextToSize(reason.content, 160);
         contentLines.forEach((line: string, lineIndex: number) => {
-          doc.text(line, 30, currentY + 10 + (lineIndex * 5));
+          doc.text(line, 20, currentY + 10 + (lineIndex * 5));
         });
         
         currentY += 10 + (contentLines.length * 5) + 15;
       });
       
-      // Save the PDF
-      doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
+      // Add image and closing text at the bottom of page 2
+      const bottomY = pageHeight - 80;
       
-      // Send email notification
-      sendEmailNotification();
+      // Add the profile image
+      try {
+        const profileImg = new Image();
+        profileImg.crossOrigin = 'anonymous';
+        profileImg.src = '/lovable-uploads/0a39e893-2d98-406e-abfb-6e090ab239a7.png';
+        profileImg.onload = () => {
+          doc.addImage(profileImg, 'PNG', 20, bottomY, 40, 40);
+          
+          // Add closing text next to the image
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(16);
+          doc.setTextColor(179, 136, 255); // Light purple color
+          const closingText = "We look forward to working with you. Email krish@fractionl.ai for next steps, or head back to the website to drop a time in the diary via the Plan Your Workshop link.";
+          const textLines = doc.splitTextToSize(closingText, 110);
+          textLines.forEach((line: string, lineIndex: number) => {
+            doc.text(line, 70, bottomY + 10 + (lineIndex * 7));
+          });
+          
+          // Save the PDF
+          doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
+          
+          // Send email notification
+          sendEmailNotification();
+        };
+        profileImg.onerror = () => {
+          // If image fails to load, just add the text
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(16);
+          doc.setTextColor(179, 136, 255); // Light purple color
+          const closingText = "We look forward to working with you. Email krish@fractionl.ai for next steps, or head back to the website to drop a time in the diary via the Plan Your Workshop link.";
+          const textLines = doc.splitTextToSize(closingText, 150);
+          textLines.forEach((line: string, lineIndex: number) => {
+            doc.text(line, 20, bottomY + 10 + (lineIndex * 7));
+          });
+          
+          // Save the PDF
+          doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
+          
+          // Send email notification
+          sendEmailNotification();
+        };
+      } catch (error) {
+        console.error('Error loading profile image:', error);
+        // Fallback: just add the text
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.setTextColor(179, 136, 255); // Light purple color
+        const closingText = "We look forward to working with you. Email krish@fractionl.ai for next steps, or head back to the website to drop a time in the diary via the Plan Your Workshop link.";
+        const textLines = doc.splitTextToSize(closingText, 150);
+        textLines.forEach((line: string, lineIndex: number) => {
+          doc.text(line, 20, bottomY + 10 + (lineIndex * 7));
+        });
+        
+        // Save the PDF
+        doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
+        
+        // Send email notification
+        sendEmailNotification();
+      }
     };
     
     // Header - Logo and Email (top left)
