@@ -92,13 +92,13 @@ export const Step2Organization: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 px-4 md:px-6">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="font-heading font-bold text-2xl md:text-3xl mb-3">
+      <div className="text-center mb-6 md:mb-8">
+        <h1 className="font-heading font-bold text-xl md:text-2xl lg:text-3xl mb-3">
           Organization Snapshot
         </h1>
-        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-2">
           Help us understand your team structure and current AI readiness
         </p>
       </div>
@@ -277,11 +277,11 @@ export const Step2Organization: React.FC = () => {
       </Card>
 
       {/* Navigation */}
-      <div className="flex justify-between pt-6">
+      <div className="flex flex-col md:flex-row justify-between gap-4 pt-6">
         <Button
           variant="outline"
           onClick={handlePrevious}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 w-full md:w-auto order-2 md:order-1"
         >
           <ArrowLeft className="w-4 h-4" />
           Previous
@@ -289,7 +289,7 @@ export const Step2Organization: React.FC = () => {
         
         <Button
           onClick={handleNext}
-          className="bg-gradient-purple hover:opacity-90 text-white flex items-center gap-2"
+          className="bg-gradient-purple hover:opacity-90 text-white flex items-center gap-2 w-full md:w-auto order-1 md:order-2"
         >
           Next
           <ArrowRight className="w-4 h-4" />
