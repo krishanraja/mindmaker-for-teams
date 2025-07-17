@@ -47,7 +47,7 @@ const LEARNING_MODALITIES = [
 ];
 
 export const Step5HabitHooks: React.FC = () => {
-  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetCurrentStepData } = useMindmaker();
 
   const [learningModality, setLearningModality] = useState(state.mindmakerData.learningModality);
   const [changeNarrative, setChangeNarrative] = useState(state.mindmakerData.changeNarrative);

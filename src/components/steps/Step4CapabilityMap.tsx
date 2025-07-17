@@ -9,7 +9,7 @@ import { AI_SKILLS, AUTOMATION_RISKS } from '../../types/canvas';
 import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 export const Step4CapabilityMap: React.FC = () => {
-  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetCurrentStepData } = useMindmaker();
 
   const [aiSkills, setAiSkills] = useState<string[]>(state.mindmakerData.aiSkills);
   const [automationRisks, setAutomationRisks] = useState<string[]>(state.mindmakerData.automationRisks);

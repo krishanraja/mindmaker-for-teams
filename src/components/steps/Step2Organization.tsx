@@ -11,7 +11,7 @@ import { COMPANIES, BUSINESS_FUNCTIONS } from '../../types/canvas';
 import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 export const Step2Organization: React.FC = () => {
-  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetCurrentStepData } = useMindmaker();
 
   const [businessName, setBusinessName] = useState(state.mindmakerData.businessName);
   const [businessDescription, setBusinessDescription] = useState(state.mindmakerData.businessDescription);
@@ -84,16 +84,9 @@ export const Step2Organization: React.FC = () => {
   };
 
   const handleConfirmBack = () => {
-    // Reset current step data
-    setBusinessName('');
-    setBusinessDescription('');
-    setCompany('');
-    setBusinessUrl('');
-    setSelectedFunctions([]);
-    setAiAdoption('none');
-    setErrors({});
-    setShowBackDialog(false);
+    resetCurrentStepData(2);
     setCurrentStep(1);
+    setShowBackDialog(false);
   };
 
   const getAiAdoptionDescription = (level: string) => {

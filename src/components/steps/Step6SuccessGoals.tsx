@@ -10,7 +10,7 @@ import { SUCCESS_TARGETS_SUGGESTIONS } from '../../types/canvas';
 import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 export const Step6SuccessGoals: React.FC = () => {
-  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetCurrentStepData } = useMindmaker();
   
   const [successTargets, setSuccessTargets] = useState<string[]>(state.mindmakerData.successTargets);
   const [customTarget, setCustomTarget] = useState('');

@@ -9,6 +9,7 @@ interface MindmakerContextType {
   markStepCompleted: (step: number) => void;
   markStepVisited: (step: number) => void;
   resetMindmaker: () => void;
+  resetCurrentStepData: (step: number) => void;
   saveToStorage: () => void;
 }
 
@@ -39,6 +40,61 @@ const initialMindmakerData: MindmakerData = {
   ndaAccepted: false,
 };
 
+const resetStepData = (data: MindmakerData, step: number): MindmakerData => {
+  switch (step) {
+    case 2:
+      return {
+        ...data,
+        employeeCount: 0,
+        businessFunctions: [],
+        aiAdoption: 'none',
+      };
+    case 3:
+      return {
+        ...data,
+        anxietyLevels: {
+          executives: 50,
+          middleManagement: 50,
+          frontlineStaff: 50,
+          techTeam: 50,
+          nonTechTeam: 50,
+        },
+      };
+    case 4:
+      return {
+        ...data,
+        aiSkills: [],
+        automationRisks: [],
+      };
+    case 5:
+      return {
+        ...data,
+        learningModality: 'live-cohort',
+        changeNarrative: '',
+      };
+    case 6:
+      return {
+        ...data,
+        successTargets: [],
+      };
+    case 7:
+      return {
+        ...data,
+        businessName: '',
+        businessDescription: '',
+        userName: '',
+        businessEmail: '',
+        businessUrl: '',
+        company: '',
+        country: '',
+        logoFile: null,
+        ndaAccepted: false,
+      };
+    default:
+      return data;
+  }
+};
+
 const initialState: AppState = {
   currentStep: 1,
   mindmakerData: initialMindmakerData,
@@ -52,6 +108,7 @@ type Action =
   | { type: 'MARK_STEP_COMPLETED'; payload: number }
   | { type: 'MARK_STEP_VISITED'; payload: number }
   | { type: 'RESET_MINDMAKER' }
+  | { type: 'RESET_CURRENT_STEP_DATA'; payload: number }
   | { type: 'LOAD_FROM_STORAGE'; payload: AppState }
   | { type: 'UPDATE_LAST_SAVED'; payload: Date };
 
@@ -98,6 +155,18 @@ const mindmakerReducer = (state: AppState, action: Action): AppState => {
       };
     case 'RESET_MINDMAKER':
       return initialState;
+    case 'RESET_CURRENT_STEP_DATA':
+      return {
+        ...state,
+        mindmakerData: resetStepData(state.mindmakerData, action.payload),
+        stepProgress: {
+          ...state.stepProgress,
+          [action.payload]: {
+            completed: false,
+            visited: true,
+          },
+        },
+      };
     case 'LOAD_FROM_STORAGE':
       return action.payload;
     case 'UPDATE_LAST_SAVED':
@@ -184,6 +253,10 @@ export const MindmakerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     dispatch({ type: 'RESET_MINDMAKER' });
   }, []);
 
+  const resetCurrentStepData = useCallback((step: number) => {
+    dispatch({ type: 'RESET_CURRENT_STEP_DATA', payload: step });
+  }, []);
+
   const value: MindmakerContextType = {
     state,
     updateMindmakerData,
@@ -191,6 +264,7 @@ export const MindmakerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     markStepCompleted,
     markStepVisited,
     resetMindmaker,
+    resetCurrentStepData,
     saveToStorage,
   };
 

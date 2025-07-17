@@ -21,9 +21,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
   const { state, setCurrentStep } = useMindmaker();
   
   const handleStepClick = (stepId: number) => {
-    // Allow navigation to visited steps or the next unvisited step
-    const stepProgress = state.stepProgress[stepId];
-    const canNavigate = stepProgress?.visited || stepId === state.currentStep || stepId === state.currentStep + 1;
+    // Only allow navigation to current step or next step (no backward navigation)
+    const canNavigate = stepId === state.currentStep || stepId === state.currentStep + 1;
     
     if (canNavigate) {
       setCurrentStep(stepId);
@@ -78,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
               const isCompleted = stepProgress?.completed || false;
               const isVisited = stepProgress?.visited || false;
               const isCurrent = state.currentStep === step.id;
-              const canNavigate = isVisited || step.id === state.currentStep || step.id === state.currentStep + 1;
+            const canNavigate = step.id === state.currentStep || step.id === state.currentStep + 1;
 
               return (
                 <button
@@ -188,7 +187,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
             const isCompleted = stepProgress?.completed || false;
             const isVisited = stepProgress?.visited || false;
             const isCurrent = state.currentStep === step.id;
-            const canNavigate = isVisited || step.id === state.currentStep || step.id === state.currentStep + 1;
+            const canNavigate = step.id === state.currentStep || step.id === state.currentStep + 1;
 
             return (
               <button
