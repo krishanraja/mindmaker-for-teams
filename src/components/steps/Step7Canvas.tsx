@@ -16,7 +16,7 @@ import { LoadingScreen } from '../LoadingScreen';
 import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 export const Step7Mindmaker: React.FC = () => {
-  const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetMindmaker } = useMindmaker();
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetMindmaker, resetCurrentStepData } = useMindmaker();
   const { toast } = useToast();
   const [recommendation, setRecommendation] = useState<string>('');
   const [showLoading, setShowLoading] = useState(true);
@@ -311,7 +311,9 @@ export const Step7Mindmaker: React.FC = () => {
   };
 
   const handleConfirmBack = () => {
-    // Reset current step data
+    // Reset current step data in context
+    resetCurrentStepData(7);
+    // Reset local state to match context reset
     setContactForm({
       userName: '',
       userEmail: '',

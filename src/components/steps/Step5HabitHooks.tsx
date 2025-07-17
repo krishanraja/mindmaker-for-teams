@@ -83,7 +83,9 @@ export const Step5HabitHooks: React.FC = () => {
   };
 
   const handleConfirmBack = () => {
-    // Reset current step data
+    // Reset current step data in context
+    resetCurrentStepData(5);
+    // Reset local state to match context reset
     setLearningModality('live-cohort');
     setChangeNarrative('');
     setShowBackDialog(false);

@@ -59,7 +59,9 @@ export const Step6SuccessGoals: React.FC = () => {
   };
 
   const handleConfirmBack = () => {
-    // Reset current step data
+    // Reset current step data in context
+    resetCurrentStepData(6);
+    // Reset local state to match context reset
     setSuccessTargets([]);
     setCustomTarget('');
     setShowBackDialog(false);

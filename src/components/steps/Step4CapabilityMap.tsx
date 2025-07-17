@@ -71,7 +71,9 @@ export const Step4CapabilityMap: React.FC = () => {
   };
 
   const handleConfirmBack = () => {
-    // Reset current step data
+    // Reset current step data in context
+    resetCurrentStepData(4);
+    // Reset local state to match context reset
     setAiSkills([]);
     setAutomationRisks([]);
     setShowBackDialog(false);
