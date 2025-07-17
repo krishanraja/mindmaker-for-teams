@@ -29,6 +29,14 @@ export const Step7Mindmaker: React.FC = () => {
     country: state.mindmakerData.country,
     ndaAccepted: state.mindmakerData.ndaAccepted,
   });
+  
+  // Store initial values to check for changes
+  const [initialValues] = useState({
+    userName: state.mindmakerData.userName,
+    userEmail: state.mindmakerData.businessEmail,
+    country: state.mindmakerData.country,
+    ndaAccepted: state.mindmakerData.ndaAccepted,
+  });
 
   const handleContactFormChange = (field: string, value: string | boolean) => {
     const newForm = { ...contactForm, [field]: value };
@@ -287,7 +295,19 @@ export const Step7Mindmaker: React.FC = () => {
   };
 
   const handlePrevious = () => {
-    setShowBackDialog(true);
+    // Check if any form field has been changed from initial values
+    const hasChanged = (
+      contactForm.userName !== initialValues.userName ||
+      contactForm.userEmail !== initialValues.userEmail ||
+      contactForm.country !== initialValues.country ||
+      contactForm.ndaAccepted !== initialValues.ndaAccepted
+    );
+    
+    if (hasChanged) {
+      setShowBackDialog(true);
+    } else {
+      setCurrentStep(6);
+    }
   };
 
   const handleConfirmBack = () => {

@@ -21,6 +21,16 @@ export const Step2Organization: React.FC = () => {
   const [aiAdoption, setAiAdoption] = useState(state.mindmakerData.aiAdoption);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showBackDialog, setShowBackDialog] = useState(false);
+  
+  // Store initial values to check for changes
+  const [initialValues] = useState({
+    businessName: state.mindmakerData.businessName,
+    businessDescription: state.mindmakerData.businessDescription,
+    company: state.mindmakerData.company,
+    businessUrl: state.mindmakerData.businessUrl,
+    businessFunctions: state.mindmakerData.businessFunctions,
+    aiAdoption: state.mindmakerData.aiAdoption
+  });
 
   useEffect(() => {
     updateMindmakerData({
@@ -80,7 +90,21 @@ export const Step2Organization: React.FC = () => {
   };
 
   const handlePrevious = () => {
-    setShowBackDialog(true);
+    // Check if any form field has been changed from initial values
+    const hasChanged = (
+      businessName !== initialValues.businessName ||
+      businessDescription !== initialValues.businessDescription ||
+      company !== initialValues.company ||
+      businessUrl !== initialValues.businessUrl ||
+      JSON.stringify(selectedFunctions) !== JSON.stringify(initialValues.businessFunctions) ||
+      aiAdoption !== initialValues.aiAdoption
+    );
+    
+    if (hasChanged) {
+      setShowBackDialog(true);
+    } else {
+      setCurrentStep(1);
+    }
   };
 
   const handleConfirmBack = () => {

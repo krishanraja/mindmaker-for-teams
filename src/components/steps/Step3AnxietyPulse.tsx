@@ -6,6 +6,7 @@ import { Slider } from '../ui/slider';
 import { Label } from '../ui/label';
 import { useMindmaker } from '../../contexts/MindmakerContext';
 import { getAnxietyLevel } from '../../types/canvas';
+import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 interface AnxietySliderProps {
   label: string;
@@ -178,12 +179,13 @@ const TutorialOverlay: React.FC<{
 };
 
 export const Step3AnxietyPulse: React.FC = () => {
-  const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
+  const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetCurrentStepData } = useMindmaker();
 
   const [anxietyLevels, setAnxietyLevels] = useState(state.mindmakerData.anxietyLevels);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
   const [initialAnxietyLevels] = useState(state.mindmakerData.anxietyLevels);
+  const [showBackDialog, setShowBackDialog] = useState(false);
 
   useEffect(() => {
     updateMindmakerData({ anxietyLevels });
@@ -197,13 +199,11 @@ export const Step3AnxietyPulse: React.FC = () => {
   };
 
   const handleNext = () => {
-    // Check if user hasn't changed any sliders
-    const hasChanged = Object.keys(anxietyLevels).some(
-      key => anxietyLevels[key as keyof typeof anxietyLevels] !== initialAnxietyLevels[key as keyof typeof initialAnxietyLevels]
-    );
+    // Check if all sliders are at 50%
+    const allSlidersAt50 = Object.values(anxietyLevels).every(level => level === 50);
     
-    if (!hasChanged) {
-      // Show tutorial if no changes were made
+    if (allSlidersAt50) {
+      // Show tutorial if all sliders are at 50%
       startTutorial();
       return;
     }
@@ -213,7 +213,22 @@ export const Step3AnxietyPulse: React.FC = () => {
   };
 
   const handlePrevious = () => {
+    // Check if any slider has been changed from initial values
+    const hasChanged = Object.keys(anxietyLevels).some(
+      key => anxietyLevels[key as keyof typeof anxietyLevels] !== initialAnxietyLevels[key as keyof typeof initialAnxietyLevels]
+    );
+    
+    if (hasChanged) {
+      setShowBackDialog(true);
+    } else {
+      setCurrentStep(2);
+    }
+  };
+
+  const handleConfirmBack = () => {
+    resetCurrentStepData(3);
     setCurrentStep(2);
+    setShowBackDialog(false);
   };
 
   const getOverallAnxietyLevel = () => {
@@ -399,6 +414,13 @@ export const Step3AnxietyPulse: React.FC = () => {
         onNext={handleTutorialNext}
         onPrevious={handleTutorialPrevious}
         steps={tutorialSteps}
+      />
+
+      {/* Back Navigation Dialog */}
+      <BackNavigationDialog
+        isOpen={showBackDialog}
+        onClose={() => setShowBackDialog(false)}
+        onConfirm={handleConfirmBack}
       />
     </div>
   );

@@ -15,6 +15,12 @@ export const Step4CapabilityMap: React.FC = () => {
   const [automationRisks, setAutomationRisks] = useState<string[]>(state.mindmakerData.automationRisks);
   const [showBackDialog, setShowBackDialog] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
+  
+  // Store initial values to check for changes
+  const [initialValues] = useState({
+    aiSkills: state.mindmakerData.aiSkills,
+    automationRisks: state.mindmakerData.automationRisks
+  });
 
   useEffect(() => {
     updateMindmakerData({ aiSkills, automationRisks });
@@ -51,7 +57,17 @@ export const Step4CapabilityMap: React.FC = () => {
   };
 
   const handlePrevious = () => {
-    setShowBackDialog(true);
+    // Check if any form field has been changed from initial values
+    const hasChanged = (
+      JSON.stringify(aiSkills) !== JSON.stringify(initialValues.aiSkills) ||
+      JSON.stringify(automationRisks) !== JSON.stringify(initialValues.automationRisks)
+    );
+    
+    if (hasChanged) {
+      setShowBackDialog(true);
+    } else {
+      setCurrentStep(3);
+    }
   };
 
   const handleConfirmBack = () => {
