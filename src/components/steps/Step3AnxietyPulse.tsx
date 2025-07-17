@@ -234,7 +234,10 @@ export const Step3AnxietyPulse: React.FC = () => {
   };
 
   const handleConfirmBack = () => {
+    // Reset current step data in context
     resetCurrentStepData(3);
+    // Reset local state to match context reset
+    setAnxietyLevels(defaultAnxietyLevels);
     setCurrentStep(2);
     setShowBackDialog(false);
   };

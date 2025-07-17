@@ -45,7 +45,10 @@ const resetStepData = (data: MindmakerData, step: number): MindmakerData => {
     case 2:
       return {
         ...data,
-        employeeCount: 0,
+        businessName: '',
+        businessDescription: '',
+        company: '',
+        businessUrl: '',
         businessFunctions: [],
         aiAdoption: 'none',
       };

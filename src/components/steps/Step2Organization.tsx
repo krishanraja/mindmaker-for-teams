@@ -108,7 +108,15 @@ export const Step2Organization: React.FC = () => {
   };
 
   const handleConfirmBack = () => {
+    // Reset current step data in context
     resetCurrentStepData(2);
+    // Reset local state to match context reset
+    setBusinessName('');
+    setBusinessDescription('');
+    setCompany('');
+    setBusinessUrl('');
+    setSelectedFunctions([]);
+    setAiAdoption('none');
     setCurrentStep(1);
     setShowBackDialog(false);
   };
