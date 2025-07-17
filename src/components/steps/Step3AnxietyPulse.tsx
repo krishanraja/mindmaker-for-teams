@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ArrowRight, Activity, Heart, Users, Code, UserCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Activity, Heart, Users, Code, UserCheck, HelpCircle, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Slider } from '../ui/slider';
@@ -73,10 +73,116 @@ const AnxietySlider: React.FC<AnxietySliderProps> = ({ label, description, icon,
   );
 };
 
+interface TutorialStep {
+  title: string;
+  description: string;
+  target: string;
+  position: 'top' | 'bottom' | 'left' | 'right';
+}
+
+const tutorialSteps: TutorialStep[] = [
+  {
+    title: "Welcome to Anxiety Pulse Check",
+    description: "This tool helps you assess AI anxiety levels across different groups in your organization. Let's walk through how to use it.",
+    target: "header",
+    position: "bottom"
+  },
+  {
+    title: "Overall Anxiety Pulse",
+    description: "This bar shows your organization's overall anxiety level, calculated from all group assessments below.",
+    target: "overall-pulse",
+    position: "bottom"
+  },
+  {
+    title: "Group Assessment Cards",
+    description: "Each card represents a different group in your organization. Use the sliders to set their current AI anxiety level.",
+    target: "sliders-grid",
+    position: "top"
+  },
+  {
+    title: "How to Use Sliders",
+    description: "Drag the slider or click anywhere on the bar to set the anxiety level. The percentage and color will update automatically.",
+    target: "first-slider",
+    position: "right"
+  },
+  {
+    title: "Quick Insights",
+    description: "This section automatically shows which groups have the highest and lowest anxiety levels to help you identify patterns.",
+    target: "insights",
+    position: "top"
+  }
+];
+
+const TutorialOverlay: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  currentStep: number;
+  onNext: () => void;
+  onPrevious: () => void;
+  steps: TutorialStep[];
+}> = ({ isOpen, onClose, currentStep, onNext, onPrevious, steps }) => {
+  if (!isOpen) return null;
+
+  const step = steps[currentStep];
+  const isLastStep = currentStep === steps.length - 1;
+  const isFirstStep = currentStep === 0;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-card rounded-lg shadow-lg max-w-md w-full p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+        >
+          <X className="w-4 h-4" />
+        </button>
+        
+        <div className="mb-4">
+          <h3 className="font-semibold text-lg mb-2">{step.title}</h3>
+          <p className="text-muted-foreground text-sm">{step.description}</p>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="flex space-x-1">
+            {steps.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full ${
+                  index === currentStep ? 'bg-brand-purple' : 'bg-muted'
+                }`}
+              />
+            ))}
+          </div>
+          
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onPrevious}
+              disabled={isFirstStep}
+            >
+              Previous
+            </Button>
+            <Button
+              size="sm"
+              onClick={isLastStep ? onClose : onNext}
+              className="bg-gradient-purple hover:opacity-90 text-white"
+            >
+              {isLastStep ? 'Got it!' : 'Next'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const Step3AnxietyPulse: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
 
   const [anxietyLevels, setAnxietyLevels] = useState(state.mindmakerData.anxietyLevels);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialStep, setTutorialStep] = useState(0);
 
   useEffect(() => {
     updateMindmakerData({ anxietyLevels });
@@ -106,20 +212,53 @@ export const Step3AnxietyPulse: React.FC = () => {
 
   const overallAnxiety = getOverallAnxietyLevel();
 
+  const handleTutorialNext = () => {
+    if (tutorialStep < tutorialSteps.length - 1) {
+      setTutorialStep(tutorialStep + 1);
+    }
+  };
+
+  const handleTutorialPrevious = () => {
+    if (tutorialStep > 0) {
+      setTutorialStep(tutorialStep - 1);
+    }
+  };
+
+  const handleTutorialClose = () => {
+    setShowTutorial(false);
+    setTutorialStep(0);
+  };
+
+  const startTutorial = () => {
+    setShowTutorial(true);
+    setTutorialStep(0);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="font-heading font-bold text-2xl md:text-3xl mb-3">
-          Anxiety Pulse Check
-        </h1>
+      <div id="header" className="text-center mb-6">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <h1 className="font-heading font-bold text-2xl md:text-3xl">
+            Anxiety Pulse Check
+          </h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={startTutorial}
+            className="flex items-center gap-2"
+          >
+            <HelpCircle className="w-4 h-4" />
+            Help
+          </Button>
+        </div>
         <p className="text-base text-muted-foreground max-w-2xl mx-auto">
           Assess the current AI anxiety levels across different groups in your organization
         </p>
       </div>
 
       {/* Overall Anxiety Overview */}
-      <Card className="bg-gradient-to-r from-card to-card/80 border-2">
+      <Card id="overall-pulse" className="bg-gradient-to-r from-card to-card/80 border-2">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="w-5 h-5 text-brand-purple" />
@@ -149,14 +288,16 @@ export const Step3AnxietyPulse: React.FC = () => {
       </Card>
 
       {/* Anxiety Sliders */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <AnxietySlider
-          label="Executives"
-          description="C-suite and senior leadership team"
-          icon={<Heart className="w-5 h-5 text-error" />}
-          value={anxietyLevels.executives}
-          onChange={(value) => updateAnxietyLevel('executives', value)}
-        />
+      <div id="sliders-grid" className="grid md:grid-cols-2 gap-6">
+        <div id="first-slider">
+          <AnxietySlider
+            label="Executives"
+            description="C-suite and senior leadership team"
+            icon={<Heart className="w-5 h-5 text-error" />}
+            value={anxietyLevels.executives}
+            onChange={(value) => updateAnxietyLevel('executives', value)}
+          />
+        </div>
 
         <AnxietySlider
           label="Middle Management"
@@ -194,7 +335,7 @@ export const Step3AnxietyPulse: React.FC = () => {
       </div>
 
       {/* Insights */}
-      <Card className="bg-gradient-to-r from-muted/50 to-muted/20">
+      <Card id="insights" className="bg-gradient-to-r from-muted/50 to-muted/20">
         <CardHeader>
           <CardTitle className="text-lg">Quick Insights</CardTitle>
         </CardHeader>
@@ -237,6 +378,16 @@ export const Step3AnxietyPulse: React.FC = () => {
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Tutorial Overlay */}
+      <TutorialOverlay
+        isOpen={showTutorial}
+        onClose={handleTutorialClose}
+        currentStep={tutorialStep}
+        onNext={handleTutorialNext}
+        onPrevious={handleTutorialPrevious}
+        steps={tutorialSteps}
+      />
     </div>
   );
 };
