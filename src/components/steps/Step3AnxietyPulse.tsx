@@ -48,7 +48,7 @@ const AnxietySlider: React.FC<AnxietySliderProps> = ({ label, description, icon,
               max={100}
               min={0}
               step={5}
-              className="w-full"
+              className="w-full react-slider"
             />
             
             {/* Visual indicator bar */}
@@ -183,6 +183,7 @@ export const Step3AnxietyPulse: React.FC = () => {
   const [anxietyLevels, setAnxietyLevels] = useState(state.mindmakerData.anxietyLevels);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
+  const [initialAnxietyLevels] = useState(state.mindmakerData.anxietyLevels);
 
   useEffect(() => {
     updateMindmakerData({ anxietyLevels });
@@ -196,6 +197,17 @@ export const Step3AnxietyPulse: React.FC = () => {
   };
 
   const handleNext = () => {
+    // Check if user hasn't changed any sliders
+    const hasChanged = Object.keys(anxietyLevels).some(
+      key => anxietyLevels[key as keyof typeof anxietyLevels] !== initialAnxietyLevels[key as keyof typeof initialAnxietyLevels]
+    );
+    
+    if (!hasChanged) {
+      // Show tutorial if no changes were made
+      startTutorial();
+      return;
+    }
+    
     markStepCompleted(3);
     setCurrentStep(4);
   };
