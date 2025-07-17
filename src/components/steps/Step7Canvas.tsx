@@ -13,6 +13,7 @@ import { COUNTRIES } from '../../types/canvas';
 import { supabase } from '../../integrations/supabase/client';
 import { useToast } from '../../hooks/use-toast';
 import { LoadingScreen } from '../LoadingScreen';
+import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 export const Step7Mindmaker: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetMindmaker } = useMindmaker();
@@ -20,6 +21,7 @@ export const Step7Mindmaker: React.FC = () => {
   const [recommendation, setRecommendation] = useState<string>('');
   const [showLoading, setShowLoading] = useState(true);
   const [showResults, setShowResults] = useState(false);
+  const [showBackDialog, setShowBackDialog] = useState(false);
   
   const [contactForm, setContactForm] = useState({
     userName: state.mindmakerData.userName,
@@ -285,6 +287,18 @@ export const Step7Mindmaker: React.FC = () => {
   };
 
   const handlePrevious = () => {
+    setShowBackDialog(true);
+  };
+
+  const handleConfirmBack = () => {
+    // Reset current step data
+    setContactForm({
+      userName: '',
+      userEmail: '',
+      country: '',
+      ndaAccepted: false,
+    });
+    setShowBackDialog(false);
     setCurrentStep(6);
   };
 
@@ -678,6 +692,12 @@ The program will focus on developing practical AI literacy that directly support
           Start Over
         </Button>
       </div>
+
+      <BackNavigationDialog
+        isOpen={showBackDialog}
+        onClose={() => setShowBackDialog(false)}
+        onConfirm={handleConfirmBack}
+      />
     </div>
   );
 };

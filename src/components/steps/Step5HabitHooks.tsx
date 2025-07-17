@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { useMindmaker } from '../../contexts/MindmakerContext';
+import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 const LEARNING_MODALITIES = [
   {
@@ -50,6 +51,7 @@ export const Step5HabitHooks: React.FC = () => {
 
   const [learningModality, setLearningModality] = useState(state.mindmakerData.learningModality);
   const [changeNarrative, setChangeNarrative] = useState(state.mindmakerData.changeNarrative);
+  const [showBackDialog, setShowBackDialog] = useState(false);
 
   useEffect(() => {
     updateMindmakerData({ learningModality, changeNarrative });
@@ -61,6 +63,14 @@ export const Step5HabitHooks: React.FC = () => {
   };
 
   const handlePrevious = () => {
+    setShowBackDialog(true);
+  };
+
+  const handleConfirmBack = () => {
+    // Reset current step data
+    setLearningModality('live-cohort');
+    setChangeNarrative('');
+    setShowBackDialog(false);
     setCurrentStep(4);
   };
 
@@ -371,6 +381,12 @@ export const Step5HabitHooks: React.FC = () => {
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
+
+      <BackNavigationDialog
+        isOpen={showBackDialog}
+        onClose={() => setShowBackDialog(false)}
+        onConfirm={handleConfirmBack}
+      />
     </div>
   );
 };

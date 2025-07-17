@@ -6,12 +6,15 @@ import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
 import { useMindmaker } from '../../contexts/MindmakerContext';
 import { AI_SKILLS, AUTOMATION_RISKS } from '../../types/canvas';
+import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 export const Step4CapabilityMap: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
 
   const [aiSkills, setAiSkills] = useState<string[]>(state.mindmakerData.aiSkills);
   const [automationRisks, setAutomationRisks] = useState<string[]>(state.mindmakerData.automationRisks);
+  const [showBackDialog, setShowBackDialog] = useState(false);
+  const [showValidationError, setShowValidationError] = useState(false);
 
   useEffect(() => {
     updateMindmakerData({ aiSkills, automationRisks });
@@ -33,12 +36,29 @@ export const Step4CapabilityMap: React.FC = () => {
     );
   };
 
+  const validateForm = () => {
+    return aiSkills.length > 0 || automationRisks.length > 0;
+  };
+
   const handleNext = () => {
-    markStepCompleted(4);
-    setCurrentStep(5);
+    if (validateForm()) {
+      setShowValidationError(false);
+      markStepCompleted(4);
+      setCurrentStep(5);
+    } else {
+      setShowValidationError(true);
+    }
   };
 
   const handlePrevious = () => {
+    setShowBackDialog(true);
+  };
+
+  const handleConfirmBack = () => {
+    // Reset current step data
+    setAiSkills([]);
+    setAutomationRisks([]);
+    setShowBackDialog(false);
     setCurrentStep(3);
   };
 
@@ -183,6 +203,20 @@ export const Step4CapabilityMap: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Validation Error */}
+      {showValidationError && (
+        <Card className="border-error bg-error/10">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-error">
+              <AlertTriangle className="w-5 h-5" />
+              <p className="font-medium">
+                Please select at least one AI skill or automation risk to continue.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Navigation */}
       <div className="flex justify-between pt-6">
         <Button
@@ -196,12 +230,19 @@ export const Step4CapabilityMap: React.FC = () => {
         
         <Button
           onClick={handleNext}
-          className="bg-gradient-purple hover:opacity-90 text-white flex items-center gap-2"
+          disabled={!validateForm()}
+          className="bg-gradient-purple hover:opacity-90 text-white flex items-center gap-2 disabled:opacity-50"
         >
           Next
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
+
+      <BackNavigationDialog
+        isOpen={showBackDialog}
+        onClose={() => setShowBackDialog(false)}
+        onConfirm={handleConfirmBack}
+      />
     </div>
   );
 };

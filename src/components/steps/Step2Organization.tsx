@@ -8,6 +8,7 @@ import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useMindmaker } from '../../contexts/MindmakerContext';
 import { COMPANIES, BUSINESS_FUNCTIONS } from '../../types/canvas';
+import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 export const Step2Organization: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
@@ -19,6 +20,7 @@ export const Step2Organization: React.FC = () => {
   const [selectedFunctions, setSelectedFunctions] = useState<string[]>(state.mindmakerData.businessFunctions);
   const [aiAdoption, setAiAdoption] = useState(state.mindmakerData.aiAdoption);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showBackDialog, setShowBackDialog] = useState(false);
 
   useEffect(() => {
     updateMindmakerData({
@@ -78,6 +80,19 @@ export const Step2Organization: React.FC = () => {
   };
 
   const handlePrevious = () => {
+    setShowBackDialog(true);
+  };
+
+  const handleConfirmBack = () => {
+    // Reset current step data
+    setBusinessName('');
+    setBusinessDescription('');
+    setCompany('');
+    setBusinessUrl('');
+    setSelectedFunctions([]);
+    setAiAdoption('none');
+    setErrors({});
+    setShowBackDialog(false);
     setCurrentStep(1);
   };
 
@@ -295,6 +310,12 @@ export const Step2Organization: React.FC = () => {
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
+
+      <BackNavigationDialog
+        isOpen={showBackDialog}
+        onClose={() => setShowBackDialog(false)}
+        onConfirm={handleConfirmBack}
+      />
     </div>
   );
 };

@@ -7,12 +7,14 @@ import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { useMindmaker } from '../../contexts/MindmakerContext';
 import { SUCCESS_TARGETS_SUGGESTIONS } from '../../types/canvas';
+import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 
 export const Step6SuccessGoals: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted } = useMindmaker();
   
   const [successTargets, setSuccessTargets] = useState<string[]>(state.mindmakerData.successTargets);
   const [customTarget, setCustomTarget] = useState('');
+  const [showBackDialog, setShowBackDialog] = useState(false);
 
   useEffect(() => {
     updateMindmakerData({ successTargets });
@@ -41,6 +43,14 @@ export const Step6SuccessGoals: React.FC = () => {
   };
 
   const handlePrevious = () => {
+    setShowBackDialog(true);
+  };
+
+  const handleConfirmBack = () => {
+    // Reset current step data
+    setSuccessTargets([]);
+    setCustomTarget('');
+    setShowBackDialog(false);
     setCurrentStep(5);
   };
 
@@ -235,6 +245,12 @@ export const Step6SuccessGoals: React.FC = () => {
           <ArrowRight className="w-4 h-4" />
         </Button>
       </div>
+
+      <BackNavigationDialog
+        isOpen={showBackDialog}
+        onClose={() => setShowBackDialog(false)}
+        onConfirm={handleConfirmBack}
+      />
     </div>
   );
 };
