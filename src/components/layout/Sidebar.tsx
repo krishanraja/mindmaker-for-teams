@@ -20,15 +20,6 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
   const { state, setCurrentStep } = useMindmaker();
   
-  const handleStepClick = (stepId: number) => {
-    // Only allow navigation to current step or next step (no backward navigation)
-    const canNavigate = stepId === state.currentStep || stepId === state.currentStep + 1;
-    
-    if (canNavigate) {
-      setCurrentStep(stepId);
-      onNavigate?.(); // Close mobile navigation
-    }
-  };
 
   // Mobile version (used in Sheet)
   if (onNavigate) {
@@ -72,37 +63,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
 
           {/* Steps List */}
           <nav className="space-y-2">
-            {STEPS.map((step) => {
-              const stepProgress = state.stepProgress[step.id];
-              const isCompleted = stepProgress?.completed || false;
-              const isVisited = stepProgress?.visited || false;
-              const isCurrent = state.currentStep === step.id;
-            const canNavigate = step.id === state.currentStep || step.id === state.currentStep + 1;
+          {STEPS.map((step) => {
+            const stepProgress = state.stepProgress[step.id];
+            const isCompleted = stepProgress?.completed || false;
+            const isVisited = stepProgress?.visited || false;
+            const isCurrent = state.currentStep === step.id;
 
-              return (
-                <button
-                  key={step.id}
-                  onClick={() => handleStepClick(step.id)}
-                  disabled={!canNavigate}
-                  className={cn(
-                    "w-full text-left p-3 rounded-lg transition-all duration-200 group",
-                    "hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-50",
-                    isCurrent && "bg-gradient-purple text-white",
-                    !isCurrent && canNavigate && "hover:bg-muted",
-                    !canNavigate && "opacity-50"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                     <div className="flex-shrink-0">
-                      {isCompleted ? (
-                        <CheckCircle className="w-5 h-5 text-success fill-success" />
-                      ) : (
-                        <Circle className={cn(
-                          "w-5 h-5",
-                          isCurrent ? "text-white" : "text-muted-foreground"
-                        )} />
-                      )}
-                    </div>
+            return (
+              <div
+                key={step.id}
+                className={cn(
+                  "w-full text-left p-3 rounded-lg",
+                  isCurrent && "bg-gradient-purple text-white"
+                )}
+              >
+                <div className="flex items-center gap-3">
+                   <div className="flex-shrink-0">
+                    {isCompleted ? (
+                      <CheckCircle className="w-5 h-5 text-success fill-success" />
+                    ) : (
+                      <Circle className={cn(
+                        "w-5 h-5",
+                        isCurrent ? "text-white" : "text-muted-foreground"
+                      )} />
+                    )}
+                  </div>
                     
                     <div className="flex-1 min-w-0">
                       <div className={cn(
@@ -118,14 +103,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
                         {step.description}
                       </div>
                     </div>
-                    
-                    {isCurrent && (
-                      <ArrowRight className="w-4 h-4 text-white flex-shrink-0" />
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+                  
+                  {isCurrent && (
+                    <ArrowRight className="w-4 h-4 text-white flex-shrink-0" />
+                  )}
+                </div>
+              </div>
+            );
+          })}
           </nav>
 
           {/* Save Status */}
@@ -187,19 +172,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
             const isCompleted = stepProgress?.completed || false;
             const isVisited = stepProgress?.visited || false;
             const isCurrent = state.currentStep === step.id;
-            const canNavigate = step.id === state.currentStep || step.id === state.currentStep + 1;
 
             return (
-              <button
+              <div
                 key={step.id}
-                onClick={() => handleStepClick(step.id)}
-                disabled={!canNavigate}
                 className={cn(
-                  "w-full text-left p-3 rounded-lg transition-all duration-200 group",
-                  "hover:bg-muted/50 disabled:cursor-not-allowed disabled:opacity-50",
-                  isCurrent && "bg-gradient-purple text-white",
-                  !isCurrent && canNavigate && "hover:bg-muted",
-                  !canNavigate && "opacity-50"
+                  "w-full text-left p-3 rounded-lg",
+                  isCurrent && "bg-gradient-purple text-white"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -233,7 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
                     <ArrowRight className="w-4 h-4 text-white flex-shrink-0" />
                   )}
                 </div>
-              </button>
+              </div>
             );
           })}
         </nav>
