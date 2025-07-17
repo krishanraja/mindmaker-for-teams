@@ -114,7 +114,7 @@
   }
   
   /* Slider thumb styling - double size with white outline */
-  .react-slider [data-radix-slider-thumb] {
+  [role="slider"] {
     width: 48px !important;
     height: 48px !important;
     border: 4px solid white !important;
@@ -123,12 +123,12 @@
     transition: all 0.2s ease !important;
   }
   
-  .react-slider [data-radix-slider-thumb]:hover {
+  [role="slider"]:hover {
     transform: scale(1.1) !important;
     box-shadow: 0 0 0 4px white, 0 0 0 5px rgba(0, 0, 0, 0.1), 0 6px 12px rgba(0, 0, 0, 0.3) !important;
   }
   
-  .react-slider [data-radix-slider-thumb]:focus {
+  [role="slider"]:focus {
     outline: none !important;
     box-shadow: 0 0 0 4px white, 0 0 0 6px hsl(var(--primary) / 0.3), 0 6px 12px rgba(0, 0, 0, 0.3) !important;
   }
