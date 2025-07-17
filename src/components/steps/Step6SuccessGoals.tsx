@@ -16,10 +16,10 @@ export const Step6SuccessGoals: React.FC = () => {
   const [customTarget, setCustomTarget] = useState('');
   const [showBackDialog, setShowBackDialog] = useState(false);
   
-  // Store initial values to check for changes
-  const [initialValues] = useState({
-    successTargets: state.mindmakerData.successTargets
-  });
+  // Define the true default values for comparison
+  const defaultValues = {
+    successTargets: []
+  };
 
   useEffect(() => {
     updateMindmakerData({ successTargets });
@@ -48,8 +48,8 @@ export const Step6SuccessGoals: React.FC = () => {
   };
 
   const handlePrevious = () => {
-    // Check if any form field has been changed from initial values
-    const hasChanged = JSON.stringify(successTargets) !== JSON.stringify(initialValues.successTargets);
+    // Check if any form field has been changed from default values
+    const hasChanged = JSON.stringify(successTargets) !== JSON.stringify(defaultValues.successTargets);
     
     if (hasChanged) {
       setShowBackDialog(true);

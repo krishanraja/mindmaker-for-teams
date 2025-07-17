@@ -16,11 +16,11 @@ export const Step4CapabilityMap: React.FC = () => {
   const [showBackDialog, setShowBackDialog] = useState(false);
   const [showValidationError, setShowValidationError] = useState(false);
   
-  // Store initial values to check for changes
-  const [initialValues] = useState({
-    aiSkills: state.mindmakerData.aiSkills,
-    automationRisks: state.mindmakerData.automationRisks
-  });
+  // Define the true default values for comparison
+  const defaultValues = {
+    aiSkills: [],
+    automationRisks: []
+  };
 
   useEffect(() => {
     updateMindmakerData({ aiSkills, automationRisks });
@@ -57,10 +57,10 @@ export const Step4CapabilityMap: React.FC = () => {
   };
 
   const handlePrevious = () => {
-    // Check if any form field has been changed from initial values
+    // Check if any form field has been changed from default values
     const hasChanged = (
-      JSON.stringify(aiSkills) !== JSON.stringify(initialValues.aiSkills) ||
-      JSON.stringify(automationRisks) !== JSON.stringify(initialValues.automationRisks)
+      JSON.stringify(aiSkills) !== JSON.stringify(defaultValues.aiSkills) ||
+      JSON.stringify(automationRisks) !== JSON.stringify(defaultValues.automationRisks)
     );
     
     if (hasChanged) {

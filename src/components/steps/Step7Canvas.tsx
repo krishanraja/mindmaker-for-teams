@@ -30,13 +30,13 @@ export const Step7Mindmaker: React.FC = () => {
     ndaAccepted: state.mindmakerData.ndaAccepted,
   });
   
-  // Store initial values to check for changes
-  const [initialValues] = useState({
-    userName: state.mindmakerData.userName,
-    userEmail: state.mindmakerData.businessEmail,
-    country: state.mindmakerData.country,
-    ndaAccepted: state.mindmakerData.ndaAccepted,
-  });
+  // Define the true default values for comparison
+  const defaultValues = {
+    userName: '',
+    userEmail: '',
+    country: '',
+    ndaAccepted: false,
+  };
 
   const handleContactFormChange = (field: string, value: string | boolean) => {
     const newForm = { ...contactForm, [field]: value };
@@ -295,12 +295,12 @@ export const Step7Mindmaker: React.FC = () => {
   };
 
   const handlePrevious = () => {
-    // Check if any form field has been changed from initial values
+    // Check if any form field has been changed from default values
     const hasChanged = (
-      contactForm.userName !== initialValues.userName ||
-      contactForm.userEmail !== initialValues.userEmail ||
-      contactForm.country !== initialValues.country ||
-      contactForm.ndaAccepted !== initialValues.ndaAccepted
+      contactForm.userName !== defaultValues.userName ||
+      contactForm.userEmail !== defaultValues.userEmail ||
+      contactForm.country !== defaultValues.country ||
+      contactForm.ndaAccepted !== defaultValues.ndaAccepted
     );
     
     if (hasChanged) {

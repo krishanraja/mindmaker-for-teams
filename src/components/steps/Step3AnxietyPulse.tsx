@@ -184,8 +184,16 @@ export const Step3AnxietyPulse: React.FC = () => {
   const [anxietyLevels, setAnxietyLevels] = useState(state.mindmakerData.anxietyLevels);
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialStep, setTutorialStep] = useState(0);
-  const [initialAnxietyLevels] = useState(state.mindmakerData.anxietyLevels);
   const [showBackDialog, setShowBackDialog] = useState(false);
+
+  // Define the true default values for comparison
+  const defaultAnxietyLevels = {
+    executives: 50,
+    middleManagement: 50,
+    frontlineStaff: 50,
+    techTeam: 50,
+    nonTechTeam: 50,
+  };
 
   useEffect(() => {
     updateMindmakerData({ anxietyLevels });
@@ -213,9 +221,9 @@ export const Step3AnxietyPulse: React.FC = () => {
   };
 
   const handlePrevious = () => {
-    // Check if any slider has been changed from initial values
+    // Check if any slider has been changed from default values
     const hasChanged = Object.keys(anxietyLevels).some(
-      key => anxietyLevels[key as keyof typeof anxietyLevels] !== initialAnxietyLevels[key as keyof typeof initialAnxietyLevels]
+      key => anxietyLevels[key as keyof typeof anxietyLevels] !== defaultAnxietyLevels[key as keyof typeof defaultAnxietyLevels]
     );
     
     if (hasChanged) {

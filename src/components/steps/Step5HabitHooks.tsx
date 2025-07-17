@@ -53,11 +53,11 @@ export const Step5HabitHooks: React.FC = () => {
   const [changeNarrative, setChangeNarrative] = useState(state.mindmakerData.changeNarrative);
   const [showBackDialog, setShowBackDialog] = useState(false);
   
-  // Store initial values to check for changes
-  const [initialValues] = useState({
-    learningModality: state.mindmakerData.learningModality,
-    changeNarrative: state.mindmakerData.changeNarrative
-  });
+  // Define the true default values for comparison
+  const defaultValues = {
+    learningModality: 'live-cohort',
+    changeNarrative: ''
+  };
 
   useEffect(() => {
     updateMindmakerData({ learningModality, changeNarrative });
@@ -69,10 +69,10 @@ export const Step5HabitHooks: React.FC = () => {
   };
 
   const handlePrevious = () => {
-    // Check if any form field has been changed from initial values
+    // Check if any form field has been changed from default values
     const hasChanged = (
-      learningModality !== initialValues.learningModality ||
-      changeNarrative !== initialValues.changeNarrative
+      learningModality !== defaultValues.learningModality ||
+      changeNarrative !== defaultValues.changeNarrative
     );
     
     if (hasChanged) {

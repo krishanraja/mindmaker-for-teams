@@ -22,15 +22,15 @@ export const Step2Organization: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showBackDialog, setShowBackDialog] = useState(false);
   
-  // Store initial values to check for changes
-  const [initialValues] = useState({
-    businessName: state.mindmakerData.businessName,
-    businessDescription: state.mindmakerData.businessDescription,
-    company: state.mindmakerData.company,
-    businessUrl: state.mindmakerData.businessUrl,
-    businessFunctions: state.mindmakerData.businessFunctions,
-    aiAdoption: state.mindmakerData.aiAdoption
-  });
+  // Define the true default values for comparison
+  const defaultValues = {
+    businessName: '',
+    businessDescription: '',
+    company: '',
+    businessUrl: '',
+    businessFunctions: [],
+    aiAdoption: 'none',
+  };
 
   useEffect(() => {
     updateMindmakerData({
@@ -90,14 +90,14 @@ export const Step2Organization: React.FC = () => {
   };
 
   const handlePrevious = () => {
-    // Check if any form field has been changed from initial values
+    // Check if any form field has been changed from default values
     const hasChanged = (
-      businessName !== initialValues.businessName ||
-      businessDescription !== initialValues.businessDescription ||
-      company !== initialValues.company ||
-      businessUrl !== initialValues.businessUrl ||
-      JSON.stringify(selectedFunctions) !== JSON.stringify(initialValues.businessFunctions) ||
-      aiAdoption !== initialValues.aiAdoption
+      businessName !== defaultValues.businessName ||
+      businessDescription !== defaultValues.businessDescription ||
+      company !== defaultValues.company ||
+      businessUrl !== defaultValues.businessUrl ||
+      JSON.stringify(selectedFunctions) !== JSON.stringify(defaultValues.businessFunctions) ||
+      aiAdoption !== defaultValues.aiAdoption
     );
     
     if (hasChanged) {
