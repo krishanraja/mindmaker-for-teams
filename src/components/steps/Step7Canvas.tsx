@@ -14,6 +14,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { useToast } from '../../hooks/use-toast';
 import { LoadingScreen } from '../LoadingScreen';
 import { BackNavigationDialog } from '../ui/back-navigation-dialog';
+import { getAnxietyLevel } from '../../types/canvas';
 
 export const Step7Mindmaker: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetMindmaker, resetCurrentStepData } = useMindmaker();
@@ -63,6 +64,150 @@ export const Step7Mindmaker: React.FC = () => {
   React.useEffect(() => {
     generateRecommendation();
   }, []);
+
+  const formatArrayAnswer = (items: string[]) => {
+    if (!items || items.length === 0) return 'None specified';
+    return items.join(', ');
+  };
+
+  const formatAnxietyLevel = (level: number) => {
+    const anxietyInfo = getAnxietyLevel(level);
+    return `${level}/100 (${anxietyInfo.label})`;
+  };
+
+  const formatLearningModality = (modality: string) => {
+    const modalityMap: Record<string, string> = {
+      'live-cohort': 'Live Cohort Sessions',
+      'self-paced': 'Self-Paced Learning',
+      'coaching': 'One-on-One Coaching',
+      'chatbot': 'AI Chatbot Assistance',
+      'blended': 'Blended Learning Approach'
+    };
+    return modalityMap[modality] || modality;
+  };
+
+  const formatAiAdoption = (adoption: string) => {
+    const adoptionMap: Record<string, string> = {
+      'none': 'No Current AI Usage',
+      'pilots': 'Pilot Programs',
+      'team-level': 'Team-Level Implementation',
+      'enterprise-wide': 'Enterprise-Wide Deployment'
+    };
+    return adoptionMap[adoption] || adoption;
+  };
+
+  const getQuestionsAndAnswers = () => {
+    const { mindmakerData } = state;
+    
+    return [
+      {
+        section: 'Business Information',
+        questions: [
+          {
+            question: 'What is your business name?',
+            answer: mindmakerData.businessName || 'Not specified'
+          },
+          {
+            question: 'Please describe your business:',
+            answer: mindmakerData.businessDescription || 'Not specified'
+          },
+          {
+            question: 'What type of organization are you?',
+            answer: mindmakerData.company || 'Not specified'
+          },
+          {
+            question: 'What is your business website?',
+            answer: mindmakerData.businessUrl || 'Not specified'
+          },
+          {
+            question: 'Which business functions does your organization focus on?',
+            answer: formatArrayAnswer(mindmakerData.businessFunctions)
+          },
+          {
+            question: 'What is your current level of AI adoption?',
+            answer: formatAiAdoption(mindmakerData.aiAdoption)
+          }
+        ]
+      },
+      {
+        section: 'Team Anxiety Assessment',
+        questions: [
+          {
+            question: 'How anxious are executives about AI replacing their decision-making?',
+            answer: formatAnxietyLevel(mindmakerData.anxietyLevels.executives)
+          },
+          {
+            question: 'How anxious is middle management about AI changing their role?',
+            answer: formatAnxietyLevel(mindmakerData.anxietyLevels.middleManagement)
+          },
+          {
+            question: 'How anxious are frontline staff about AI automation?',
+            answer: formatAnxietyLevel(mindmakerData.anxietyLevels.frontlineStaff)
+          },
+          {
+            question: 'How anxious is your tech team about AI complexity?',
+            answer: formatAnxietyLevel(mindmakerData.anxietyLevels.techTeam)
+          },
+          {
+            question: 'How anxious are non-tech teams about learning AI tools?',
+            answer: formatAnxietyLevel(mindmakerData.anxietyLevels.nonTechTeam)
+          }
+        ]
+      },
+      {
+        section: 'Capability Assessment',
+        questions: [
+          {
+            question: 'Which AI skills would benefit your team most?',
+            answer: formatArrayAnswer(mindmakerData.aiSkills)
+          },
+          {
+            question: 'Which tasks are most at risk of automation?',
+            answer: formatArrayAnswer(mindmakerData.automationRisks)
+          }
+        ]
+      },
+      {
+        section: 'Learning Preferences',
+        questions: [
+          {
+            question: 'What learning approach works best for your team?',
+            answer: formatLearningModality(mindmakerData.learningModality)
+          },
+          {
+            question: 'Describe your experience with organizational change:',
+            answer: mindmakerData.changeNarrative || 'Not specified'
+          }
+        ]
+      },
+      {
+        section: 'Success Targets',
+        questions: [
+          {
+            question: 'What are your key success targets for AI adoption?',
+            answer: formatArrayAnswer(mindmakerData.successTargets)
+          }
+        ]
+      },
+      {
+        section: 'Contact Information',
+        questions: [
+          {
+            question: 'What is your name?',
+            answer: mindmakerData.userName || 'Not specified'
+          },
+          {
+            question: 'What is your email address?',
+            answer: mindmakerData.businessEmail || 'Not specified'
+          },
+          {
+            question: 'Which country are you located in?',
+            answer: mindmakerData.country || 'Not specified'
+          }
+        ]
+      }
+    ];
+  };
 
   const handleDownloadPDF = async () => {
     // Mark step 7 as completed when user downloads PDF
@@ -188,11 +333,8 @@ export const Step7Mindmaker: React.FC = () => {
             doc.text(line, 70, bottomY + 10 + (lineIndex * 7));
           });
           
-          // Save the PDF
-          doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
-          
-          // Send email notification
-          sendEmailNotification();
+          // Add third page with Q&A summary
+          addSummaryPage();
         };
         profileImg.onerror = () => {
           // If image fails to load, just add the text
@@ -205,11 +347,8 @@ export const Step7Mindmaker: React.FC = () => {
             doc.text(line, 20, bottomY + 10 + (lineIndex * 7));
           });
           
-          // Save the PDF
-          doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
-          
-          // Send email notification
-          sendEmailNotification();
+          // Add third page with Q&A summary
+          addSummaryPage();
         };
       } catch (error) {
         console.error('Error loading profile image:', error);
@@ -223,12 +362,82 @@ export const Step7Mindmaker: React.FC = () => {
           doc.text(line, 20, bottomY + 10 + (lineIndex * 7));
         });
         
-        // Save the PDF
-        doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
-        
-        // Send email notification
-        sendEmailNotification();
+        // Add third page with Q&A summary
+        addSummaryPage();
       }
+    };
+
+    const addSummaryPage = () => {
+      // Add third page with Q&A summary
+      doc.addPage();
+      doc.setFillColor(0, 0, 0);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      
+      // Page header
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(255, 255, 255);
+      doc.text("Your Response Summary", 20, 30);
+      
+      // Get Q&A data
+      const questionsAndAnswers = getQuestionsAndAnswers();
+      let currentY = 50;
+      
+      questionsAndAnswers.forEach((section) => {
+        // Check if we need a new page for this section
+        if (currentY > pageHeight - 100) {
+          doc.addPage();
+          doc.setFillColor(0, 0, 0);
+          doc.rect(0, 0, pageWidth, pageHeight, 'F');
+          currentY = 30;
+        }
+        
+        // Section header
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(179, 136, 255); // Light purple
+        doc.text(section.section, 20, currentY);
+        currentY += 15;
+        
+        // Questions and answers
+        section.questions.forEach((qa) => {
+          // Check if we need a new page
+          if (currentY > pageHeight - 50) {
+            doc.addPage();
+            doc.setFillColor(0, 0, 0);
+            doc.rect(0, 0, pageWidth, pageHeight, 'F');
+            currentY = 30;
+          }
+          
+          // Question
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(11);
+          doc.setTextColor(255, 255, 255);
+          const questionLines = doc.splitTextToSize(qa.question, 170);
+          questionLines.forEach((line: string, lineIndex: number) => {
+            doc.text(line, 20, currentY + (lineIndex * 5));
+          });
+          currentY += questionLines.length * 5 + 5;
+          
+          // Answer
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(11);
+          doc.setTextColor(224, 224, 224); // Light gray
+          const answerLines = doc.splitTextToSize(qa.answer, 170);
+          answerLines.forEach((line: string, lineIndex: number) => {
+            doc.text(line, 20, currentY + (lineIndex * 5));
+          });
+          currentY += answerLines.length * 5 + 15;
+        });
+        
+        currentY += 10; // Extra space between sections
+      });
+      
+      // Save the PDF
+      doc.save(`ai-transformation-mindmaker-${mindmakerData.businessName || 'mindmaker'}.pdf`);
+      
+      // Send email notification
+      sendEmailNotification();
     };
     
     // Header - Logo and Email (top left)
