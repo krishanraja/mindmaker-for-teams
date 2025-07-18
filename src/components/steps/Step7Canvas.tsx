@@ -20,8 +20,9 @@ export const Step7Mindmaker: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetMindmaker, resetCurrentStepData } = useMindmaker();
   const { toast } = useToast();
   const [recommendation, setRecommendation] = useState<string>('');
-  const [showLoading, setShowLoading] = useState(true);
-  const [showResults, setShowResults] = useState(false);
+  // Only show loading screen if this step hasn't been visited before
+  const [showLoading, setShowLoading] = useState(!state.stepProgress[7]?.visited);
+  const [showResults, setShowResults] = useState(state.stepProgress[7]?.visited || false);
   const [showBackDialog, setShowBackDialog] = useState(false);
   
   const [contactForm, setContactForm] = useState({
