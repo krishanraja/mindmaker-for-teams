@@ -11,6 +11,7 @@ const STEPS = [
   { id: 5, title: 'Habit Hooks', description: 'Learning style' },
   { id: 6, title: 'Success Goals', description: 'Define targets' },
   { id: 7, title: 'Mindmaker Results', description: 'Get your plan' },
+  { id: 8, title: 'Summary', description: 'Review responses' },
 ];
 
 interface SidebarProps {
@@ -48,14 +49,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-foreground">Progress</span>
               <span className="text-sm text-muted-foreground">
-                {Object.values(state.stepProgress).filter(s => s.completed).length}/7
+               {Object.values(state.stepProgress).filter(s => s.completed).length}/8
               </span>
             </div>
             <div className="w-full bg-muted rounded-full h-2">
               <div 
                 className="bg-gradient-purple h-2 rounded-full transition-all duration-300"
                 style={{ 
-                  width: `${(Object.values(state.stepProgress).filter(s => s.completed).length / 7) * 100}%` 
+                 width: `${(Object.values(state.stepProgress).filter(s => s.completed).length / 8) * 100}%`
                 }}
               />
             </div>
@@ -152,14 +153,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">Progress</span>
             <span className="text-sm text-muted-foreground">
-              {Object.values(state.stepProgress).filter(s => s.completed).length}/7
+              {Object.values(state.stepProgress).filter(s => s.completed).length}/8
             </span>
           </div>
           <div className="w-full bg-muted rounded-full h-2">
             <div 
               className="bg-gradient-purple h-2 rounded-full transition-all duration-300"
               style={{ 
-                width: `${(Object.values(state.stepProgress).filter(s => s.completed).length / 7) * 100}%` 
+                width: `${(Object.values(state.stepProgress).filter(s => s.completed).length / 8) * 100}%` 
               }}
             />
           </div>

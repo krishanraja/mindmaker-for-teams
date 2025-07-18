@@ -692,6 +692,13 @@ The program will focus on developing practical AI literacy that directly support
               <Download className="w-4 h-4 mr-2" />
               Download Mindmaker PDF
             </Button>
+            <Button
+              onClick={() => setCurrentStep(8)}
+              className="bg-white/10 border border-white/20 text-white hover:bg-white/20"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              View Summary
+            </Button>
           </div>
         </CardContent>
       </Card>

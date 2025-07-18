@@ -7,6 +7,7 @@ import { Step4CapabilityMap } from './steps/Step4CapabilityMap';
 import { Step5HabitHooks } from './steps/Step5HabitHooks';
 import { Step6SuccessGoals } from './steps/Step6SuccessGoals';
 import { Step7Mindmaker } from './steps/Step7Canvas';
+import { Step8Summary } from './steps/Step8Summary';
 
 export const MindmakerApp: React.FC = () => {
   const { state } = useMindmaker();
@@ -27,6 +28,8 @@ export const MindmakerApp: React.FC = () => {
         return <Step6SuccessGoals />;
       case 7:
         return <Step7Mindmaker />;
+      case 8:
+        return <Step8Summary />;
       default:
         return <Step1Welcome />;
     }
