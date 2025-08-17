@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import { MindmakerData, AppState, StepProgress } from '../types/canvas';
 import { toast } from 'sonner';
+import { calculateLeadScore, shouldSyncLead, syncLeadToSheets, trackEngagementEvent, getEngagementMetrics, LeadData } from '../lib/lead-capture';
 
 interface MindmakerContextType {
   state: AppState;
@@ -237,15 +238,55 @@ export const MindmakerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const updateMindmakerData = useCallback((data: Partial<MindmakerData>) => {
     dispatch({ type: 'UPDATE_MINDMAKER_DATA', payload: data });
-  }, []);
+    
+    // Silent engagement tracking
+    trackEngagementEvent('data_updated', { fields: Object.keys(data) });
+    
+    // Check if this update warrants lead qualification
+    silentLeadQualification();
+  }, [state]);
+
+  const silentLeadQualification = useCallback(async () => {
+    try {
+      const engagementMetrics = getEngagementMetrics(state.stepProgress);
+      const leadScore = calculateLeadScore(state.mindmakerData, state.stepProgress, engagementMetrics);
+      
+      // Only proceed if lead meets sync criteria
+      if (shouldSyncLead(leadScore, engagementMetrics)) {
+        const leadData: LeadData = {
+          mindmakerData: state.mindmakerData,
+          stepProgress: state.stepProgress,
+          engagementMetrics,
+          leadScore
+        };
+        
+        // Sync silently in background
+        await syncLeadToSheets(leadData);
+      }
+    } catch (error) {
+      // Silent failure - never interrupt user experience
+      console.error('Silent lead qualification error:', error);
+    }
+  }, [state]);
 
   const setCurrentStep = useCallback((step: number) => {
     dispatch({ type: 'SET_CURRENT_STEP', payload: step });
+    
+    // Silent step tracking
+    trackEngagementEvent('step_visited', { step });
   }, []);
 
   const markStepCompleted = useCallback((step: number) => {
     dispatch({ type: 'MARK_STEP_COMPLETED', payload: step });
-  }, []);
+    
+    // Silent step completion tracking
+    trackEngagementEvent('step_completed', { step });
+    
+    // Trigger lead qualification on key steps
+    if (step === 7 || step === 6) {
+      setTimeout(() => silentLeadQualification(), 100);
+    }
+  }, [silentLeadQualification]);
 
   const markStepVisited = useCallback((step: number) => {
     dispatch({ type: 'MARK_STEP_VISITED', payload: step });

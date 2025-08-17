@@ -15,6 +15,7 @@ import { useToast } from '../../hooks/use-toast';
 import { LoadingScreen } from '../LoadingScreen';
 import { BackNavigationDialog } from '../ui/back-navigation-dialog';
 import { getAnxietyLevel } from '../../types/canvas';
+import { trackEngagementEvent } from '../../lib/lead-capture';
 
 export const Step7Mindmaker: React.FC = () => {
   const { state, updateMindmakerData, setCurrentStep, markStepCompleted, resetMindmaker, resetCurrentStepData } = useMindmaker();
@@ -213,6 +214,9 @@ export const Step7Mindmaker: React.FC = () => {
   const handleDownloadPDF = async () => {
     // Mark step 7 as completed when user downloads PDF
     markStepCompleted(7);
+    
+    // Silent high-value engagement tracking
+    trackEngagementEvent('pdf_generated', { businessName: state.mindmakerData.businessName });
     const { mindmakerData } = state;
     
     const doc = new jsPDF();

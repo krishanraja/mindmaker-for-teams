@@ -6,11 +6,17 @@ import { Badge } from '../ui/badge';
 import { useMindmaker } from '../../contexts/MindmakerContext';
 import { getAnxietyLevel } from '../../types/canvas';
 import { BackNavigationDialog } from '../ui/back-navigation-dialog';
+import { trackEngagementEvent } from '../../lib/lead-capture';
 
 export const Step8Summary: React.FC = () => {
   const { state, setCurrentStep, resetCurrentStepData } = useMindmaker();
   const [showBackDialog, setShowBackDialog] = useState(false);
   const { mindmakerData } = state;
+
+  // Silent tracking when summary is viewed
+  React.useEffect(() => {
+    trackEngagementEvent('summary_viewed', { businessName: mindmakerData.businessName });
+  }, [mindmakerData.businessName]);
 
   const formatArrayAnswer = (items: string[]) => {
     if (!items || items.length === 0) return 'None specified';
