@@ -99,6 +99,7 @@ export type Database = {
           insights: Json | null
           message_type: string
           metadata: Json | null
+          role: string | null
           session_id: string | null
           user_id: string | null
         }
@@ -109,6 +110,7 @@ export type Database = {
           insights?: Json | null
           message_type: string
           metadata?: Json | null
+          role?: string | null
           session_id?: string | null
           user_id?: string | null
         }
@@ -119,6 +121,7 @@ export type Database = {
           insights?: Json | null
           message_type?: string
           metadata?: Json | null
+          role?: string | null
           session_id?: string | null
           user_id?: string | null
         }
@@ -171,6 +174,48 @@ export type Database = {
         }
         Relationships: []
       }
+      engagement_analytics: {
+        Row: {
+          event_data: Json | null
+          event_type: string
+          id: string
+          session_id: string | null
+          timestamp: string | null
+          user_id: string | null
+        }
+        Insert: {
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          session_id?: string | null
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          session_id?: string | null
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engagement_analytics_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engagement_analytics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_qualification_scores: {
         Row: {
           business_readiness_score: number | null
@@ -217,6 +262,54 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_qualifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          indicators: Json | null
+          qualification_type: string
+          qualified_at: string | null
+          score: number
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          indicators?: Json | null
+          qualification_type: string
+          qualified_at?: string | null
+          score: number
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          indicators?: Json | null
+          qualification_type?: string
+          qualified_at?: string | null
+          score?: number
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_qualifications_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_qualifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -299,6 +392,45 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          auth_user_id: string | null
+          company_name: string | null
+          company_size: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          industry: string | null
+          role_title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          auth_user_id?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          industry?: string | null
+          role_title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          auth_user_id?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          industry?: string | null
+          role_title?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
