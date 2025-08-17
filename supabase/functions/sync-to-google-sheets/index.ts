@@ -20,7 +20,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { syncType = 'booking', recordId } = await req.json();
+    const { syncType = 'booking', recordId, leadData, priority } = await req.json();
     
     console.log(`Starting automatic Google Sheets sync for type: ${syncType}`);
 
@@ -73,6 +73,12 @@ serve(async (req) => {
         }
         
         sheetName = 'Conversion Analytics';
+        break;
+        
+      case 'lead_capture':
+        // Direct lead capture from Mindmaker tool - use provided data
+        dataToSync = leadData ? [leadData] : [];
+        sheetName = 'Mindmaker Leads';
         break;
         
       default:
@@ -158,6 +164,48 @@ serve(async (req) => {
         new Date(booking.created_at).toLocaleString(),
         booking.notes || ''
       ]);
+    } else if (syncType === 'lead_capture') {
+      headers = [
+        'Timestamp', 'Business Name', 'Contact Name', 'Email', 'Country', 'Website',
+        'Employee Count', 'Company Type', 'Business Description', 'Business Functions', 'AI Adoption',
+        'Avg Anxiety Level', 'AI Skills', 'Automation Risks', 'Success Targets', 'Change Narrative', 'Learning Modality',
+        'Total Score', 'Quality Tier', 'Business Readiness', 'Engagement Score', 'Contact Quality', 
+        'Pain Point Severity', 'Urgency Score', 'Steps Completed', 'PDF Generated', 'Summary Viewed', 
+        'Time Spent (mins)', 'Source', 'Lead Type'
+      ];
+      
+      values = dataToSync.map(lead => [
+        lead.timestamp || new Date().toISOString(),
+        lead.businessName || 'Unknown',
+        lead.contactName || 'Unknown',
+        lead.email || 'Unknown',
+        lead.country || 'Unknown',
+        lead.website || '',
+        lead.employeeCount || 0,
+        lead.company || '',
+        lead.businessDescription || '',
+        lead.businessFunctions || '',
+        lead.aiAdoption || '',
+        lead.avgAnxietyLevel || 0,
+        lead.aiSkills || '',
+        lead.automationRisks || '',
+        lead.successTargets || '',
+        lead.changeNarrative || '',
+        lead.learningModality || '',
+        lead.totalScore || 0,
+        lead.qualityTier || 'disqualified',
+        lead.businessReadiness || 0,
+        lead.engagementScore || 0,
+        lead.contactQuality || 0,
+        lead.painPointSeverity || 0,
+        lead.urgencyScore || 0,
+        lead.stepsCompleted || 0,
+        lead.pdfGenerated ? 'Yes' : 'No',
+        lead.summaryViewed ? 'Yes' : 'No',
+        lead.timeSpent || 0,
+        lead.source || 'AI Transformation Mindmaker',
+        lead.leadType || 'mindmaker_completion'
+      ]);
     } else {
       headers = [
         'ID', 'Session ID', 'User ID', 'Lead Score', 'Session Duration',
@@ -182,8 +230,8 @@ serve(async (req) => {
       ]);
     }
 
-    // If syncing a single record, append to existing data
-    if (recordId) {
+    // Always append new leads to existing data (never replace the entire sheet)
+    if (syncType === 'lead_capture' || recordId) {
       // Append single row
       const appendResponse = await fetch(
         `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${sheetName}!A:Z:append?valueInputOption=RAW`,
