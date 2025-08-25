@@ -306,7 +306,7 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
                 {message.content}
               </div>
               
-              {message.metadata?.suggestions && (
+              {message.metadata?.suggestions && Array.isArray(message.metadata.suggestions) && (
                 <div className="mt-3 pt-3 border-t border-border/20">
                   <div className="text-xs text-muted-foreground mb-2">You could ask:</div>
                   <div className="space-y-1">
