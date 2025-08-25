@@ -18,8 +18,8 @@ interface ConversationalInterfaceProps {
 export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = ({
   onDataExtracted,
   onConversationComplete,
-  initialPrompt = "Hi! I'm your AI transformation consultant from Fractionl.ai. I'll help you assess your organization's AI readiness through a conversation. I need to gather information about your business, team anxiety levels, current AI usage, learning preferences, and goals. Let's start with your business name - what's your company called?",
-  placeholder = "Tell me about your organization...",
+  initialPrompt = "👋 Hi there! I'm Alex, your AI transformation companion from Fractionl.ai.\n\nI'm excited to help you discover your organization's AI potential! Think of this as a conversation with a trusted advisor who understands both the opportunities and anxieties around AI.\n\nI'll ask thoughtful questions about your business, understand your team's concerns, and help you see exactly how AI can transform your organization. Ready to explore your AI future together?\n\nLet's start with something simple - what's your company called? 🚀",
+  placeholder = "Share whatever feels comfortable to start...",
   aiPersonality = 'friendly'
 }) => {
   const [messages, setMessages] = useState<ConversationMessage[]>([]);
@@ -29,15 +29,17 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
   const [quickReplies, setQuickReplies] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [conversationStuck, setConversationStuck] = useState(false);
+  const [insightMoments, setInsightMoments] = useState<string[]>([]);
+  const [showInsightAnimation, setShowInsightAnimation] = useState(false);
   const aiService = useRef(new AIConversationService());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageCountRef = useRef(0);
 
   const suggestedStarters = [
-    "We're exploring AI but our team is nervous about job security",
-    "I need to convince leadership that we need an AI strategy",
-    "Our competitors are using AI and we're falling behind",
-    "We want to start with AI but don't know where to begin"
+    "Our team is excited about AI but worried about job security",
+    "We need an AI strategy but don't know where to start",
+    "Competitors are using AI and we're falling behind",
+    "We tried AI pilots but struggled with adoption"
   ];
 
   useEffect(() => {
@@ -92,8 +94,20 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
       // Update progress based on data collected
       const extractedData = aiService.current.getExtractedData();
       const dataKeys = Object.keys(extractedData).filter(key => extractedData[key]);
-      setProgress(Math.min((dataKeys.length / 6) * 100, 100)); // 6 key data points
+      const newProgress = Math.min((dataKeys.length / 6) * 100, 100);
       
+      // Show insight animation when new data is collected
+      if (newProgress > progress && response.metadata?.extractedData) {
+        setShowInsightAnimation(true);
+        setTimeout(() => setShowInsightAnimation(false), 2000);
+        
+        // Add insight moment
+        if (response.metadata.extractedData.businessName) {
+          setInsightMoments(prev => [...prev, `✨ Discovered: ${response.metadata.extractedData.businessName} industry insights`]);
+        }
+      }
+      
+      setProgress(newProgress);
       onDataExtracted(extractedData);
 
       // Check for conversation being stuck (too many messages without progress)
@@ -104,7 +118,9 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
       // Check if conversation should complete with all data
       if (response.metadata?.extractedData?.readyToProgress) {
         const allData = aiService.current.getExtractedData();
-        setTimeout(() => onConversationComplete(allData), 2000);
+        // Add completion celebration
+        setInsightMoments(prev => [...prev, "🎉 Your AI transformation roadmap is ready!"]);
+        setTimeout(() => onConversationComplete(allData), 3000);
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -170,15 +186,27 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
       {progress > 0 && (
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
-            <span>Assessment Progress</span>
-            <span>{Math.round(progress)}% complete</span>
+            <span className="flex items-center gap-2">
+              <Sparkles className={`w-4 h-4 ${showInsightAnimation ? 'animate-pulse text-primary' : ''}`} />
+              AI Transformation Discovery
+            </span>
+            <span className="font-medium">{Math.round(progress)}% discovered</span>
           </div>
-          <div className="w-full bg-muted rounded-full h-2">
+          <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
             <div 
-              className="bg-primary h-2 rounded-full transition-all duration-300" 
+              className="bg-gradient-to-r from-primary to-primary/80 h-3 rounded-full transition-all duration-500 relative" 
               style={{ width: `${progress}%` }}
-            ></div>
+            >
+              {showInsightAnimation && (
+                <div className="absolute inset-0 bg-white/30 animate-pulse rounded-full"></div>
+              )}
+            </div>
           </div>
+          {insightMoments.length > 0 && (
+            <div className="mt-2 text-xs text-primary font-medium animate-fade-in">
+              {insightMoments[insightMoments.length - 1]}
+            </div>
+          )}
         </div>
       )}
       
@@ -199,10 +227,10 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
             )}
             
             <Card
-              className={`max-w-[80%] p-3 ${
+              className={`max-w-[80%] p-4 ${
                 message.role === 'user'
-                  ? 'bg-primary text-white ml-auto'
-                  : 'bg-card text-foreground'
+                  ? 'bg-gradient-to-br from-primary to-primary/90 text-white ml-auto shadow-lg'
+                  : 'bg-gradient-to-br from-card to-card/95 text-foreground shadow-md hover:shadow-lg transition-all duration-300'
               }`}
             >
               <div className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -246,10 +274,13 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
                 <Sparkles className="w-4 h-4" />
               </AvatarFallback>
             </Avatar>
-            <Card className="bg-card text-foreground p-3">
-              <div className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm text-muted-foreground">Thinking...</span>
+            <Card className="bg-gradient-to-br from-card to-card/95 text-foreground p-4 shadow-md">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  <div className="absolute inset-0 w-4 h-4 border border-primary/30 rounded-full animate-ping"></div>
+                </div>
+                <span className="text-sm text-muted-foreground">Alex is analyzing and crafting insights...</span>
               </div>
             </Card>
           </div>
@@ -301,19 +332,19 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
 
       {/* Conversation Reset */}
       {conversationStuck && (
-        <div className="px-4 py-2 bg-muted/50 border-t border-border">
+        <div className="px-4 py-3 bg-gradient-to-r from-muted/50 to-muted/30 border-t border-border">
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Having trouble? Let's restart with simpler questions.
+              💡 Let's try a different approach! I can ask simpler questions to help you move forward.
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={restartConversation}
-              className="ml-2"
+              className="ml-2 hover:bg-primary hover:text-primary-foreground transition-colors"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Start Over
+              Fresh Start
             </Button>
           </div>
         </div>
