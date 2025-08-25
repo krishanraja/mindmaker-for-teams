@@ -25,6 +25,8 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  const [progress, setProgress] = useState(0);
   const aiService = useRef(new AIConversationService());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -75,8 +77,18 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
       
       setMessages(prev => [...prev, userMessage, response]);
 
-      // Extract and send data to parent
+      // Extract quick replies and update progress
+      if (response.metadata?.suggestions) {
+        setQuickReplies(response.metadata.suggestions);
+      } else {
+        setQuickReplies([]);
+      }
+      
+      // Update progress based on data collected
       const extractedData = aiService.current.getExtractedData();
+      const dataKeys = Object.keys(extractedData).filter(key => extractedData[key]);
+      setProgress(Math.min((dataKeys.length / 6) * 100, 100)); // 6 key data points
+      
       onDataExtracted(extractedData);
 
       // Check if conversation should complete
@@ -107,6 +119,10 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
     }
   };
 
+  const handleQuickReply = (reply: string) => {
+    handleSend(reply);
+  };
+
   const getPersonalityAvatar = () => {
     switch (aiPersonality) {
       case 'professional':
@@ -120,6 +136,22 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
 
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto">
+      {/* Header with Progress */}
+      {progress > 0 && (
+        <div className="px-4 pt-4 pb-2">
+          <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+            <span>Assessment Progress</span>
+            <span>{Math.round(progress)}% complete</span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div 
+              className="bg-primary h-2 rounded-full transition-all duration-300" 
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+        </div>
+      )}
+      
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto space-y-4 p-4 max-h-[60vh]">
         {messages.map((message) => (
@@ -195,6 +227,26 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
         
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Quick Replies */}
+      {quickReplies.length > 0 && !isLoading && (
+        <div className="px-4 pb-2">
+          <div className="text-xs text-muted-foreground mb-2">Quick replies:</div>
+          <div className="flex flex-wrap gap-2">
+            {quickReplies.map((reply, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                onClick={() => handleQuickReply(reply)}
+                className="h-8 px-3 text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                {reply}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Suggested Starters */}
       {showSuggestions && messages.length <= 1 && (

@@ -149,42 +149,42 @@ function buildSystemPrompt(context: any): string {
   const userProfile = context.userProfile || {};
   const sessionData = context.sessionData || {};
   
-  let prompt = `You are an expert AI transformation consultant from Fractionl.ai. Your role is to help organizations understand their AI readiness and create personalized transformation strategies.
+  let prompt = `You are an expert AI transformation consultant from Fractionl.ai. Your goal is to help executives understand their AI readiness through bite-sized, answerable questions.
 
 PERSONALITY: Be ${getPersonalityStyle(userProfile.preferredStyle)} but always professional and insightful.
+
+CRITICAL CONVERSATION RULES:
+- Ask ONE micro-question at a time (never overwhelming)
+- Use simple, direct questions that can be answered in 1-2 sentences
+- Follow a logical progression: Business → Current State → Challenges → Goals
+- Use their business name in follow-up questions for personalization
+- Provide quick-reply options when helpful
+
+QUESTION PROGRESSION STRATEGY:
+1. Start: "What's your business name?"
+2. Then: "What type of business is [name]?" 
+3. Follow: "In one sentence, what does [name] do?"
+4. Continue: "How many people work at [name]?"
+5. Next: "Do you currently use any AI tools at work?"
+6. Build from there with equally simple questions
+
+CONVERSATION STYLE:
+- Keep questions short and specific
+- Acknowledge each answer before moving to next question
+- Use encouraging phrases: "Great! Now..." "Perfect. Next..."
+- Offer examples when questions might be unclear
+- Never ask compound questions or multiple things at once
 
 CURRENT CONTEXT:
 - User's name: ${userProfile.name || 'Not provided'}
 - Company: ${userProfile.company || 'Not provided'}  
 - Industry: ${userProfile.industry || 'Not provided'}
-- Communication style: ${userProfile.preferredStyle || 'Not determined'}
 - Session duration: ${Math.round((Date.now() - new Date(sessionData.startTime).getTime()) / 60000)} minutes
 
-YOUR GOALS:
-1. Understand their organization's current AI state
-2. Identify challenges, anxieties, and opportunities
-3. Gather key business information naturally through conversation
-4. Build confidence about AI transformation
-5. Guide them toward actionable next steps
-
-CONVERSATION STRATEGY:
-- Ask ONE focused question at a time
-- Listen actively and reference previous responses
-- Share relevant insights and examples
-- Address concerns with empathy and expertise
-- Gradually build toward a comprehensive understanding
-
-KEY INFORMATION TO GATHER:
-- Business name and description
-- Team size and structure
-- Current AI adoption level
-- Main challenges and pain points
-- Team's anxiety levels about AI
-- Success metrics and goals
-- Change management experience
+Your job is to make this feel like a natural, easy conversation where each question builds naturally from the previous answer.
 
 WHEN TO PROGRESS:
-When you have gathered sufficient information about their business context, team readiness, and transformation goals, use the extract_business_data function with readyToProgress=true.`;
+When you have gathered business name, type, description, team size, current AI use, and main challenge, use extract_business_data with readyToProgress=true.`;
 
   return prompt;
 }
@@ -200,24 +200,28 @@ function getPersonalityStyle(preferredStyle?: string): string {
 function generateSuggestions(userInput: string, context: any, extractedData: any): string[] {
   const suggestions: string[] = [];
   
-  // Generate contextual suggestions based on what they've discussed
-  if (userInput.toLowerCase().includes('anxiety') || userInput.toLowerCase().includes('worried')) {
-    suggestions.push("What specific concerns does your team have about AI?");
-    suggestions.push("How can we address these concerns in your transformation plan?");
+  // Generate contextual quick replies based on current conversation state
+  if (!extractedData.businessName) {
+    return []; // Let them type their business name
   }
   
-  if (userInput.toLowerCase().includes('competitor') || userInput.toLowerCase().includes('behind')) {
-    suggestions.push("What AI capabilities are your competitors using?");
-    suggestions.push("What's your timeline for catching up?");
+  if (extractedData.businessName && !extractedData.industry) {
+    suggestions.push("Software", "Healthcare", "Manufacturing", "Consulting", "Retail", "Other");
   }
   
-  if (userInput.toLowerCase().includes('leadership') || userInput.toLowerCase().includes('budget')) {
-    suggestions.push("What would convince leadership to invest in AI?");
-    suggestions.push("What ROI metrics matter most to your organization?");
+  if (extractedData.industry && !extractedData.employeeCount) {
+    suggestions.push("1-10 people", "11-50 people", "51-200 people", "200+ people");
   }
-
-  // Limit to 2-3 most relevant suggestions
-  return suggestions.slice(0, 3);
+  
+  if (extractedData.employeeCount && !extractedData.currentAIUse) {
+    suggestions.push("Yes, several tools", "Just basic ones", "None yet", "Not sure");
+  }
+  
+  if (extractedData.currentAIUse && !extractedData.challenges) {
+    suggestions.push("Efficiency", "Competition", "Growth", "Costs", "Other");
+  }
+  
+  return suggestions.slice(0, 4);
 }
 
 function generatePersonalizations(context: any, extractedData: any): any {
