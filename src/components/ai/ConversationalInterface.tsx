@@ -36,10 +36,10 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
   const messageCountRef = useRef(0);
 
   const suggestedStarters = [
-    "Our team is excited about AI but worried about job security",
-    "We need an AI strategy but don't know where to start",
-    "Competitors are using AI and we're falling behind",
-    "We tried AI pilots but struggled with adoption"
+    "Our L&D programs need to scale but resources are limited",
+    "We're evaluating AI for personalized learning paths",
+    "Training completion rates are low and need improvement",
+    "Leadership wants measurable L&D ROI improvements"
   ];
 
   useEffect(() => {

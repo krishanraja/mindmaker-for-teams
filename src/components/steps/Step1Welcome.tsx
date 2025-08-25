@@ -117,8 +117,8 @@ export const Step1Welcome: React.FC = () => {
             <ConversationalInterface
               onDataExtracted={handleDataExtracted}
               onConversationComplete={handleConversationComplete}
-              initialPrompt="Hi! I'm your AI transformation consultant from Fractionl.ai. I'm here to help you understand your organization's AI readiness and create a personalized transformation roadmap. What brings you here today?"
-              placeholder="Tell me about your organization's AI journey..."
+              initialPrompt="I'm conducting an AI readiness assessment for Enterprise L&D organizations. This evaluation covers 5 key dimensions: organizational structure, current AI maturity, strategic readiness, talent & skills, and implementation capacity. Let's start with your organizational context - what industry are you in?"
+              placeholder="e.g., Healthcare, Financial Services, Manufacturing..."
               aiPersonality="professional"
             />
           </div>
