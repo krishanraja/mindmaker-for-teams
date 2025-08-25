@@ -9,7 +9,7 @@ import { VoiceRecorder } from './VoiceRecorder';
 
 interface ConversationalInterfaceProps {
   onDataExtracted: (data: any) => void;
-  onConversationComplete: () => void;
+  onConversationComplete: (allData?: any) => void;
   initialPrompt?: string;
   placeholder?: string;
   aiPersonality?: 'friendly' | 'professional' | 'enthusiastic';
@@ -18,7 +18,7 @@ interface ConversationalInterfaceProps {
 export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = ({
   onDataExtracted,
   onConversationComplete,
-  initialPrompt = "Hi! I'm your AI transformation consultant. I'm here to help you understand your organization's AI readiness and create a personalized roadmap. What brings you here today?",
+  initialPrompt = "Hi! I'm your AI transformation consultant from Fractionl.ai. I'll help you assess your organization's AI readiness through a conversation. I need to gather information about your business, team anxiety levels, current AI usage, learning preferences, and goals. Let's start with your business name - what's your company called?",
   placeholder = "Tell me about your organization...",
   aiPersonality = 'friendly'
 }) => {
@@ -101,9 +101,10 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
         setConversationStuck(true);
       }
 
-      // Check if conversation should complete
+      // Check if conversation should complete with all data
       if (response.metadata?.extractedData?.readyToProgress) {
-        setTimeout(() => onConversationComplete(), 2000);
+        const allData = aiService.current.getExtractedData();
+        setTimeout(() => onConversationComplete(allData), 2000);
       }
     } catch (error) {
       console.error('Error sending message:', error);

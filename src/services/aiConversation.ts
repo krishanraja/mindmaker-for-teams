@@ -1,4 +1,5 @@
 import { supabase } from '../integrations/supabase/client';
+import { ConversationStateManager } from './conversationState';
 
 export interface ConversationMessage {
   id: string;
@@ -32,9 +33,11 @@ export interface ConversationContext {
 export class AIConversationService {
   private context: ConversationContext;
   private sessionId: string;
+  private stateManager: ConversationStateManager;
 
   constructor() {
     this.sessionId = this.generateSessionId();
+    this.stateManager = new ConversationStateManager();
     this.context = {
       messages: [],
       userProfile: {},
@@ -62,12 +65,15 @@ export class AIConversationService {
     this.context.messages.push(userMessage);
 
     try {
-      // Call AI conversation edge function
+      // Call AI conversation edge function with state info
+      const conversationState = this.stateManager.getState();
       const { data, error } = await supabase.functions.invoke('ai-conversation', {
         body: {
           userInput,
           context: this.context,
-          sessionId: this.sessionId
+          sessionId: this.sessionId,
+          conversationState,
+          nextQuestion: this.stateManager.getNextQuestion()
         }
       });
 
@@ -92,15 +98,24 @@ export class AIConversationService {
 
       this.context.messages.push(assistantMessage);
 
-      // Update context with any extracted data or personalizations
+      // Update context and state manager with extracted data
       if (data.extractedData) {
         this.updateUserProfile(data.extractedData);
+        this.stateManager.updateData(data.extractedData);
       }
 
       if (data.personalizations) {
         this.context.sessionData.personalizations = {
           ...this.context.sessionData.personalizations,
           ...data.personalizations
+        };
+      }
+
+      // Check if conversation is complete
+      if (this.stateManager.isComplete()) {
+        assistantMessage.metadata = {
+          ...assistantMessage.metadata,
+          extractedData: { ...data.extractedData, readyToProgress: true }
         };
       }
 
@@ -146,10 +161,14 @@ export class AIConversationService {
       .map(msg => msg.metadata!.extractedData)
       .reduce((acc, data) => ({ ...acc, ...data }), {});
 
+    const stateData = this.stateManager.getState().collectedData;
+    
     return {
       ...allExtractedData,
+      ...stateData,
       userProfile: this.context.userProfile,
-      sessionInsights: this.generateSessionInsights()
+      sessionInsights: this.generateSessionInsights(),
+      conversationComplete: this.stateManager.isComplete()
     };
   }
 
@@ -209,6 +228,7 @@ export class AIConversationService {
 
   reset(): void {
     this.sessionId = this.generateSessionId();
+    this.stateManager.reset();
     this.context = {
       messages: [],
       userProfile: {},

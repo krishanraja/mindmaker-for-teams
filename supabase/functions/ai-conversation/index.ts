@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { userInput, context, sessionId } = await req.json();
+    const { userInput, context, sessionId, conversationState, nextQuestion } = await req.json();
     
     console.log(`AI Conversation - Session: ${sessionId}, Input length: ${userInput.length}`);
 
@@ -30,7 +30,7 @@ serve(async (req) => {
     }));
 
     // Create system prompt based on context and user profile
-    const systemPrompt = buildSystemPrompt(context);
+    const systemPrompt = buildSystemPrompt(context, conversationState, nextQuestion);
 
     // Call OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -56,11 +56,28 @@ serve(async (req) => {
               parameters: {
                 type: 'object',
                 properties: {
-                  businessName: { type: 'string' },
+                   businessName: { type: 'string' },
+                  businessDescription: { type: 'string' },
                   industry: { type: 'string' },
                   employeeCount: { type: 'number' },
+                  businessFunctions: { type: 'array', items: { type: 'string' } },
+                  aiAdoption: { type: 'string' },
                   currentAIUse: { type: 'string' },
                   challenges: { type: 'array', items: { type: 'string' } },
+                  executiveAnxiety: { type: 'number' },
+                  managementAnxiety: { type: 'number' },
+                  staffAnxiety: { type: 'number' },
+                  techAnxiety: { type: 'number' },
+                  nonTechAnxiety: { type: 'number' },
+                  aiSkills: { type: 'array', items: { type: 'string' } },
+                  automationRisks: { type: 'array', items: { type: 'string' } },
+                  learningModality: { type: 'string' },
+                  changeNarrative: { type: 'string' },
+                  successTargets: { type: 'array', items: { type: 'string' } },
+                  userName: { type: 'string' },
+                  businessEmail: { type: 'string' },
+                  businessUrl: { type: 'string' },
+                  country: { type: 'string' },
                   readyToProgress: { type: 'boolean' },
                   confidence: { type: 'number', minimum: 0, maximum: 1 }
                 }
@@ -153,35 +170,37 @@ serve(async (req) => {
   }
 });
 
-function buildSystemPrompt(context: any): string {
+function buildSystemPrompt(context: any, conversationState?: any, nextQuestion?: string): string {
   const userProfile = context.userProfile || {};
   const sessionData = context.sessionData || {};
   
-  let prompt = `You are an expert AI transformation consultant from Fractionl.ai. Your goal is to help executives understand their AI readiness through bite-sized, answerable questions.
+  let prompt = `You are an expert AI transformation consultant from Fractionl.ai. You're conducting a focused business AI readiness assessment to gather ALL data needed for a complete diagnostic.
+
+YOUR MISSION: Collect comprehensive data through natural conversation that covers:
+- Business basics (name, industry, employee count, functions)
+- Current AI adoption and challenges
+- Team anxiety levels (executives, management, staff, tech/non-tech teams)
+- Existing AI skills and automation risks
+- Learning preferences and change narratives
+- Success targets and goals
+- Contact information for follow-up
+
+CONVERSATION RULES:
+1. Ask ONE clear, focused question at a time
+2. Build naturally on previous answers - show you're listening
+3. NEVER repeat questions about information already provided
+4. Extract and remember ALL data from each response
+5. Provide smart multiple-choice quick replies
+6. Guide toward comprehensive data collection
+
+CURRENT PHASE: ${conversationState?.currentPhase || 'business'}
+SUGGESTED NEXT: ${nextQuestion || 'Ask about business name'}
+CONFIDENCE: ${conversationState?.confidence || 0}%
+
+DATA COLLECTED SO FAR:
+${conversationState?.collectedData ? JSON.stringify(conversationState.collectedData, null, 2) : 'None yet'}
 
 PERSONALITY: Be ${getPersonalityStyle(userProfile.preferredStyle)} but always professional and insightful.
-
-CRITICAL CONVERSATION RULES:
-- Ask ONE micro-question at a time (never overwhelming)
-- Use simple, direct questions that can be answered in 1-2 sentences
-- Follow a logical progression: Business → Current State → Challenges → Goals
-- Use their business name in follow-up questions for personalization
-- Provide quick-reply options when helpful
-
-QUESTION PROGRESSION STRATEGY:
-1. Start: "What's your business name?"
-2. Then: "What type of business is [name]?" 
-3. Follow: "In one sentence, what does [name] do?"
-4. Continue: "How many people work at [name]?"
-5. Next: "Do you currently use any AI tools at work?"
-6. Build from there with equally simple questions
-
-CONVERSATION STYLE:
-- Keep questions short and specific
-- Acknowledge each answer before moving to next question
-- Use encouraging phrases: "Great! Now..." "Perfect. Next..."
-- Offer examples when questions might be unclear
-- Never ask compound questions or multiple things at once
 
 CURRENT CONTEXT:
 - User's name: ${userProfile.name || 'Not provided'}
@@ -189,10 +208,9 @@ CURRENT CONTEXT:
 - Industry: ${userProfile.industry || 'Not provided'}
 - Session duration: ${Math.round((Date.now() - new Date(sessionData.startTime).getTime()) / 60000)} minutes
 
-Your job is to make this feel like a natural, easy conversation where each question builds naturally from the previous answer.
+When you have comprehensive data across all areas (80%+ confidence), set readyToProgress=true in extract_business_data to complete the assessment.
 
-WHEN TO PROGRESS:
-When you have gathered business name, type, description, team size, current AI use, and main challenge, use extract_business_data with readyToProgress=true.`;
+Always use extract_business_data tool for EVERY response to capture data and analyze_sentiment to understand user state.`;
 
   return prompt;
 }

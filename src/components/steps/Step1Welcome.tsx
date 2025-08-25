@@ -33,9 +33,45 @@ export const Step1Welcome: React.FC = () => {
     }
   };
 
-  const handleConversationComplete = () => {
+  const handleConversationComplete = (allData: any) => {
+    // Map all conversational data to mindmaker context
+    if (allData) {
+      updateMindmakerData({
+        businessName: allData.businessName || '',
+        businessDescription: allData.businessDescription || allData.industry || '',
+        employeeCount: allData.employeeCount || 0,
+        businessFunctions: allData.businessFunctions || allData.challenges || [],
+        aiAdoption: allData.aiAdoption || 'none',
+        anxietyLevels: allData.anxietyLevels || {
+          executives: allData.executiveAnxiety || 50,
+          middleManagement: allData.managementAnxiety || 50,
+          frontlineStaff: allData.staffAnxiety || 50,
+          techTeam: allData.techAnxiety || 50,
+          nonTechTeam: allData.nonTechAnxiety || 50,
+        },
+        aiSkills: allData.aiSkills || [],
+        automationRisks: allData.automationRisks || [],
+        learningModality: allData.learningModality || 'live-cohort',
+        changeNarrative: allData.changeNarrative || '',
+        successTargets: allData.successTargets || [],
+        userName: allData.userName || '',
+        businessEmail: allData.businessEmail || '',
+        businessUrl: allData.businessUrl || '',
+        company: allData.company || allData.businessName || '',
+        country: allData.country || ''
+      });
+    }
+    
+    // Mark all steps as completed since AI gathered everything
     markStepCompleted(1);
-    setCurrentStep(2);
+    markStepCompleted(2);
+    markStepCompleted(3);
+    markStepCompleted(4);
+    markStepCompleted(5);
+    markStepCompleted(6);
+    
+    // Jump directly to canvas step (7)
+    setCurrentStep(7);
   };
 
   if (showConversation) {
