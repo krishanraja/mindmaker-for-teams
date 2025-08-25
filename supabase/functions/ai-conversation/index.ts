@@ -47,38 +47,44 @@ serve(async (req) => {
           { role: 'user', content: userInput }
         ],
         max_completion_tokens: 2000,
-        functions: [
+        tools: [
           {
-            name: 'extract_business_data',
-            description: 'Extract structured business information from user responses',
-            parameters: {
-              type: 'object',
-              properties: {
-                businessName: { type: 'string' },
-                industry: { type: 'string' },
-                employeeCount: { type: 'number' },
-                currentAIUse: { type: 'string' },
-                challenges: { type: 'array', items: { type: 'string' } },
-                readyToProgress: { type: 'boolean' },
-                confidence: { type: 'number', minimum: 0, maximum: 1 }
+            type: 'function',
+            function: {
+              name: 'extract_business_data',
+              description: 'Extract structured business information from user responses',
+              parameters: {
+                type: 'object',
+                properties: {
+                  businessName: { type: 'string' },
+                  industry: { type: 'string' },
+                  employeeCount: { type: 'number' },
+                  currentAIUse: { type: 'string' },
+                  challenges: { type: 'array', items: { type: 'string' } },
+                  readyToProgress: { type: 'boolean' },
+                  confidence: { type: 'number', minimum: 0, maximum: 1 }
+                }
               }
             }
           },
           {
-            name: 'analyze_sentiment',
-            description: 'Analyze emotional tone and communication style',
-            parameters: {
-              type: 'object',
-              properties: {
-                emotion: { type: 'string', enum: ['excited', 'nervous', 'confident', 'frustrated', 'curious', 'neutral'] },
-                communicationStyle: { type: 'string', enum: ['casual', 'formal', 'direct'] },
-                urgency: { type: 'string', enum: ['low', 'medium', 'high'] },
-                engagementLevel: { type: 'string', enum: ['low', 'medium', 'high'] }
+            type: 'function',
+            function: {
+              name: 'analyze_sentiment',
+              description: 'Analyze emotional tone and communication style',
+              parameters: {
+                type: 'object',
+                properties: {
+                  emotion: { type: 'string', enum: ['excited', 'nervous', 'confident', 'frustrated', 'curious', 'neutral'] },
+                  communicationStyle: { type: 'string', enum: ['casual', 'formal', 'direct'] },
+                  urgency: { type: 'string', enum: ['low', 'medium', 'high'] },
+                  engagementLevel: { type: 'string', enum: ['low', 'medium', 'high'] }
+                }
               }
             }
           }
         ],
-        function_call: 'auto',
+        tool_choice: 'auto',
       }),
     });
 
@@ -89,29 +95,31 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
-    const functionCall = data.choices[0].message.function_call;
+    const aiResponse = data.choices[0].message.content || '';
+    const toolCalls = data.choices[0].message.tool_calls;
 
     console.log('AI Response generated, length:', aiResponse?.length);
 
-    // Process function calls for data extraction
+    // Process tool calls for data extraction
     let extractedData = {};
     let detectedEmotion = 'neutral';
     let detectedIntent = 'general';
 
-    if (functionCall) {
-      try {
-        const functionArgs = JSON.parse(functionCall.arguments);
-        
-        if (functionCall.name === 'extract_business_data') {
-          extractedData = functionArgs;
-          console.log('Extracted business data:', extractedData);
-        } else if (functionCall.name === 'analyze_sentiment') {
-          detectedEmotion = functionArgs.emotion || 'neutral';
-          detectedIntent = functionArgs.urgency || 'medium';
+    if (toolCalls && toolCalls.length > 0) {
+      for (const toolCall of toolCalls) {
+        try {
+          const functionArgs = JSON.parse(toolCall.function.arguments);
+          
+          if (toolCall.function.name === 'extract_business_data') {
+            extractedData = functionArgs;
+            console.log('Extracted business data:', extractedData);
+          } else if (toolCall.function.name === 'analyze_sentiment') {
+            detectedEmotion = functionArgs.emotion || 'neutral';
+            detectedIntent = functionArgs.urgency || 'medium';
+          }
+        } catch (error) {
+          console.error('Error parsing tool call:', error);
         }
-      } catch (error) {
-        console.error('Error parsing function call:', error);
       }
     }
 

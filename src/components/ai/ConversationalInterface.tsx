@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, Loader2, MessageCircle } from 'lucide-react';
+import { Send, Sparkles, Loader2, MessageCircle, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card } from '../ui/card';
 import { AIConversationService, ConversationMessage } from '../../services/aiConversation';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { VoiceRecorder } from './VoiceRecorder';
 
 interface ConversationalInterfaceProps {
   onDataExtracted: (data: any) => void;
@@ -27,8 +28,10 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [quickReplies, setQuickReplies] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
+  const [conversationStuck, setConversationStuck] = useState(false);
   const aiService = useRef(new AIConversationService());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageCountRef = useRef(0);
 
   const suggestedStarters = [
     "We're exploring AI but our team is nervous about job security",
@@ -63,6 +66,8 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
     setInput('');
     setIsLoading(true);
     setShowSuggestions(false);
+    setConversationStuck(false);
+    messageCountRef.current += 1;
 
     try {
       const response = await aiService.current.sendMessage(text);
@@ -90,6 +95,11 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
       setProgress(Math.min((dataKeys.length / 6) * 100, 100)); // 6 key data points
       
       onDataExtracted(extractedData);
+
+      // Check for conversation being stuck (too many messages without progress)
+      if (messageCountRef.current > 8 && progress < 50) {
+        setConversationStuck(true);
+      }
 
       // Check if conversation should complete
       if (response.metadata?.extractedData?.readyToProgress) {
@@ -121,6 +131,25 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
 
   const handleQuickReply = (reply: string) => {
     handleSend(reply);
+  };
+
+  const handleVoiceTranscription = (text: string) => {
+    setInput(text);
+  };
+
+  const restartConversation = () => {
+    aiService.current.reset();
+    setMessages([{
+      id: 'initial',
+      role: 'assistant',
+      content: "Let's start fresh! What's your business name?",
+      timestamp: new Date()
+    }]);
+    setProgress(0);
+    setQuickReplies([]);
+    setConversationStuck(false);
+    messageCountRef.current = 0;
+    setShowSuggestions(false);
   };
 
   const getPersonalityAvatar = () => {
@@ -269,6 +298,26 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
         </div>
       )}
 
+      {/* Conversation Reset */}
+      {conversationStuck && (
+        <div className="px-4 py-2 bg-muted/50 border-t border-border">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Having trouble? Let's restart with simpler questions.
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={restartConversation}
+              className="ml-2"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Start Over
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Input Area */}
       <div className="p-4 border-t border-border">
         <div className="flex gap-2">
@@ -279,6 +328,10 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
             placeholder={placeholder}
             disabled={isLoading}
             className="flex-1"
+          />
+          <VoiceRecorder
+            onTranscription={handleVoiceTranscription}
+            disabled={isLoading}
           />
           <Button
             onClick={() => handleSend()}
