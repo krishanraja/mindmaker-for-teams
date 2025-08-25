@@ -81,26 +81,28 @@ export class ConversationStateManager {
     const data = this.state.collectedData;
     let score = 0;
     
-    // Business info (30%)
-    if (data.businessName) score += 10;
-    if (data.industry) score += 10;
+    // Much more conservative confidence calculation
+    // Business info (40% - core requirements)
+    if (data.businessName) score += 15;
+    if (data.industry) score += 15; 
     if (data.employeeCount) score += 10;
     
-    // Anxiety levels (25%)
-    const anxietyFields = [data.executiveAnxiety, data.managementAnxiety, data.staffAnxiety];
-    score += (anxietyFields.filter(a => a !== undefined).length / 3) * 25;
+    // Current AI use (20% - understanding their starting point)
+    if (data.currentAIUse) score += 20;
     
-    // Skills/risks (20%)
-    if (data.aiSkills?.length) score += 10;
-    if (data.automationRisks?.length) score += 10;
+    // Anxiety levels (20% - at least executive anxiety)
+    if (data.executiveAnxiety !== undefined) score += 10;
+    if (data.managementAnxiety !== undefined) score += 5;
+    if (data.staffAnxiety !== undefined) score += 5;
     
-    // Learning preferences (15%)
-    if (data.learningModality) score += 15;
+    // Learning preferences (10%)
+    if (data.learningModality) score += 10;
     
     // Goals (10%)
     if (data.successTargets?.length) score += 10;
     
-    this.state.confidence = Math.min(score, 100);
+    // Cap confidence at 85% until ready to progress
+    this.state.confidence = Math.min(score, 85);
   }
 
   getState(): ConversationState {

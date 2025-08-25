@@ -112,10 +112,23 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content || '';
-    const toolCalls = data.choices[0].message.tool_calls;
+    
+    // Validate OpenAI response structure
+    if (!data.choices || !data.choices[0]) {
+      console.error('Invalid OpenAI response structure:', data);
+      throw new Error('Invalid response from OpenAI');
+    }
+    
+    const aiResponse = data.choices[0].message?.content || '';
+    const toolCalls = data.choices[0].message?.tool_calls;
 
-    console.log('AI Response generated, length:', aiResponse?.length);
+    // Ensure we have a valid response
+    if (!aiResponse && (!toolCalls || toolCalls.length === 0)) {
+      console.error('Empty OpenAI response received');
+      throw new Error('Empty response from AI');
+    }
+
+    console.log('AI Response generated, length:', aiResponse?.length || 0);
 
     // Process tool calls for data extraction
     let extractedData = {};
@@ -160,11 +173,25 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in ai-conversation function:', error);
+    
+    // Provide proper fallback response and suggestions
+    const fallbackSuggestions = [
+      "Tell me about your business",
+      "What industry are you in?", 
+      "How many employees do you have?"
+    ];
+    
     return new Response(JSON.stringify({ 
       error: error.message,
-      response: "I apologize, but I'm having trouble processing your message right now. Could you please try rephrasing that?"
+      response: "I apologize, but I'm having trouble processing your message right now. Let's try a simpler approach - could you tell me about your business?",
+      extractedData: {},
+      detectedEmotion: 'neutral',
+      detectedIntent: 'general',
+      suggestions: fallbackSuggestions,
+      personalizations: {},
+      sessionId
     }), {
-      status: 500,
+      status: 200, // Return 200 to avoid breaking the UI
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
@@ -247,34 +274,50 @@ function getPersonalityStyle(preferredStyle?: string): string {
 }
 
 function generateSuggestions(userInput: string, context: any, extractedData: any): string[] {
-  const suggestions: string[] = [];
-  
-  // Generate contextual quick replies based on current conversation state
-  if (!extractedData.businessName) {
-    return []; // Let them type their business name naturally
+  try {
+    const suggestions: string[] = [];
+    
+    // Always provide fallback suggestions
+    const fallbackSuggestions = [
+      "Tell me more about that",
+      "What challenges are you facing?",
+      "How can I help you further?"
+    ];
+    
+    // Safe access to extractedData
+    const data = extractedData || {};
+    
+    // Generate contextual quick replies based on current conversation state
+    if (!data.businessName) {
+      return ["Technology/Software", "Healthcare", "Professional Services"]; // Help them get started
+    }
+    
+    if (data.businessName && !data.industry) {
+      suggestions.push("Technology/Software", "Healthcare", "Professional Services", "Manufacturing", "Retail/E-commerce");
+    }
+    
+    if (data.industry && !data.employeeCount) {
+      suggestions.push("Small team (1-20)", "Growing company (21-100)", "Established business (100+)");
+    }
+    
+    if (data.employeeCount && !data.currentAIUse) {
+      suggestions.push("We use ChatGPT and similar tools", "Some basic automation", "Not really using AI yet");
+    }
+    
+    if (data.currentAIUse && !data.challenges) {
+      suggestions.push("Our competitors are moving faster", "Team is nervous about job security", "Don't know where to start");
+    }
+    
+    if (data.challenges && !data.learningModality) {
+      suggestions.push("Hands-on workshops work best", "We prefer self-paced learning", "One-on-one coaching is ideal");
+    }
+    
+    // Return suggestions or fallback
+    return suggestions.length > 0 ? suggestions.slice(0, 3) : fallbackSuggestions;
+  } catch (error) {
+    console.error('Error generating suggestions:', error);
+    return ["Tell me more about that", "What challenges are you facing?", "How can I help you further?"];
   }
-  
-  if (extractedData.businessName && !extractedData.industry) {
-    suggestions.push("Technology/Software", "Healthcare", "Professional Services", "Manufacturing", "Retail/E-commerce");
-  }
-  
-  if (extractedData.industry && !extractedData.employeeCount) {
-    suggestions.push("Small team (1-20)", "Growing company (21-100)", "Established business (100+)");
-  }
-  
-  if (extractedData.employeeCount && !extractedData.currentAIUse) {
-    suggestions.push("We use ChatGPT and similar tools", "Some basic automation", "Not really using AI yet", "Tried a few things but inconsistent");
-  }
-  
-  if (extractedData.currentAIUse && !extractedData.challenges) {
-    suggestions.push("Our competitors are moving faster", "Team is nervous about job security", "Don't know where to start", "Tried AI but adoption was slow");
-  }
-  
-  if (extractedData.challenges && !extractedData.learningModality) {
-    suggestions.push("Hands-on workshops work best", "We prefer self-paced learning", "One-on-one coaching is ideal", "Mix of approaches");
-  }
-  
-  return suggestions.slice(0, 3);
 }
 
 function generatePersonalizations(context: any, extractedData: any): any {

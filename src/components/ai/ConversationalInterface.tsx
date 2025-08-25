@@ -91,19 +91,34 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
         setQuickReplies([]);
       }
       
-      // Update progress based on data collected
+      // Get conversation state to calculate proper progress
+      const conversationState = aiService.current.getContext();
       const extractedData = aiService.current.getExtractedData();
-      const dataKeys = Object.keys(extractedData).filter(key => extractedData[key]);
-      const newProgress = Math.min((dataKeys.length / 6) * 100, 100);
       
-      // Show insight animation when new data is collected
+      // Calculate progress based on meaningful data collection
+      let progressScore = 0;
+      if (extractedData.businessName) progressScore += 20;
+      if (extractedData.industry) progressScore += 15;
+      if (extractedData.employeeCount) progressScore += 15;
+      if (extractedData.currentAIUse) progressScore += 15;
+      if (extractedData.executiveAnxiety !== undefined) progressScore += 15;
+      if (extractedData.learningModality) progressScore += 10;
+      if (extractedData.successTargets?.length) progressScore += 10;
+      
+      const newProgress = Math.min(progressScore, 85); // Never show 100% until truly ready
+      
+      // Show insight animation when new meaningful data is collected
       if (newProgress > progress && response.metadata?.extractedData) {
         setShowInsightAnimation(true);
         setTimeout(() => setShowInsightAnimation(false), 2000);
         
-        // Add insight moment
-        if (response.metadata.extractedData.businessName) {
-          setInsightMoments(prev => [...prev, `✨ Discovered: ${response.metadata.extractedData.businessName} industry insights`]);
+        // Add specific insight moments
+        const newData = response.metadata.extractedData;
+        if (newData.businessName && !extractedData.businessName) {
+          setInsightMoments(prev => [...prev, `✨ Connected with ${newData.businessName}!`]);
+        }
+        if (newData.industry && !extractedData.industry) {
+          setInsightMoments(prev => [...prev, `🎯 Understanding ${newData.industry} opportunities...`]);
         }
       }
       
@@ -115,25 +130,29 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
         setConversationStuck(true);
       }
 
-      // Check if conversation should complete with all data
-      if (response.metadata?.extractedData?.readyToProgress) {
+      // Check if conversation should complete (only when truly ready)
+      if (response.metadata?.extractedData?.readyToProgress && newProgress >= 80) {
         const allData = aiService.current.getExtractedData();
-        // Add completion celebration
+        setProgress(100); // Only now show 100%
         setInsightMoments(prev => [...prev, "🎉 Your AI transformation roadmap is ready!"]);
         setTimeout(() => onConversationComplete(allData), 3000);
       }
     } catch (error) {
       console.error('Error sending message:', error);
       
-      // Add error message
+      // Add helpful error message with suggestions
       const errorMessage: ConversationMessage = {
         id: `error_${Date.now()}`,
         role: 'assistant',
-        content: "I apologize, but I'm having trouble processing your message. Could you try again?",
-        timestamp: new Date()
+        content: "I apologize, but I'm having trouble processing your message. Let's try a simpler approach - could you tell me about your business?",
+        timestamp: new Date(),
+        metadata: {
+          suggestions: ["Tell me about your business", "What industry are you in?", "How many employees do you have?"]
+        }
       };
       
       setMessages(prev => [...prev, errorMessage]);
+      setQuickReplies(["Tell me about your business", "What industry are you in?", "How many employees do you have?"]);
     } finally {
       setIsLoading(false);
     }
@@ -159,14 +178,16 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
     setMessages([{
       id: 'initial',
       role: 'assistant',
-      content: "Let's start fresh! What's your business name?",
+      content: "Let's start fresh! I'm Alex, your AI transformation companion. What's your company called? 🚀",
       timestamp: new Date()
     }]);
     setProgress(0);
     setQuickReplies([]);
     setConversationStuck(false);
+    setInsightMoments([]);
+    setShowInsightAnimation(false);
     messageCountRef.current = 0;
-    setShowSuggestions(false);
+    setShowSuggestions(true);
   };
 
   const getPersonalityAvatar = () => {
