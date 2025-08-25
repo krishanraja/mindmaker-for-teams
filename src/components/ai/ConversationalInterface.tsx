@@ -6,6 +6,16 @@ import { Card } from '../ui/card';
 import { AIConversationService, ConversationMessage } from '../../services/aiConversation';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { VoiceRecorder } from './VoiceRecorder';
+import { DropdownSelection, ButtonGridSelection, MultiSelectTags, RadioSelection } from './SelectionComponents';
+
+interface StructuredSelection {
+  type: 'dropdown' | 'button-grid' | 'radio' | 'multi-select';
+  title: string;
+  description?: string;
+  choices: Array<{ value: string; label: string; description?: string }>;
+  columns?: number;
+  maxSelections?: number;
+}
 
 interface ConversationalInterfaceProps {
   onDataExtracted: (data: any) => void;
@@ -27,6 +37,8 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  const [structuredSelection, setStructuredSelection] = useState<StructuredSelection | null>(null);
+  const [selectionValues, setSelectionValues] = useState<any>({});
   const [progress, setProgress] = useState(0);
   const [conversationStuck, setConversationStuck] = useState(false);
   const [insightMoments, setInsightMoments] = useState<string[]>([]);
@@ -84,11 +96,23 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
       
       setMessages(prev => [...prev, userMessage, response]);
 
-      // Extract quick replies and update progress
+      // Handle suggestions - either structured selections or quick replies
       if (response.metadata?.suggestions) {
-        setQuickReplies(response.metadata.suggestions);
+        if (typeof response.metadata.suggestions === 'object' && 
+            !Array.isArray(response.metadata.suggestions) && 
+            'type' in response.metadata.suggestions) {
+          setStructuredSelection(response.metadata.suggestions as StructuredSelection);
+          setQuickReplies([]);
+        } else if (Array.isArray(response.metadata.suggestions)) {
+          setQuickReplies(response.metadata.suggestions);
+          setStructuredSelection(null);
+        } else {
+          setQuickReplies([]);
+          setStructuredSelection(null);
+        }
       } else {
         setQuickReplies([]);
+        setStructuredSelection(null);
       }
       
       // Get conversation state to calculate proper progress
@@ -167,6 +191,30 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
 
   const handleQuickReply = (reply: string) => {
     handleSend(reply);
+  };
+
+  const handleSelectionChange = (key: string, value: any) => {
+    setSelectionValues(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSelectionSubmit = () => {
+    const selection = structuredSelection;
+    if (!selection || !selectionValues[selection.title]) return;
+
+    const value = selectionValues[selection.title];
+    let responseText = '';
+
+    if (Array.isArray(value)) {
+      const choices = selection.choices.filter((c: any) => value.includes(c.value));
+      responseText = `Selected: ${choices.map((c: any) => c.label).join(', ')}`;
+    } else {
+      const choice = selection.choices.find((c: any) => c.value === value);
+      responseText = choice ? choice.label : value;
+    }
+
+    setStructuredSelection(null);
+    setSelectionValues({});
+    handleSend(responseText);
   };
 
   const handleVoiceTranscription = (text: string) => {
@@ -310,8 +358,68 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Structured Selection Interface */}
+      {structuredSelection && !isLoading && (
+        <div className="px-4 pb-2">
+          <div className="space-y-4">
+            {structuredSelection.type === 'dropdown' && (
+              <DropdownSelection
+                title={structuredSelection.title}
+                description={structuredSelection.description}
+                choices={structuredSelection.choices}
+                value={selectionValues[structuredSelection.title]}
+                onSelect={(value) => handleSelectionChange(structuredSelection.title, value)}
+              />
+            )}
+            
+            {structuredSelection.type === 'button-grid' && (
+              <ButtonGridSelection
+                title={structuredSelection.title}
+                description={structuredSelection.description}
+                choices={structuredSelection.choices}
+                value={selectionValues[structuredSelection.title]}
+                onSelect={(value) => handleSelectionChange(structuredSelection.title, value)}
+                columns={structuredSelection.columns || 2}
+              />
+            )}
+            
+            {structuredSelection.type === 'radio' && (
+              <RadioSelection
+                title={structuredSelection.title}
+                description={structuredSelection.description}
+                choices={structuredSelection.choices}
+                value={selectionValues[structuredSelection.title]}
+                onSelect={(value) => handleSelectionChange(structuredSelection.title, value)}
+              />
+            )}
+            
+            {structuredSelection.type === 'multi-select' && (
+              <MultiSelectTags
+                title={structuredSelection.title}
+                description={structuredSelection.description}
+                choices={structuredSelection.choices}
+                values={selectionValues[structuredSelection.title] || []}
+                onSelectionChange={(values) => handleSelectionChange(structuredSelection.title, values)}
+                maxSelections={structuredSelection.maxSelections}
+              />
+            )}
+            
+            <div className="flex justify-end">
+              <Button
+                onClick={handleSelectionSubmit}
+                disabled={!selectionValues[structuredSelection.title] || 
+                  (Array.isArray(selectionValues[structuredSelection.title]) && selectionValues[structuredSelection.title].length === 0)}
+                className="bg-primary hover:bg-primary/90"
+              >
+                Continue Assessment
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Quick Replies */}
-      {quickReplies.length > 0 && !isLoading && (
+      {quickReplies.length > 0 && !isLoading && !structuredSelection && (
         <div className="px-4 pb-2">
           <div className="text-xs text-muted-foreground mb-2">Quick replies:</div>
           <div className="flex flex-wrap gap-2">
@@ -331,7 +439,7 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
       )}
 
       {/* Suggested Starters */}
-      {showSuggestions && messages.length <= 1 && (
+      {showSuggestions && messages.length <= 1 && !structuredSelection && (
         <div className="p-4 border-t border-border">
           <div className="text-sm text-muted-foreground mb-3">Quick starts:</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -372,34 +480,36 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
       )}
 
       {/* Input Area */}
-      <div className="p-4 border-t border-border">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={placeholder}
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <VoiceRecorder
-            onTranscription={handleVoiceTranscription}
-            disabled={isLoading}
-          />
-          <Button
-            onClick={() => handleSend()}
-            disabled={!input.trim() || isLoading}
-            size="icon"
-            className="bg-primary hover:bg-primary/90"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </Button>
+      {!structuredSelection && (
+        <div className="p-4 border-t border-border">
+          <div className="flex gap-2">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={placeholder}
+              disabled={isLoading}
+              className="flex-1"
+            />
+            <VoiceRecorder
+              onTranscription={handleVoiceTranscription}
+              disabled={isLoading}
+            />
+            <Button
+              onClick={() => handleSend()}
+              disabled={!input.trim() || isLoading}
+              size="icon"
+              className="bg-primary hover:bg-primary/90"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

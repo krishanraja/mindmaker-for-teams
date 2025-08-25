@@ -281,47 +281,101 @@ function getPersonalityStyle(preferredStyle?: string): string {
   }
 }
 
-function generateSuggestions(userInput: string, context: any, extractedData: any): string[] {
+function generateSuggestions(userInput: string, context: any, extractedData: any): any {
   try {
-    const suggestions: string[] = [];
-    
-    // Professional fallback suggestions for L&D context
-    const fallbackSuggestions = [
-      "What's your biggest L&D challenge?",
-      "How do you currently measure training ROI?",
-      "What's your annual L&D budget?"
-    ];
-    
-    // Safe access to extractedData
     const data = extractedData || {};
     
-    // Generate business-focused quick replies
+    // Generate structured selection interfaces instead of text suggestions
     if (!data.industry) {
-      return ["Healthcare", "Financial Services", "Manufacturing", "Technology", "Professional Services"];
+      return {
+        type: 'dropdown',
+        title: 'What industry are you in?',
+        description: 'Select your primary industry sector',
+        choices: [
+          { value: 'healthcare', label: 'Healthcare', description: 'Hospitals, clinics, medical services' },
+          { value: 'financial-services', label: 'Financial Services', description: 'Banking, insurance, fintech' },
+          { value: 'manufacturing', label: 'Manufacturing', description: 'Production, assembly, industrial' },
+          { value: 'technology', label: 'Technology', description: 'Software, hardware, IT services' },
+          { value: 'professional-services', label: 'Professional Services', description: 'Consulting, legal, accounting' },
+          { value: 'retail', label: 'Retail & E-commerce', description: 'Consumer goods, online sales' },
+          { value: 'education', label: 'Education', description: 'Schools, universities, training' },
+          { value: 'government', label: 'Government', description: 'Public sector, agencies' },
+          { value: 'other', label: 'Other', description: 'Not listed above' }
+        ]
+      };
     }
     
     if (data.industry && !data.employeeCount) {
-      suggestions.push("1,000-5,000 employees", "5,000-20,000 employees", "20,000+ employees");
+      return {
+        type: 'radio',
+        title: 'How many employees does your organization have?',
+        description: 'Select the size that best describes your organization',
+        choices: [
+          { value: '50-200', label: '50-200 employees', description: 'Small to medium enterprise' },
+          { value: '200-1000', label: '200-1,000 employees', description: 'Medium enterprise' },
+          { value: '1000-5000', label: '1,000-5,000 employees', description: 'Large enterprise' },
+          { value: '5000-20000', label: '5,000-20,000 employees', description: 'Very large enterprise' },
+          { value: '20000+', label: '20,000+ employees', description: 'Global enterprise' }
+        ]
+      };
     }
     
     if (data.employeeCount && !data.currentAIUse) {
-      suggestions.push("LMS with AI features", "AI-powered content creation", "No AI in L&D yet");
+      return {
+        type: 'button-grid',
+        title: 'What describes your current AI adoption in L&D?',
+        description: 'Select your current state of AI implementation',
+        choices: [
+          { value: 'none', label: 'No AI in L&D', description: 'Traditional training methods only' },
+          { value: 'exploring', label: 'Exploring AI', description: 'Researching and evaluating options' },
+          { value: 'pilot', label: 'Running Pilots', description: 'Testing AI tools in limited scope' },
+          { value: 'partial', label: 'Partial Implementation', description: 'Some teams using AI tools' },
+          { value: 'full', label: 'Full Deployment', description: 'AI integrated across L&D' }
+        ],
+        columns: 2
+      };
     }
     
     if (data.currentAIUse && !data.challenges) {
-      suggestions.push("Training doesn't scale", "Skills gaps growing", "Compliance requirements");
+      return {
+        type: 'multi-select',
+        title: 'What are your biggest L&D challenges?',
+        description: 'Select up to 3 challenges your organization faces',
+        maxSelections: 3,
+        choices: [
+          { value: 'scaling', label: 'Training Doesn\'t Scale', description: 'Hard to reach all employees' },
+          { value: 'engagement', label: 'Low Engagement', description: 'Poor completion rates' },
+          { value: 'personalization', label: 'One-Size-Fits-All', description: 'Can\'t personalize learning' },
+          { value: 'skills-gaps', label: 'Skills Gaps Growing', description: 'Can\'t keep up with needs' },
+          { value: 'measurement', label: 'ROI Measurement', description: 'Hard to prove impact' },
+          { value: 'compliance', label: 'Compliance Requirements', description: 'Regulatory training burden' },
+          { value: 'budget', label: 'Budget Constraints', description: 'Limited L&D resources' },
+          { value: 'technology', label: 'Outdated Technology', description: 'Legacy learning systems' }
+        ]
+      };
     }
     
-    if (data.challenges && !data.learningModality) {
-      suggestions.push("Blended learning programs", "Mobile-first training", "Microlearning approach");
+    if (data.challenges && !data.successTargets) {
+      return {
+        type: 'multi-select',
+        title: 'What would success look like for your L&D transformation?',
+        description: 'Select your top 3 success metrics',
+        maxSelections: 3,
+        choices: [
+          { value: 'cost-reduction', label: '30% Cost Reduction', description: 'Lower training delivery costs' },
+          { value: 'completion-rates', label: 'Higher Completion Rates', description: '80%+ course completion' },
+          { value: 'faster-development', label: 'Faster Skill Development', description: '50% faster learning cycles' },
+          { value: 'personalization', label: 'Personalized Learning', description: 'Adaptive learning paths' },
+          { value: 'compliance', label: 'Automated Compliance', description: 'Real-time compliance tracking' },
+          { value: 'engagement', label: 'Better Engagement', description: 'Higher learner satisfaction' },
+          { value: 'roi-visibility', label: 'Clear ROI Visibility', description: 'Measurable business impact' },
+          { value: 'global-scale', label: 'Global Scalability', description: 'Consistent worldwide delivery' }
+        ]
+      };
     }
     
-    if (data.learningModality && !data.successTargets) {
-      suggestions.push("Reduce training costs by 30%", "Improve completion rates", "Faster skill acquisition");
-    }
-    
-    // Return suggestions or fallback
-    return suggestions.length > 0 ? suggestions.slice(0, 3) : fallbackSuggestions;
+    // Default text suggestions if no structured selection is needed
+    return ["Tell me more about your specific requirements", "What's your timeline for implementation?", "Any other priorities we should discuss?"];
   } catch (error) {
     console.error('Error generating suggestions:', error);
     return ["What's your biggest L&D challenge?", "How do you currently measure training ROI?", "What's your annual L&D budget?"];
