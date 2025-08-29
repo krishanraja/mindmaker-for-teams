@@ -33,7 +33,7 @@ export const Step8VisualSummary: React.FC = () => {
 
   const getReadinessLevel = (score: number) => {
     if (score >= 80) return { label: 'AI Pioneer', color: 'text-green-500', bg: 'bg-green-500/10' };
-    if (score >= 60) return { label: 'AI Ready', color: 'text-blue-500', bg: 'bg-blue-500/10' };
+    if (score >= 60) return { label: 'AI Ready', color: 'text-primary', bg: 'bg-primary/10' };
     if (score >= 40) return { label: 'AI Explorer', color: 'text-orange-500', bg: 'bg-orange-500/10' };
     return { label: 'AI Beginner', color: 'text-purple-500', bg: 'bg-purple-500/10' };
   };
@@ -47,7 +47,7 @@ export const Step8VisualSummary: React.FC = () => {
       title: 'Team Readiness',
       value: `${Math.round(100 - (Object.values(mindmakerData.anxietyLevels || {}).reduce((a, b) => a + b, 0) / 5))}%`,
       description: 'of your team is ready for AI transformation',
-      color: 'text-blue-500'
+      color: 'text-primary'
     },
     {
       icon: <Zap className="w-5 h-5" />,

@@ -163,19 +163,19 @@ export const Step1Welcome: React.FC = () => {
         </div>
 
         {/* Main Heading */}
-        <h1 className="font-display font-bold text-2xl md:text-5xl lg:text-6xl mb-4 md:mb-6 leading-tight text-white px-2">
+        <h1 className="font-display font-bold text-2xl md:text-5xl lg:text-6xl mb-4 md:mb-6 leading-tight text-foreground px-2">
           Let's turn your people from{' '}
-          <span className="text-white">
+          <span className="text-muted-foreground">
             anxious
           </span>{' '}
           to{' '}
-          <span className="text-white underline">
+          <span className="text-primary underline">
             AI-ambitious
           </span>.
         </h1>
 
         {/* Subheading */}
-        <p className="text-base md:text-lg lg:text-xl text-white/90 mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
+        <p className="text-base md:text-lg lg:text-xl text-muted-foreground mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
           Choose your preferred assessment style: have a conversation with our AI consultant or go through our structured questionnaire.
         </p>
 
@@ -184,7 +184,7 @@ export const Step1Welcome: React.FC = () => {
           <Button
             onClick={handleConversationalStart}
             size="lg"
-            className="bg-gradient-purple hover:opacity-90 text-white px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full md:w-auto"
+            className="bg-gradient-purple hover:opacity-90 text-primary-foreground px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full md:w-auto"
           >
             <MessageCircle className="mr-2 w-4 h-4 md:w-5 md:h-5" />
             Chat with AI Consultant
@@ -195,7 +195,7 @@ export const Step1Welcome: React.FC = () => {
             onClick={handleTraditionalStart}
             variant="outline"
             size="lg"
-            className="border-white/20 text-white hover:bg-white/10 px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold rounded-xl transition-all duration-300 group w-full md:w-auto"
+            className="border-border text-foreground hover:bg-secondary px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold rounded-xl transition-all duration-300 group w-full md:w-auto"
           >
             Traditional Assessment
             <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
@@ -203,14 +203,14 @@ export const Step1Welcome: React.FC = () => {
         </div>
 
         {/* Experience Preview */}
-        <div className="bg-card/10 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-8 max-w-2xl mx-auto">
+        <div className="bg-card border border-border rounded-2xl p-6 mb-8 max-w-2xl mx-auto shadow-sm">
           <div className="grid md:grid-cols-2 gap-6 text-left">
             <div>
-              <h3 className="font-semibold text-white mb-2 flex items-center">
+              <h3 className="font-semibold text-foreground mb-2 flex items-center">
                 <MessageCircle className="w-4 h-4 mr-2 text-primary" />
                 AI Conversation
               </h3>
-              <ul className="text-sm text-white/80 space-y-1">
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Natural, personalized dialogue</li>
                 <li>• AI understands your context</li>
                 <li>• Real-time insights and suggestions</li>
@@ -218,11 +218,11 @@ export const Step1Welcome: React.FC = () => {
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-white mb-2 flex items-center">
+              <h3 className="font-semibold text-foreground mb-2 flex items-center">
                 <ArrowRight className="w-4 h-4 mr-2 text-primary" />
                 Traditional Form
               </h3>
-              <ul className="text-sm text-white/80 space-y-1">
+              <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Structured step-by-step process</li>
                 <li>• Familiar questionnaire format</li>
                 <li>• Visual progress tracking</li>
@@ -235,15 +235,15 @@ export const Step1Welcome: React.FC = () => {
         {/* Trust Indicators */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-sm text-muted-foreground px-4">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-success rounded-full" />
+            <div className="w-2 h-2 bg-primary rounded-full" />
             <span>5-10 minute assessment</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-success rounded-full" />
+            <div className="w-2 h-2 bg-primary rounded-full" />
             <span>Personalized recommendations</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-success rounded-full" />
+            <div className="w-2 h-2 bg-primary rounded-full" />
             <span>Downloadable strategy canvas</span>
           </div>
         </div>
