@@ -97,11 +97,11 @@ export const Step1Welcome: React.FC = () => {
         <div className="relative z-10 w-full max-w-4xl mx-auto h-screen flex flex-col">
           {/* Header */}
           <div className="p-6 text-center border-b border-border">
-            <div className="w-48 h-48 flex items-center justify-center mx-auto mb-3">
+            <div className="w-24 h-24 flex items-center justify-center mx-auto mb-3">
               <img 
                 src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
                 alt="AI Mindmaker Logo" 
-                className="w-48 h-48 object-contain"
+                className="w-24 h-24 object-contain"
               />
             </div>
             <h1 className="font-display font-bold text-xl md:text-2xl text-foreground">
@@ -152,19 +152,20 @@ export const Step1Welcome: React.FC = () => {
       {/* Main Content */}
       <div className="relative z-10 text-center max-w-4xl mx-auto px-4 md:px-6">
         {/* Logo */}
-        <div className="mb-6 md:mb-8">
-          <div className="w-64 h-64 md:w-96 md:h-96 flex items-center justify-center mx-auto mb-4">
+        <div className="mb-2 md:mb-4">
+          <div className="w-32 h-32 md:w-48 md:h-48 flex items-center justify-center mx-auto mb-2">
             <img 
               src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
               alt="AI Mindmaker Logo" 
-              className="w-64 h-64 md:w-96 md:h-96 object-contain"
+              className="w-32 h-32 md:w-48 md:h-48 object-contain"
             />
           </div>
         </div>
 
         {/* Main Heading */}
-        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-8 leading-tight mt-8">
-          Let's turn your people from anxious to{' '}
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-8 leading-tight mt-2">
+          Let's turn your people<br />
+          from anxious to{' '}
           <span className="text-primary">
             AI-ambitious
           </span>
