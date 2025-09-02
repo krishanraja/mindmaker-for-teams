@@ -326,7 +326,7 @@ export const Step7Mindmaker: React.FC = () => {
         profileImg.crossOrigin = 'anonymous';
         profileImg.src = '/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png';
         profileImg.onload = () => {
-          doc.addImage(profileImg, 'PNG', 20, bottomY, 40, 40);
+          doc.addImage(profileImg, 'PNG', 20, bottomY, 80, 80);
           
           // Add closing text next to the image
           doc.setFont('helvetica', 'bold');
@@ -451,7 +451,7 @@ export const Step7Mindmaker: React.FC = () => {
       img.crossOrigin = 'anonymous';
       img.src = '/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png';
       img.onload = async () => {
-        doc.addImage(img, 'PNG', 20, 20, 20, 20);
+        doc.addImage(img, 'PNG', 20, 20, 40, 40);
         await generateContent();
       };
       img.onerror = async () => {

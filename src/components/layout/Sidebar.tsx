@@ -29,11 +29,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
         <div className="p-6">
           {/* Logo Area */}
           <div className="mb-8">
-            <div className="w-12 h-12 mb-4 flex items-center justify-center">
+            <div className="w-24 h-24 mb-4 flex items-center justify-center">
               <img 
                 src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
                 alt="AI Mindmaker Logo" 
-                className="w-12 h-12 object-contain"
+                className="w-24 h-24 object-contain"
               />
             </div>
             <h2 className="font-outfit font-semibold text-lg text-foreground">
@@ -133,11 +133,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
       <div className="p-6">
         {/* Logo Area */}
         <div className="mb-8">
-          <div className="w-12 h-12 mb-4 flex items-center justify-center">
+          <div className="w-24 h-24 mb-4 flex items-center justify-center">
             <img 
               src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
               alt="AI Mindmaker Logo" 
-              className="w-12 h-12 object-contain"
+              className="w-24 h-24 object-contain"
             />
           </div>
           <h2 className="font-outfit font-semibold text-lg text-foreground">
