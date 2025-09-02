@@ -163,10 +163,8 @@ export const Step1Welcome: React.FC = () => {
         </div>
 
         {/* Main Heading */}
-        <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl font-bold text-foreground mb-8 leading-tight mt-8">
-          Let's turn your people from
-          <br />
-          anxious to{' '}
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-8 leading-tight mt-8">
+          Let's turn your people from anxious to{' '}
           <span className="text-primary">
             AI-ambitious
           </span>
