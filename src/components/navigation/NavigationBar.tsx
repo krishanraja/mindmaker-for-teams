@@ -27,20 +27,15 @@ export const NavigationBar: React.FC = () => {
             
             {/* Logo Section */}
             <div className="flex items-center">
-              <div className="flex items-center space-x-3">
+              <div className="flex flex-col items-start">
                 <img 
-                  src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
+                  src="/lovable-uploads/eee5a570-3b3e-4c59-847b-b04ef6b24a57.png" 
                   alt="Fractionl AI Logo" 
-                  className="h-8 md:h-10 w-auto object-contain"
+                  className="h-8 md:h-10 w-auto object-contain mb-1"
                 />
-                <div className="flex flex-col">
-                  <span className="font-outfit font-semibold text-lg md:text-xl text-foreground">
-                    Fractionl AI
-                  </span>
-                  <span className="hidden md:block text-xs text-muted-foreground">
-                    Corporate AI Workshop Builder
-                  </span>
-                </div>
+                <span className="text-xs text-muted-foreground">
+                  Corporate Workshop Builder
+                </span>
               </div>
             </div>
 

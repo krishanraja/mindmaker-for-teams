@@ -49,11 +49,8 @@ export const ProgressIndicator: React.FC = () => {
 
       {/* Progress Text */}
       <div className="hidden sm:block">
-        <div className="text-xs font-medium text-foreground">
-          Step {state.currentStep} of {totalSteps}
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {completedSteps} completed
+        <div className="text-xs font-medium text-foreground whitespace-nowrap">
+          Step {state.currentStep} of {totalSteps}, {completedSteps} completed
         </div>
       </div>
     </div>
