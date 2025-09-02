@@ -7,8 +7,8 @@
 :root {
   /* NYC Editorial Color System - Light Theme */
   --background: 0 0% 98%;           /* #FAFAFA - Almost white background */
-  --foreground: 0 0% 6.7%;          /* #111111 - Near black text */
-  --primary: 263 85% 62%;          /* #8B5CF6 - Purple primary */
+  --foreground: 0 0% 3.9%;          /* Main text color for hero design */
+  --primary: 270 70% 60%;          /* Purple accent for hero design */
   --primary-foreground: 0 0% 100%;  /* White text on primary */
   --secondary: 0 0% 96%;            /* #F5F5F5 - Subtle backgrounds */
   --secondary-foreground: 0 0% 6.7%; /* Dark text on secondary */
@@ -58,7 +58,7 @@
   /* NYC Editorial Color System - Dark Theme */
   --background: 0 0% 6.7%;          /* #111111 - Dark background */
   --foreground: 0 0% 98%;           /* #FAFAFA - Light text */
-  --primary: 263 85% 70%;          /* #A855F7 - Purple primary (lighter for dark) */
+  --primary: 270 70% 70%;          /* Purple accent (lighter for dark theme) */
   --primary-foreground: 0 0% 100%;  /* White text on primary */
   --secondary: 0 0% 12%;            /* #1F1F1F - Dark muted backgrounds */
   --secondary-foreground: 0 0% 98%; /* Light text on secondary */
@@ -273,6 +273,24 @@
       opacity: 0;
     }
   }
+}
+
+/* Typography Classes */
+.font-display {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.font-heading {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.font-body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-optical-sizing: auto;
 }
 
 /* Reduced Motion Support */

@@ -19,8 +19,9 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        display: ["var(--font-display)", "Inter", "system-ui", "-apple-system", "sans-serif"],
-        body: ["var(--font-body)", "Inter", "system-ui", "-apple-system", "sans-serif"],
+        display: ["Outfit", "system-ui", "sans-serif"],
+        heading: ["Outfit", "system-ui", "sans-serif"],
+        body: ["Inter", "system-ui", "sans-serif"],
         inter: ["Inter", "system-ui", "-apple-system", "sans-serif"],
         // Legacy compatibility
         sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
