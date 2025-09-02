@@ -241,11 +241,11 @@ export const ConversationalInterface: React.FC<ConversationalInterfaceProps> = (
   const getPersonalityAvatar = () => {
     switch (aiPersonality) {
       case 'professional':
-        return '/lovable-uploads/cda45e60-bf8b-4a41-bd29-0e6c465c1377.png';
+        return '/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png';
       case 'enthusiastic':
-        return '/lovable-uploads/cda45e60-bf8b-4a41-bd29-0e6c465c1377.png';
+        return '/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png';
       default:
-        return '/lovable-uploads/cda45e60-bf8b-4a41-bd29-0e6c465c1377.png';
+        return '/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png';
     }
   };
 

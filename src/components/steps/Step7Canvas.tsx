@@ -324,7 +324,7 @@ export const Step7Mindmaker: React.FC = () => {
       try {
         const profileImg = new Image();
         profileImg.crossOrigin = 'anonymous';
-        profileImg.src = '/lovable-uploads/0a39e893-2d98-406e-abfb-6e090ab239a7.png';
+        profileImg.src = '/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png';
         profileImg.onload = () => {
           doc.addImage(profileImg, 'PNG', 20, bottomY, 40, 40);
           
@@ -449,7 +449,7 @@ export const Step7Mindmaker: React.FC = () => {
     try {
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.src = '/lovable-uploads/32cd84ff-f45d-4007-963c-592cf3554f70.png';
+      img.src = '/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png';
       img.onload = async () => {
         doc.addImage(img, 'PNG', 20, 20, 20, 20);
         await generateContent();

@@ -31,8 +31,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
           <div className="mb-8">
             <div className="w-12 h-12 mb-4 flex items-center justify-center">
               <img 
-                src="/lovable-uploads/cda45e60-bf8b-4a41-bd29-0e6c465c1377.png" 
-                alt="Fractionl Logo" 
+                src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
+                alt="AI Mindmaker Logo" 
                 className="w-12 h-12 object-contain"
               />
             </div>
@@ -135,8 +135,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onNavigate }) => {
         <div className="mb-8">
           <div className="w-12 h-12 mb-4 flex items-center justify-center">
             <img 
-              src="/lovable-uploads/cda45e60-bf8b-4a41-bd29-0e6c465c1377.png" 
-              alt="Fractionl Logo" 
+              src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
+              alt="AI Mindmaker Logo" 
               className="w-12 h-12 object-contain"
             />
           </div>

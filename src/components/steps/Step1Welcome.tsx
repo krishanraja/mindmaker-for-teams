@@ -99,8 +99,8 @@ export const Step1Welcome: React.FC = () => {
           <div className="p-6 text-center border-b border-border">
             <div className="w-12 h-12 flex items-center justify-center mx-auto mb-3">
               <img 
-                src="/lovable-uploads/cda45e60-bf8b-4a41-bd29-0e6c465c1377.png" 
-                alt="Fractionl Logo" 
+                src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
+                alt="AI Mindmaker Logo" 
                 className="w-12 h-12 object-contain"
               />
             </div>
@@ -155,8 +155,8 @@ export const Step1Welcome: React.FC = () => {
         <div className="mb-6 md:mb-8">
           <div className="w-16 h-16 md:w-24 md:h-24 flex items-center justify-center mx-auto mb-4">
             <img 
-              src="/lovable-uploads/cda45e60-bf8b-4a41-bd29-0e6c465c1377.png" 
-              alt="Fractionl Logo" 
+              src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
+              alt="AI Mindmaker Logo" 
               className="w-16 h-16 md:w-24 md:h-24 object-contain"
             />
           </div>
