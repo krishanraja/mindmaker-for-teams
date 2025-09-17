@@ -3,6 +3,7 @@ import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Sparkles, Zap, Target, Users, ChevronRight } from 'lucide-react';
 import { useMindmaker } from '../contexts/MindmakerContext';
+import mindmakerLogo from '../assets/mindmaker-logo.png';
 
 export const WelcomeScreen: React.FC = () => {
   const { setCurrentStep } = useMindmaker();
@@ -17,6 +18,16 @@ export const WelcomeScreen: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="container-width">
           <div className="text-center space-y-8">
+            {/* Logo */}
+            <div className="mb-8">
+              <img 
+                src={mindmakerLogo} 
+                alt="MindMaker Logo" 
+                className="mx-auto"
+                style={{ width: '256px', height: '64px' }}
+              />
+            </div>
+
             {/* Badge */}
             <div className="inline-flex items-center px-4 py-2 glass-card-dark rounded-full text-white/90 text-sm font-medium">
               <Sparkles className="w-4 h-4 mr-2" />
