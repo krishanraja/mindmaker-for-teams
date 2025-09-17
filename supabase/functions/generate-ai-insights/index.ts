@@ -70,7 +70,7 @@ Focus on:
 
 Be specific, professional, and demonstrate deep understanding of their business situation.`;
 
-    const response = await fetch('https://api.openai.ai/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
