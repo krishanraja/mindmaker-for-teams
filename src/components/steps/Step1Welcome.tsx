@@ -64,7 +64,7 @@ export const Step1Welcome: React.FC = () => {
           onConversationComplete={handleConversationComplete}
           initialPrompt="Welcome! I'm here to help you discover the perfect AI transformation approach for your organization. Let's start with your name and company - what should I call you?"
           placeholder="Type your response here..."
-          aiPersonality="professional-friendly"
+          aiPersonality="professional"
         />
       </div>
     );
