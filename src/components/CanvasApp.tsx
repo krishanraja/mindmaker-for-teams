@@ -1,16 +1,15 @@
 import React from 'react';
-import { useMindmaker } from '../contexts/MindmakerContext';
+import { useStreamlinedMindmaker } from '../contexts/StreamlinedMindmakerContext';
 import { Step1Welcome } from './steps/Step1Welcome';
 import { AITransformationFlow } from './ai/AITransformationFlow';
 
 export const MindmakerApp: React.FC = () => {
-  const { state } = useMindmaker();
+  const { state } = useStreamlinedMindmaker();
 
-  // Only show Step1Welcome initially
-  // AI will handle the entire flow after user starts conversation
+  // CEO-Grade Flow: Welcome → AI Conversation → Personalized Results
   return (
     <>
-      {state.currentStep === 1 ? (
+      {!state.conversationComplete ? (
         <Step1Welcome />
       ) : (
         <AITransformationFlow />

@@ -1,299 +1,300 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Calendar, CheckCircle, Sparkles, Users, Brain, Target } from 'lucide-react';
+import React from 'react';
+import { useStreamlinedMindmaker } from '../../contexts/StreamlinedMindmakerContext';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { useMindmaker } from '@/contexts/MindmakerContext';
-import { ConversationalInterface } from './ConversationalInterface';
+import { 
+  Sparkles, 
+  Brain, 
+  Target, 
+  Users, 
+  Calendar, 
+  Download, 
+  ArrowRight, 
+  CheckCircle,
+  TrendingUp,
+  Shield,
+  Zap
+} from 'lucide-react';
 
 export const AITransformationFlow: React.FC = () => {
-  const { state, setCurrentStep, resetMindmaker } = useMindmaker();
-  const [showBookingOptions, setShowBookingOptions] = useState(false);
-  const { mindmakerData } = state;
-
-  const handleBackToStart = () => {
-    resetMindmaker();
-    setCurrentStep(1);
-  };
-
-  const handleBookWorkshop = () => {
-    setShowBookingOptions(true);
-  };
-
-  const handleScheduleCall = () => {
-    // Open Calendly or booking system
-    window.open('https://calendly.com/fractionl-ai/consultation', '_blank');
-  };
-
-  const handleDownloadRoadmap = () => {
-    // Generate and download roadmap (replaces PDF)
-    const roadmapData = {
-      businessName: mindmakerData.businessName,
-      insights: [
-        `Primary AI opportunities in ${mindmakerData.businessFunctions.join(', ')}`,
-        `Team readiness: ${calculateTeamReadiness()}% confidence level`,
-        `Recommended learning approach: ${formatLearningModality(mindmakerData.learningModality)}`,
-        `Success targets: ${mindmakerData.successTargets.join(', ')}`
-      ],
-      nextSteps: [
-        'Schedule workshop consultation',
-        'Define AI implementation roadmap', 
-        'Begin team literacy program',
-        'Implement pilot AI initiatives'
-      ]
-    };
-
-    const blob = new Blob([JSON.stringify(roadmapData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ai-transformation-roadmap-${mindmakerData.businessName || 'company'}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  const { state } = useStreamlinedMindmaker();
 
   const calculateTeamReadiness = () => {
-    const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
-    return Math.round(100 - avgAnxiety);
+    const readiness = state.discoveryData.teamReadiness || 65;
+    if (readiness >= 80) return { level: 'High', color: 'text-green-400', percentage: readiness };
+    if (readiness >= 60) return { level: 'Medium', color: 'text-yellow-400', percentage: readiness };
+    return { level: 'Low', color: 'text-red-400', percentage: readiness };
   };
 
   const formatLearningModality = (modality: string) => {
-    const modalityMap: Record<string, string> = {
-      'live-cohort': 'Live Workshop Sessions',
-      'self-paced': 'Self-Paced Learning',
-      'coaching': 'One-on-One Coaching',
-      'chatbot': 'AI-Guided Learning',
-      'blended': 'Blended Approach'
-    };
-    return modalityMap[modality] || modality;
+    if (!modality) return 'Interactive Workshops';
+    switch (modality.toLowerCase()) {
+      case 'hands-on': return 'Hands-On Learning Labs';
+      case 'theoretical': return 'Strategic Deep Dives';
+      case 'mixed': return 'Blended Learning Experience';
+      default: return 'Interactive Workshops';
+    }
   };
 
-  if (state.currentStep === 2) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-100 via-background to-accent-400/10">
-        {/* Navigation Header */}
-        <nav className="glass-nav sticky top-0 z-50 border-b border-white/20">
-          <div className="container-width">
-            <div className="flex items-center justify-between h-16">
-              <Button
-                variant="ghost"
-                onClick={handleBackToStart}
-                className="text-foreground hover:bg-white/10"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Start Over
-              </Button>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                <span className="font-semibold text-foreground">AI Discovery Complete</span>
+  const readiness = calculateTeamReadiness();
+  const companyName = state.discoveryData.businessName || 'Your Organization';
+
+  const handleScheduleConsultation = () => {
+    // Open calendar booking (replace with actual calendar link)
+    window.open('https://calendly.com/fractionl-ai/workshop-consultation', '_blank');
+  };
+
+  const handleDownloadSummary = () => {
+    const summary = {
+      company: companyName,
+      readiness: readiness,
+      recommendations: 'AI Literacy Bootcamp',
+      focusAreas: state.discoveryData.successTargets || ['Team Confidence', 'Process Efficiency'],
+      learningStyle: formatLearningModality(state.discoveryData.learningModality),
+      nextSteps: 'Schedule workshop consultation'
+    };
+    
+    const dataStr = JSON.stringify(summary, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `${companyName}-AI-Transformation-Summary.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary-600 to-accent relative overflow-hidden">
+      {/* Floating Elements */}
+      <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full animate-float"></div>
+      <div className="absolute top-32 right-16 w-16 h-16 bg-white/10 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute bottom-20 left-1/4 w-12 h-12 bg-white/10 rounded-full animate-float" style={{ animationDelay: '4s' }}></div>
+      
+      {/* Glass Navigation Header */}
+      <div className="glass-nav fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <div className="container-width">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
+              <span className="font-semibold text-foreground">Fractionl.ai</span>
             </div>
           </div>
-        </nav>
+        </div>
+      </div>
 
-        {/* Main Content */}
-        <main className="section-padding">
-          <div className="container-width">
-            <div className="text-center mb-12 space-y-6">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">
-                <CheckCircle className="w-4 h-4" />
-                Discovery Complete
-              </div>
-              
-              <h1 className="hero-title font-bold text-foreground">
-                Your AI Transformation Roadmap
-              </h1>
-              
-              <p className="section-header text-muted-foreground max-w-3xl mx-auto">
-                Based on our conversation about <strong className="text-foreground">{mindmakerData.businessName}</strong>, 
-                here's your personalized path to AI literacy and transformation.
-              </p>
+      {/* Results Content */}
+      <div className="pt-24 pb-section section-padding">
+        <div className="container-width">
+          {/* Header */}
+          <div className="text-center space-y-6 max-w-4xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white text-sm font-medium animate-fade-in-up">
+              <CheckCircle className="w-4 h-4" />
+              Transformation Roadmap Complete
             </div>
 
-            {/* Insights Grid */}
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
-              <Card className="glass-card border-primary/20 hover:scale-105 transition-all duration-300">
-                <CardHeader className="text-center">
-                  <Brain className="w-8 h-8 text-primary mx-auto mb-3" />
-                  <CardTitle className="text-xl">Team Readiness</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">
-                    {calculateTeamReadiness()}%
-                  </div>
-                  <p className="text-muted-foreground text-sm">
-                    Overall AI confidence level across your team
-                  </p>
-                </CardContent>
-              </Card>
+            <h1 className="headline-xl text-white animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              Your Personalized AI
+              <br />
+              <span className="bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+                Transformation Roadmap
+              </span>
+            </h1>
 
-              <Card className="glass-card border-accent/20 hover:scale-105 transition-all duration-300">
-                <CardHeader className="text-center">
-                  <Users className="w-8 h-8 text-accent mx-auto mb-3" />
-                  <CardTitle className="text-xl">Learning Style</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <div className="text-lg font-semibold text-foreground mb-2">
-                    {formatLearningModality(mindmakerData.learningModality)}
-                  </div>
-                  <p className="text-muted-foreground text-sm">
-                    Optimal approach for your organization
-                  </p>
-                </CardContent>
-              </Card>
+            <p className="body-lg max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              Based on our AI analysis of {companyName}, here's your custom transformation strategy to build AI confidence across your organization.
+            </p>
+          </div>
 
-              <Card className="glass-card border-primary/20 hover:scale-105 transition-all duration-300">
-                <CardHeader className="text-center">
-                  <Target className="w-8 h-8 text-primary mx-auto mb-3" />
-                  <CardTitle className="text-xl">Focus Areas</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <div className="text-lg font-semibold text-foreground mb-2">
-                    {mindmakerData.businessFunctions.length} Functions
+          {/* Insights Grid */}
+          <div className="grid lg:grid-cols-3 gap-6 mb-12">
+            {/* Team Readiness */}
+            <Card className="glass-card-dark text-white border-white/20 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <CardHeader className="card-header">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6" />
                   </div>
-                  <p className="text-muted-foreground text-sm">
-                    Key areas for AI implementation
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recommended Next Steps */}
-            <Card className="glass-card border-primary/20 mb-12">
-              <CardHeader>
-                <CardTitle className="text-2xl text-center">Recommended Workshop Package</CardTitle>
-                <CardDescription className="text-center text-lg">
-                  Based on your organization's profile and needs
-                </CardDescription>
+                  <span className={`text-2xl font-bold ${readiness.color}`}>{readiness.percentage}%</span>
+                </div>
+                <CardTitle className="text-lg font-semibold">Team AI Readiness</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-semibold text-foreground">AI Literacy Bootcamp</h3>
-                    <Badge variant="default" className="text-white">Recommended</Badge>
-                  </div>
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-medium text-foreground mb-2">What's Included:</h4>
-                      <ul className="space-y-1 text-sm text-muted-foreground">
-                        <li>• Interactive half-day workshop</li>
-                        <li>• Personalized AI literacy assessment</li>
-                        <li>• Industry-specific use case examples</li>
-                        <li>• 90-day implementation roadmap</li>
-                        <li>• Follow-up coaching sessions</li>
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-foreground mb-2">Perfect For:</h4>
-                      <ul className="space-y-1 text-sm text-muted-foreground">
-                        <li>• Teams new to AI adoption</li>
-                        <li>• Organizations wanting structured learning</li>
-                        <li>• {formatLearningModality(mindmakerData.learningModality)} approach</li>
-                        <li>• {mindmakerData.businessFunctions.join(' & ')} focus</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button 
-                    onClick={handleScheduleCall}
-                    size="lg"
-                    className="bg-primary hover:bg-primary/90 text-white font-semibold px-8"
-                  >
-                    <Calendar className="w-5 h-5 mr-2" />
-                    Schedule Workshop Consultation
-                  </Button>
-                  
-                  <Button 
-                    onClick={handleDownloadRoadmap}
-                    variant="outline"
-                    size="lg"
-                    className="border-primary text-primary hover:bg-primary/10 font-semibold px-8"
-                  >
-                    Download Roadmap Summary
-                  </Button>
-                </div>
-
-                <div className="text-center text-sm text-muted-foreground">
-                  <p>Ready to start your AI transformation journey?</p>
-                  <p className="font-medium text-foreground">Book a free 30-minute consultation to discuss your specific needs.</p>
-                </div>
+              <CardContent className="card-content">
+                <CardDescription className="text-white/80">
+                  Current readiness level: <span className={`font-semibold ${readiness.color}`}>{readiness.level}</span>
+                  <br />
+                  Primary focus: Building confidence and reducing AI anxiety through hands-on experience.
+                </CardDescription>
               </CardContent>
             </Card>
 
-            {/* Trust Indicators */}
-            <div className="text-center space-y-4">
-              <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary" />
-                  <span>500+ Executives Trained</span>
+            {/* Learning Style */}
+            <Card className="glass-card-dark text-white border-white/20 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+              <CardHeader className="card-header">
+                <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+                  <Brain className="w-6 h-6" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary" />
-                  <span>95% Satisfaction Rate</span>
+                <CardTitle className="text-lg font-semibold">Optimal Learning Style</CardTitle>
+              </CardHeader>
+              <CardContent className="card-content">
+                <CardDescription className="text-white/80">
+                  Recommended approach: <span className="font-semibold text-white">{formatLearningModality(state.discoveryData.learningModality)}</span>
+                  <br />
+                  Perfect for your team's preferences and organizational culture.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            {/* Focus Areas */}
+            <Card className="glass-card-dark text-white border-white/20 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+              <CardHeader className="card-header">
+                <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+                  <Target className="w-6 h-6" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-primary" />
-                  <span>Industry-Agnostic Approach</span>
+                <CardTitle className="text-lg font-semibold">Priority Focus Areas</CardTitle>
+              </CardHeader>
+              <CardContent className="card-content">
+                <CardDescription className="text-white/80">
+                  Key targets: {(state.discoveryData.successTargets || ['Team Confidence', 'Process Efficiency']).join(', ')}
+                  <br />
+                  These align perfectly with our proven transformation methodology.
+                </CardDescription>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recommended Package */}
+          <Card className="glass-card-dark text-white border-white/20 mb-12 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/20 backdrop-blur-md border border-primary/30 rounded-full text-primary-100 text-sm font-medium mb-4">
+                    <Sparkles className="w-4 h-4" />
+                    Recommended for {companyName}
+                  </div>
+                  <CardTitle className="text-2xl font-bold mb-2">AI Literacy Bootcamp</CardTitle>
+                  <CardDescription className="text-white/80 text-lg">
+                    Transform your people from overwhelmed & anxious about AI to literate, confident, and proactive
+                  </CardDescription>
+                </div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-primary-100">½ Day</div>
+                  <div className="text-white/60">Interactive Workshop</div>
                 </div>
               </div>
-              
-              <p className="text-xs text-muted-foreground">
-                Questions? Email <a href="mailto:krish@fractionl.ai" className="text-primary hover:underline">krish@fractionl.ai</a>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    What You'll Get
+                  </h4>
+                  <ul className="space-y-2 text-white/80">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-1 text-green-400 flex-shrink-0" />
+                      Mindset reset from AI anxiety to opportunity
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-1 text-green-400 flex-shrink-0" />
+                      Hands-on prompting & AI orchestration skills
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-1 text-green-400 flex-shrink-0" />
+                      Practical frameworks for spotting AI opportunities
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-1 text-green-400 flex-shrink-0" />
+                      Industry-specific case studies and applications
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Zap className="w-5 h-5" />
+                    Perfect For Your Team
+                  </h4>
+                  <ul className="space-y-2 text-white/80">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-1 text-green-400 flex-shrink-0" />
+                      {state.discoveryData.industry || 'Your industry'} specific examples
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-1 text-green-400 flex-shrink-0" />
+                      Sized for {state.discoveryData.employeeCount || 'your team size'}
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-1 text-green-400 flex-shrink-0" />
+                      Addresses current {readiness.level.toLowerCase()} readiness level
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 mt-1 text-green-400 flex-shrink-0" />
+                      Builds on your existing {state.discoveryData.aiAdoption || 'baseline'}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+            <Button
+              onClick={handleScheduleConsultation}
+              variant="hero"
+              size="lg"
+              className="button-hero text-lg px-8 py-4 h-auto font-semibold shadow-xl hover:shadow-2xl transition-all duration-300"
+            >
+              <Calendar className="w-5 h-5 mr-2" />
+              Schedule Workshop Consultation
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+            
+            <Button
+              onClick={handleDownloadSummary}
+              variant="glass"
+              size="lg"
+              className="text-lg px-8 py-4 h-auto font-semibold"
+            >
+              <Download className="w-5 h-5 mr-2" />
+              Download Summary
+            </Button>
+          </div>
+
+          {/* Trust Indicators */}
+          <div className="text-center space-y-6 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+            <div className="max-w-3xl mx-auto">
+              <h3 className="text-xl font-semibold text-white mb-4">Join Organizations Already Transforming with Fractionl.ai</h3>
+              <div className="grid md:grid-cols-3 gap-6 text-white/80">
+                <div className="space-y-2">
+                  <div className="text-2xl font-bold text-primary-100">500+</div>
+                  <div className="text-sm">Teams Transformed</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-2xl font-bold text-primary-100">89%</div>
+                  <div className="text-sm">Anxiety Reduction</div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-2xl font-bold text-primary-100">3x</div>
+                  <div className="text-sm">Faster AI Adoption</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <p className="text-white/60 text-sm">
+                Ready to transform your team's relationship with AI?
+              </p>
+              <p className="text-white/80 text-lg font-medium mt-2">
+                Schedule your consultation now and start building AI confidence tomorrow.
               </p>
             </div>
           </div>
-        </main>
+        </div>
       </div>
-    );
-  }
-
-  // Default: Show conversational interface
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-100 via-background to-accent-400/10">
-      {/* Navigation Header */}
-      <nav className="glass-nav sticky top-0 z-50 border-b border-white/20">
-        <div className="container-width">
-          <div className="flex items-center justify-between h-16">
-            <Button
-              variant="ghost"
-              onClick={handleBackToStart}
-              className="text-foreground hover:bg-white/10"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Start
-            </Button>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-foreground">AI Discovery Session</span>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Conversation Interface */}
-      <main className="section-padding">
-        <div className="container-width max-w-4xl">
-          <ConversationalInterface
-            onDataExtracted={(data) => {
-              // Update context with extracted data
-            }}
-            onConversationComplete={(allData) => {
-              setCurrentStep(2); // Move to results view
-            }}
-            initialPrompt="👋 Welcome! I'm Alex, your AI transformation guide from Fractionl.ai.
-
-I'm here to understand your organization's unique AI journey and help you discover the perfect path forward. This isn't just another assessment—it's an intelligent conversation that adapts to your specific industry, team size, and challenges.
-
-Let's start building your personalized AI transformation roadmap. What's your company called? 🚀"
-            placeholder="Tell me about your company..."
-            aiPersonality="professional"
-          />
-        </div>
-      </main>
     </div>
   );
 };

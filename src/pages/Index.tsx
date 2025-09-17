@@ -1,12 +1,12 @@
 import React from 'react';
-import { MindmakerProvider } from '../contexts/MindmakerContext';
+import { StreamlinedMindmakerProvider } from '../contexts/StreamlinedMindmakerContext';
 import { MindmakerApp } from '../components/CanvasApp';
 
 const Index = () => {
   return (
-    <MindmakerProvider>
+    <StreamlinedMindmakerProvider>
       <MindmakerApp />
-    </MindmakerProvider>
+    </StreamlinedMindmakerProvider>
   );
 };
 
