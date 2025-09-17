@@ -54,14 +54,14 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "AI Assessment <assessments@fractionl.ai>",
       to: ["krish@fractionl.ai"],
-      subject: `🎯 New Strategy Call Scheduled - ${assessmentData.businessName} (${assessmentData.employeeCount} employees)`,
+      subject: `🎯 AI Literacy for Teams Inquiry - ${assessmentData.businessName} (${assessmentData.employeeCount} employees)`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
           <div style="background: white; border-radius: 12px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
             
             <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #e5e7eb;">
-              <h1 style="color: #1f2937; margin: 0; font-size: 28px;">🎯 New Strategy Call Scheduled</h1>
-              <p style="color: #6b7280; margin: 8px 0 0 0; font-size: 16px;">AI Assessment completed and strategy call requested</p>
+              <h1 style="color: #1f2937; margin: 0; font-size: 28px;">🎯 AI Literacy for Teams Inquiry</h1>
+              <p style="color: #6b7280; margin: 8px 0 0 0; font-size: 16px;">Corporate workshop assessment completed and strategy call requested</p>
             </div>
 
             <!-- Contact Information -->
@@ -122,12 +122,14 @@ const handler = async (req: Request): Promise<Response> => {
                 </ul>
               </div>
 
-              <div style="margin-bottom: 20px;">
-                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Learning Preferences:</h3>
-                <ul style="margin: 0; padding: 12px 12px 12px 32px; background: #f9fafb; border-radius: 6px;">
-                  ${assessmentData.learningPreferences.map(pref => `<li>${pref}</li>`).join('')}
-                </ul>
+            <div style="margin-bottom: 20px;">
+              <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Learning Preferences:</h3>
+              <div style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">
+                ${Array.isArray(assessmentData.learningPreferences) 
+                  ? assessmentData.learningPreferences.map(pref => `<li>${pref}</li>`).join('') 
+                  : assessmentData.learningPreferences}
               </div>
+            </div>
             </div>
 
             <!-- AI-Generated Insights -->
@@ -170,13 +172,14 @@ const handler = async (req: Request): Promise<Response> => {
 
             <!-- Next Steps -->
             <div style="background: #1f2937; color: white; padding: 24px; border-radius: 8px; text-align: center;">
-              <h2 style="color: white; margin-top: 0; font-size: 20px; margin-bottom: 16px;">🚀 Next Steps</h2>
-              <p style="margin: 0 0 16px 0; color: #d1d5db;">The prospect has scheduled a strategy call. Here's what to prepare:</p>
+              <h2 style="color: white; margin-top: 0; font-size: 20px; margin-bottom: 16px;">🚀 Next Steps - AI Literacy Workshop</h2>
+              <p style="margin: 0 0 16px 0; color: #d1d5db;">The prospect has scheduled a strategy call for AI Literacy for Teams workshop. Here's what to prepare:</p>
               <ul style="text-align: left; margin: 0; padding-left: 20px; color: #d1d5db;">
-                <li>Review their industry-specific AI challenges and opportunities</li>
-                <li>Prepare team size-appropriate program recommendations</li>
-                <li>Address their specific success metrics and timeline</li>
-                <li>Have pricing options ready for ${assessmentData.aiInsights?.investmentRange || 'their team size'}</li>
+                <li>Review their industry-specific AI literacy challenges and workshop needs</li>
+                <li>Prepare team size-appropriate AI Literacy program recommendations</li>
+                <li>Address their specific success metrics and implementation timeline</li>
+                <li>Have AI Literacy workshop pricing options ready for ${assessmentData.aiInsights?.investmentRange || 'their team size'}</li>
+                <li>Consider executive vs. team-wide workshop formats based on their preferences</li>
               </ul>
             </div>
 
