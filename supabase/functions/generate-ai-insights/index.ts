@@ -58,7 +58,7 @@ Based on this profile, provide a detailed analysis in the following JSON format:
     "Strategic advantage they could gain",
     "Quick win they could achieve"
   ],
-  "investmentRange": "One of: '$18k-$25k', '$25k-$45k', '$45k-$60k', '$60k+' (based on company size, complexity, and needs)"
+  "investmentRange": "CRITICAL: Use team size-based pricing tiers: 1-10 employees='$5k-$12k', 11-50 employees='$12k-$25k', 51-200 employees='$25k-$45k', 201-1000 employees='$45k-$75k', 1000+ employees='$75k+'"
 }
 
 Focus on:
@@ -106,6 +106,15 @@ Be specific, professional, and demonstrate deep understanding of their business 
     } catch (parseError) {
       console.error('Failed to parse AI response as JSON:', aiResponse);
       // Fallback insights
+      // Calculate team size-based pricing for fallback
+      const getInvestmentRangeBySize = (employeeCount: number) => {
+        if (employeeCount <= 10) return "$5k-$12k";
+        if (employeeCount <= 50) return "$12k-$25k";
+        if (employeeCount <= 200) return "$25k-$45k";
+        if (employeeCount <= 1000) return "$45k-$75k";
+        return "$75k+";
+      };
+
       insights = {
         readinessScore: 65,
         recommendations: [
@@ -122,7 +131,7 @@ Be specific, professional, and demonstrate deep understanding of their business 
           "Competitive advantage through early AI adoption",
           "Enhanced team confidence and capability"
         ],
-        investmentRange: "$25k-$45k"
+        investmentRange: getInvestmentRangeBySize(discoveryData.employeeCount || 50)
       };
     }
 

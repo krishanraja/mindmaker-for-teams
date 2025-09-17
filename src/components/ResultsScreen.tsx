@@ -19,6 +19,7 @@ import {
   Brain
 } from 'lucide-react';
 import { useMindmaker } from '../contexts/MindmakerContext';
+import { supabase } from '../integrations/supabase/client';
 
 export const ResultsScreen: React.FC = () => {
   const { state, resetMindmaker } = useMindmaker();
@@ -45,7 +46,46 @@ export const ResultsScreen: React.FC = () => {
     }
   };
 
-  const handleScheduleConsultation = () => {
+  const handleScheduleConsultation = async () => {
+    try {
+      // Send comprehensive assessment notification to krish@fractionl.ai
+      const { error } = await supabase.functions.invoke('send-assessment-notification', {
+        body: {
+          assessmentData: {
+            // Contact Information
+            businessName: discoveryData.businessName,
+            contactName: discoveryData.contactName,
+            contactEmail: discoveryData.contactEmail,
+            contactRole: discoveryData.contactRole,
+            
+            // Business Details
+            industry: discoveryData.industry,
+            employeeCount: discoveryData.employeeCount,
+            currentAIUse: discoveryData.currentAIUse,
+            
+            // Assessment Inputs
+            biggestChallenges: discoveryData.biggestChallenges || [],
+            leadershipVision: discoveryData.leadershipVision,
+            successMetrics: discoveryData.successMetrics || [],
+            learningPreferences: discoveryData.learningPreferences || [],
+            implementationTimeline: discoveryData.implementationTimeline,
+            
+            // AI Generated Insights
+            aiInsights: discoveryData.aiInsights
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Error sending assessment notification:', error);
+      } else {
+        console.log('Assessment notification sent successfully');
+      }
+    } catch (error) {
+      console.error('Failed to send assessment notification:', error);
+    }
+    
+    // Always open Calendly regardless of email success/failure
     window.open('https://calendly.com/krish-raja/mindmaker-teams', '_blank');
   };
 
