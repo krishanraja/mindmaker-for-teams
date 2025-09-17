@@ -86,21 +86,6 @@ export const ResultsScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/5">
-      {/* Header */}
-      <div className="glass-nav border-b">
-        <div className="container-width">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <Zap className="w-6 h-6 text-primary" />
-              <span className="text-xl font-semibold">Fractionl.ai</span>
-            </div>
-            <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
-              <CheckCircle className="w-3 h-3 mr-1" />
-              Discovery Complete
-            </Badge>
-          </div>
-        </div>
-      </div>
 
       <div className="container-width py-12">
         <div className="max-w-4xl mx-auto space-y-8">
