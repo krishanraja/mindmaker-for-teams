@@ -12,7 +12,11 @@ import {
   CheckCircle,
   Star,
   ArrowRight,
-  Zap
+  Zap,
+  AlertTriangle,
+  TrendingUp,
+  Shield,
+  Brain
 } from 'lucide-react';
 import { useMindmaker } from '../contexts/MindmakerContext';
 
@@ -20,35 +24,25 @@ export const ResultsScreen: React.FC = () => {
   const { state, resetMindmaker } = useMindmaker();
   const { discoveryData } = state;
 
-  const calculateReadinessScore = () => {
-    let score = 50; // Base score
-    
-    if (discoveryData.currentAIUse.includes('pilot') || discoveryData.currentAIUse.includes('tool')) score += 20;
-    if (discoveryData.employeeCount > 100) score += 10;
-    if (discoveryData.successTargets.length >= 2) score += 10;
-    if (discoveryData.learningModality === 'live-cohort') score += 10;
-    
-    return Math.min(score, 95);
+  const getReadinessScore = () => {
+    return discoveryData.aiInsights?.readinessScore || 65;
   };
 
-  const getPersonalizedInsights = () => {
-    const insights = [];
+  const getInvestmentRange = () => {
+    return discoveryData.aiInsights?.investmentRange || '$25k-$45k';
+  };
+
+  const getRecommendedProgram = () => {
+    const size = discoveryData.employeeCount;
+    const urgency = discoveryData.implementationTimeline;
     
-    if (discoveryData.employeeCount < 50) {
-      insights.push("🎯 Perfect size for cohort-based learning with direct executive involvement");
-    } else if (discoveryData.employeeCount > 500) {
-      insights.push("🏢 Enterprise-scale approach with train-the-trainer methodology recommended");
-    }
-    
-    if (discoveryData.currentAIUse.includes('none') || discoveryData.currentAIUse.includes('limited')) {
-      insights.push("🌱 Green field opportunity - can establish best practices from the start");
+    if (size <= 50 && urgency?.includes('ASAP')) {
+      return 'Executive Sprint + Intensive Bootcamp';
+    } else if (size > 200) {
+      return 'Enterprise AI Transformation Program';
     } else {
-      insights.push("⚡ Building on existing foundation - focus on governance and optimization");
+      return 'AI Literacy & Confidence Bootcamp';
     }
-    
-    insights.push(`🎓 ${discoveryData.learningModality} learning style aligns perfectly with our methodology`);
-    
-    return insights;
   };
 
   const handleScheduleConsultation = () => {
@@ -59,11 +53,18 @@ export const ResultsScreen: React.FC = () => {
     const summary = {
       company: discoveryData.businessName,
       industry: discoveryData.industry,
-      readinessScore: calculateReadinessScore(),
-      recommendedApproach: 'AI Literacy & Confidence Bootcamp',
-      keyInsights: getPersonalizedInsights(),
+      employeeCount: discoveryData.employeeCount,
+      readinessScore: getReadinessScore(),
+      recommendedProgram: getRecommendedProgram(),
+      investmentRange: getInvestmentRange(),
+      aiInsights: discoveryData.aiInsights,
+      contactInfo: {
+        name: discoveryData.contactName,
+        email: discoveryData.contactEmail,
+        role: discoveryData.contactRole
+      },
       nextSteps: [
-        'Schedule 30-min consultation call',
+        'Schedule strategic consultation call',
         'Receive detailed proposal within 48 hours',
         'Begin with executive alignment session'
       ],
@@ -74,12 +75,14 @@ export const ResultsScreen: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${discoveryData.businessName}-ai-transformation-summary.json`;
+    a.download = `${discoveryData.businessName}-ai-assessment-report.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const readinessScore = calculateReadinessScore();
+  const readinessScore = getReadinessScore();
+  const investmentRange = getInvestmentRange();
+  const recommendedProgram = getRecommendedProgram();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/5">
@@ -104,29 +107,34 @@ export const ResultsScreen: React.FC = () => {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="headline-lg text-foreground">
-              Your AI Transformation Roadmap
+              AI Readiness Assessment Results
               <span className="block text-primary">{discoveryData.businessName}</span>
             </h1>
             <p className="body-md text-muted-foreground max-w-2xl mx-auto">
-              Based on our conversation, here's your personalized approach to building AI literacy and confidence across your organization.
+              Your personalized AI transformation roadmap based on strategic assessment and industry expertise.
             </p>
+            <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+              <Brain className="w-3 h-3 mr-1" />
+              AI-Powered Analysis Complete
+            </Badge>
           </div>
 
           {/* Key Insights Grid */}
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-4 gap-6">
             <Card className="glass-card card-grid">
               <div className="card-header text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-primary" />
+                  <Brain className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Team Readiness</h3>
+                <h3 className="text-xl font-semibold mb-2">AI Readiness Score</h3>
               </div>
               <div className="card-content text-center">
-                <div className="text-3xl font-bold text-primary mb-2">{readinessScore}%</div>
+                <div className="text-3xl font-bold text-primary mb-2">{readinessScore}/100</div>
                 <p className="text-sm text-muted-foreground">
-                  {readinessScore >= 80 ? 'Excellent foundation for AI adoption' : 
-                   readinessScore >= 60 ? 'Good potential with targeted support' : 
-                   'Strong opportunity for transformation'}
+                  {readinessScore >= 80 ? 'Advanced - Ready for implementation' : 
+                   readinessScore >= 60 ? 'Intermediate - Good foundation' : 
+                   readinessScore >= 40 ? 'Beginner - High potential' :
+                   'Early stage - Great opportunity'}
                 </p>
               </div>
             </Card>
@@ -136,16 +144,17 @@ export const ResultsScreen: React.FC = () => {
                 <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <BookOpen className="w-8 h-8 text-accent" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Optimal Learning</h3>
+                <h3 className="text-xl font-semibold mb-2">Learning Format</h3>
               </div>
               <div className="card-content text-center">
                 <div className="text-lg font-semibold mb-2">
-                  {discoveryData.learningModality === 'live-cohort' ? 'Live Workshops' :
-                   discoveryData.learningModality === 'self-paced' ? 'Self-Paced Modules' :
-                   'Blended Approach'}
+                  {discoveryData.learningPreferences?.includes('Live workshops') ? 'Live Workshops' :
+                   discoveryData.learningPreferences?.includes('Self-paced') ? 'Self-Paced' :
+                   discoveryData.learningPreferences?.includes('coaching') ? 'Coaching' :
+                   'Mixed Approach'}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Matched to your team's preferred learning style
+                  Optimized for your team's preferences
                 </p>
               </div>
             </Card>
@@ -153,86 +162,165 @@ export const ResultsScreen: React.FC = () => {
             <Card className="glass-card card-grid">
               <div className="card-header text-center">
                 <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Target className="w-8 h-8 text-green-600" />
+                  <Users className="w-8 h-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Focus Areas</h3>
+                <h3 className="text-xl font-semibold mb-2">Team Size</h3>
               </div>
               <div className="card-content text-center">
-                <div className="text-sm font-medium mb-2">
-                  {discoveryData.successTargets.slice(0, 2).join(' & ')}
+                <div className="text-lg font-semibold mb-2">
+                  {discoveryData.employeeCount} employees
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Priority outcomes for your transformation
+                  {discoveryData.employeeCount <= 50 ? 'Perfect for cohort training' :
+                   discoveryData.employeeCount <= 200 ? 'Ideal for departmental rollout' :
+                   'Requires enterprise approach'}
+                </p>
+              </div>
+            </Card>
+
+            <Card className="glass-card card-grid">
+              <div className="card-header text-center">
+                <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Target className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Investment Range</h3>
+              </div>
+              <div className="card-content text-center">
+                <div className="text-lg font-semibold text-primary mb-2">
+                  {investmentRange}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Based on scope and complexity
                 </p>
               </div>
             </Card>
           </div>
 
-          {/* Personalized Insights */}
-          <Card className="glass-card">
-            <div className="p-6">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                Personalized Insights for {discoveryData.businessName}
-              </h3>
-              <div className="space-y-3">
-                {getPersonalizedInsights().map((insight, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{insight}</span>
-                  </div>
-                ))}
+          {/* AI-Generated Analysis */}
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Recommendations */}
+            <Card className="glass-card">
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  Strategic Recommendations
+                </h3>
+                <div className="space-y-3">
+                  {(discoveryData.aiInsights?.recommendations || [
+                    'Start with executive alignment sessions',
+                    'Implement hands-on AI literacy training', 
+                    'Establish governance framework'
+                  ]).map((rec, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{rec}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
 
-          {/* Recommended Package */}
+            {/* Risk Factors */}
+            <Card className="glass-card">
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  Risk Mitigation
+                </h3>
+                <div className="space-y-3">
+                  {(discoveryData.aiInsights?.riskFactors || [
+                    'Change resistance from team members',
+                    'Lack of clear measurement frameworks'
+                  ]).map((risk, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg">
+                      <Shield className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{risk}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+
+            {/* Opportunity Areas */}
+            <Card className="glass-card">
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-600" />
+                  Opportunity Areas
+                </h3>
+                <div className="space-y-3">
+                  {(discoveryData.aiInsights?.opportunityAreas || [
+                    'Operational efficiency improvements',
+                    'Competitive advantage through early adoption'
+                  ]).map((opp, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+                      <Star className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{opp}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Recommended Program */}
           <Card className="glass-card bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
             <div className="p-8">
               <div className="text-center space-y-6">
-                <Badge className="bg-primary text-white px-4 py-2">
-                  Recommended for {discoveryData.businessName}
+                <Badge className="bg-primary text-white px-4 py-2 text-lg">
+                  Recommended Program for {discoveryData.businessName}
                 </Badge>
                 
-                <h3 className="text-2xl font-bold">AI Literacy & Confidence Bootcamp</h3>
+                <h3 className="text-3xl font-bold">{recommendedProgram}</h3>
                 
                 <p className="body-md text-muted-foreground max-w-2xl mx-auto">
-                  A comprehensive program designed to transform your team from overwhelmed & anxious about AI 
-                  to literate, confident, and proactive in an AI-augmented workplace.
+                  Tailored specifically for {discoveryData.industry} companies with {discoveryData.employeeCount} employees, 
+                  focusing on {discoveryData.successMetrics?.slice(0, 2).join(' and ') || 'AI literacy and confidence'}.
                 </p>
 
                 <div className="grid md:grid-cols-2 gap-8 mt-8">
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-left">What's Included:</h4>
+                    <h4 className="font-semibold text-left">Program Includes:</h4>
                     <div className="space-y-2 text-left">
                       <div className="flex items-center gap-2 text-sm">
                         <Star className="w-4 h-4 text-primary" />
-                        Executive keynote & mindset reset
+                        Executive keynote & mindset transformation
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Star className="w-4 h-4 text-primary" />
-                        Hands-on prompting & orchestration
+                        Hands-on prompting & AI orchestration labs
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Star className="w-4 h-4 text-primary" />
-                        Agentic thinking framework
+                        Industry-specific use case workshops
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Star className="w-4 h-4 text-primary" />
-                        Governance & guardrails setup
+                        Governance framework & guardrails setup
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Star className="w-4 h-4 text-primary" />
+                        90-day implementation roadmap
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Star className="w-4 h-4 text-primary" />
+                        Post-training support & coaching
                       </div>
                     </div>
                   </div>
                   
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-left">Your Investment:</h4>
+                    <h4 className="font-semibold text-left">Investment Range:</h4>
                     <div className="space-y-2 text-left">
-                      <div className="text-2xl font-bold text-primary">$25,000</div>
+                      <div className="text-3xl font-bold text-primary">{investmentRange}</div>
                       <div className="text-sm text-muted-foreground">
-                        Half-day workshop for up to 30 participants
+                        Final pricing based on scope, duration, and customization
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        Includes playbooks, templates & 30-day follow-up
+                      <div className="text-sm text-primary font-medium">
+                        🎯 ROI typically 300-500% within 12 months
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Investment includes all materials, assessments, and follow-up support
                       </div>
                     </div>
                   </div>
@@ -248,7 +336,7 @@ export const ResultsScreen: React.FC = () => {
               className="button-hero text-lg px-8 py-4 group"
               size="lg"
             >
-              Schedule Consultation
+              Schedule Strategy Call
               <Calendar className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
             
@@ -259,7 +347,7 @@ export const ResultsScreen: React.FC = () => {
               size="lg"
             >
               <Download className="w-4 h-4 mr-2" />
-              Download Summary
+              Download Assessment Report
             </Button>
           </div>
 

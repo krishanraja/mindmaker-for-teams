@@ -1,22 +1,33 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
 
-// Clean, minimal data structure
+// Strategic discovery data for AI literacy assessment
 export interface AIDiscoveryData {
   // Core business essentials
   businessName: string;
-  businessDescription: string;
   industry: string;
   employeeCount: number;
   
-  // AI readiness essentials
+  // AI literacy & readiness assessment
   currentAIUse: string;
-  teamReadiness: number; // 0-100 calculated score
-  learningModality: string;
-  successTargets: string[];
+  biggestChallenges: string[];
+  leadershipVision: string;
+  learningPreferences: string;
+  successMetrics: string[];
+  implementationTimeline: string;
   
   // Contact essentials  
-  userName: string;
-  businessEmail: string;
+  contactName: string;
+  contactEmail: string;
+  contactRole: string;
+  
+  // OpenAI-generated insights
+  aiInsights?: {
+    readinessScore: number;
+    recommendations: string[];
+    riskFactors: string[];
+    opportunityAreas: string[];
+    investmentRange: string;
+  };
 }
 
 export interface AppState {
@@ -35,15 +46,17 @@ interface MindmakerContextType {
 
 const initialData: AIDiscoveryData = {
   businessName: '',
-  businessDescription: '',
   industry: '',
   employeeCount: 0,
   currentAIUse: '',
-  teamReadiness: 50,
-  learningModality: '',
-  successTargets: [],
-  userName: '',
-  businessEmail: '',
+  biggestChallenges: [],
+  leadershipVision: '',
+  learningPreferences: '',
+  successMetrics: [],
+  implementationTimeline: '',
+  contactName: '',
+  contactEmail: '',
+  contactRole: '',
 };
 
 const initialState: AppState = {
