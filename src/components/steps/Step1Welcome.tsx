@@ -135,7 +135,7 @@ export const Step1Welcome: React.FC = () => {
 
         {/* Navigation Header */}
         <div className="relative z-10 w-full">
-          <div className="glass-nav p-4 m-6 rounded-2xl">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 m-6 rounded-2xl">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-center">
                 <Brain className="w-6 h-6 text-white" />
