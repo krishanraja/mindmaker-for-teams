@@ -36,17 +36,13 @@ export const WelcomeScreen: React.FC = () => {
 
             {/* Main Headline */}
             <div className="space-y-6">
-              <h1 className="hero-title">
-                Transform How Your Team
-                <span className="block bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-                  Thinks About AI
-                </span>
-              </h1>
-              
-              <p className="body-lg max-w-3xl mx-auto">
-                Get a personalized AI transformation roadmap in under 2 minutes. 
-                Designed for busy executives who need actionable insights, not lengthy assessments.
-              </p>
+            <h1 className="hero-title">
+              AI Literacy for Teams
+            </h1>
+            
+            <p className="body-lg max-w-3xl mx-auto">
+              Transform and level up your team. Get started with a personalized AI literacy roadmap in under 2 minutes.
+            </p>
             </div>
 
             {/* CTA Button */}
