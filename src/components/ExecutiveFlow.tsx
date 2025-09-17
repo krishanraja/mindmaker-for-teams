@@ -290,8 +290,9 @@ export const ExecutiveFlow: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
+
       {/* Header */}
-      <div className="glass-nav border-b">
+      <div className="bg-background/95 backdrop-blur-md border-b border-border">
         <div className="container-width">
           <div className="flex items-center justify-between h-16">
             <Button 
@@ -325,7 +326,7 @@ export const ExecutiveFlow: React.FC = () => {
       {/* Question Container */}
       <div className="container-width py-12">
         <div className="max-w-2xl mx-auto">
-          <Card className="glass-card p-8">
+          <Card className="bg-card border border-border shadow-medium p-8">
             {/* Question Header */}
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-4">

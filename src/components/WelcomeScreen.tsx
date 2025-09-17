@@ -13,23 +13,8 @@ export const WelcomeScreen: React.FC = () => {
 
   return (
     <div className="hero-clouds">
-      {/* Glass Navigation */}
-      <nav className="glass-nav fixed top-0 w-full z-50">
-        <div className="container-width">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-2">
-              <Zap className="w-8 h-8 text-primary" />
-              <span className="text-xl font-semibold">Fractionl.ai</span>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              AI Literacy for Teams
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Hero Content */}
-      <div className="min-h-screen flex items-center justify-center pt-16">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="container-width">
           <div className="text-center space-y-8">
             {/* Badge */}
@@ -67,37 +52,37 @@ export const WelcomeScreen: React.FC = () => {
 
             {/* Value Props Grid */}
             <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
-              <Card className="glass-card-dark text-white card-grid">
+              <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-grid p-6">
                 <div className="card-header">
-                  <Target className="w-12 h-12 text-white/90 mb-4 mx-auto" />
-                  <h3 className="text-xl font-semibold mb-2">Intelligent Discovery</h3>
+                  <Target className="w-12 h-12 text-white mb-4 mx-auto" />
+                  <h3 className="text-xl font-semibold mb-2 text-white">Intelligent Discovery</h3>
                 </div>
                 <div className="card-content">
-                  <p className="text-white/80">
+                  <p className="text-white/90">
                     AI-powered conversation reveals your organization's unique needs and readiness level
                   </p>
                 </div>
               </Card>
 
-              <Card className="glass-card-dark text-white card-grid">
+              <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-grid p-6">
                 <div className="card-header">
-                  <Sparkles className="w-12 h-12 text-white/90 mb-4 mx-auto" />
-                  <h3 className="text-xl font-semibold mb-2">Personalized Roadmap</h3>
+                  <Sparkles className="w-12 h-12 text-white mb-4 mx-auto" />
+                  <h3 className="text-xl font-semibold mb-2 text-white">Personalized Roadmap</h3>
                 </div>
                 <div className="card-content">
-                  <p className="text-white/80">
+                  <p className="text-white/90">
                     Custom recommendations based on your industry, team size, and current AI adoption
                   </p>
                 </div>
               </Card>
 
-              <Card className="glass-card-dark text-white card-grid">
+              <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-grid p-6">
                 <div className="card-header">
-                  <Users className="w-12 h-12 text-white/90 mb-4 mx-auto" />
-                  <h3 className="text-xl font-semibold mb-2">Expert Guidance</h3>
+                  <Users className="w-12 h-12 text-white mb-4 mx-auto" />
+                  <h3 className="text-xl font-semibold mb-2 text-white">Expert Guidance</h3>
                 </div>
                 <div className="card-content">
-                  <p className="text-white/80">
+                  <p className="text-white/90">
                     Access to proven methodologies from teaching AI to Fortune 500 teams
                   </p>
                 </div>
