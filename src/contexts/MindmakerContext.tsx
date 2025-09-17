@@ -1,183 +1,76 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import { MindmakerData, AppState, StepProgress } from '../types/canvas';
-import { toast } from 'sonner';
-import { calculateLeadScore, shouldSyncLead, syncLeadToSheets, trackEngagementEvent, getEngagementMetrics, LeadData } from '../lib/lead-capture';
+import React, { createContext, useContext, useReducer, useCallback } from 'react';
+
+// Clean, minimal data structure
+export interface AIDiscoveryData {
+  // Core business essentials
+  businessName: string;
+  businessDescription: string;
+  industry: string;
+  employeeCount: number;
+  
+  // AI readiness essentials
+  currentAIUse: string;
+  teamReadiness: number; // 0-100 calculated score
+  learningModality: string;
+  successTargets: string[];
+  
+  // Contact essentials  
+  userName: string;
+  businessEmail: string;
+}
+
+export interface AppState {
+  currentStep: number; // 1 = welcome, 2 = conversation, 3 = results
+  discoveryData: AIDiscoveryData;
+  conversationComplete: boolean;
+}
 
 interface MindmakerContextType {
   state: AppState;
-  updateMindmakerData: (data: Partial<MindmakerData>) => void;
+  updateDiscoveryData: (data: Partial<AIDiscoveryData>) => void;
   setCurrentStep: (step: number) => void;
-  markStepCompleted: (step: number) => void;
-  markStepVisited: (step: number) => void;
+  markConversationComplete: () => void;
   resetMindmaker: () => void;
-  resetCurrentStepData: (step: number) => void;
-  saveToStorage: () => void;
 }
 
-const initialMindmakerData: MindmakerData = {
-  employeeCount: 0,
-  businessFunctions: [],
-  aiAdoption: 'none',
-  anxietyLevels: {
-    executives: 50,
-    middleManagement: 50,
-    frontlineStaff: 50,
-    techTeam: 50,
-    nonTechTeam: 50,
-  },
-  aiSkills: [],
-  automationRisks: [],
-  learningModality: 'live-cohort',
-  changeNarrative: '',
-  successTargets: [],
+const initialData: AIDiscoveryData = {
   businessName: '',
   businessDescription: '',
+  industry: '',
+  employeeCount: 0,
+  currentAIUse: '',
+  teamReadiness: 50,
+  learningModality: '',
+  successTargets: [],
   userName: '',
   businessEmail: '',
-  businessUrl: '',
-  company: '',
-  country: '',
-  logoFile: null,
-  ndaAccepted: false,
-};
-
-const resetStepData = (data: MindmakerData, step: number): MindmakerData => {
-  switch (step) {
-    case 2:
-      return {
-        ...data,
-        businessName: '',
-        businessDescription: '',
-        company: '',
-        businessUrl: '',
-        businessFunctions: [],
-        aiAdoption: 'none',
-      };
-    case 3:
-      return {
-        ...data,
-        anxietyLevels: {
-          executives: 50,
-          middleManagement: 50,
-          frontlineStaff: 50,
-          techTeam: 50,
-          nonTechTeam: 50,
-        },
-      };
-    case 4:
-      return {
-        ...data,
-        aiSkills: [],
-        automationRisks: [],
-      };
-    case 5:
-      return {
-        ...data,
-        learningModality: 'live-cohort',
-        changeNarrative: '',
-      };
-    case 6:
-      return {
-        ...data,
-        successTargets: [],
-      };
-    case 7:
-      return {
-        ...data,
-        businessName: '',
-        businessDescription: '',
-        userName: '',
-        businessEmail: '',
-        businessUrl: '',
-        company: '',
-        country: '',
-        logoFile: null,
-        ndaAccepted: false,
-      };
-    default:
-      return data;
-  }
 };
 
 const initialState: AppState = {
   currentStep: 1,
-  mindmakerData: initialMindmakerData,
-  stepProgress: {},
-  lastSaved: null,
+  discoveryData: initialData,
+  conversationComplete: false,
 };
 
 type Action = 
-  | { type: 'UPDATE_MINDMAKER_DATA'; payload: Partial<MindmakerData> }
-  | { type: 'SET_CURRENT_STEP'; payload: number }
-  | { type: 'MARK_STEP_COMPLETED'; payload: number }
-  | { type: 'MARK_STEP_VISITED'; payload: number }
-  | { type: 'RESET_MINDMAKER' }
-  | { type: 'RESET_CURRENT_STEP_DATA'; payload: number }
-  | { type: 'LOAD_FROM_STORAGE'; payload: AppState }
-  | { type: 'UPDATE_LAST_SAVED'; payload: Date };
+  | { type: 'UPDATE_DATA'; payload: Partial<AIDiscoveryData> }
+  | { type: 'SET_STEP'; payload: number }
+  | { type: 'COMPLETE_CONVERSATION' }
+  | { type: 'RESET' };
 
-const mindmakerReducer = (state: AppState, action: Action): AppState => {
+const reducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
-    case 'UPDATE_MINDMAKER_DATA':
+    case 'UPDATE_DATA':
       return {
         ...state,
-        mindmakerData: { ...state.mindmakerData, ...action.payload },
+        discoveryData: { ...state.discoveryData, ...action.payload },
       };
-    case 'SET_CURRENT_STEP':
-      return {
-        ...state,
-        currentStep: action.payload,
-        stepProgress: {
-          ...state.stepProgress,
-          [action.payload]: {
-            ...state.stepProgress[action.payload],
-            visited: true,
-          },
-        },
-      };
-    case 'MARK_STEP_COMPLETED':
-      return {
-        ...state,
-        stepProgress: {
-          ...state.stepProgress,
-          [action.payload]: {
-            completed: true,
-            visited: true,
-          },
-        },
-      };
-    case 'MARK_STEP_VISITED':
-      return {
-        ...state,
-        stepProgress: {
-          ...state.stepProgress,
-          [action.payload]: {
-            ...state.stepProgress[action.payload],
-            visited: true,
-          },
-        },
-      };
-    case 'RESET_MINDMAKER':
+    case 'SET_STEP':
+      return { ...state, currentStep: action.payload };
+    case 'COMPLETE_CONVERSATION':
+      return { ...state, conversationComplete: true, currentStep: 3 };
+    case 'RESET':
       return initialState;
-    case 'RESET_CURRENT_STEP_DATA':
-      return {
-        ...state,
-        mindmakerData: resetStepData(state.mindmakerData, action.payload),
-        stepProgress: {
-          ...state.stepProgress,
-          [action.payload]: {
-            completed: false,
-            visited: true,
-          },
-        },
-      };
-    case 'LOAD_FROM_STORAGE':
-      return action.payload;
-    case 'UPDATE_LAST_SAVED':
-      return {
-        ...state,
-        lastSaved: action.payload,
-      };
     default:
       return state;
   }
@@ -188,132 +81,38 @@ const MindmakerContext = createContext<MindmakerContextType | null>(null);
 export const useMindmaker = () => {
   const context = useContext(MindmakerContext);
   if (!context) {
-    throw new Error('useMindmaker must be used within a MindmakerProvider');
+    throw new Error('useMindmaker must be used within MindmakerProvider');
   }
   return context;
 };
 
 export const MindmakerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(mindmakerReducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedData = localStorage.getItem('fractionl-mindmaker-data');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        // Convert lastSaved string back to Date object if it exists
-        if (parsed.lastSaved) {
-          parsed.lastSaved = new Date(parsed.lastSaved);
-        }
-        dispatch({ type: 'LOAD_FROM_STORAGE', payload: parsed });
-      } catch (error) {
-        console.error('Failed to load saved data:', error);
-      }
-    }
+  const updateDiscoveryData = useCallback((data: Partial<AIDiscoveryData>) => {
+    dispatch({ type: 'UPDATE_DATA', payload: data });
   }, []);
-
-  // Auto-save every 3 seconds after changes
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      saveToStorage();
-    }, 3000);
-
-    return () => clearTimeout(timeoutId);
-  }, [state.mindmakerData]);
-
-  const saveToStorage = useCallback(() => {
-    try {
-      const dataToSave = {
-        ...state,
-        lastSaved: new Date(),
-      };
-      localStorage.setItem('fractionl-mindmaker-data', JSON.stringify(dataToSave));
-      dispatch({ type: 'UPDATE_LAST_SAVED', payload: new Date() });
-    } catch (error) {
-      console.error('Failed to save data:', error);
-      toast.error('Failed to save progress');
-    }
-  }, [state]);
-
-  const updateMindmakerData = useCallback((data: Partial<MindmakerData>) => {
-    dispatch({ type: 'UPDATE_MINDMAKER_DATA', payload: data });
-    
-    // Silent engagement tracking
-    trackEngagementEvent('data_updated', { fields: Object.keys(data) });
-    
-    // Check if this update warrants lead qualification
-    silentLeadQualification();
-  }, [state]);
-
-  const silentLeadQualification = useCallback(async () => {
-    try {
-      const engagementMetrics = getEngagementMetrics(state.stepProgress);
-      const leadScore = calculateLeadScore(state.mindmakerData, state.stepProgress, engagementMetrics);
-      
-      // Only proceed if lead meets sync criteria
-      if (shouldSyncLead(leadScore, engagementMetrics)) {
-        const leadData: LeadData = {
-          mindmakerData: state.mindmakerData,
-          stepProgress: state.stepProgress,
-          engagementMetrics,
-          leadScore
-        };
-        
-        // Sync silently in background
-        await syncLeadToSheets(leadData);
-      }
-    } catch (error) {
-      // Silent failure - never interrupt user experience
-      console.error('Silent lead qualification error:', error);
-    }
-  }, [state]);
 
   const setCurrentStep = useCallback((step: number) => {
-    dispatch({ type: 'SET_CURRENT_STEP', payload: step });
-    
-    // Silent step tracking
-    trackEngagementEvent('step_visited', { step });
+    dispatch({ type: 'SET_STEP', payload: step });
   }, []);
 
-  const markStepCompleted = useCallback((step: number) => {
-    dispatch({ type: 'MARK_STEP_COMPLETED', payload: step });
-    
-    // Silent step completion tracking
-    trackEngagementEvent('step_completed', { step });
-    
-    // Trigger lead qualification on key steps
-    if (step === 7 || step === 6) {
-      setTimeout(() => silentLeadQualification(), 100);
-    }
-  }, [silentLeadQualification]);
-
-  const markStepVisited = useCallback((step: number) => {
-    dispatch({ type: 'MARK_STEP_VISITED', payload: step });
+  const markConversationComplete = useCallback(() => {
+    dispatch({ type: 'COMPLETE_CONVERSATION' });
   }, []);
 
   const resetMindmaker = useCallback(() => {
-    localStorage.removeItem('fractionl-mindmaker-data');
-    dispatch({ type: 'RESET_MINDMAKER' });
+    dispatch({ type: 'RESET' });
   }, []);
-
-  const resetCurrentStepData = useCallback((step: number) => {
-    dispatch({ type: 'RESET_CURRENT_STEP_DATA', payload: step });
-  }, []);
-
-  const value: MindmakerContextType = {
-    state,
-    updateMindmakerData,
-    setCurrentStep,
-    markStepCompleted,
-    markStepVisited,
-    resetMindmaker,
-    resetCurrentStepData,
-    saveToStorage,
-  };
 
   return (
-    <MindmakerContext.Provider value={value}>
+    <MindmakerContext.Provider value={{
+      state,
+      updateDiscoveryData,
+      setCurrentStep,
+      markConversationComplete,
+      resetMindmaker,
+    }}>
       {children}
     </MindmakerContext.Provider>
   );
