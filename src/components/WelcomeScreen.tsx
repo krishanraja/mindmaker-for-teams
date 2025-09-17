@@ -99,13 +99,13 @@ export const WelcomeScreen: React.FC = () => {
             <div className="pt-16 border-t border-white/20 mt-16">
               <p className="text-white/70 text-sm mb-4">Trusted by teams at:</p>
               <div className="flex justify-center space-x-8 text-white/60 text-sm">
-                <span>Healthcare</span>
+                <span>Media</span>
                 <span>•</span>
-                <span>Finance</span>
+                <span>Tech</span>
                 <span>•</span>
-                <span>Technology</span>
+                <span>Telco</span>
                 <span>•</span>
-                <span>Manufacturing</span>
+                <span>Scale-ups</span>
               </div>
             </div>
           </div>
