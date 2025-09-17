@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Sparkles, MessageCircle } from 'lucide-react';
+import { ArrowRight, Sparkles, MessageCircle, Star, Shield, Clock } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useMindmaker } from '../../contexts/MindmakerContext';
 import { ConversationalInterface } from '../ai/ConversationalInterface';
@@ -77,50 +77,41 @@ export const Step1Welcome: React.FC = () => {
   if (showConversation) {
     return (
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div 
-            className="absolute inset-0 opacity-5"
-            style={{
-              backgroundImage: `
-                linear-gradient(to right, hsl(var(--primary-purple)) 1px, transparent 1px),
-                linear-gradient(to bottom, hsl(var(--primary-purple)) 1px, transparent 1px)
-              `,
-              backgroundSize: '40px 40px'
-            }}
-          />
-          <div className="absolute top-10 left-4 w-32 h-32 bg-gradient-purple rounded-full blur-3xl opacity-10 animate-pulse" />
-          <div className="absolute bottom-10 right-4 w-40 h-40 bg-gradient-purple-blue rounded-full blur-3xl opacity-10 animate-pulse delay-1000" />
+        {/* Glass Morphism Background */}
+        <div className="absolute inset-0 hero-clouds">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-100/50 via-transparent to-accent-400/30" />
         </div>
 
         {/* Conversational Interface */}
         <div className="relative z-10 w-full max-w-4xl mx-auto h-screen flex flex-col">
-          {/* Header */}
-          <div className="p-6 text-center border-b border-border">
-            <div className="w-24 h-24 flex items-center justify-center mx-auto mb-1">
+          {/* Glass Header */}
+          <div className="glass-card m-6 p-6 text-center">
+            <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4">
               <img 
                 src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
                 alt="AI Mindmaker Logo" 
-                className="w-24 h-24 object-contain"
+                className="w-20 h-20 object-contain"
               />
             </div>
-            <h1 className="font-display font-bold text-xl md:text-2xl text-foreground">
+            <h1 className="section-header text-foreground mb-2">
               AI Transformation Consultant
             </h1>
-            <p className="text-muted-foreground text-sm mt-1">
+            <p className="body-md text-muted-foreground">
               Let's discover your organization's AI readiness together
             </p>
           </div>
 
           {/* Conversation Area */}
-          <div className="flex-1 overflow-hidden">
-            <ConversationalInterface
-              onDataExtracted={handleDataExtracted}
-              onConversationComplete={handleConversationComplete}
-              initialPrompt="I'm conducting an AI readiness assessment for Enterprise L&D organizations. This evaluation covers 5 key dimensions: organizational structure, current AI maturity, strategic readiness, talent & skills, and implementation capacity. Let's start with your organizational context - what industry are you in?"
-              placeholder="e.g., Healthcare, Financial Services, Manufacturing..."
-              aiPersonality="professional"
-            />
+          <div className="flex-1 overflow-hidden mx-6 mb-6">
+            <div className="glass-card h-full">
+              <ConversationalInterface
+                onDataExtracted={handleDataExtracted}
+                onConversationComplete={handleConversationComplete}
+                initialPrompt="I'm conducting an AI readiness assessment for Enterprise L&D organizations. This evaluation covers 5 key dimensions: organizational structure, current AI maturity, strategic readiness, talent & skills, and implementation capacity. Let's start with your organizational context - what industry are you in?"
+                placeholder="e.g., Healthcare, Financial Services, Manufacturing..."
+                aiPersonality="professional"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -128,120 +119,151 @@ export const Step1Welcome: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-start justify-center relative overflow-hidden pt-8">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Grid Pattern */}
+    <div className="min-h-screen hero-clouds flex items-center justify-center relative overflow-hidden">
+      {/* Hero Background Pattern */}
+      <div className="absolute inset-0 opacity-30">
         <div 
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0"
           style={{
             backgroundImage: `
-              linear-gradient(to right, hsl(var(--primary-purple)) 1px, transparent 1px),
-              linear-gradient(to bottom, hsl(var(--primary-purple)) 1px, transparent 1px)
+              linear-gradient(to right, rgba(108, 64, 255, 0.1) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(108, 64, 255, 0.1) 1px, transparent 1px)
             `,
-            backgroundSize: '40px 40px'
+            backgroundSize: '60px 60px'
           }}
         />
-        
-        {/* Floating Gradient Orbs */}
-        <div className="absolute top-10 left-4 md:top-20 md:left-20 w-32 h-32 md:w-64 md:h-64 bg-gradient-purple rounded-full blur-3xl opacity-20 animate-pulse" />
-        <div className="absolute bottom-10 right-4 md:bottom-20 md:right-20 w-40 h-40 md:w-80 md:h-80 bg-gradient-purple-blue rounded-full blur-3xl opacity-15 animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-96 md:h-96 bg-brand-blue/10 rounded-full blur-3xl animate-pulse delay-500" />
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 text-center max-w-4xl mx-auto px-4 md:px-6">
+      <div className="relative z-10 text-center max-w-6xl mx-auto px-6 py-16">
         {/* Logo */}
-        <div className="mb-1 md:mb-2">
-          <div className="w-32 h-32 md:w-48 md:h-48 flex items-center justify-center mx-auto mb-1">
+        <div className="fade-in-up mb-8">
+          <div className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center mx-auto mb-6">
             <img 
               src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" 
               alt="AI Mindmaker Logo" 
-              className="w-32 h-32 md:w-48 md:h-48 object-contain"
+              className="w-24 h-24 md:w-32 md:h-32 object-contain drop-shadow-lg"
             />
           </div>
         </div>
 
-        {/* Main Heading */}
-        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-8 leading-tight mt-2">
-          Let's turn your people<br />
-          from anxious to{' '}
-          <span className="text-primary">
-            AI-ambitious
-          </span>
-        </h1>
-
-        {/* Subheading */}
-        <p className="text-base md:text-lg lg:text-xl text-muted-foreground mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed px-2">
-          Choose your preferred assessment style: have a conversation with our AI consultant or go through our structured questionnaire.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-8">
-          <Button
-            onClick={handleConversationalStart}
-            size="lg"
-            className="bg-gradient-purple hover:opacity-90 text-primary-foreground px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group w-full md:w-auto"
-          >
-            <MessageCircle className="mr-2 w-4 h-4 md:w-5 md:h-5" />
-            Chat with AI Consultant
-            <Sparkles className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
-          </Button>
+        {/* Hero Title */}
+        <div className="fade-in-up mb-8">
+          <h1 className="hero-title text-white mb-6 text-balance">
+            Transform How Your Organization
+            <br />
+            <span className="bg-gradient-to-r from-white to-primary-100 bg-clip-text text-transparent">
+              Thinks About AI
+            </span>
+          </h1>
           
-          <Button
-            onClick={handleTraditionalStart}
-            variant="outline"
-            size="lg"
-            className="border-border text-foreground hover:bg-secondary px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold rounded-xl transition-all duration-300 group w-full md:w-auto"
-          >
-            Traditional Assessment
-            <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          <p className="body-lg text-white/90 max-w-3xl mx-auto leading-relaxed mb-4">
+            Build systematic AI literacy across your entire organization. From executives to frontline staff, 
+            develop the cognitive frameworks needed to thrive in an AI-augmented workplace.
+          </p>
+          
+          <div className="inline-flex items-center gap-2 glass-card-dark px-4 py-2 rounded-full">
+            <Star className="w-4 h-4 text-yellow-400" />
+            <span className="text-sm text-white/80">CEO-Ready Assessment Tool</span>
+          </div>
         </div>
 
-        {/* Experience Preview */}
-        <div className="bg-card border border-border rounded-2xl p-6 mb-8 max-w-2xl mx-auto shadow-sm">
-          <div className="grid md:grid-cols-2 gap-6 text-left">
-            <div>
-              <h3 className="font-semibold text-foreground mb-2 flex items-center">
-                <MessageCircle className="w-4 h-4 mr-2 text-primary" />
-                AI Conversation
-              </h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Natural, personalized dialogue</li>
-                <li>• AI understands your context</li>
-                <li>• Real-time insights and suggestions</li>
-                <li>• Adaptive questioning based on your responses</li>
+        {/* CTA Buttons */}
+        <div className="fade-in-up mb-12">
+          <div className="flex flex-col md:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
+            <Button
+              onClick={handleConversationalStart}
+              variant="hero"
+              size="lg"
+              className="w-full md:flex-1 py-4 text-lg font-semibold group"
+            >
+              <MessageCircle className="mr-3 w-5 h-5" />
+              Start AI Conversation
+              <Sparkles className="ml-3 w-5 h-5 group-hover:rotate-12 transition-transform" />
+            </Button>
+            
+            <Button
+              onClick={handleTraditionalStart}
+              variant="glass"
+              size="lg"
+              className="w-full md:flex-1 py-4 text-lg font-semibold group"
+            >
+              Traditional Assessment
+              <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Assessment Methods Comparison */}
+        <div className="fade-in-up mb-12">
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="glass-card-dark p-6 text-left">
+              <div className="flex items-center mb-4">
+                <MessageCircle className="w-6 h-6 mr-3 text-primary-200" />
+                <h3 className="text-xl font-semibold text-white">AI CONSULTANT</h3>
+              </div>
+              <ul className="space-y-3 text-white/80">
+                <li className="flex items-center">
+                  <div className="w-2 h-2 bg-primary-200 rounded-full mr-3" />
+                  Natural, contextual dialogue
+                </li>
+                <li className="flex items-center">
+                  <div className="w-2 h-2 bg-primary-200 rounded-full mr-3" />
+                  Adaptive questioning based on responses
+                </li>
+                <li className="flex items-center">
+                  <div className="w-2 h-2 bg-primary-200 rounded-full mr-3" />
+                  Real-time insights and recommendations
+                </li>
+                <li className="flex items-center">
+                  <div className="w-2 h-2 bg-primary-200 rounded-full mr-3" />
+                  Personalized strategic guidance
+                </li>
               </ul>
             </div>
-            <div>
-              <h3 className="font-semibold text-foreground mb-2 flex items-center">
-                <ArrowRight className="w-4 h-4 mr-2 text-primary" />
-                Traditional Form
-              </h3>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Structured step-by-step process</li>
-                <li>• Familiar questionnaire format</li>
-                <li>• Visual progress tracking</li>
-                <li>• Comprehensive data collection</li>
+
+            <div className="glass-card-dark p-6 text-left">
+              <div className="flex items-center mb-4">
+                <Shield className="w-6 h-6 mr-3 text-accent-400" />
+                <h3 className="text-xl font-semibold text-white">STRUCTURED ASSESSMENT</h3>
+              </div>
+              <ul className="space-y-3 text-white/80">
+                <li className="flex items-center">
+                  <div className="w-2 h-2 bg-accent-400 rounded-full mr-3" />
+                  Comprehensive step-by-step process
+                </li>
+                <li className="flex items-center">
+                  <div className="w-2 h-2 bg-accent-400 rounded-full mr-3" />
+                  Familiar questionnaire format
+                </li>
+                <li className="flex items-center">
+                  <div className="w-2 h-2 bg-accent-400 rounded-full mr-3" />
+                  Visual progress tracking
+                </li>
+                <li className="flex items-center">
+                  <div className="w-2 h-2 bg-accent-400 rounded-full mr-3" />
+                  Systematic data collection
+                </li>
               </ul>
             </div>
           </div>
         </div>
 
         {/* Trust Indicators */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-sm text-muted-foreground px-4">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-primary rounded-full" />
-            <span>5-10 minute assessment</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-primary rounded-full" />
-            <span>Personalized recommendations</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-primary rounded-full" />
-            <span>Downloadable strategy canvas</span>
+        <div className="fade-in-up">
+          <div className="flex flex-wrap items-center justify-center gap-8 text-white/80">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm">5-10 minute assessment</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="w-4 h-4" />
+              <span className="text-sm">Enterprise-grade insights</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              <span className="text-sm">Strategic action canvas</span>
+            </div>
           </div>
         </div>
       </div>

@@ -19,12 +19,10 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        display: ["Outfit", "system-ui", "sans-serif"],
-        heading: ["Outfit", "system-ui", "sans-serif"],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Inter", "system-ui", "sans-serif"],
+        heading: ["Inter", "system-ui", "sans-serif"],
         body: ["Inter", "system-ui", "sans-serif"],
-        inter: ["Inter", "system-ui", "-apple-system", "sans-serif"],
-        // Legacy compatibility
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -34,6 +32,10 @@ const config: Config = {
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
+          100: "hsl(var(--primary-100))",
+          200: "hsl(var(--primary-200))",
+          400: "hsl(var(--primary-400))",
+          600: "hsl(var(--primary-600))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -50,6 +52,7 @@ const config: Config = {
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
+          400: "hsl(var(--accent-400))",
           foreground: "hsl(var(--accent-foreground))",
         },
         popover: {

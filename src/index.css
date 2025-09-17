@@ -2,52 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
-/* NYC Editorial Design System */
+/* CEO-Ready Design System */
 
 :root {
-  /* NYC Editorial Color System - Light Theme */
-  --background: 0 0% 98%;           /* #FAFAFA - Almost white background */
-  --foreground: 0 0% 3.9%;          /* Main text color for hero design */
-  --primary: 270 70% 60%;          /* Purple accent for hero design */
-  --primary-foreground: 0 0% 100%;  /* White text on primary */
-  --secondary: 0 0% 96%;            /* #F5F5F5 - Subtle backgrounds */
-  --secondary-foreground: 0 0% 6.7%; /* Dark text on secondary */
-  --muted: 0 0% 96%;               /* #F5F5F5 - Subtle backgrounds */
-  --muted-foreground: 0 0% 45%;    /* #737373 - Secondary text */
-  --accent: 0 0% 96%;              /* Same as muted for consistency */
-  --accent-foreground: 0 0% 6.7%;  /* Dark text on accent */
+  /* Brand Purple System - CEO Ready */
+  --primary: 262 100% 63%;         /* #6C40FF - Main brand color */
+  --primary-100: 262 100% 97%;     /* Very light purple */
+  --primary-200: 262 100% 90%;     /* Light purple */
+  --primary-400: 262 100% 70%;     /* Medium purple */
+  --primary-600: 260 100% 55%;     /* Dark purple */
+  --primary-foreground: 0 0% 100%; /* White text on primary */
+
+  /* Accent Colors */
+  --accent: 286 90% 66%;           /* Complementary purple-pink */
+  --accent-400: 286 85% 60%;       /* Darker accent */
+  --accent-foreground: 0 0% 100%;  /* White text on accent */
+
+  /* Base Colors - Light Theme */
+  --background: 0 0% 100%;         /* Pure white */
+  --foreground: 222 47% 11%;       /* Dark charcoal */
+  --muted: 210 40% 96%;            /* Light gray */
+  --muted-foreground: 215 28% 25%; /* Medium gray */
+  --border: 214 32% 91%;           /* Light border */
+  --input: 214 32% 91%;            /* Input borders */
+  --ring: 262 100% 63%;            /* Focus ring color */
+  --card: 0 0% 100%;               /* White cards */
+  --card-foreground: 222 47% 11%;  /* Dark text on cards */
+  --popover: 0 0% 100%;            /* White popovers */
+  --popover-foreground: 222 47% 11%; /* Dark text on popovers */
+  --secondary: 210 40% 96%;        /* Light gray backgrounds */
+  --secondary-foreground: 222 47% 11%; /* Dark text on secondary */
   --destructive: 0 84% 60%;        /* Red for errors */
   --destructive-foreground: 0 0% 98%; /* Light text on destructive */
-  --border: 0 0% 90%;              /* #E5E5E5 - Subtle borders */
-  --input: 0 0% 90%;               /* Same as border */
-  --ring: 263 85% 62%;            /* Same as primary for focus rings */
-  --card: 0 0% 100%;               /* Pure white cards */
-  --card-foreground: 0 0% 6.7%;    /* Dark text on cards */
-  --popover: 0 0% 100%;            /* White popovers */
-  --popover-foreground: 0 0% 6.7%; /* Dark text on popovers */
-  --radius: 0.75rem;
 
-  /* Brand Heritage - Purple as Secondary Accent */
-  --brand-purple: 263 85% 62%;     /* #8B5CF6 - Preserved from original */
+  /* Brand Heritage Colors */
+  --brand-purple: 262 100% 63%;    /* Main brand purple */
   --brand-purple-light: 262 100% 95%; /* Light purple for backgrounds */
   
-  /* Spacing System */
+  /* Layout & Spacing */
+  --radius: 0.75rem;               /* Border radius */
   --section-padding: clamp(4rem, 8vw, 8rem);
   --content-width: 1200px;
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 1.5rem;
-  --spacing-lg: 2rem;
-  --spacing-xl: 3rem;
   
-  /* Typography Scale */
-  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Typography */
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
   
-  /* Shadows */
+  /* Shadows for Glass Morphism */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-large: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-glass: 0 8px 32px rgba(108, 64, 255, 0.08);
   
   /* Transitions */
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -55,30 +60,29 @@
 }
 
 .dark {
-  /* NYC Editorial Color System - Dark Theme */
-  --background: 0 0% 6.7%;          /* #111111 - Dark background */
-  --foreground: 0 0% 98%;           /* #FAFAFA - Light text */
-  --primary: 270 70% 70%;          /* Purple accent (lighter for dark theme) */
-  --primary-foreground: 0 0% 100%;  /* White text on primary */
-  --secondary: 0 0% 12%;            /* #1F1F1F - Dark muted backgrounds */
-  --secondary-foreground: 0 0% 98%; /* Light text on secondary */
-  --muted: 0 0% 12%;               /* #1F1F1F - Dark muted backgrounds */
-  --muted-foreground: 0 0% 60%;    /* #999999 - Dark secondary text */
-  --accent: 0 0% 12%;              /* Same as muted */
-  --accent-foreground: 0 0% 98%;   /* Light text on accent */
+  /* Dark Theme Colors */
+  --background: 222 47% 7%;        /* Dark background */
+  --foreground: 210 40% 98%;       /* Light text */
+  --muted: 222 28% 12%;            /* Dark muted backgrounds */
+  --muted-foreground: 215 28% 60%; /* Light gray text */
+  --border: 222 28% 18%;           /* Dark borders */
+  --input: 222 28% 18%;            /* Dark input borders */
+  --card: 222 47% 9%;              /* Dark cards */
+  --card-foreground: 210 40% 98%; /* Light text on cards */
+  --popover: 222 47% 9%;           /* Dark popovers */
+  --popover-foreground: 210 40% 98%; /* Light text on popovers */
+  --secondary: 222 28% 12%;        /* Dark secondary backgrounds */
+  --secondary-foreground: 210 40% 98%; /* Light text on secondary */
   --destructive: 0 62% 64%;        /* Lighter red for dark theme */
   --destructive-foreground: 0 0% 98%; /* Light text on destructive */
-  --border: 0 0% 15%;              /* #262626 - Dark borders */
-  --input: 0 0% 15%;               /* Same as border */
-  --ring: 263 85% 70%;            /* Same as primary */
-  --card: 0 0% 8%;                 /* #141414 - Dark cards */
-  --card-foreground: 0 0% 98%;     /* Light text on cards */
-  --popover: 0 0% 8%;              /* Dark popovers */
-  --popover-foreground: 0 0% 98%;  /* Light text on popovers */
   
-  /* Brand Heritage - Purple maintains visibility in dark */
-  --brand-purple: 263 85% 70%;     /* Slightly lighter for dark theme */
+  /* Maintain brand colors but adjust for dark theme */
+  --primary: 262 100% 70%;         /* Slightly lighter purple for dark */
+  --brand-purple: 262 100% 70%;    /* Adjusted for dark theme */
   --brand-purple-light: 262 100% 15%; /* Dark purple for backgrounds */
+  
+  /* Dark glass effects */
+  --shadow-glass: 0 8px 32px rgba(108, 64, 255, 0.15);
 }
 
 @layer base {
@@ -89,40 +93,41 @@
   body {
     @apply bg-background text-foreground font-body antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-optical-sizing: auto;
   }
   
-  /* Skip Link for Accessibility */
-  .skip-link {
-    @apply absolute left-4 top-4 z-50 bg-primary text-primary-foreground px-4 py-2 rounded-md transform -translate-y-16 focus:translate-y-0 transition-transform;
-  }
-  
-  /* Focus States */
+  /* Accessibility */
   *:focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
 @layer components {
-  /* Typography Hierarchy - NYC Editorial Style */
-  .headline-xl {
-    @apply text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight;
+  /* CEO-Ready Typography Hierarchy */
+  .hero-title {
+    @apply font-display font-bold;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+  }
+  
+  .section-header {
+    @apply font-display font-semibold;
+    font-size: clamp(1.875rem, 4vw, 2.25rem);
     line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  
+  .headline-xl {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+    line-height: 1.1;
     letter-spacing: -0.025em;
   }
 
   .headline-lg {
     @apply text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight;
     line-height: 1.2;
-  }
-
-  .headline-md {
-    @apply text-2xl md:text-3xl font-semibold tracking-tight;
-    line-height: 1.2;
-  }
-
-  .headline-sm {
-    @apply text-xl md:text-2xl font-semibold tracking-tight;
-    line-height: 1.3;
+    letter-spacing: -0.02em;
   }
 
   .body-lg {
@@ -132,14 +137,94 @@
   .body-md {
     @apply text-base md:text-lg leading-relaxed;
   }
-
-  .body-sm {
-    @apply text-sm md:text-base leading-relaxed;
+  
+  /* Glass Morphism Components */
+  .glass-card {
+    @apply bg-white/95 backdrop-blur-md border border-white/20 shadow-lg;
   }
-
-  /* Text Balance for Headlines */
-  .text-balance {
-    text-wrap: balance;
+  
+  .glass-card-dark {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+  
+  .glass-nav {
+    @apply bg-background/95 backdrop-blur-md border-b border-border/50;
+  }
+  
+  /* Hero Background with Clouds */
+  .hero-clouds {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary-200)) 0%, 
+      hsl(var(--primary-400)) 50%, 
+      hsl(var(--accent-400)) 100%);
+    position: relative;
+    min-height: 100vh;
+  }
+  
+  .hero-clouds::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(108, 64, 255, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(185, 70, 255, 0.3) 0%, transparent 50%);
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  /* Brand Gradients */
+  .bg-brand-gradient {
+    background: linear-gradient(135deg,
+      hsl(var(--primary-200)) 0%,
+      hsl(var(--primary-400)) 50%,
+      hsl(var(--accent-400)) 100%);
+  }
+  
+  .bg-gradient-purple {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary)) 0%, 
+      hsl(var(--primary-600)) 100%);
+  }
+  
+  .bg-gradient-purple-blue {
+    background: linear-gradient(135deg, 
+      hsl(var(--primary)) 0%, 
+      hsl(var(--accent)) 100%);
+  }
+  
+  /* Button Enhancements */
+  .button-hero {
+    @apply transform hover:scale-105 transition-all duration-300;
+    box-shadow: 0 8px 24px rgba(108, 64, 255, 0.3);
+  }
+  
+  .button-glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 text-white;
+  }
+  
+  /* Card System with Perfect Alignment */
+  .card-grid {
+    @apply flex flex-col h-full;
+  }
+  
+  .card-header {
+    @apply min-h-[120px] flex flex-col justify-center;
+  }
+  
+  .card-content {
+    @apply flex-1;
+  }
+  
+  .card-footer {
+    @apply mt-auto pt-4;
+  }
+  
+  /* Hover Effects */
+  .card-hover {
+    @apply transition-all duration-300 hover:scale-105;
+  }
+  
+  .card-hover:hover {
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
   }
   
   /* Layout Utilities */
@@ -153,89 +238,19 @@
     padding: 0 1.5rem;
   }
   
-  /* Component Patterns */
-  .card-hover {
-    @apply transition-all duration-300;
-  }
-
-  .card-hover:hover {
-    transform: scale(1.01);
-    box-shadow: var(--shadow-medium);
-  }
-  
-  /* Link Animations */
-  .link-underline {
-    @apply relative inline-block;
-  }
-
-  .link-underline::after {
-    content: '';
-    @apply absolute bottom-0 left-0 w-full h-px bg-current scale-x-0 origin-right transition-transform duration-300;
-  }
-
-  .link-underline:hover::after {
-    @apply scale-x-100 origin-left;
-  }
-  
-  /* Fade In Up Animation */
+  /* Animation Classes */
   .fade-in-up {
     animation: fade-in-up 0.6s ease-out forwards;
     opacity: 0;
-    transform: translateY(20px);
   }
   
-  /* Button Group Spacing */
-  .button-group {
-    @apply flex flex-col sm:flex-row gap-4 justify-center items-center;
-  }
+  .fade-in-up:nth-child(1) { animation-delay: 0s; }
+  .fade-in-up:nth-child(2) { animation-delay: 0.2s; }
+  .fade-in-up:nth-child(3) { animation-delay: 0.4s; }
   
-  .button-group > * {
-    @apply w-full sm:w-auto;
-  }
-  
-  /* Section Headers */
-  .section-header {
-    @apply text-center mb-16;
-  }
-  
-  .section-header h2 {
-    @apply headline-lg mb-6;
-  }
-  
-  .section-header p {
-    @apply body-lg text-muted-foreground max-w-2xl mx-auto;
-  }
-  
-  /* Gradient Utilities */
-  .bg-gradient-purple {
-    background: linear-gradient(135deg, hsl(var(--brand-purple)), hsl(var(--primary)));
-  }
-  
-  .bg-gradient-purple-blue {
-    background: linear-gradient(135deg, hsl(var(--brand-purple)), hsl(var(--primary)));
-  }
-  
-  .bg-brand-blue {
-    background: hsl(var(--primary));
-  }
-
-  /* Legacy font classes for compatibility */
-  .font-display {
-    font-family: var(--font-display);
-    font-feature-settings: "ss01", "ss02";
-    letter-spacing: -0.02em;
-  }
-  
-  .font-heading {
-    font-family: var(--font-display);
-    font-feature-settings: "ss01", "ss02";
-    letter-spacing: -0.02em;
-  }
-  
-  .font-body {
-    font-family: var(--font-body);
-    font-optical-sizing: auto;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  /* Focus States for Accessibility */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
 }
 
@@ -244,11 +259,31 @@
   @keyframes fade-in-up {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(30px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+  
+  @keyframes float {
+    0%, 100% { 
+      transform: translateY(0px); 
+    }
+    50% { 
+      transform: translateY(-10px); 
+    }
+  }
+  
+  @keyframes scale-in {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
     }
   }
   
@@ -275,25 +310,7 @@
   }
 }
 
-/* Typography Classes */
-.font-display {
-  font-family: 'Outfit', system-ui, sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.font-heading {
-  font-family: 'Outfit', system-ui, sans-serif;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.font-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  font-optical-sizing: auto;
-}
-
-/* Reduced Motion Support */
+/* Accessibility - Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
