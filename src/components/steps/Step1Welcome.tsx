@@ -1,100 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, MessageCircle, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, MessageCircle, Brain, Target, Users } from 'lucide-react';
 import { useMindmaker } from '@/contexts/MindmakerContext';
-import { ConversationalInterface } from '@/components/ai/ConversationalInterface';
 
 export const Step1Welcome = () => {
-  const { setCurrentStep, markStepCompleted, updateMindmakerData } = useMindmaker();
-  const [showConversation, setShowConversation] = useState(false);
+  const { setCurrentStep, markStepCompleted } = useMindmaker();
 
-  const handleTraditionalStart = () => {
+  const handleStartDiscovery = () => {
+    setCurrentStep(2); // Go to AI flow
     markStepCompleted(1);
-    setCurrentStep(2);
   };
-
-  const handleConversationalStart = () => {
-    setShowConversation(true);
-  };
-
-  const handleDataExtracted = (extractedData: any) => {
-    if (extractedData.businessName) {
-      updateMindmakerData({ businessName: extractedData.businessName });
-    }
-    if (extractedData.industry) {
-      updateMindmakerData({ businessDescription: extractedData.industry });
-    }
-    if (extractedData.employeeCount) {
-      updateMindmakerData({ employeeCount: extractedData.employeeCount });
-    }
-    if (extractedData.challenges) {
-      updateMindmakerData({ businessFunctions: extractedData.challenges });
-    }
-  };
-
-  const handleConversationComplete = (allData: any) => {
-    if (allData) {
-      updateMindmakerData({
-        businessName: allData.businessName || '',
-        businessDescription: allData.businessDescription || allData.industry || '',
-        employeeCount: allData.employeeCount || 0,
-        businessFunctions: allData.businessFunctions || allData.challenges || [],
-        aiAdoption: allData.aiAdoption || 'none',
-        anxietyLevels: allData.anxietyLevels || {
-          executives: allData.executiveAnxiety || 50,
-          middleManagement: allData.managementAnxiety || 50,
-          frontlineStaff: allData.staffAnxiety || 50,
-          techTeam: allData.techAnxiety || 50,
-          nonTechTeam: allData.nonTechAnxiety || 50,
-        },
-        aiSkills: allData.aiSkills || [],
-        automationRisks: allData.automationRisks || [],
-        learningModality: allData.learningModality || 'live-cohort',
-        changeNarrative: allData.changeNarrative || '',
-        successTargets: allData.successTargets || [],
-        userName: allData.userName || '',
-        businessEmail: allData.businessEmail || '',
-        businessUrl: allData.businessUrl || '',
-        company: allData.company || allData.businessName || '',
-        country: allData.country || ''
-      });
-    }
-    
-    markStepCompleted(1);
-    markStepCompleted(2);
-    markStepCompleted(3);
-    markStepCompleted(4);
-    markStepCompleted(5);
-    markStepCompleted(6);
-    setCurrentStep(7);
-  };
-
-  if (showConversation) {
-    return (
-      <div className="hero-clouds relative overflow-hidden">
-        {/* Glass Navigation Header */}
-        <div className="glass-nav sticky top-0 z-50 px-6 py-4">
-          <div className="container-width flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src="/lovable-uploads/65494d8c-e78a-466b-9d7b-a29a3de74da9.png" alt="MindMaker" className="h-8 w-8" />
-              <div>
-                <h1 className="text-lg font-semibold text-foreground">MindMaker AI Literacy</h1>
-                <p className="text-sm text-muted-foreground">Your AI consultant is listening...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <ConversationalInterface
-          onDataExtracted={handleDataExtracted}
-          onConversationComplete={handleConversationComplete}
-          initialPrompt="I'm your AI literacy consultant. I'll help you assess your organization's AI readiness in a natural conversation. Let's start with understanding your organization - what industry are you in and roughly how many people work there?"
-          placeholder="Tell me about your organization..."
-          aiPersonality="professional"
-        />
-      </div>
-    );
-  }
 
   return (
     <>
@@ -136,104 +52,65 @@ export const Step1Welcome = () => {
 
           {/* Subtitle */}
           <p className="body-lg fade-in-up mb-12 max-w-2xl">
-            Bridge the gap between AI confusion and AI confidence through proven cognitive learning methodologies. Build deep understanding, not just surface-level tool usage.
+            AI-powered discovery conversation that reveals your organization's unique transformation path. Get personalized insights and a direct connection to expert workshop solutions.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="fade-in-up flex flex-col sm:flex-row gap-4 mb-16">
-            <Button
-              variant="hero"
+          {/* Single Action Button */}
+          <div className="flex justify-center mb-16">
+            <Button 
+              onClick={handleStartDiscovery}
               size="lg"
-              onClick={handleConversationalStart}
-              className="button-hero gap-3 px-8 py-4 text-lg"
+              className="button-hero bg-primary hover:bg-primary/90 text-white font-semibold px-12 py-6 text-xl h-auto shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
             >
-              <MessageCircle className="h-5 w-5" />
-              Start AI Consultation
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Button>
-            
-            <Button
-              variant="glass"
-              size="lg"
-              onClick={handleTraditionalStart}
-              className="button-glass gap-3 px-8 py-4 text-lg"
-            >
-              <CheckCircle2 className="h-5 w-5" />
-              Take Structured Assessment
+              <MessageCircle className="w-7 h-7 mr-4" />
+              Start AI Transformation Discovery
+              <ArrowRight className="w-7 h-7 ml-4" />
             </Button>
           </div>
 
-          {/* Comparison Cards */}
-          <div className="fade-in-up grid md:grid-cols-2 gap-8 max-w-4xl w-full">
-            {/* AI Consultant Card */}
-            <div className="glass-card-dark p-8 text-left">
-              <div className="card-grid">
-                <div className="card-header">
-                  <h3 className="text-xl font-semibold text-white mb-2">AI Consultant</h3>
-                  <p className="text-white/70">Natural conversation approach</p>
+          {/* Value Proposition Cards */}
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
+            <Card className="glass-card border-primary/20 hover:scale-105 transition-all duration-300 text-center">
+              <CardHeader>
+                <div className="p-3 bg-primary/10 rounded-lg w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                  <Brain className="w-8 h-8 text-primary" />
                 </div>
-                
-                <div className="card-content">
-                  <ul className="space-y-3 text-white/90">
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-                      <span>Personalized insights through AI conversation</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-                      <span>Adaptive questioning based on your responses</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-                      <span>Interactive discovery of pain points</span>
-                    </li>
-                  </ul>
-                </div>
-                
-                <div className="card-footer">
-                  <div className="flex justify-between items-center text-sm text-white/60">
-                    <span>⏱️ 5-10 minutes</span>
-                    <span>🎯 High insight quality</span>
-                    <span>📊 Dynamic canvas</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+                <CardTitle className="text-xl text-foreground">Intelligent Discovery</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  AI-powered conversation that adapts to your unique business context and uncovers hidden opportunities.
+                </p>
+              </CardContent>
+            </Card>
 
-            {/* Structured Assessment Card */}
-            <div className="glass-card-dark p-8 text-left">
-              <div className="card-grid">
-                <div className="card-header">
-                  <h3 className="text-xl font-semibold text-white mb-2">Structured Assessment</h3>
-                  <p className="text-white/70">Step-by-step guided process</p>
+            <Card className="glass-card border-accent/20 hover:scale-105 transition-all duration-300 text-center">
+              <CardHeader>
+                <div className="p-3 bg-accent/10 rounded-lg w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                  <Target className="w-8 h-8 text-accent" />
                 </div>
-                
-                <div className="card-content">
-                  <ul className="space-y-3 text-white/90">
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-                      <span>Systematic evaluation across 7 key areas</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-                      <span>Comprehensive scoring and benchmarking</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
-                      <span>Detailed action plan with priorities</span>
-                    </li>
-                  </ul>
+                <CardTitle className="text-xl text-foreground">Personalized Roadmap</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Custom transformation plan based on your team's readiness, industry, and specific challenges.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card border-primary/20 hover:scale-105 transition-all duration-300 text-center">
+              <CardHeader>
+                <div className="p-3 bg-primary/10 rounded-lg w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                  <Users className="w-8 h-8 text-primary" />
                 </div>
-                
-                <div className="card-footer">
-                  <div className="flex justify-between items-center text-sm text-white/60">
-                    <span>⏱️ 7-12 minutes</span>
-                    <span>🎯 Thorough analysis</span>
-                    <span>📋 Structured report</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+                <CardTitle className="text-xl text-foreground">Expert Guidance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Direct path to Fractionl.ai's proven workshop methodology and executive training programs.
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Trust Indicators */}
