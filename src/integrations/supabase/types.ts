@@ -91,6 +91,80 @@ export type Database = {
           },
         ]
       }
+      booking_requests: {
+        Row: {
+          company_name: string | null
+          contact_email: string
+          contact_name: string
+          created_at: string
+          id: string
+          lead_score: number | null
+          notes: string | null
+          phone: string | null
+          preferred_time: string | null
+          priority: string | null
+          role: string | null
+          scheduled_date: string | null
+          service_title: string
+          service_type: string
+          session_id: string | null
+          specific_needs: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          company_name?: string | null
+          contact_email: string
+          contact_name: string
+          created_at?: string
+          id?: string
+          lead_score?: number | null
+          notes?: string | null
+          phone?: string | null
+          preferred_time?: string | null
+          priority?: string | null
+          role?: string | null
+          scheduled_date?: string | null
+          service_title: string
+          service_type: string
+          session_id?: string | null
+          specific_needs?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          company_name?: string | null
+          contact_email?: string
+          contact_name?: string
+          created_at?: string
+          id?: string
+          lead_score?: number | null
+          notes?: string | null
+          phone?: string | null
+          preferred_time?: string | null
+          priority?: string | null
+          role?: string | null
+          scheduled_date?: string | null
+          service_title?: string
+          service_type?: string
+          session_id?: string | null
+          specific_needs?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_requests_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -174,6 +248,65 @@ export type Database = {
         }
         Relationships: []
       }
+      conversion_analytics: {
+        Row: {
+          conversion_metadata: Json | null
+          conversion_type: string
+          conversion_value: number | null
+          created_at: string
+          id: string
+          insights_generated: number | null
+          lead_score: number | null
+          messages_exchanged: number | null
+          service_type: string | null
+          session_duration: number | null
+          session_id: string | null
+          source_channel: string | null
+          topics_explored: number | null
+          user_id: string | null
+        }
+        Insert: {
+          conversion_metadata?: Json | null
+          conversion_type: string
+          conversion_value?: number | null
+          created_at?: string
+          id?: string
+          insights_generated?: number | null
+          lead_score?: number | null
+          messages_exchanged?: number | null
+          service_type?: string | null
+          session_duration?: number | null
+          session_id?: string | null
+          source_channel?: string | null
+          topics_explored?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          conversion_metadata?: Json | null
+          conversion_type?: string
+          conversion_value?: number | null
+          created_at?: string
+          id?: string
+          insights_generated?: number | null
+          lead_score?: number | null
+          messages_exchanged?: number | null
+          service_type?: string | null
+          session_duration?: number | null
+          session_id?: string | null
+          source_channel?: string | null
+          topics_explored?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversion_analytics_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       engagement_analytics: {
         Row: {
           event_data: Json | null
@@ -215,6 +348,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      google_sheets_sync_log: {
+        Row: {
+          created_at: string
+          data_count: number | null
+          error_message: string | null
+          id: string
+          last_updated_at: string | null
+          lead_id: string | null
+          sheet_row_id: string | null
+          status: string
+          sync_data: Json | null
+          sync_metadata: Json | null
+          sync_type: string
+          synced_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          data_count?: number | null
+          error_message?: string | null
+          id?: string
+          last_updated_at?: string | null
+          lead_id?: string | null
+          sheet_row_id?: string | null
+          status?: string
+          sync_data?: Json | null
+          sync_metadata?: Json | null
+          sync_type: string
+          synced_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          data_count?: number | null
+          error_message?: string | null
+          id?: string
+          last_updated_at?: string | null
+          lead_id?: string | null
+          sheet_row_id?: string | null
+          status?: string
+          sync_data?: Json | null
+          sync_metadata?: Json | null
+          sync_type?: string
+          synced_at?: string | null
+        }
+        Relationships: []
       }
       lead_qualification_scores: {
         Row: {
@@ -439,7 +617,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_conversion_metrics: {
+        Args: { session_uuid: string }
+        Returns: {
+          avg_lead_score: number
+          conversion_rate: number
+          high_value_conversions: number
+          total_sessions: number
+        }[]
+      }
+      process_pending_sync_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          error_count: number
+          processed_count: number
+          success_count: number
+        }[]
+      }
+      schedule_sync_processing: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      sync_lead_to_sheets: {
+        Args: {
+          lead_session_id?: string
+          lead_user_id: string
+          sync_type_param?: string
+        }
+        Returns: string
+      }
+      trigger_google_sheets_sync: {
+        Args: { sync_type_param?: string }
+        Returns: {
+          records_prepared: number
+          sync_id: string
+          sync_status: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

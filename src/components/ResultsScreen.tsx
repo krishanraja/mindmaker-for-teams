@@ -77,12 +77,10 @@ export const ResultsScreen: React.FC = () => {
       });
 
       if (error) {
-        console.error('Error sending assessment notification:', error);
-      } else {
-        console.log('Assessment notification sent successfully');
+        // Silently log error without exposing to user
       }
     } catch (error) {
-      console.error('Failed to send assessment notification:', error);
+      // Silently handle error
     }
     
     // Always open Calendly regardless of email success/failure
@@ -145,7 +143,7 @@ export const ResultsScreen: React.FC = () => {
           </div>
 
           {/* Key Insights Grid */}
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <Card className="glass-card card-grid">
               <div className="card-header text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -222,7 +220,7 @@ export const ResultsScreen: React.FC = () => {
           </div>
 
           {/* AI-Generated Analysis */}
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {/* Recommendations */}
             <Card className="glass-card">
               <div className="p-6">
@@ -303,7 +301,7 @@ export const ResultsScreen: React.FC = () => {
                   focusing on {discoveryData.successMetrics?.slice(0, 2).join(' and ') || 'AI literacy and confidence'}.
                 </p>
 
-                <div className="grid md:grid-cols-2 gap-8 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mt-8">
                   <div className="space-y-4">
                     <h4 className="font-semibold text-left">Program Includes:</h4>
                     <div className="space-y-2 text-left">
@@ -355,20 +353,20 @@ export const ResultsScreen: React.FC = () => {
           </Card>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
             <Button 
               onClick={handleScheduleConsultation}
-              className="button-hero text-lg px-8 py-4 group"
+              className="button-hero text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 group min-h-[48px]"
               size="lg"
             >
               Schedule Strategy Call
-              <Calendar className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
             
             <Button 
               onClick={handleDownloadSummary}
               variant="outline"
-              className="border-primary text-primary hover:bg-primary/10"
+              className="border-primary text-primary hover:bg-primary/10 min-h-[48px]"
               size="lg"
             >
               <Download className="w-4 h-4 mr-2" />
@@ -380,7 +378,7 @@ export const ResultsScreen: React.FC = () => {
           <Card className="glass-card bg-gradient-to-r from-muted/30 to-muted/10">
             <div className="p-6 text-center">
               <h4 className="font-semibold mb-4">Join leaders who've transformed their teams</h4>
-              <div className="grid md:grid-cols-3 gap-6 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-sm">
                 <div>
                   <div className="text-2xl font-bold text-primary">500+</div>
                   <div className="text-muted-foreground">Executives trained</div>

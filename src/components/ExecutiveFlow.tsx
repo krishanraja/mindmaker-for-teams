@@ -222,7 +222,7 @@ export const ExecutiveFlow: React.FC = () => {
       if (error) throw error;
       return data.insights;
     } catch (error) {
-      console.error('Error generating AI insights:', error);
+      // Silently handle error and return fallback
       return null;
     } finally {
       setIsGeneratingInsights(false);
@@ -385,7 +385,7 @@ export const ExecutiveFlow: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={handleBack}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 min-h-[48px]"
               >
                 <ArrowLeft className="w-4 h-4" />
                 {currentQuestion === 0 ? 'Back to Welcome' : 'Previous'}
@@ -394,7 +394,7 @@ export const ExecutiveFlow: React.FC = () => {
               <Button
                 onClick={handleNext}
                 disabled={!canProceed() || isGeneratingInsights}
-                className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+                className="flex items-center gap-2 bg-primary hover:bg-primary/90 min-h-[48px]"
               >
                 {isGeneratingInsights ? (
                   <>

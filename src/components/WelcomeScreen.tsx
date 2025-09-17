@@ -23,8 +23,7 @@ export const WelcomeScreen: React.FC = () => {
               <img 
                 src={mindmakerLogo} 
                 alt="MindMaker Logo" 
-                className="mx-auto"
-                style={{ width: '256px', height: '64px' }}
+                className="mx-auto w-64 h-16 sm:w-72 sm:h-18 md:w-80 md:h-20 object-contain"
               />
             </div>
 
@@ -49,16 +48,16 @@ export const WelcomeScreen: React.FC = () => {
             <div className="flex justify-center">
               <Button 
                 onClick={handleStartDiscovery}
-                className="button-hero text-lg px-8 py-4 group"
+                className="button-hero text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 group min-h-[48px] min-w-[200px]"
                 size="lg"
               >
                 Get My Roadmap (2 min)
-                <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>
 
             {/* Value Props Grid */}
-            <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
               <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-grid p-6">
                 <div className="card-header">
                   <Target className="w-12 h-12 text-white mb-4 mx-auto" />

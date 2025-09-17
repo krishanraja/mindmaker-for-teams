@@ -105,10 +105,10 @@
 }
 
 @layer components {
-  /* Typography Hierarchy - CEO Ready */
+  /* Typography Hierarchy - Mobile-First Responsive */
   .hero-title {
     @apply font-sans font-bold text-white;
-    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-size: clamp(2rem, 8vw, 4.5rem);
     line-height: 1.1;
     letter-spacing: -0.025em;
   }
@@ -222,27 +222,39 @@
     color: white;
   }
   
-  /* Card System with Perfect Alignment */
+  /* Card System with Perfect Mobile Alignment */
   .card-grid {
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-height: 280px;
   }
   
   .card-header {
-    min-height: 120px;
+    min-height: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    text-align: center;
   }
   
   .card-content {
     flex: 1;
+    padding: 1rem;
   }
   
   .card-footer {
     margin-top: auto;
     padding-top: 1rem;
+  }
+  
+  /* Mobile-optimized touch targets */
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   
   /* Layout Utilities */
@@ -253,7 +265,19 @@
   .container-width {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  @media (min-width: 640px) {
+    .container-width {
+      padding: 0 1.5rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container-width {
+      padding: 0 2rem;
+    }
   }
   
   /* Animation Classes */
