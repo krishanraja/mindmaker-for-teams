@@ -46,7 +46,7 @@ export const ResultsScreen: React.FC = () => {
   };
 
   const handleScheduleConsultation = () => {
-    window.open('https://calendly.com/fractionl-ai/ai-literacy-consultation', '_blank');
+    window.open('https://calendly.com/krish-raja/mindmaker-teams', '_blank');
   };
 
   const handleDownloadSummary = () => {
