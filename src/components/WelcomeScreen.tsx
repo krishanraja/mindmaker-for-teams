@@ -48,8 +48,8 @@ export const WelcomeScreen: React.FC = () => {
               </h1>
               
               <p className="body-lg max-w-3xl mx-auto">
-                Bridge the gap between AI confusion and AI confidence. Get a personalized roadmap 
-                for developing AI literacy across your entire organization.
+                Get a personalized AI transformation roadmap in under 2 minutes. 
+                Designed for busy executives who need actionable insights, not lengthy assessments.
               </p>
             </div>
 
@@ -60,7 +60,7 @@ export const WelcomeScreen: React.FC = () => {
                 className="button-hero text-lg px-8 py-4 group"
                 size="lg"
               >
-                Start Your AI Discovery
+                Get My Roadmap (2 min)
                 <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>

@@ -16,19 +16,20 @@ serve(async (req) => {
     // Simple conversation intelligence
     const extractedData: any = {}
     
-    // Extract business name
-    if (!currentData.businessName && message.match(/(?:company|business|organization).+?(?:called|named|is)\s+(.+?)(?:\s|$|,|\.)/i)) {
-      const match = message.match(/(?:company|business|organization).+?(?:called|named|is)\s+(.+?)(?:\s|$|,|\.)/i)
-      if (match) extractedData.businessName = match[1].trim()
-    } else if (!currentData.businessName && message.match(/^([A-Z][a-zA-Z\s&.,-]+)$/)) {
-      extractedData.businessName = message.trim()
+    // Extract business name - ULTRA SIMPLE detection
+    if (!currentData.businessName && message.trim().length > 1) {
+      // Accept any non-empty string as a business name
+      const cleanName = message.trim()
+      if (cleanName.length > 0 && !cleanName.includes('?') && cleanName.length < 100) {
+        extractedData.businessName = cleanName
+      }
     }
 
-    // Extract industry
-    if (!currentData.industry && (message.includes('industry') || message.includes('sector'))) {
-      const industries = ['healthcare', 'finance', 'technology', 'manufacturing', 'retail', 'education', 'consulting']
+    // Extract industry - Simple detection
+    if (!currentData.industry) {
+      const industries = ['healthcare', 'finance', 'fintech', 'technology', 'tech', 'manufacturing', 'retail', 'education', 'consulting', 'marketing', 'legal', 'construction', 'real estate', 'agriculture', 'logistics', 'transportation']
       const found = industries.find(ind => message.toLowerCase().includes(ind))
-      if (found) extractedData.industry = found
+      if (found) extractedData.industry = found === 'tech' ? 'technology' : found
     }
 
     // Extract employee count
@@ -75,19 +76,13 @@ serve(async (req) => {
     const dataCollected = Object.keys({ ...currentData, ...extractedData }).length
 
     if (!currentData.businessName && !extractedData.businessName) {
-      response = "Great to meet you! What's your company called? I want to make sure I understand your organization properly."
+      response = "Hi! I'm Alex from Fractionl.ai. Let's quickly discover your AI potential.\n\nWhat's your company name?"
     } else if (!currentData.industry && !extractedData.industry) {
-      response = `Perfect, thanks for sharing about ${extractedData.businessName || currentData.businessName}! \n\nWhat industry are you in? This helps me understand the specific AI opportunities and challenges you might face.`
+      response = `Thanks! What industry is ${extractedData.businessName || currentData.businessName} in?`
     } else if (!currentData.employeeCount && !extractedData.employeeCount) {
-      response = "Got it! How many employees do you have? This helps me recommend the right scale of approach for your AI literacy program."
-    } else if (!currentData.currentAIUse && !extractedData.currentAIUse) {
-      response = "Excellent! Now, tell me about your current relationship with AI. Are you using any AI tools currently, running pilots, or is this completely new territory?"
-    } else if (!currentData.learningModality && !extractedData.learningModality) {
-      response = "That's really helpful context! When your team learns new skills, what format works best? Do you prefer live workshops where everyone learns together, self-paced online modules, or more hands-on coaching approaches?"
-    } else if ((!currentData.successTargets || currentData.successTargets.length === 0) && !extractedData.successTargets) {
-      response = "Perfect! One last question to make this really personalized - what are your top goals for AI transformation? Are you looking to boost efficiency, drive innovation, gain competitive advantage, or something else entirely?"
+      response = "Got it! How many employees do you have?"
     } else {
-      response = `🎉 Excellent! I now have a complete picture of ${currentData.businessName || extractedData.businessName}.\n\nBased on our conversation, I can see you're well-positioned for AI transformation. Let me pull together your personalized roadmap now...`
+      response = `Perfect! I have everything I need for ${currentData.businessName || extractedData.businessName}.\n\nGenerating your personalized AI roadmap now...`
       isComplete = true
     }
 
