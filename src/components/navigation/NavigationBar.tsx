@@ -1,105 +1,70 @@
 import React, { useState } from 'react';
-import { MobileMenu } from './MobileMenu';
-import { ProgressIndicator } from './ProgressIndicator';
+import { Brain, Menu } from 'lucide-react';
+import { Button } from '../ui/button';
+import { ThemeToggle } from '../ui/theme-toggle';
+import { useIsMobile } from '../../hooks/use-mobile';
 import { StepNavigation } from './StepNavigation';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useMindmaker } from '@/contexts/MindmakerContext';
-import { cn } from '@/lib/utils';
+import { ProgressIndicator } from './ProgressIndicator';
+import { MobileMenu } from './MobileMenu';
+import { useMindmaker } from '../../contexts/MindmakerContext';
 
 export const NavigationBar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
   const { state } = useMindmaker();
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
+  
+  // Don't render navigation on Step 1 (Welcome page) as it has its own header
+  if (state.currentStep === 1) {
+    return null;
+  }
 
   return (
     <>
-      {/* Fixed Navigation Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass-nav">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            
-            {/* Logo Section */}
-            <div className="flex items-center">
-              <div className="flex flex-col items-start">
-                <img 
-                  src="/lovable-uploads/eee5a570-3b3e-4c59-847b-b04ef6b24a57.png" 
-                  alt="Fractionl AI Logo" 
-                  className="h-8 md:h-10 w-auto object-contain mb-1"
-                />
-                <span className="text-xs text-muted-foreground">
-                  Corporate Workshop Builder
-                </span>
+      <header className="glass-nav fixed top-0 left-0 right-0 z-50 border-b border-white/10">
+        <div className="container-width">
+          <div className="flex items-center justify-between h-16 px-4">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+                <Brain className="w-5 h-5 text-white" />
               </div>
+              <span className="font-semibold text-foreground text-lg">Fractionl</span>
             </div>
 
             {/* Desktop Navigation */}
-            {!isMobile && (
-              <div className="flex items-center space-x-8">
+            {!isMobile ? (
+              <div className="flex items-center space-x-6">
                 <ProgressIndicator />
                 <StepNavigation />
-                <div className="flex items-center space-x-4">
-                  <Button 
-                    variant="default" 
-                    size="sm"
-                    className="shadow-lg hover:shadow-xl"
-                  >
-                    Get Started
-                  </Button>
-                  <ThemeToggle />
-                </div>
+                <ThemeToggle />
               </div>
-            )}
-
-            {/* Mobile Menu Button */}
-            {isMobile && (
-              <div className="flex items-center space-x-2">
-                <ProgressIndicator />
+            ) : (
+              /* Mobile Navigation */
+              <div className="flex items-center space-x-4">
                 <ThemeToggle />
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={toggleMobileMenu}
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className="relative"
-                  aria-label="Toggle menu"
+                  aria-label="Toggle mobile menu"
                 >
-                  <div className="relative w-6 h-6">
-                    <span 
-                      className={cn(
-                        "absolute block h-0.5 w-6 bg-current transform transition duration-300 ease-in-out",
-                        isMobileMenuOpen ? "rotate-45 translate-y-0" : "-translate-y-1.5"
-                      )}
-                    />
-                    <span 
-                      className={cn(
-                        "absolute block h-0.5 w-6 bg-current transform transition duration-300 ease-in-out",
-                        isMobileMenuOpen ? "-rotate-45 translate-y-0" : "translate-y-1.5"
-                      )}
-                    />
-                  </div>
+                  <Menu className="h-5 w-5" />
                 </Button>
               </div>
             )}
           </div>
         </div>
-
-        {/* Mobile Menu Overlay */}
-        {isMobile && (
-          <MobileMenu 
-            isOpen={isMobileMenuOpen} 
-            onClose={() => setIsMobileMenuOpen(false)} 
-          />
-        )}
       </header>
 
-      {/* Spacer for fixed header */}
-      <div className="h-16 md:h-20" />
+      {/* Mobile Menu */}
+      <MobileMenu 
+        isOpen={isMobileMenuOpen} 
+        onClose={() => setIsMobileMenuOpen(false)} 
+      />
+
+      {/* Spacer to account for fixed header */}
+      <div className="h-16" />
     </>
   );
 };

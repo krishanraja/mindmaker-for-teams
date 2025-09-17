@@ -94,6 +94,8 @@
     @apply bg-background text-foreground font-body antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
     font-optical-sizing: auto;
+    margin: 0;
+    padding: 0;
   }
   
   /* Accessibility */

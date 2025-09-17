@@ -36,8 +36,8 @@ export const MindmakerApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <>
       {renderStep()}
-    </div>
+    </>
   );
 };
