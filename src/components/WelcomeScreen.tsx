@@ -18,26 +18,20 @@ export const WelcomeScreen: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="container-width">
           <div className="text-center space-y-8">
+            {/* Main Headline */}
+            <div className="space-y-6">
+            <h1 className="hero-title">
+              Teams
+            </h1>
+            
             {/* Logo */}
-            <div className="mb-8">
+            <div className="mt-4">
               <img 
                 src={mindmakerLogo} 
                 alt="MindMaker Logo" 
                 className="mx-auto w-64 h-16 sm:w-72 sm:h-18 md:w-80 md:h-20 object-contain"
               />
             </div>
-
-            {/* Badge */}
-            <div className="inline-flex items-center px-4 py-2 glass-card-dark rounded-full text-white/90 text-sm font-medium">
-              <Sparkles className="w-4 h-4 mr-2" />
-              AI Transformation Discovery
-            </div>
-
-            {/* Main Headline */}
-            <div className="space-y-6">
-            <h1 className="hero-title">
-              AI Literacy for Teams
-            </h1>
             
             <p className="body-lg max-w-3xl mx-auto">
               Transform and level up your team. Get started with a personalized AI literacy roadmap in under 2 minutes.
