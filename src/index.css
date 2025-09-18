@@ -45,8 +45,10 @@
   --content-width: 1200px;
   
   /* Typography */
-  --font-display: 'Inter', system-ui, sans-serif;
+  --font-display: 'Outfit', 'Inter', system-ui, sans-serif;
+  --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
+  --font-caption: 'Inter', system-ui, sans-serif;
   
   /* Shadows for Glass Morphism */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -105,39 +107,47 @@
 }
 
 @layer components {
-  /* Typography Hierarchy - Mobile-First Responsive */
+  /* Typography Hierarchy - Professional Font System */
   .hero-title {
-    @apply font-sans font-bold text-white;
+    @apply font-display font-bold text-white;
     font-size: clamp(2rem, 8vw, 4.5rem);
     line-height: 1.1;
     letter-spacing: -0.025em;
   }
   
   .section-header {
-    @apply font-sans font-semibold;
+    @apply font-heading font-semibold;
     font-size: clamp(1.875rem, 4vw, 2.25rem);
     line-height: 1.2;
     letter-spacing: -0.02em;
   }
   
   .headline-xl {
-    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+    @apply text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight;
     line-height: 1.1;
     letter-spacing: -0.025em;
   }
 
   .headline-lg {
-    @apply text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight;
+    @apply text-3xl md:text-4xl lg:text-5xl font-heading font-semibold tracking-tight;
     line-height: 1.2;
     letter-spacing: -0.02em;
   }
 
   .body-lg {
-    @apply text-lg md:text-xl leading-relaxed text-white/90;
+    @apply text-lg md:text-xl font-body leading-relaxed text-white/90;
   }
 
   .body-md {
-    @apply text-base md:text-lg leading-relaxed;
+    @apply text-base md:text-lg font-body leading-relaxed;
+  }
+
+  .body-sm {
+    @apply text-sm font-body leading-normal;
+  }
+
+  .font-caption {
+    @apply text-xs font-caption leading-normal tracking-wide;
   }
   
   /* Bulletproof Card Components */
