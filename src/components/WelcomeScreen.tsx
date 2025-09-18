@@ -19,7 +19,7 @@ export const WelcomeScreen: React.FC = () => {
         <div className="container-width">
           <div className="text-center space-y-8">
             {/* Logo */}
-            <div className="mb-4">
+            <div className="mb-8">
               <img 
                 src={mindmakerLogo} 
                 alt="MindMaker Logo" 
@@ -28,15 +28,13 @@ export const WelcomeScreen: React.FC = () => {
             </div>
 
             {/* Main Headline */}
-            <div className="space-y-6">
-            <h1 className="hero-title">
+            <h1 className="hero-title mb-8">
               Teams
             </h1>
             
             <p className="body-lg max-w-3xl mx-auto">
               Transform and level up your team. Get started with a personalized AI literacy roadmap in under 2 minutes.
             </p>
-            </div>
 
             {/* CTA Button */}
             <div className="flex justify-center">
