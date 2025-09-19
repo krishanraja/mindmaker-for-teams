@@ -33,7 +33,7 @@ export const WelcomeScreen: React.FC = () => {
                 Teams
               </h1>
               
-              <p className="body-lg mx-auto px-4 sm:px-6">
+              <p className="body-lg text-white mx-auto px-4 sm:px-6">
                 Transform and level up your team. Get started with a personalized AI literacy roadmap in under 2 minutes.
               </p>
             </div>

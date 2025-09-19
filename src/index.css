@@ -158,17 +158,17 @@
   }
 
   .body-lg {
-    @apply text-base sm:text-lg md:text-xl font-body leading-relaxed;
+    @apply text-base sm:text-lg md:text-xl font-body leading-relaxed text-foreground;
     max-width: 65ch;
   }
 
   .body-md {
-    @apply text-sm sm:text-base md:text-lg font-body leading-relaxed;
+    @apply text-sm sm:text-base md:text-lg font-body leading-relaxed text-foreground;
     max-width: 70ch;
   }
 
   .body-sm {
-    @apply text-xs sm:text-sm md:text-base font-body leading-normal;
+    @apply text-xs sm:text-sm md:text-base font-body leading-normal text-foreground;
     max-width: 75ch;
   }
 
