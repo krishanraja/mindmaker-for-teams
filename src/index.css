@@ -164,20 +164,7 @@
   .mobile-text-lg { @apply text-lg sm:text-xl md:text-2xl; }
   .mobile-text-xl { @apply text-xl sm:text-2xl md:text-3xl; }
 
-  /* Button System - Exact Specifications */
-  .btn-hero-primary {
-    background: linear-gradient(to right, hsl(248 73% 67%), hsl(264 35% 46%)) !important;
-    color: white !important;
-    box-shadow: 0 8px 32px hsl(0 0% 0% / 0.08);
-    transform: translateY(0);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    @apply px-8 py-3 text-lg font-medium rounded-lg;
-  }
-
-  .btn-hero-primary:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 10px 30px -10px hsl(248 73% 67% / 0.3);
-  }
+  /* Button styles now handled by Button component variants */
 
   /* Shadow Utilities */
   .shadow-purple {

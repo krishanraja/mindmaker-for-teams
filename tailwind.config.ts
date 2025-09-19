@@ -88,6 +88,7 @@ const config: Config = {
       boxShadow: {
         sm: "var(--shadow-sm)",
         medium: "var(--shadow-medium)",
+        lg: "0 8px 32px hsl(0 0% 0% / 0.08)",
         large: "var(--shadow-large)",
         elegant: "var(--shadow-elegant)",
         glow: "var(--shadow-glow)",
