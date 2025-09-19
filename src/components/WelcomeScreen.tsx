@@ -15,32 +15,34 @@ export const WelcomeScreen: React.FC = () => {
   return (
     <div className="hero-clouds">
       {/* Hero Content */}
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center py-8 px-6 sm:px-8">
         <div className="container-width">
-          <div className="text-center space-y-8">
+          <div className="text-center space-y-6 sm:space-y-8 max-w-4xl mx-auto">
             {/* Logo */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <img 
                 src={mindmakerLogo} 
                 alt="MindMaker Logo" 
-                className="mx-auto w-64 h-16 sm:w-72 sm:h-18 md:w-80 md:h-20 object-contain"
+                className="mx-auto w-48 h-12 sm:w-64 sm:h-16 md:w-72 md:h-18 lg:w-80 lg:h-20 object-contain"
               />
             </div>
 
             {/* Main Headline */}
-            <h1 className="hero-title mb-8">
-              Teams
-            </h1>
-            
-            <p className="body-lg max-w-3xl mx-auto">
-              Transform and level up your team. Get started with a personalized AI literacy roadmap in under 2 minutes.
-            </p>
+            <div className="space-y-4 sm:space-y-6">
+              <h1 className="hero-title px-4">
+                Teams
+              </h1>
+              
+              <p className="body-lg mx-auto px-4 sm:px-6">
+                Transform and level up your team. Get started with a personalized AI literacy roadmap in under 2 minutes.
+              </p>
+            </div>
 
             {/* CTA Button */}
-            <div className="flex justify-center">
+            <div className="flex justify-center px-4 pt-2 sm:pt-4">
               <Button 
                 onClick={handleStartDiscovery}
-                className="button-hero text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 group min-h-[48px] min-w-[200px]"
+                className="button-hero text-base sm:text-lg px-6 sm:px-8 py-4 group touch-target-lg w-full sm:w-auto max-w-sm"
                 size="lg"
               >
                 Get My Roadmap (2 min)
@@ -49,38 +51,38 @@ export const WelcomeScreen: React.FC = () => {
             </div>
 
             {/* Value Props Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
-              <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-grid p-6">
-                <div className="card-header">
-                  <Target className="w-12 h-12 text-white mb-4 mx-auto" />
-                  <h3 className="text-xl font-semibold mb-2 text-white">Intelligent Discovery</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-12 sm:mt-16 px-4">
+              <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-mobile">
+                <div className="card-header text-center">
+                  <Target className="w-10 h-10 sm:w-12 sm:h-12 text-white mb-3 sm:mb-4 mx-auto" />
+                  <h3 className="text-lg sm:text-xl font-semibold mb-2 text-white">Intelligent Discovery</h3>
                 </div>
-                <div className="card-content">
-                  <p className="text-white/90">
+                <div className="card-content text-center">
+                  <p className="text-white/90 text-sm sm:text-base leading-relaxed">
                     AI-powered conversation reveals your organization's unique needs and readiness level
                   </p>
                 </div>
               </Card>
 
-              <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-grid p-6">
-                <div className="card-header">
-                  <Sparkles className="w-12 h-12 text-white mb-4 mx-auto" />
-                  <h3 className="text-xl font-semibold mb-2 text-white">Personalized Roadmap</h3>
+              <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-mobile">
+                <div className="card-header text-center">
+                  <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-white mb-3 sm:mb-4 mx-auto" />
+                  <h3 className="text-lg sm:text-xl font-semibold mb-2 text-white">Personalized Roadmap</h3>
                 </div>
-                <div className="card-content">
-                  <p className="text-white/90">
+                <div className="card-content text-center">
+                  <p className="text-white/90 text-sm sm:text-base leading-relaxed">
                     Custom recommendations based on your industry, team size, and current AI adoption
                   </p>
                 </div>
               </Card>
 
-              <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-grid p-6">
-                <div className="card-header">
-                  <Users className="w-12 h-12 text-white mb-4 mx-auto" />
-                  <h3 className="text-xl font-semibold mb-2 text-white">Expert Guidance</h3>
+              <Card className="bg-white/15 backdrop-blur-md border border-white/20 shadow-xl text-white card-mobile sm:col-span-2 lg:col-span-1">
+                <div className="card-header text-center">
+                  <Users className="w-10 h-10 sm:w-12 sm:h-12 text-white mb-3 sm:mb-4 mx-auto" />
+                  <h3 className="text-lg sm:text-xl font-semibold mb-2 text-white">Expert Guidance</h3>
                 </div>
-                <div className="card-content">
-                  <p className="text-white/90">
+                <div className="card-content text-center">
+                  <p className="text-white/90 text-sm sm:text-base leading-relaxed">
                     Access to proven methodologies from teaching AI to Fortune 500 teams
                   </p>
                 </div>
@@ -88,15 +90,15 @@ export const WelcomeScreen: React.FC = () => {
             </div>
 
             {/* Trust Indicators */}
-            <div className="pt-16 border-t border-white/20 mt-16">
-              <p className="text-white/70 text-sm mb-4">Trusted by teams at:</p>
-              <div className="flex justify-center space-x-8 text-white/60 text-sm">
+            <div className="pt-12 sm:pt-16 border-t border-white/20 mt-12 sm:mt-16 px-4">
+              <p className="text-white/70 text-xs sm:text-sm mb-3 sm:mb-4">Trusted by teams at:</p>
+              <div className="flex flex-wrap justify-center gap-x-4 sm:gap-x-8 gap-y-2 text-white/60 text-xs sm:text-sm">
                 <span>Media</span>
-                <span>•</span>
+                <span className="hidden sm:inline">•</span>
                 <span>Tech</span>
-                <span>•</span>
+                <span className="hidden sm:inline">•</span>
                 <span>Telco</span>
-                <span>•</span>
+                <span className="hidden sm:inline">•</span>
                 <span>Scale-ups</span>
               </div>
             </div>

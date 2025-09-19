@@ -76,6 +76,15 @@ const config: Config = {
       },
       spacing: {
         section: "var(--section-padding)",
+        "mobile-xs": "0.5rem",
+        "mobile-sm": "0.75rem", 
+        "mobile-md": "1rem",
+        "mobile-lg": "1.5rem",
+        "mobile-xl": "2rem",
+        "mobile-2xl": "3rem",
+        "touch-sm": "2.75rem",
+        "touch-md": "3rem", 
+        "touch-lg": "3.5rem",
       },
       maxWidth: {
         content: "var(--content-width)",

@@ -294,21 +294,22 @@ export const ExecutiveFlow: React.FC = () => {
       {/* Header */}
       <div className="bg-background/95 backdrop-blur-md border-b border-border">
         <div className="container-width">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14 sm:h-16 px-4 sm:px-0">
             <Button 
               variant="ghost" 
               onClick={handleBack}
-              className="flex items-center gap-2"
+              className="flex items-center gap-1 sm:gap-2 touch-target-md p-2 sm:p-3"
+              size="sm"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back
+              <span className="hidden sm:inline">Back</span>
             </Button>
             
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-primary" />
-              <span className="font-medium">Executive Discovery</span>
-              <span className="text-sm text-muted-foreground">
-                {currentQuestion + 1} of {questions.length}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+              <span className="font-medium text-sm sm:text-base">Discovery</span>
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                {currentQuestion + 1}/{questions.length}
               </span>
             </div>
           </div>
@@ -324,38 +325,39 @@ export const ExecutiveFlow: React.FC = () => {
       </div>
 
       {/* Question Container */}
-      <div className="container-width py-12">
+      <div className="container-width py-6 sm:py-8 md:py-12 px-4 sm:px-6 md:px-0">
         <div className="max-w-2xl mx-auto">
-          <Card className="bg-card border border-border shadow-medium p-8">
+          <Card className="bg-card border border-border shadow-medium card-mobile">
             {/* Question Header */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border border-primary/20 mb-4">
-                <Icon className="w-8 h-8 text-primary" />
+            <div className="text-center mb-6 sm:mb-8">
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 border border-primary/20 mb-3 sm:mb-4">
+                <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
               </div>
-              <h1 className="text-3xl font-bold mb-2">{currentQ.title}</h1>
-              <p className="text-lg text-muted-foreground">{currentQ.description}</p>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 px-2">{currentQ.title}</h1>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground mobile-readable px-2">{currentQ.description}</p>
             </div>
 
             {/* Input Field */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               {currentQ.type === 'input' ? (
                 <Input
                   value={formData[currentQ.id as keyof typeof formData] as string}
                   onChange={(e) => updateFormData(e.target.value)}
                   placeholder={currentQ.placeholder}
-                  className="h-14 text-lg text-center border-2 focus-visible:ring-2"
+                  className="h-12 sm:h-14 text-base sm:text-lg text-center border-2 focus-visible:ring-2 touch-target-md"
                   autoFocus
                 />
               ) : currentQ.type === 'multi-select' ? (
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {currentQ.options?.map((option) => (
-                    <div key={option} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50">
+                    <div key={option} className="flex items-start space-x-3 p-3 sm:p-4 border rounded-lg hover:bg-muted/50 touch-target-md">
                       <Checkbox
                         id={option}
                         checked={(formData[currentQ.id as keyof typeof formData] as string[] || []).includes(option)}
                         onCheckedChange={(checked) => handleMultiSelectChange(option, checked as boolean)}
+                        className="mt-1 flex-shrink-0"
                       />
-                      <label htmlFor={option} className="text-sm font-medium cursor-pointer flex-grow">
+                      <label htmlFor={option} className="text-sm sm:text-base font-medium cursor-pointer flex-grow leading-relaxed">
                         {option}
                       </label>
                     </div>
@@ -366,12 +368,12 @@ export const ExecutiveFlow: React.FC = () => {
                   value={formData[currentQ.id as keyof typeof formData] as string}
                   onValueChange={updateFormData}
                 >
-                  <SelectTrigger className="h-14 text-lg border-2 focus:ring-2">
+                  <SelectTrigger className="h-12 sm:h-14 text-base sm:text-lg border-2 focus:ring-2 touch-target-md">
                     <SelectValue placeholder="Select an option..." />
                   </SelectTrigger>
                   <SelectContent>
                     {currentQ.options?.map((option) => (
-                      <SelectItem key={option} value={option}>
+                      <SelectItem key={option} value={option} className="text-sm sm:text-base py-3">
                         {option}
                       </SelectItem>
                     ))}
@@ -381,29 +383,35 @@ export const ExecutiveFlow: React.FC = () => {
             </div>
 
             {/* Navigation */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
               <Button
                 variant="outline"
                 onClick={handleBack}
-                className="flex items-center gap-2 min-h-[48px]"
+                className="flex items-center justify-center gap-2 touch-target-md order-2 sm:order-1"
+                size="default"
               >
                 <ArrowLeft className="w-4 h-4" />
-                {currentQuestion === 0 ? 'Back to Welcome' : 'Previous'}
+                <span className="text-sm sm:text-base">
+                  {currentQuestion === 0 ? 'Back to Welcome' : 'Previous'}
+                </span>
               </Button>
               
               <Button
                 onClick={handleNext}
                 disabled={!canProceed() || isGeneratingInsights}
-                className="flex items-center gap-2 bg-primary hover:bg-primary/90 min-h-[48px]"
+                className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 touch-target-md order-1 sm:order-2"
+                size="default"
               >
                 {isGeneratingInsights ? (
                   <>
                     <Sparkles className="w-4 h-4 animate-spin" />
-                    Generating Insights...
+                    <span className="text-sm sm:text-base">Generating...</span>
                   </>
                 ) : (
                   <>
-                    {currentQuestion === questions.length - 1 ? 'Get My AI Roadmap' : 'Next'}
+                    <span className="text-sm sm:text-base">
+                      {currentQuestion === questions.length - 1 ? 'Get My AI Roadmap' : 'Next'}
+                    </span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
@@ -411,11 +419,11 @@ export const ExecutiveFlow: React.FC = () => {
             </div>
 
             {/* Progress Dots */}
-            <div className="flex justify-center gap-2 mt-6">
+            <div className="flex justify-center gap-1.5 sm:gap-2 mt-6 px-4">
               {questions.map((_, index) => (
                 <div
                   key={index}
-                  className={`w-2 h-2 rounded-full transition-colors ${
+                  className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-colors ${
                     index <= currentQuestion ? 'bg-primary' : 'bg-muted'
                   }`}
                 />

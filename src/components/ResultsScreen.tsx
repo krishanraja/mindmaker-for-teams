@@ -125,35 +125,35 @@ export const ResultsScreen: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/5">
 
-      <div className="container-width py-12">
-        <div className="max-w-4xl mx-auto space-y-8">
+      <div className="container-width py-6 sm:py-8 md:py-12 px-4 sm:px-6 md:px-0">
+        <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
           {/* Header */}
-          <div className="text-center space-y-4">
-            <h1 className="headline-lg text-foreground">
+          <div className="text-center space-y-3 sm:space-y-4 px-4">
+            <h1 className="headline-lg text-foreground leading-tight">
               AI Readiness Assessment Results
-              <span className="block text-primary">{discoveryData.businessName}</span>
+              <span className="block text-primary mt-2">{discoveryData.businessName}</span>
             </h1>
-            <p className="body-md text-muted-foreground max-w-2xl mx-auto">
+            <p className="body-md text-muted-foreground mobile-readable mx-auto">
               Your personalized AI transformation roadmap based on strategic assessment and industry expertise.
             </p>
-            <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+            <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs sm:text-sm">
               <Brain className="w-3 h-3 mr-1" />
               AI-Powered Analysis Complete
             </Badge>
           </div>
 
           {/* Key Insights Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <Card className="glass-card card-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-0">
+            <Card className="glass-card card-mobile">
               <div className="card-header text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Brain className="w-8 h-8 text-primary" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">AI Readiness Score</h3>
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">AI Readiness Score</h3>
               </div>
               <div className="card-content text-center">
-                <div className="text-3xl font-bold text-primary mb-2">{readinessScore}/100</div>
-                <p className="text-sm text-muted-foreground">
+                <div className="text-2xl sm:text-3xl font-bold text-primary mb-2">{readinessScore}/100</div>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   {readinessScore >= 80 ? 'Advanced - Ready for implementation' : 
                    readinessScore >= 60 ? 'Intermediate - Good foundation' : 
                    readinessScore >= 40 ? 'Beginner - High potential' :
@@ -353,10 +353,10 @@ export const ResultsScreen: React.FC = () => {
           </Card>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center px-4 sm:px-0">
             <Button 
               onClick={handleScheduleConsultation}
-              className="button-hero text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 group min-h-[48px]"
+              className="button-hero text-base sm:text-lg px-6 sm:px-8 py-4 group touch-target-lg order-1"
               size="lg"
             >
               Schedule Strategy Call
@@ -366,11 +366,12 @@ export const ResultsScreen: React.FC = () => {
             <Button 
               onClick={handleDownloadSummary}
               variant="outline"
-              className="border-primary text-primary hover:bg-primary/10 min-h-[48px]"
+              className="border-primary text-primary hover:bg-primary/10 touch-target-lg order-2"
               size="lg"
             >
               <Download className="w-4 h-4 mr-2" />
-              Download Assessment Report
+              <span className="hidden sm:inline">Download Assessment Report</span>
+              <span className="sm:hidden">Download Report</span>
             </Button>
           </div>
 
