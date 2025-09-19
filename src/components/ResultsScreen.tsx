@@ -123,7 +123,7 @@ export const ResultsScreen: React.FC = () => {
   const recommendedProgram = getRecommendedProgram();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-primary/5">
+    <div className="min-h-screen bg-background">
 
       <div className="container-width py-6 sm:py-8 md:py-12 px-4 sm:px-6 md:px-0">
         <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">

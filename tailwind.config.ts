@@ -64,10 +64,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        brand: {
-          purple: "hsl(var(--brand-purple))",
-          "purple-light": "hsl(var(--brand-purple-light))",
-        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -93,6 +89,8 @@ const config: Config = {
         sm: "var(--shadow-sm)",
         medium: "var(--shadow-medium)",
         large: "var(--shadow-large)",
+        elegant: "var(--shadow-elegant)",
+        glow: "var(--shadow-glow)",
       },
       transitionTimingFunction: {
         smooth: "cubic-bezier(0.4, 0, 0.2, 1)",
@@ -110,7 +108,7 @@ const config: Config = {
         "fade-in-up": {
           from: {
             opacity: "0",
-            transform: "translateY(20px)",
+            transform: "translateY(30px)",
           },
           to: {
             opacity: "1",
@@ -133,7 +131,7 @@ const config: Config = {
         },
         "float": {
           "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-20px)" },
+          "50%": { transform: "translateY(-10px)" },
         },
       },
       animation: {

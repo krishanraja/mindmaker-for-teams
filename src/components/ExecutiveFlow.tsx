@@ -289,7 +289,7 @@ export const ExecutiveFlow: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/30">
+    <div className="min-h-screen bg-background">
 
       {/* Header */}
       <div className="bg-background/95 backdrop-blur-md border-b border-border">
