@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from './ui/card';
-import { Sparkles, Zap, Target, Users, ChevronRight } from 'lucide-react';
+import { Sparkles, Zap, Target, Users, ChevronRight, ArrowRight } from 'lucide-react';
 import { useMindmaker } from '../contexts/MindmakerContext';
 import mindmakerLogo from '../assets/mindmaker-logo.png';
 
@@ -33,9 +33,10 @@ export const WelcomeScreen: React.FC = () => {
           {/* CTA Button */}
           <button 
             onClick={handleStartDiscovery}
-            className="btn-hero-primary"
+            className="btn-hero-primary px-8 py-3 text-lg font-medium group"
           >
             Start Assessment
+            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform animated-arrow" />
           </button>
         </div>
       </div>

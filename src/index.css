@@ -47,6 +47,9 @@
     --shadow-sm: 0 1px 2px hsl(var(--foreground) / 0.05);
     --shadow-medium: 0 4px 6px hsl(var(--foreground) / 0.1);
     --shadow-large: 0 20px 25px hsl(var(--foreground) / 0.15);
+    --shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.08);
+    --shadow-purple: 0 4px 14px 0 hsl(248 73% 67% / 0.39);
+    --shadow-purple-lg: 0 8px 28px 0 hsl(248 73% 67% / 0.39);
     
     /* Spacing */
     --radius: 0.5rem;
@@ -135,11 +138,18 @@
   .mobile-text-lg { @apply text-lg sm:text-xl md:text-2xl; }
   .mobile-text-xl { @apply text-xl sm:text-2xl md:text-3xl; }
   
-  /* Hero headings - progressively larger */
+  /* Hero headings - exact specifications */
   .hero-heading {
-    @apply text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl;
-    @apply font-bold tracking-[0.1em] sm:tracking-[0.15em];
-    @apply leading-[1.1] sm:leading-tight;
+    font-size: 2.25rem; /* 36px mobile */
+    letter-spacing: -0.03em;
+    @apply font-bold leading-tight;
+  }
+  
+  @media (min-width: 768px) {
+    .hero-heading {
+      font-size: 3rem; /* 48px desktop */
+      letter-spacing: -0.035em;
+    }
   }
   
   /* Section headings */
@@ -176,11 +186,77 @@
     @apply rounded-lg sm:rounded-md;
   }
   
-  /* Hero section buttons - BULLETPROOF */
+  /* Base button classes */
+  .btn-base {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+  
+  .btn-base svg {
+    @apply pointer-events-none size-4 shrink-0;
+  }
+  
+  /* Button variants */
+  .btn-default {
+    @apply btn-base;
+    background: hsl(248 73% 67%) !important;
+    color: hsl(0 0% 100%) !important;
+    @apply h-10 px-4 py-2;
+  }
+  
+  .btn-default:hover {
+    background: hsl(248 73% 67% / 0.9) !important;
+  }
+  
+  .btn-primary {
+    @apply btn-base;
+    background: hsl(248 73% 67%) !important;
+    color: hsl(0 0% 100%) !important;
+    font-weight: 600 !important;
+    box-shadow: var(--shadow-purple) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    @apply h-10 px-4 py-2;
+  }
+  
+  .btn-primary:hover {
+    background: hsl(248 73% 67% / 0.9) !important;
+    transform: scale(1.05) !important;
+  }
+  
+  .btn-hero {
+    @apply btn-base;
+    background: hsl(248 73% 67%) !important;
+    color: hsl(0 0% 100%) !important;
+    font-weight: 600 !important;
+    box-shadow: var(--shadow-purple-lg) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    @apply h-10 px-4 py-2;
+  }
+  
+  .btn-hero:hover {
+    background: hsl(248 73% 67% / 0.9) !important;
+    transform: scale(1.05) !important;
+  }
+  
+  .btn-glass {
+    @apply btn-base;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(4px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: hsl(0 0% 100%) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    @apply h-10 px-4 py-2;
+  }
+  
+  .btn-glass:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  /* Custom hero primary with gradient */
   .btn-hero-primary {
-    background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent))) !important;
-    color: white !important;
-    box-shadow: 0 8px 32px hsl(0 0% 0% / 0.08) !important;
+    @apply btn-base;
+    background: linear-gradient(to right, hsl(248 73% 67%), hsl(264 35% 46%)) !important;
+    color: hsl(0 0% 100%) !important;
+    box-shadow: var(--shadow-lg) !important;
     transform: translateY(0) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     @apply px-8 py-3 text-lg font-medium rounded-lg;
@@ -188,7 +264,7 @@
   
   .btn-hero-primary:hover {
     transform: translateY(-2px) scale(1.05) !important;
-    box-shadow: 0 10px 30px -10px hsl(var(--primary) / 0.3) !important;
+    box-shadow: var(--shadow-elegant) !important;
   }
   
   .btn-hero-secondary {
@@ -205,18 +281,24 @@
     border-color: rgba(255, 255, 255, 0.5) !important;
   }
   
-  /* Standard buttons */
-  .btn-primary {
-    background: hsl(var(--primary)) !important;
-    color: white !important;
-    box-shadow: 0 4px 6px hsl(var(--foreground) / 0.1) !important;
-    transition: all 0.2s ease !important;
+  /* Button sizes */
+  .btn-sm {
+    @apply h-9 px-3 rounded-md;
   }
   
-  .btn-primary:hover {
-    background: hsl(var(--primary) / 0.9) !important;
-    box-shadow: 0 6px 12px hsl(var(--foreground) / 0.15) !important;
+  .btn-lg {
+    @apply h-11 px-8 rounded-md;
   }
+  
+  .btn-xl {
+    @apply h-14 px-8 py-6 text-base font-semibold rounded-lg;
+  }
+  
+  .btn-icon {
+    @apply h-10 w-10;
+  }
+  
+  /* Other button variants */
   
   .btn-outline {
     background: transparent !important;
@@ -278,18 +360,6 @@
     text-decoration: none !important;
   }
   
-  /* Button sizes */
-  .btn-sm {
-    @apply h-9 px-3 text-sm rounded-md;
-  }
-  
-  .btn-lg {
-    @apply h-11 px-8 text-base rounded-md;
-  }
-  
-  .btn-icon {
-    @apply h-10 w-10 p-0;
-  }
   
   .btn-outline {
     background: transparent !important;

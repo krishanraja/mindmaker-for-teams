@@ -5,8 +5,8 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'hero'
-  size?: 'default' | 'sm' | 'lg' | 'icon'
+  variant?: 'default' | 'primary' | 'hero' | 'glass' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
+  size?: 'default' | 'sm' | 'lg' | 'xl' | 'icon'
   asChild?: boolean
 }
 
@@ -16,20 +16,23 @@ export const buttonVariants = (props: { variant?: string; size?: string; classNa
   
   // Map variants to CSS classes
   const variantClasses = {
-    default: 'btn-primary',
+    default: 'btn-default',
+    primary: 'btn-primary',
+    hero: 'btn-hero',
+    glass: 'btn-glass',
     destructive: 'btn-destructive',
     outline: 'btn-outline', 
     secondary: 'btn-secondary',
     ghost: 'btn-ghost',
-    link: 'btn-link',
-    hero: 'btn-hero-primary'
+    link: 'btn-link'
   }
   
   // Map sizes to CSS classes  
   const sizeClasses = {
     default: '',
     sm: 'btn-sm',
-    lg: 'btn-lg', 
+    lg: 'btn-lg',
+    xl: 'btn-xl',
     icon: 'btn-icon'
   }
   
