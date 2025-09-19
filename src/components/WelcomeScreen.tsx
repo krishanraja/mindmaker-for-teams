@@ -29,9 +29,6 @@ export const WelcomeScreen: React.FC = () => {
               Teams
             </h1>
             
-            <p className="text-lg text-white/90 leading-relaxed">
-              Transform and level up your team. Get started with a personalized AI literacy roadmap in under 2 minutes.
-            </p>
           </div>
 
           {/* CTA Button */}
@@ -40,7 +37,6 @@ export const WelcomeScreen: React.FC = () => {
             className="btn-hero-primary group"
           >
             Start Assessment
-            <ChevronRight className="w-5 h-5 ml-2 animated-arrow" />
           </button>
         </div>
       </div>
