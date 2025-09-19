@@ -142,10 +142,15 @@
 
   /* Typography System - Mobile-First */
   .hero-heading {
-    @apply text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl;
-    @apply font-bold tracking-[0.1em] sm:tracking-[0.15em];
-    @apply leading-[1.1] sm:leading-tight;
+    @apply text-[2.25rem] md:text-[3rem] font-bold leading-tight;
     color: white !important;
+    letter-spacing: -0.03em;
+  }
+
+  @media (min-width: 768px) {
+    .hero-heading {
+      letter-spacing: -0.035em;
+    }
   }
 
   .section-heading {

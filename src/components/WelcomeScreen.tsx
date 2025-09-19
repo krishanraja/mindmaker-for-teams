@@ -39,7 +39,7 @@ export const WelcomeScreen: React.FC = () => {
             onClick={handleStartDiscovery}
             className="btn-hero-primary group"
           >
-            Get My Roadmap (2 min)
+            Start Assessment
             <ChevronRight className="w-5 h-5 ml-2 animated-arrow" />
           </button>
         </div>
