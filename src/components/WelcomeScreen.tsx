@@ -15,11 +15,13 @@ export const WelcomeScreen: React.FC = () => {
     <div className="hero-gradient min-h-screen">
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-center max-w-2xl mx-auto">
-          {/* Logo Placeholder */}
+          {/* Logo */}
           <div className="mb-12">
-            <div className="mx-auto w-48 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-              <span className="text-white font-semibold text-lg">MINDMAKER</span>
-            </div>
+            <img 
+              src="/lovable-uploads/mindmaker-logo-64px.png" 
+              alt="MINDMAKER" 
+              className="mx-auto h-16 w-auto"
+            />
           </div>
 
           {/* Main Headline */}
