@@ -10,9 +10,6 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        primary: "bg-primary text-primary-foreground font-semibold shadow-lg hover:bg-primary/90 hover:scale-105 transition-all duration-300",
-        hero: "bg-gradient-to-r from-primary to-accent text-white font-semibold shadow-elegant hover:shadow-elegant hover:-translate-y-0.5 hover:scale-105 transition-all duration-300",
-        glass: "bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all duration-300",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
@@ -23,7 +20,6 @@ const buttonVariants = cva(
         default: "h-10 px-4 py-2",
         sm: "h-9 px-3 rounded-md",
         lg: "h-11 px-8 rounded-md",
-        xl: "h-14 px-8 py-6 text-base font-semibold rounded-lg",
         icon: "h-10 w-10",
       },
     },

@@ -32,14 +32,12 @@ export const WelcomeScreen: React.FC = () => {
           </div>
 
           {/* CTA Button */}
-          <Button 
+          <button 
             onClick={handleStartDiscovery}
-            variant="hero"
-            size="xl"
-            className="px-8 py-3 text-lg"
+            className="btn-hero-primary"
           >
             Start Assessment
-          </Button>
+          </button>
         </div>
       </div>
     </div>
