@@ -220,6 +220,79 @@
   
   .btn-outline {
     background: transparent !important;
+    color: hsl(var(--foreground)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    transition: all 0.2s ease !important;
+    @apply px-4 py-2 text-sm font-medium rounded-md;
+  }
+  
+  .btn-outline:hover {
+    background: hsl(var(--accent)) !important;
+    color: hsl(var(--accent-foreground)) !important;
+  }
+  
+  .btn-secondary {
+    background: hsl(var(--secondary)) !important;
+    color: hsl(var(--secondary-foreground)) !important;
+    transition: all 0.2s ease !important;
+    @apply px-4 py-2 text-sm font-medium rounded-md;
+  }
+  
+  .btn-secondary:hover {
+    background: hsl(var(--secondary) / 0.8) !important;
+  }
+  
+  .btn-ghost {
+    background: transparent !important;
+    color: hsl(var(--foreground)) !important;
+    transition: all 0.2s ease !important;
+    @apply px-4 py-2 text-sm font-medium rounded-md;
+  }
+  
+  .btn-ghost:hover {
+    background: hsl(var(--accent)) !important;
+    color: hsl(var(--accent-foreground)) !important;
+  }
+  
+  .btn-destructive {
+    background: hsl(var(--destructive)) !important;
+    color: hsl(var(--destructive-foreground)) !important;
+    transition: all 0.2s ease !important;
+    @apply px-4 py-2 text-sm font-medium rounded-md;
+  }
+  
+  .btn-destructive:hover {
+    background: hsl(var(--destructive) / 0.9) !important;
+  }
+  
+  .btn-link {
+    background: transparent !important;
+    color: hsl(var(--primary)) !important;
+    text-decoration: underline !important;
+    text-underline-offset: 4px !important;
+    transition: all 0.2s ease !important;
+    @apply px-0 py-0 text-sm font-medium;
+  }
+  
+  .btn-link:hover {
+    text-decoration: none !important;
+  }
+  
+  /* Button sizes */
+  .btn-sm {
+    @apply h-9 px-3 text-sm rounded-md;
+  }
+  
+  .btn-lg {
+    @apply h-11 px-8 text-base rounded-md;
+  }
+  
+  .btn-icon {
+    @apply h-10 w-10 p-0;
+  }
+  
+  .btn-outline {
+    background: transparent !important;
     color: hsl(var(--primary)) !important;
     border: 1px solid hsl(var(--border)) !important;
     transition: all 0.2s ease !important;

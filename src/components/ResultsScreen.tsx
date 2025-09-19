@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 import { 
@@ -354,25 +353,22 @@ export const ResultsScreen: React.FC = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center px-4 sm:px-0">
-            <Button 
+            <button 
               onClick={handleScheduleConsultation}
-              className="button-hero text-base sm:text-lg px-6 sm:px-8 py-4 group touch-target-lg order-1"
-              size="lg"
+              className="btn-hero-primary text-base sm:text-lg px-6 sm:px-8 py-4 group touch-target-lg order-1"
             >
               Schedule Strategy Call
               <Calendar className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
+            </button>
             
-            <Button 
+            <button 
               onClick={handleDownloadSummary}
-              variant="outline"
-              className="border-primary text-primary hover:bg-primary/10 touch-target-lg order-2"
-              size="lg"
+              className="btn-outline border-primary text-primary hover:bg-primary/10 touch-target-lg order-2"
             >
               <Download className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Download Assessment Report</span>
               <span className="sm:hidden">Download Report</span>
-            </Button>
+            </button>
           </div>
 
           {/* Trust & Social Proof */}
@@ -398,14 +394,13 @@ export const ResultsScreen: React.FC = () => {
 
           {/* Footer Action */}
           <div className="text-center pt-8">
-            <Button 
+            <button 
               onClick={resetMindmaker}
-              variant="ghost" 
-              className="text-muted-foreground hover:text-foreground"
+              className="btn-ghost text-muted-foreground hover:text-foreground"
             >
               Start Over with New Assessment
               <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            </button>
           </div>
         </div>
       </div>

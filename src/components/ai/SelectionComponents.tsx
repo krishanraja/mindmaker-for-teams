@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Card } from '../ui/card';
@@ -87,17 +86,18 @@ export const ButtonGridSelection: React.FC<ButtonGridSelectionProps> = ({
         </div>
         <div className={`grid grid-cols-1 md:grid-cols-${columns} gap-2`}>
           {choices.map((choice) => (
-            <Button
+            <button
               key={choice.value}
-              variant={value === choice.value ? "default" : "outline"}
               onClick={() => onSelect(choice.value)}
-              className="h-auto p-3 text-left justify-start flex-col items-start"
+              className={`h-auto p-3 text-left justify-start flex-col items-start ${
+                value === choice.value ? "btn-primary" : "btn-outline"
+              }`}
             >
               <div className="font-medium text-sm">{choice.label}</div>
               {choice.description && (
                 <div className="text-xs opacity-80 mt-1">{choice.description}</div>
               )}
-            </Button>
+            </button>
           ))}
         </div>
       </div>
@@ -157,12 +157,11 @@ export const MultiSelectTags: React.FC<MultiSelectTagsProps> = ({
             const isDisabled = maxSelections && !isSelected && values.length >= maxSelections;
             
             return (
-              <Button
+              <button
                 key={choice.value}
-                variant="outline"
                 onClick={() => toggleSelection(choice.value)}
                 disabled={isDisabled}
-                className={`h-auto p-2 text-left justify-start ${
+                className={`btn-outline h-auto p-2 text-left justify-start ${
                   isSelected ? 'bg-primary text-primary-foreground' : ''
                 } ${isDisabled ? 'opacity-50' : ''}`}
               >
@@ -179,7 +178,7 @@ export const MultiSelectTags: React.FC<MultiSelectTagsProps> = ({
                     )}
                   </div>
                 </div>
-              </Button>
+              </button>
             );
           })}
         </div>

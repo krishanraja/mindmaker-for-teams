@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
@@ -295,15 +294,13 @@ export const ExecutiveFlow: React.FC = () => {
       <div className="bg-background/95 backdrop-blur-md border-b border-border">
         <div className="container-width">
           <div className="flex items-center justify-between h-14 sm:h-16 px-4 sm:px-0">
-            <Button 
-              variant="ghost" 
+            <button 
               onClick={handleBack}
-              className="flex items-center gap-1 sm:gap-2 touch-target-md p-2 sm:p-3"
-              size="sm"
+              className="btn-ghost flex items-center gap-1 sm:gap-2 touch-target-md p-2 sm:p-3"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Back</span>
-            </Button>
+            </button>
             
             <div className="flex items-center gap-2 sm:gap-3">
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
@@ -384,23 +381,20 @@ export const ExecutiveFlow: React.FC = () => {
 
             {/* Navigation */}
             <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
-              <Button
-                variant="outline"
+              <button
                 onClick={handleBack}
-                className="flex items-center justify-center gap-2 touch-target-md order-2 sm:order-1"
-                size="default"
+                className="btn-outline flex items-center justify-center gap-2 touch-target-md order-2 sm:order-1"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span className="text-sm sm:text-base">
                   {currentQuestion === 0 ? 'Back to Welcome' : 'Previous'}
                 </span>
-              </Button>
+              </button>
               
-              <Button
+              <button
                 onClick={handleNext}
                 disabled={!canProceed() || isGeneratingInsights}
-                className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 touch-target-md order-1 sm:order-2"
-                size="default"
+                className="btn-primary flex items-center justify-center gap-2 touch-target-md order-1 sm:order-2"
               >
                 {isGeneratingInsights ? (
                   <>
@@ -415,7 +409,7 @@ export const ExecutiveFlow: React.FC = () => {
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
-              </Button>
+              </button>
             </div>
 
             {/* Progress Dots */}
