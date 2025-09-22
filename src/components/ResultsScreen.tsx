@@ -7,7 +7,6 @@ import {
   Target, 
   BookOpen, 
   Calendar,
-  Download,
   CheckCircle,
   Star,
   ArrowRight,
@@ -86,36 +85,6 @@ export const ResultsScreen: React.FC = () => {
     window.open('https://calendly.com/krish-raja/mindmaker-teams', '_blank');
   };
 
-  const handleDownloadSummary = () => {
-    const summary = {
-      company: discoveryData.businessName,
-      industry: discoveryData.industry,
-      employeeCount: discoveryData.employeeCount,
-      readinessScore: getReadinessScore(),
-      recommendedProgram: getRecommendedProgram(),
-      investmentRange: getInvestmentRange(),
-      aiInsights: discoveryData.aiInsights,
-      contactInfo: {
-        name: discoveryData.contactName,
-        email: discoveryData.contactEmail,
-        role: discoveryData.contactRole
-      },
-      nextSteps: [
-        'Schedule strategic consultation call',
-        'Receive detailed proposal within 48 hours',
-        'Begin with executive alignment session'
-      ],
-      generatedAt: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(summary, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${discoveryData.businessName}-ai-assessment-report.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   const readinessScore = getReadinessScore();
   const investmentRange = getInvestmentRange();
@@ -351,23 +320,14 @@ export const ResultsScreen: React.FC = () => {
             </div>
           </Card>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center px-4 sm:px-0">
+          {/* CTA Button */}
+          <div className="flex justify-center px-4 sm:px-0">
             <button 
               onClick={handleScheduleConsultation}
-              className="btn-hero-primary text-base sm:text-lg px-6 sm:px-8 py-4 group touch-target-lg order-1"
+              className="btn-hero-primary text-base sm:text-lg px-6 sm:px-8 py-4 group touch-target-lg"
             >
               Schedule Strategy Call
               <Calendar className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </button>
-            
-            <button 
-              onClick={handleDownloadSummary}
-              className="btn-outline border-primary text-primary hover:bg-primary/10 touch-target-lg order-2"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Download Assessment Report</span>
-              <span className="sm:hidden">Download Report</span>
             </button>
           </div>
 
