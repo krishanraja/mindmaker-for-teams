@@ -42,16 +42,18 @@ export const ExecutiveFlow: React.FC = () => {
       icon: Target,
       type: 'select',
       options: [
-        'Technology',
-        'Healthcare',
-        'Finance',
-        'Manufacturing',
-        'Retail',
-        'Education',
+        'E-commerce',
+        'SaaS',
+        'Digital Marketing/Agency',
+        'FinTech',
+        'EdTech',
+        'MarTech',
+        'Creator Economy',
+        'Technology/Software',
+        'Finance/Banking',
         'Consulting',
-        'Legal',
-        'Real Estate',
-        'Other'
+        'Education',
+        'Other Digital Business'
       ]
     },
     {

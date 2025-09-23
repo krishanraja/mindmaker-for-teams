@@ -27,7 +27,7 @@ serve(async (req) => {
 
     // Extract industry - Simple detection
     if (!currentData.industry) {
-      const industries = ['healthcare', 'finance', 'fintech', 'technology', 'tech', 'manufacturing', 'retail', 'education', 'consulting', 'marketing', 'legal', 'construction', 'real estate', 'agriculture', 'logistics', 'transportation']
+      const industries = ['e-commerce', 'saas', 'digital marketing', 'agency', 'fintech', 'edtech', 'martech', 'creator', 'online business', 'digital agency', 'technology', 'tech', 'finance', 'consulting', 'education', 'marketing']
       const found = industries.find(ind => message.toLowerCase().includes(ind))
       if (found) extractedData.industry = found === 'tech' ? 'technology' : found
     }

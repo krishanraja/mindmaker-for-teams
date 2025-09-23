@@ -22,7 +22,7 @@ serve(async (req) => {
     }
 
     // Create a comprehensive prompt for generating insights
-    const prompt = `You are an expert AI transformation consultant analyzing business discovery data to generate personalized recommendations for AI literacy training.
+    const prompt = `You are an expert AI transformation consultant specializing in internet and digital businesses, analyzing discovery data to generate personalized recommendations for AI literacy training.
 
 **Company Profile:**
 - Company: ${discoveryData.businessName}
@@ -39,6 +39,14 @@ serve(async (req) => {
 - Biggest Challenges: ${discoveryData.biggestChallenges?.join(', ')}
 - Success Metrics: ${discoveryData.successMetrics?.join(', ')}
 - Learning Preferences: ${discoveryData.learningPreferences}
+
+Focus on internet business-specific AI applications like:
+- Customer personalization and automation
+- Content generation and marketing AI
+- E-commerce optimization
+- Digital customer service automation
+- Revenue growth through AI-powered insights
+- Scalability challenges unique to digital businesses
 
 Based on this profile, provide a detailed analysis in the following JSON format:
 
@@ -62,13 +70,15 @@ Based on this profile, provide a detailed analysis in the following JSON format:
 }
 
 Focus on:
-1. Their specific industry context and challenges
-2. Company size-appropriate recommendations
-3. Addressing their stated concerns and success metrics
-4. Realistic investment range based on their profile
-5. Actionable next steps that match their timeline
+1. Internet business-specific AI opportunities (automation, personalization, content generation)
+2. Digital scaling challenges and how AI can address them
+3. Customer acquisition and retention through AI
+4. Company size-appropriate recommendations for digital businesses
+5. Addressing their stated concerns and success metrics
+6. Realistic investment range based on their profile
+7. Actionable next steps that match their timeline
 
-Be specific, professional, and demonstrate deep understanding of their business situation.`;
+Be specific, professional, and demonstrate deep understanding of digital business dynamics and opportunities.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
