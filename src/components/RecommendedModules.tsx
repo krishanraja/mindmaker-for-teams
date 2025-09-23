@@ -65,16 +65,9 @@ export const RecommendedModules: React.FC = () => {
       {/* Module Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {recommendedModules.map((module, index) => (
-          <Card key={module.id} className="glass-card relative overflow-hidden group hover:shadow-lg transition-all duration-300 h-full">
-            {/* Priority Badge */}
-            {index === 0 && (
-              <div className="absolute top-4 right-4 z-10">
-                <Badge className="bg-primary text-white">
-                  <Star className="w-3 h-3 mr-1" />
-                  Start Here
-                </Badge>
-              </div>
-            )}
+          <Card key={module.id} className={`glass-card relative overflow-hidden group hover:shadow-lg transition-all duration-300 h-full ${
+            index === 0 ? 'border-2 border-purple-500 shadow-purple-500/20 shadow-lg' : ''
+          }`}>
             
             {/* Card Content with Grid Layout for Alignment */}
             <div className="p-6 h-full grid grid-rows-[auto_auto_1fr_auto] gap-4">
@@ -99,9 +92,17 @@ export const RecommendedModules: React.FC = () => {
                 
                 {/* Title and Credits - Fixed Height */}
                 <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-foreground min-h-[3rem] flex items-center">
-                    {module.title}
-                  </h3>
+                  <div className="flex items-center justify-between min-h-[3rem]">
+                    <h3 className="text-lg font-bold text-foreground flex items-center">
+                      {module.title}
+                    </h3>
+                    {index === 0 && (
+                      <Badge className="bg-purple-100 text-purple-800 border-purple-300" variant="outline">
+                        <Star className="w-3 h-3 mr-1" />
+                        Start Here
+                      </Badge>
+                    )}
+                  </div>
                   
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Clock className="w-4 h-4" />
