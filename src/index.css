@@ -325,10 +325,11 @@
   }
   
   .btn-ghost {
+    @apply btn-base;
     background: transparent !important;
     color: hsl(var(--foreground)) !important;
     transition: all 0.2s ease !important;
-    @apply px-4 py-2 text-sm font-medium rounded-md;
+    @apply h-10 px-4 py-2;
   }
   
   .btn-ghost:hover {
