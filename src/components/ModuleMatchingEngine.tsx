@@ -48,20 +48,6 @@ export const AI_LITERACY_MODULES: AILiteracyModule[] = [
     learningStyles: ['Live workshops', 'Keynote', 'All-hands']
   },
   {
-    id: 'product-strategy',
-    title: 'PRODUCT STRATEGY',
-    category: 'LEADERSHIP',
-    tier: 'Basic',
-    credits: 25,
-    description: 'Map AI capabilities to your Product Strategy to future-proof the business or develop a new revenue line',
-    icon: '🎯',
-    targetAudience: ['Product teams', 'Strategy teams', 'Innovation leaders'],
-    challenges: ['Product development', 'Market differentiation', 'Innovation'],
-    teamSizes: ['small', 'medium', 'large'],
-    urgency: ['short-term', 'medium-term'],
-    learningStyles: ['Workshop', 'Strategy session', 'Collaborative']
-  },
-  {
     id: 'agent-opp-spotter',
     title: 'AGENT OPP SPOTTER',
     category: 'IMPLEMENTATION',
@@ -243,7 +229,6 @@ export class ModuleMatchingEngine {
     // Leadership vision alignment
     const vision = discoveryData.leadershipVision?.toLowerCase() || '';
     if (vision.includes('strategy') || vision.includes('competitive')) {
-      scores.set('product-strategy', scores.get('product-strategy')! + 20);
       scores.set('competitive-intelligence-bootcamp', scores.get('competitive-intelligence-bootcamp')! + 15);
     }
     if (vision.includes('team') || vision.includes('culture')) {

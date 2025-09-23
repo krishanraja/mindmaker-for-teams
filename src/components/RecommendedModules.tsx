@@ -123,15 +123,6 @@ export const RecommendedModules: React.FC = () => {
                 </div>
               </div>
               
-              {/* CTA */}
-              <Button 
-                onClick={() => handleBookModule(module)}
-                className="w-full group/btn"
-                variant={index === 0 ? "default" : "outline"}
-              >
-                Book Session
-                <Calendar className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-              </Button>
             </div>
           </Card>
         ))}
@@ -165,10 +156,6 @@ export const RecommendedModules: React.FC = () => {
               building confidence and capability at every level.
             </p>
             
-            <Button size="lg" className="group">
-              Schedule Strategy Call
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
           </div>
         </div>
       </Card>
