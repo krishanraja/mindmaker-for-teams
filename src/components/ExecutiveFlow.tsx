@@ -324,18 +324,18 @@ export const ExecutiveFlow: React.FC = () => {
       {/* Question Container */}
       <div className="container-width py-6 sm:py-8 md:py-12 px-4 sm:px-6 md:px-0">
         <div className="max-w-2xl mx-auto">
-          <Card className="bg-card border border-border shadow-medium card-mobile">
+          <Card className="bg-card border border-border shadow-medium card-mobile p-6 sm:p-8 md:p-10">
             {/* Question Header */}
-            <div className="text-center mb-6 sm:mb-8">
-              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 border border-primary/20 mb-3 sm:mb-4">
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 border border-primary/20 mb-4 sm:mb-6">
                 <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
               </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 px-2">{currentQ.title}</h1>
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground mobile-readable px-2">{currentQ.description}</p>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">{currentQ.title}</h1>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground mobile-readable">{currentQ.description}</p>
             </div>
 
             {/* Input Field */}
-            <div className="mb-6 sm:mb-8">
+            <div className="mb-8 sm:mb-10">
               {currentQ.type === 'input' ? (
                 <Input
                   value={formData[currentQ.id as keyof typeof formData] as string}
@@ -345,9 +345,9 @@ export const ExecutiveFlow: React.FC = () => {
                   autoFocus
                 />
               ) : currentQ.type === 'multi-select' ? (
-                <div className="space-y-2 sm:space-y-3">
+                <div className="space-y-3 sm:space-y-4">
                   {currentQ.options?.map((option) => (
-                    <div key={option} className="flex items-start space-x-3 p-3 sm:p-4 border rounded-lg hover:bg-muted/50 touch-target-md">
+                    <div key={option} className="flex items-start space-x-3 p-4 sm:p-5 border rounded-lg hover:bg-muted/50 touch-target-md">
                       <Checkbox
                         id={option}
                         checked={(formData[currentQ.id as keyof typeof formData] as string[] || []).includes(option)}
@@ -380,7 +380,7 @@ export const ExecutiveFlow: React.FC = () => {
             </div>
 
             {/* Navigation */}
-            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 sm:gap-6">
               <button
                 onClick={handleBack}
                 className="btn-outline flex items-center justify-center gap-2 touch-target-md order-2 sm:order-1"
@@ -410,18 +410,6 @@ export const ExecutiveFlow: React.FC = () => {
                   </>
                 )}
               </button>
-            </div>
-
-            {/* Progress Dots */}
-            <div className="flex justify-center gap-1.5 sm:gap-2 mt-6 px-4">
-              {questions.map((_, index) => (
-                <div
-                  key={index}
-                  className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-colors ${
-                    index <= currentQuestion ? 'bg-primary' : 'bg-muted'
-                  }`}
-                />
-              ))}
             </div>
           </Card>
         </div>
