@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Checkbox } from './ui/checkbox';
 import { ArrowLeft, ArrowRight, Sparkles, Building2, Users, Target, Brain, Zap, TrendingUp, Clock } from 'lucide-react';
 import { useMindmaker } from '../contexts/MindmakerContext';
 import { supabase } from '../integrations/supabase/client';
+import { ButtonGridSelection, RadioSelection } from './ai/SelectionComponents';
 
 export const ExecutiveFlow: React.FC = () => {
   const { state, updateDiscoveryData, setCurrentStep, markConversationComplete } = useMindmaker();
@@ -362,22 +362,20 @@ export const ExecutiveFlow: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <Select
+              ) : currentQ.options && currentQ.options.length <= 5 ? (
+                <ButtonGridSelection
+                  title=""
+                  choices={currentQ.options.map(option => ({ value: option, label: option }))}
                   value={formData[currentQ.id as keyof typeof formData] as string}
-                  onValueChange={updateFormData}
-                >
-                  <SelectTrigger className="h-12 sm:h-14 text-base sm:text-lg border-2 focus:ring-2 touch-target-md">
-                    <SelectValue placeholder="Select an option..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {currentQ.options?.map((option) => (
-                      <SelectItem key={option} value={option} className="text-sm sm:text-base py-3">
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onSelect={updateFormData}
+                />
+              ) : (
+                <RadioSelection
+                  title=""
+                  choices={currentQ.options?.map(option => ({ value: option, label: option })) || []}
+                  value={formData[currentQ.id as keyof typeof formData] as string}
+                  onSelect={updateFormData}
+                />
               )}
             </div>
 
