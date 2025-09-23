@@ -18,7 +18,6 @@ export const RecommendedModules: React.FC = () => {
   
   const matchingResult = ModuleMatchingEngine.matchModules(discoveryData);
   const { recommendedModules, reasoning, totalCredits } = matchingResult;
-  const investmentRange = ModuleMatchingEngine.calculateInvestmentRange(recommendedModules);
   
   const handleBookModule = (module: AILiteracyModule) => {
     // Encode module info for the booking
@@ -66,7 +65,7 @@ export const RecommendedModules: React.FC = () => {
       {/* Module Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {recommendedModules.map((module, index) => (
-          <Card key={module.id} className="glass-card relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+          <Card key={module.id} className="glass-card relative overflow-hidden group hover:shadow-lg transition-all duration-300 h-full">
             {/* Priority Badge */}
             {index === 0 && (
               <div className="absolute top-4 right-4 z-10">
@@ -77,42 +76,49 @@ export const RecommendedModules: React.FC = () => {
               </div>
             )}
             
-            <div className="p-6 space-y-4">
-              {/* Header */}
+            {/* Card Content with Grid Layout for Alignment */}
+            <div className="p-6 h-full grid grid-rows-[auto_auto_1fr_auto] gap-4">
+              {/* Header Section - Fixed Height */}
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{module.icon}</span>
-                  <div className="space-y-1">
-                    <div className="flex gap-2">
-                      <Badge className={getTierColor(module.tier)}>
+                {/* Icon and Badges Row */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-xl">{module.icon}</span>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Badge className={getTierColor(module.tier)} variant="outline">
                         {module.tier}
                       </Badge>
-                      <Badge className={getCategoryColor(module.category)}>
+                      <Badge className={getCategoryColor(module.category)} variant="outline">
                         {module.category}
                       </Badge>
                     </div>
                   </div>
                 </div>
                 
-                <h3 className="text-lg font-bold text-foreground">
-                  {module.title}
-                </h3>
-                
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
+                {/* Title and Credits - Fixed Height */}
+                <div className="space-y-2">
+                  <h3 className="text-lg font-bold text-foreground min-h-[3rem] flex items-center">
+                    {module.title}
+                  </h3>
+                  
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Clock className="w-4 h-4" />
                     {module.credits} credits
                   </div>
                 </div>
               </div>
               
-              {/* Description */}
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {module.description}
-              </p>
+              {/* Description - Flexible Height */}
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {module.description}
+                </p>
+              </div>
               
-              {/* Target Audience */}
-              <div className="space-y-2">
+              {/* Target Audience - Fixed Height */}
+              <div className="space-y-2 mt-auto">
                 <p className="text-xs font-medium text-foreground">Perfect for:</p>
                 <div className="flex flex-wrap gap-1">
                   {module.targetAudience.slice(0, 2).map((audience, idx) => (
@@ -122,7 +128,6 @@ export const RecommendedModules: React.FC = () => {
                   ))}
                 </div>
               </div>
-              
             </div>
           </Card>
         ))}
@@ -133,15 +138,10 @@ export const RecommendedModules: React.FC = () => {
         <div className="p-8 text-center space-y-6">
           <h3 className="text-2xl font-bold">Complete Module Package</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <div className="text-3xl font-bold text-primary">{totalCredits}</div>
               <div className="text-sm text-muted-foreground">Total Credits</div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-primary">{investmentRange}</div>
-              <div className="text-sm text-muted-foreground">Investment Range</div>
             </div>
             
             <div className="space-y-2">
@@ -152,10 +152,18 @@ export const RecommendedModules: React.FC = () => {
           
           <div className="space-y-4">
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              This combination provides a comprehensive foundation for AI literacy across your organization, 
-              building confidence and capability at every level.
+              This comprehensive AI literacy package is tailored specifically for your team's needs and goals. 
+              Schedule a consultation to discuss custom pricing based on your budget and requirements.
             </p>
             
+            <Button 
+              size="lg" 
+              className="btn-primary" 
+              onClick={() => window.open('https://calendly.com/krish-raja/mindmaker-teams', '_blank')}
+            >
+              <Calendar className="w-4 h-4" />
+              Book Consultation for Custom Pricing
+            </Button>
           </div>
         </div>
       </Card>
