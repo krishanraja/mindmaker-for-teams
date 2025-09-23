@@ -153,17 +153,16 @@ export const RecommendedModules: React.FC = () => {
           
           <div className="space-y-4">
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              This comprehensive AI literacy package is tailored specifically for your team's needs and goals. 
-              Schedule a consultation to discuss custom pricing based on your budget and requirements.
+              This is a demo of what's possible - there are 12+ different modules that can be tailored to create a custom package for your team.
             </p>
             
             <Button 
               size="lg" 
-              className="btn-primary" 
+              className="btn-primary w-full sm:w-auto" 
               onClick={() => window.open('https://calendly.com/krish-raja/mindmaker-teams', '_blank')}
             >
               <Calendar className="w-4 h-4" />
-              Book Consultation for Custom Pricing
+              Schedule Call
             </Button>
           </div>
         </div>

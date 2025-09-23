@@ -125,8 +125,12 @@ export const ResultsScreen: React.FC = () => {
               <h4 className="font-semibold mb-4">Join leaders who've transformed their teams</h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-sm">
                 <div>
-                  <div className="text-2xl font-bold text-primary">500+</div>
-                  <div className="text-muted-foreground">Executives trained</div>
+                  <div className="flex justify-center mb-1">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="text-2xl text-yellow-500">★</div>
+                    ))}
+                  </div>
+                  <div className="text-muted-foreground">Executive sessions</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-primary">95%</div>
