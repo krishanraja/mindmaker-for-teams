@@ -25,6 +25,7 @@ export const ExecutiveFlow: React.FC = () => {
     contactRole: ''
   });
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
+  const [justSelected, setJustSelected] = useState(false);
 
   const questions = [
     {
@@ -258,6 +259,7 @@ export const ExecutiveFlow: React.FC = () => {
   };
 
   const handleBack = () => {
+    setJustSelected(false); // Clear the flag when going back
     if (currentQuestion > 0) {
       setCurrentQuestion(prev => prev - 1);
     } else {
@@ -270,20 +272,26 @@ export const ExecutiveFlow: React.FC = () => {
       ...prev,
       [currentQ.id]: value
     }));
+    
+    // Mark that a selection was just made (for auto-advance logic)
+    if (currentQ.type === 'select') {
+      setJustSelected(true);
+    }
   };
 
-  // Auto-advance for single-select questions
+  // Auto-advance for single-select questions (only when just selected, not when navigating back)
   useEffect(() => {
-    if (currentQ.type === 'select' && formData[currentQ.id as keyof typeof formData]) {
+    if (currentQ.type === 'select' && formData[currentQ.id as keyof typeof formData] && justSelected) {
       const timer = setTimeout(() => {
         if (currentQuestion < questions.length - 1) {
           setCurrentQuestion(prev => prev + 1);
+          setJustSelected(false); // Clear the flag after advancing
         }
       }, 800);
       
       return () => clearTimeout(timer);
     }
-  }, [formData[currentQ.id as keyof typeof formData], currentQ.type, currentQuestion, questions.length]);
+  }, [formData[currentQ.id as keyof typeof formData], currentQ.type, currentQuestion, questions.length, justSelected]);
 
   const handleMultiSelectChange = (value: string, checked: boolean) => {
     const currentValues = formData[currentQ.id as keyof typeof formData] as string[] || [];
@@ -301,6 +309,18 @@ export const ExecutiveFlow: React.FC = () => {
     }
     return value && value !== '';
   };
+
+  // Keyboard navigation - Enter key support
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && canProceed() && !isGeneratingInsights) {
+        handleNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [canProceed, isGeneratingInsights]);
 
   return (
     <div className="min-h-screen bg-background">
