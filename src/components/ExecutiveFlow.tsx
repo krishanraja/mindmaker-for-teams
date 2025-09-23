@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import { Checkbox } from './ui/checkbox';
-import { ArrowLeft, ArrowRight, Sparkles, Building2, Users, Target, Brain, Zap, TrendingUp, Clock } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Building2, Users, Target, Brain, Zap, TrendingUp, Clock, RotateCcw } from 'lucide-react';
 import { useMindmaker } from '../contexts/MindmakerContext';
 import { supabase } from '../integrations/supabase/client';
-import { ButtonGridSelection, RadioSelection } from './ai/SelectionComponents';
+import { ButtonGridSelection, LargeButtonSelection } from './ai/SelectionComponents';
 
 export const ExecutiveFlow: React.FC = () => {
   const { state, updateDiscoveryData, setCurrentStep, markConversationComplete } = useMindmaker();
@@ -272,6 +272,19 @@ export const ExecutiveFlow: React.FC = () => {
     }));
   };
 
+  // Auto-advance for single-select questions
+  useEffect(() => {
+    if (currentQ.type === 'select' && formData[currentQ.id as keyof typeof formData]) {
+      const timer = setTimeout(() => {
+        if (currentQuestion < questions.length - 1) {
+          setCurrentQuestion(prev => prev + 1);
+        }
+      }, 800);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [formData[currentQ.id as keyof typeof formData], currentQ.type, currentQuestion, questions.length]);
+
   const handleMultiSelectChange = (value: string, checked: boolean) => {
     const currentValues = formData[currentQ.id as keyof typeof formData] as string[] || [];
     if (checked) {
@@ -370,7 +383,7 @@ export const ExecutiveFlow: React.FC = () => {
                   onSelect={updateFormData}
                 />
               ) : (
-                <RadioSelection
+                <LargeButtonSelection
                   title=""
                   choices={currentQ.options?.map(option => ({ value: option, label: option })) || []}
                   value={formData[currentQ.id as keyof typeof formData] as string}
@@ -379,38 +392,47 @@ export const ExecutiveFlow: React.FC = () => {
               )}
             </div>
 
-            {/* Navigation */}
-            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 sm:gap-6">
-              <button
-                onClick={handleBack}
-                className="btn-outline flex items-center justify-center gap-2 touch-target-md order-2 sm:order-1"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm sm:text-base">
-                  {currentQuestion === 0 ? 'Back to Welcome' : 'Previous'}
-                </span>
-              </button>
-              
-              <button
-                onClick={handleNext}
-                disabled={!canProceed() || isGeneratingInsights}
-                className="btn-primary flex items-center justify-center gap-2 touch-target-md order-1 sm:order-2"
-              >
-                {isGeneratingInsights ? (
-                  <>
-                    <Sparkles className="w-4 h-4 animate-spin" />
-                    <span className="text-sm sm:text-base">Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-sm sm:text-base">
-                      {currentQuestion === questions.length - 1 ? 'Get My AI Roadmap' : 'Next'}
-                    </span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-        </div>
+            {/* Navigation - Only show for multi-select and final question */}
+            {(currentQ.type === 'multi-select' || currentQ.type === 'input' || currentQuestion === questions.length - 1) && (
+              <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 sm:gap-6">
+                <button
+                  onClick={handleBack}
+                  className="btn-outline flex items-center justify-center gap-2 touch-target-md order-2 sm:order-1"
+                >
+                  {currentQuestion === 0 ? (
+                    <>
+                      <RotateCcw className="w-4 h-4" />
+                      <span className="text-sm sm:text-base">Start Over</span>
+                    </>
+                  ) : (
+                    <>
+                      <ArrowLeft className="w-4 h-4" />
+                      <span className="text-sm sm:text-base">Previous</span>
+                    </>
+                  )}
+                </button>
+                
+                <button
+                  onClick={handleNext}
+                  disabled={!canProceed() || isGeneratingInsights}
+                  className="btn-primary flex items-center justify-center gap-2 touch-target-md order-1 sm:order-2"
+                >
+                  {isGeneratingInsights ? (
+                    <>
+                      <Sparkles className="w-4 h-4 animate-spin" />
+                      <span className="text-sm sm:text-base">Generating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-sm sm:text-base">
+                        {currentQuestion === questions.length - 1 ? 'Get My AI Roadmap' : 'Next'}
+                      </span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

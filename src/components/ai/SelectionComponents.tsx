@@ -89,13 +89,60 @@ export const ButtonGridSelection: React.FC<ButtonGridSelectionProps> = ({
             <button
               key={choice.value}
               onClick={() => onSelect(choice.value)}
-              className={`h-auto p-3 text-left justify-start flex-col items-start ${
+              className={`min-h-[64px] p-3 text-left justify-start flex-col items-start whitespace-normal ${
                 value === choice.value ? "btn-primary" : "btn-outline"
               }`}
             >
-              <div className="font-medium text-sm">{choice.label}</div>
+              <div className="font-medium text-sm whitespace-normal break-words">{choice.label}</div>
               {choice.description && (
-                <div className="text-xs opacity-80 mt-1">{choice.description}</div>
+                <div className="text-xs opacity-80 mt-1 whitespace-normal break-words">{choice.description}</div>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+interface LargeButtonSelectionProps {
+  title: string;
+  description?: string;
+  choices: SelectionChoice[];
+  value?: string;
+  onSelect: (value: string) => void;
+}
+
+export const LargeButtonSelection: React.FC<LargeButtonSelectionProps> = ({
+  title,
+  description,
+  choices,
+  value,
+  onSelect
+}) => {
+  return (
+    <Card className="p-4">
+      <div className="space-y-3">
+        <div>
+          <h4 className="font-medium text-sm">{title}</h4>
+          {description && (
+            <p className="text-xs text-muted-foreground mt-1">{description}</p>
+          )}
+        </div>
+        <div className="space-y-2">
+          {choices.map((choice) => (
+            <button
+              key={choice.value}
+              onClick={() => onSelect(choice.value)}
+              className={`w-full min-h-[64px] p-4 text-left rounded-md border transition-all whitespace-normal ${
+                value === choice.value
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <div className="font-medium text-sm whitespace-normal break-words">{choice.label}</div>
+              {choice.description && (
+                <div className="text-xs text-muted-foreground mt-1 whitespace-normal break-words">{choice.description}</div>
               )}
             </button>
           ))}
@@ -242,29 +289,16 @@ export const RadioSelection: React.FC<RadioSelectionProps> = ({
             <button
               key={choice.value}
               onClick={() => onSelect(choice.value)}
-              className={`w-full p-3 text-left rounded-md border transition-all ${
+              className={`w-full min-h-[64px] p-4 text-left rounded-md border transition-all whitespace-normal ${
                 value === choice.value
                   ? 'border-primary bg-primary/5 text-primary'
                   : 'border-border hover:border-primary/50'
               }`}
             >
-              <div className="flex items-start gap-3">
-                <div className={`w-4 h-4 rounded-full border-2 mt-0.5 ${
-                  value === choice.value
-                    ? 'border-primary bg-primary'
-                    : 'border-muted-foreground'
-                }`}>
-                  {value === choice.value && (
-                    <div className="w-2 h-2 bg-white rounded-full m-0.5"></div>
-                  )}
-                </div>
-                <div>
-                  <div className="font-medium text-sm">{choice.label}</div>
-                  {choice.description && (
-                    <div className="text-xs text-muted-foreground mt-1">{choice.description}</div>
-                  )}
-                </div>
-              </div>
+              <div className="font-medium text-sm whitespace-normal break-words">{choice.label}</div>
+              {choice.description && (
+                <div className="text-xs text-muted-foreground mt-1 whitespace-normal break-words">{choice.description}</div>
+              )}
             </button>
           ))}
         </div>
