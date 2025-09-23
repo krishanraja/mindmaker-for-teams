@@ -21,8 +21,8 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    // Create a comprehensive prompt for generating insights
-    const prompt = `You are an expert AI transformation consultant specializing in internet and digital businesses, analyzing discovery data to generate personalized recommendations for AI literacy training.
+    // Create a comprehensive prompt for generating insights focused on AI literacy
+    const prompt = `You are an expert AI literacy consultant specializing in team development and capability building, analyzing discovery data to generate personalized AI literacy assessments.
 
 **Company Profile:**
 - Company: ${discoveryData.businessName}
@@ -40,41 +40,40 @@ serve(async (req) => {
 - Success Metrics: ${discoveryData.successMetrics?.join(', ')}
 - Learning Preferences: ${discoveryData.learningPreferences}
 
-Focus on internet business-specific AI applications like:
-- Customer personalization and automation
-- Content generation and marketing AI
-- E-commerce optimization
-- Digital customer service automation
-- Revenue growth through AI-powered insights
-- Scalability challenges unique to digital businesses
+Focus ONLY on AI literacy training and team development:
+- Building AI confidence across teams
+- Reducing AI anxiety and resistance
+- Developing practical AI skills
+- Creating AI-literate leadership
+- Team enablement and coaching approaches
+- Learning formats and educational strategies
 
-Based on this profile, provide a detailed analysis in the following JSON format (focus on AI literacy coaching and product strategy only):
+Based on this profile, provide a detailed analysis in the following JSON format (focus ONLY on AI literacy and team development):
 
 {
-  "readinessScore": number (0-100 based on their AI maturity, leadership buy-in, and implementation urgency),
+  "readinessScore": number (0-100 based on team readiness, leadership support, and learning culture),
   "recommendations": [
-    "AI literacy and confidence building recommendation",
-    "Product strategy leveraging AI recommendation", 
-    "Team enablement and coaching approach recommendation"
+    "AI literacy confidence building recommendation for this specific team size and industry",
+    "Learning format recommendation based on their preferences and challenges", 
+    "Leadership enablement approach for building AI-confident teams"
   ],
   "opportunityAreas": [
-    "AI literacy and confidence opportunity",
-    "Product strategy opportunity",
-    "Team growth and learning opportunity"
+    "Team AI literacy development opportunity specific to their challenges",
+    "Leadership confidence building opportunity",
+    "Practical skill development opportunity for their context"
   ],
-  "investmentRange": "CRITICAL: Use team size-based pricing tiers: 1-10 employees='$5k-$12k', 11-50 employees='$12k-$25k', 51-200 employees='$25k-$45k', 201-1000 employees='$45k-$75k', 1000+ employees='$75k+'"
+  "investmentRange": "CRITICAL: Use team size-based pricing tiers: 1-10 employees='$8k-$15k', 11-50 employees='$15k-$28k', 51-200 employees='$28k-$45k', 201-1000 employees='$45k-$65k', 1000+ employees='$65k+'"
 }
 
-Focus on AI literacy coaching and product strategy only:
-1. AI literacy and confidence building approaches
-2. Product strategy opportunities leveraging AI capabilities  
-3. Team enablement and coaching methodologies
-4. Building AI-confident teams and leadership
-5. Strategic AI thinking development
-6. Realistic investment range for coaching and strategy work
-7. Learning and development recommendations
+Focus EXCLUSIVELY on:
+1. AI literacy and confidence building for teams
+2. Learning approaches that reduce anxiety and build capability
+3. Leadership development for AI adoption
+4. Team enablement strategies
+5. Educational program recommendations
+6. Realistic investment for literacy training programs
 
-Be specific, professional, and focus on education, coaching, and strategic guidance - NOT governance, risk management, or technical implementation.`;
+Be specific about team development approaches, not product strategy or technical implementation.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
