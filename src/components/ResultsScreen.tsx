@@ -146,7 +146,7 @@ export const ResultsScreen: React.FC = () => {
               onClick={resetMindmaker}
               className="btn-ghost text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4" />
               Start Over
             </button>
           </div>
