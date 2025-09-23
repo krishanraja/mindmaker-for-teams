@@ -111,7 +111,7 @@ export const ResultsScreen: React.FC = () => {
           </div>
 
           {/* AI Clone Disclaimer */}
-          <Card className="glass-card bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
+          <div className="glass-card bg-amber-50/50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
             <div className="p-6 text-center">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Brain className="w-5 h-5 text-amber-600" />
@@ -123,11 +123,11 @@ export const ResultsScreen: React.FC = () => {
                 <strong className="font-semibold"> schedule a 1-on-1 strategy session with Krish below</strong>.
               </p>
             </div>
-          </Card>
+          </div>
 
           {/* Key Insights Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-0">
-            <Card className="glass-card card-mobile">
+            <div className="glass-card card-mobile">
               <div className="card-header text-center">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
@@ -140,72 +140,66 @@ export const ResultsScreen: React.FC = () => {
                   {readinessScore >= 80 ? 'Advanced - Ready for implementation' : 
                    readinessScore >= 60 ? 'Intermediate - Good foundation' : 
                    readinessScore >= 40 ? 'Beginner - High potential' :
-                   'Early stage - Great opportunity'}
+                    'Early stage - Great opportunity'}
                 </p>
               </div>
-            </Card>
+            </div>
 
-            <Card className="glass-card card-grid">
-              <div className="card-header text-center">
-                <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BookOpen className="w-8 h-8 text-accent" />
+            <div className="glass-card card-mobile">
+              <div className="p-6 text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-accent" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Learning Format</h3>
-              </div>
-              <div className="card-content text-center">
-                <div className="text-lg font-semibold mb-2">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">Learning Format</h3>
+                <div className="text-base sm:text-lg font-semibold mb-2">
                   {discoveryData.learningPreferences?.includes('Live workshops') ? 'Live Workshops' :
                    discoveryData.learningPreferences?.includes('Self-paced') ? 'Self-Paced' :
                    discoveryData.learningPreferences?.includes('coaching') ? 'Coaching' :
                    'Mixed Approach'}
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   Optimized for your team's preferences
                 </p>
               </div>
-            </Card>
+            </div>
 
-            <Card className="glass-card card-grid">
-              <div className="card-header text-center">
-                <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-green-600" />
+            <div className="glass-card card-mobile">
+              <div className="p-6 text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Users className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Team Size</h3>
-              </div>
-              <div className="card-content text-center">
-                <div className="text-lg font-semibold mb-2">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">Team Size</h3>
+                <div className="text-base sm:text-lg font-semibold mb-2">
                   {discoveryData.employeeCount} employees
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   {discoveryData.employeeCount <= 50 ? 'Perfect for cohort training' :
                    discoveryData.employeeCount <= 200 ? 'Ideal for departmental rollout' :
                    'Requires enterprise approach'}
                 </p>
               </div>
-            </Card>
+            </div>
 
-            <Card className="glass-card card-grid">
-              <div className="card-header text-center">
-                <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Target className="w-8 h-8 text-blue-600" />
+            <div className="glass-card card-mobile">
+              <div className="p-6 text-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Target className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Investment Range</h3>
-              </div>
-              <div className="card-content text-center">
-                <div className="text-lg font-semibold text-primary mb-2">
+                <h3 className="text-lg sm:text-xl font-semibold mb-2">Investment Range</h3>
+                <div className="text-base sm:text-lg font-semibold text-primary mb-2">
                   {investmentRange}
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   Based on scope and complexity
                 </p>
               </div>
-            </Card>
+            </div>
           </div>
 
           {/* AI-Generated Analysis */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Strategic Recommendations */}
-            <Card className="glass-card">
+            <div className="glass-card">
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-primary" />
@@ -224,10 +218,10 @@ export const ResultsScreen: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </Card>
+            </div>
 
             {/* Opportunity Areas */}
-            <Card className="glass-card">
+            <div className="glass-card">
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-purple-600" />
@@ -246,11 +240,11 @@ export const ResultsScreen: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
 
           {/* Recommended Program */}
-          <Card className="glass-card bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
+          <div className="glass-card bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
             <div className="p-8">
               <div className="text-center space-y-6">
                 <Badge className="bg-primary text-white px-4 py-2 text-lg">
@@ -313,7 +307,7 @@ export const ResultsScreen: React.FC = () => {
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
 
           {/* CTA Button */}
           <div className="flex justify-center px-4 sm:px-0">
@@ -327,7 +321,7 @@ export const ResultsScreen: React.FC = () => {
           </div>
 
           {/* Trust & Social Proof */}
-          <Card className="glass-card bg-gradient-to-r from-muted/30 to-muted/10">
+          <div className="glass-card bg-gradient-to-r from-muted/30 to-muted/10">
             <div className="p-6 text-center">
               <h4 className="font-semibold mb-4">Join leaders who've transformed their teams</h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-sm">
@@ -345,7 +339,7 @@ export const ResultsScreen: React.FC = () => {
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
 
           {/* Footer Action */}
           <div className="text-center pt-8">

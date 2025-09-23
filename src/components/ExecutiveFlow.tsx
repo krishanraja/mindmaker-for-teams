@@ -326,7 +326,7 @@ export const ExecutiveFlow: React.FC = () => {
       {/* Question Container */}
       <div className="container-width py-6 sm:py-8 md:py-12 px-4 sm:px-6 md:px-0">
         <div className="max-w-2xl mx-auto">
-          <Card className="bg-card border border-border shadow-medium card-mobile p-6 sm:p-8 md:p-10">
+          <div className="glass-card card-mobile p-6 sm:p-8 md:p-10">
             {/* Question Header */}
             <div className="text-center mb-8 sm:mb-10">
               <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 border border-primary/20 mb-4 sm:mb-6">
@@ -412,8 +412,8 @@ export const ExecutiveFlow: React.FC = () => {
                   </>
                 )}
               </button>
-            </div>
-          </Card>
+        </div>
+          </div>
         </div>
       </div>
     </div>

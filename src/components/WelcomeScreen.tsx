@@ -26,7 +26,7 @@ export const WelcomeScreen: React.FC = () => {
 
           {/* Main Headline */}
           <div className="mb-8">
-            <h1 className="hero-heading text-white hero-text-shimmer mb-6">
+            <h1 className="hero-heading hero-text-shimmer mb-6">
               Teams
             </h1>
             
