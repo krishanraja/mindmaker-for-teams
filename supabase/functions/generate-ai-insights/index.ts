@@ -48,37 +48,33 @@ Focus on internet business-specific AI applications like:
 - Revenue growth through AI-powered insights
 - Scalability challenges unique to digital businesses
 
-Based on this profile, provide a detailed analysis in the following JSON format:
+Based on this profile, provide a detailed analysis in the following JSON format (focus on AI literacy coaching and product strategy only):
 
 {
   "readinessScore": number (0-100 based on their AI maturity, leadership buy-in, and implementation urgency),
   "recommendations": [
-    "Specific, actionable recommendation tailored to their situation",
-    "Another targeted recommendation",
-    "Third recommendation focusing on their success metrics"
-  ],
-  "riskFactors": [
-    "Key risk factor they should address",
-    "Another potential challenge to monitor"
+    "AI literacy and confidence building recommendation",
+    "Product strategy leveraging AI recommendation", 
+    "Team enablement and coaching approach recommendation"
   ],
   "opportunityAreas": [
-    "High-value opportunity area for AI implementation",
-    "Strategic advantage they could gain",
-    "Quick win they could achieve"
+    "AI literacy and confidence opportunity",
+    "Product strategy opportunity",
+    "Team growth and learning opportunity"
   ],
   "investmentRange": "CRITICAL: Use team size-based pricing tiers: 1-10 employees='$5k-$12k', 11-50 employees='$12k-$25k', 51-200 employees='$25k-$45k', 201-1000 employees='$45k-$75k', 1000+ employees='$75k+'"
 }
 
-Focus on:
-1. Internet business-specific AI opportunities (automation, personalization, content generation)
-2. Digital scaling challenges and how AI can address them
-3. Customer acquisition and retention through AI
-4. Company size-appropriate recommendations for digital businesses
-5. Addressing their stated concerns and success metrics
-6. Realistic investment range based on their profile
-7. Actionable next steps that match their timeline
+Focus on AI literacy coaching and product strategy only:
+1. AI literacy and confidence building approaches
+2. Product strategy opportunities leveraging AI capabilities  
+3. Team enablement and coaching methodologies
+4. Building AI-confident teams and leadership
+5. Strategic AI thinking development
+6. Realistic investment range for coaching and strategy work
+7. Learning and development recommendations
 
-Be specific, professional, and demonstrate deep understanding of digital business dynamics and opportunities.`;
+Be specific, professional, and focus on education, coaching, and strategic guidance - NOT governance, risk management, or technical implementation.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -128,18 +124,14 @@ Be specific, professional, and demonstrate deep understanding of digital busines
       insights = {
         readinessScore: 65,
         recommendations: [
-          "Start with executive alignment and mindset reset sessions",
-          "Implement hands-on AI literacy workshops for key team members",
-          "Establish governance framework and best practices early"
-        ],
-        riskFactors: [
-          "Resistance to change from team members",
-          "Lack of clear success metrics and measurement"
+          "Implement AI literacy coaching to build leadership confidence",
+          "Develop product strategy leveraging AI capabilities",
+          "Create team enablement workshops focused on practical AI adoption"
         ],
         opportunityAreas: [
-          "Operational efficiency improvements",
-          "Competitive advantage through early AI adoption",
-          "Enhanced team confidence and capability"
+          "Build AI-confident teams through strategic coaching",
+          "Leverage AI for competitive product advantages",
+          "Develop sustainable AI learning frameworks"
         ],
         investmentRange: getInvestmentRangeBySize(discoveryData.employeeCount || 50)
       };
