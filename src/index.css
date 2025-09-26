@@ -217,7 +217,7 @@ html {
   /* === HERO TYPOGRAPHY === */
   .hero-heading {
     @apply text-4xl sm:text-5xl md:text-6xl font-bold leading-tight;
-    font-family: 'Gobold', 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 
   /* === HERO BUTTON STYLES === */
