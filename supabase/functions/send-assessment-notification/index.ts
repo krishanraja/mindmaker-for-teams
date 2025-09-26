@@ -15,23 +15,20 @@ interface AssessmentNotificationRequest {
     businessName: string;
     contactName: string;
     contactEmail: string;
-    contactRole: string;
     
-    // Business Details
-    industry: string;
-    employeeCount: number;
-    currentAIUse: string;
-    
-    // Assessment Inputs
-    biggestChallenges: string[];
-    leadershipVision: string;
-    successMetrics: string[];
-    learningPreferences: string[];
-    implementationTimeline: string;
+    // AI Revenue Impact Assessment Data (6 new questions)
+    aiUsagePercentage: string;
+    growthUseCases: string;
+    messagingAdaptation: string;
+    revenueKPIs: string;
+    powerUsers: string;
+    teamRecognition: string;
     
     // AI Generated Insights
     aiInsights?: {
       readinessScore: number;
+      category: string;
+      description: string;
       recommendations: string[];
       riskFactors: string[];
       opportunityAreas: string[];
@@ -54,82 +51,105 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "AI Assessment <assessments@fractionl.ai>",
       to: ["krish@fractionl.ai"],
-      subject: `🎯 AI Literacy for Teams Inquiry - ${assessmentData.businessName} (${assessmentData.employeeCount} employees)`,
+      subject: `🚀 AI Revenue Impact Pulse - ${assessmentData.businessName} (${assessmentData.aiInsights?.category || 'Assessment Complete'})`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
           <div style="background: white; border-radius: 12px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
             
             <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #e5e7eb;">
-              <h1 style="color: #1f2937; margin: 0; font-size: 28px;">🎯 AI Literacy for Teams Inquiry</h1>
-              <p style="color: #6b7280; margin: 8px 0 0 0; font-size: 16px;">Corporate workshop assessment completed and strategy call requested</p>
+              <h1 style="color: #1f2937; margin: 0; font-size: 28px;">🚀 AI Revenue Impact Pulse</h1>
+              <p style="color: #6b7280; margin: 8px 0 0 0; font-size: 16px;">Strategic AI readiness assessment for revenue acceleration</p>
             </div>
 
             <!-- Contact Information -->
             <div style="margin-bottom: 32px; background: #f3f4f6; padding: 24px; border-radius: 8px;">
-              <h2 style="color: #374151; margin-top: 0; font-size: 20px; margin-bottom: 16px;">📋 Contact Information</h2>
+              <h2 style="color: #374151; margin-top: 0; font-size: 20px; margin-bottom: 16px;">📋 Leadership Contact</h2>
               <div style="display: grid; gap: 8px;">
                 <p style="margin: 0;"><strong>Name:</strong> ${assessmentData.contactName}</p>
                 <p style="margin: 0;"><strong>Email:</strong> <a href="mailto:${assessmentData.contactEmail}" style="color: #3b82f6;">${assessmentData.contactEmail}</a></p>
-                <p style="margin: 0;"><strong>Role:</strong> ${assessmentData.contactRole}</p>
                 <p style="margin: 0;"><strong>Company:</strong> ${assessmentData.businessName}</p>
-                <p style="margin: 0;"><strong>Industry:</strong> ${assessmentData.industry}</p>
-                <p style="margin: 0;"><strong>Team Size:</strong> ${assessmentData.employeeCount} employees</p>
               </div>
             </div>
 
-            <!-- AI Readiness Score -->
+            <!-- AI Revenue Impact Score -->
             <div style="margin-bottom: 32px; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 24px; border-radius: 8px; text-align: center;">
-              <h2 style="color: #1e40af; margin-top: 0; font-size: 20px;">🧠 AI Readiness Score</h2>
-              <div style="font-size: 48px; font-weight: bold; color: #1e40af; margin: 16px 0;">${assessmentData.aiInsights?.readinessScore || 'N/A'}/100</div>
-              <p style="color: #1e40af; margin: 0; font-size: 16px;">
-                ${assessmentData.aiInsights?.readinessScore >= 80 ? 'Advanced - Ready for implementation' : 
-                  assessmentData.aiInsights?.readinessScore >= 60 ? 'Intermediate - Good foundation' : 
-                  assessmentData.aiInsights?.readinessScore >= 40 ? 'Beginner - High potential' :
-                  'Early stage - Great opportunity'}
-              </p>
+              <h2 style="color: #1e40af; margin-top: 0; font-size: 20px;">💰 AI Revenue Impact Assessment</h2>
+              <div style="font-size: 48px; font-weight: bold; color: #1e40af; margin: 16px 0;">${assessmentData.aiInsights?.readinessScore || 0}/6</div>
+              <div style="font-size: 24px; font-weight: bold; color: #1e40af; margin: 8px 0;">${assessmentData.aiInsights?.category || 'Assessment Complete'}</div>
+              <p style="color: #1e40af; margin: 0; font-size: 16px;">${assessmentData.aiInsights?.description || 'Strategic AI readiness assessment completed'}</p>
             </div>
 
-            <!-- Business Context -->
+            <!-- Revenue Impact Analysis -->
             <div style="margin-bottom: 32px;">
-              <h2 style="color: #374151; margin-top: 0; font-size: 20px; margin-bottom: 16px;">🏢 Business Context</h2>
+              <h2 style="color: #374151; margin-top: 0; font-size: 20px; margin-bottom: 16px;">📈 Revenue Impact Analysis</h2>
               
               <div style="margin-bottom: 20px;">
-                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Current AI Use:</h3>
-                <p style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">${assessmentData.currentAIUse}</p>
+                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Team AI Adoption Rate:</h3>
+                <p style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">
+                  <strong>${assessmentData.aiUsagePercentage}</strong> of team uses AI weekly
+                  <br><span style="color: #6b7280; font-size: 14px;">
+                    ${assessmentData.aiUsagePercentage === '>50%' ? 'Strong adoption indicates good change management and AI literacy foundation.' :
+                      assessmentData.aiUsagePercentage === '25–50%' ? 'Moderate adoption showing promising early momentum.' :
+                      assessmentData.aiUsagePercentage === '<25%' ? 'Early adoption phase with significant growth potential.' :
+                      'Opportunity to introduce AI literacy and overcome initial resistance.'}
+                  </span>
+                </p>
               </div>
 
               <div style="margin-bottom: 20px;">
-                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Leadership Vision:</h3>
-                <p style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">${assessmentData.leadershipVision}</p>
+                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Growth-Oriented AI Use Cases:</h3>
+                <p style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">
+                  <strong>${assessmentData.growthUseCases}</strong> - Has growth-oriented AI use cases (faster GTM, pipeline acceleration)
+                  <br><span style="color: #6b7280; font-size: 14px;">
+                    ${assessmentData.growthUseCases === 'Yes' ? 'Team is already connecting AI to revenue acceleration opportunities.' :
+                      'Opportunity to develop strategic AI applications beyond operational efficiency.'}
+                  </span>
+                </p>
               </div>
 
               <div style="margin-bottom: 20px;">
-                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Implementation Timeline:</h3>
-                <p style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">${assessmentData.implementationTimeline}</p>
+                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Market Responsiveness Capability:</h3>
+                <p style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">
+                  <strong>${assessmentData.messagingAdaptation}</strong> - Can adapt positioning/messaging faster using AI outputs
+                  <br><span style="color: #6b7280; font-size: 14px;">
+                    ${assessmentData.messagingAdaptation === 'Yes' ? 'Team demonstrates strategic AI application for competitive advantage.' :
+                      'Opportunity to leverage AI for agile market positioning and competitive responsiveness.'}
+                  </span>
+                </p>
               </div>
 
               <div style="margin-bottom: 20px;">
-                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Biggest Challenges:</h3>
-                <ul style="margin: 0; padding: 12px 12px 12px 32px; background: #f9fafb; border-radius: 6px;">
-                  ${assessmentData.biggestChallenges.map(challenge => `<li>${challenge}</li>`).join('')}
-                </ul>
+                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Business Impact Measurement:</h3>
+                <p style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">
+                  <strong>${assessmentData.revenueKPIs}</strong> - AI experiments linked to revenue KPIs
+                  <br><span style="color: #6b7280; font-size: 14px;">
+                    ${assessmentData.revenueKPIs === 'Yes' ? 'Strong business discipline in measuring AI ROI and revenue impact.' :
+                      'Critical opportunity to establish metrics connecting AI initiatives to business outcomes.'}
+                  </span>
+                </p>
               </div>
 
               <div style="margin-bottom: 20px;">
-                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Success Metrics:</h3>
-                <ul style="margin: 0; padding: 12px 12px 12px 32px; background: #f9fafb; border-radius: 6px;">
-                  ${assessmentData.successMetrics.map(metric => `<li>${metric}</li>`).join('')}
-                </ul>
+                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Internal Champions & Scaling:</h3>
+                <p style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">
+                  <strong>${assessmentData.powerUsers}</strong> - Has emerging "power users" who drive business wins
+                  <br><span style="color: #6b7280; font-size: 14px;">
+                    ${assessmentData.powerUsers === 'Yes' ? 'Internal champions are accelerating adoption and demonstrating value.' :
+                      'Opportunity to identify and develop AI power users who can lead internal transformation.'}
+                  </span>
+                </p>
               </div>
 
-            <div style="margin-bottom: 20px;">
-              <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Learning Preferences:</h3>
-              <div style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">
-                ${Array.isArray(assessmentData.learningPreferences) 
-                  ? assessmentData.learningPreferences.map(pref => `<li>${pref}</li>`).join('') 
-                  : assessmentData.learningPreferences}
+              <div style="margin-bottom: 20px;">
+                <h3 style="color: #4b5563; margin: 0 0 8px 0; font-size: 16px;">Organizational Value Recognition:</h3>
+                <p style="margin: 0; padding: 12px; background: #f9fafb; border-radius: 6px;">
+                  <strong>${assessmentData.teamRecognition}</strong> - Team recognized internally as growth drivers because of AI
+                  <br><span style="color: #6b7280; font-size: 14px;">
+                    ${assessmentData.teamRecognition === 'Yes' ? 'Team has achieved strategic recognition as AI-enabled growth leaders.' :
+                      'Opportunity to position the team as organizational AI and growth champions.'}
+                  </span>
+                </p>
               </div>
-            </div>
             </div>
 
             <!-- AI-Generated Insights -->
@@ -170,24 +190,66 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
             ` : ''}
 
-            <!-- Next Steps -->
+            <!-- Strategic Recommendations -->
             <div style="background: #1f2937; color: white; padding: 24px; border-radius: 8px; text-align: center;">
-              <h2 style="color: white; margin-top: 0; font-size: 20px; margin-bottom: 16px;">🚀 Next Steps - AI Literacy Workshop</h2>
-              <p style="margin: 0 0 16px 0; color: #d1d5db;">The prospect has scheduled a strategy call for AI Literacy for Teams workshop. Here's what to prepare:</p>
-              <ul style="text-align: left; margin: 0; padding-left: 20px; color: #d1d5db;">
-                <li>Review their industry-specific AI literacy challenges and workshop needs</li>
-                <li>Prepare team size-appropriate AI Literacy program recommendations</li>
-                <li>Address their specific success metrics and implementation timeline</li>
-                <li>Have AI Literacy workshop pricing options ready for ${assessmentData.aiInsights?.investmentRange || 'their team size'}</li>
-                <li>Consider executive vs. team-wide workshop formats based on their preferences</li>
-              </ul>
+              <h2 style="color: white; margin-top: 0; font-size: 20px; margin-bottom: 16px;">🚀 Strategic Recommendations</h2>
+              <p style="margin: 0 0 16px 0; color: #d1d5db;">Based on ${assessmentData.aiInsights?.category || 'their assessment'}, here are the recommended next steps:</p>
+              
+              ${(() => {
+                const score = assessmentData.aiInsights?.readinessScore || 0;
+                if (score <= 2) {
+                  return `<div style="background: #dc2626; padding: 16px; border-radius: 6px; margin-bottom: 16px;">
+                    <h3 style="color: white; margin: 0 0 8px 0;">Priority: AI Literacy Foundation</h3>
+                    <p style="color: #fecaca; margin: 0; font-size: 14px;">Focus on basic AI literacy and connecting tools to business outcomes</p>
+                  </div>
+                  <ul style="text-align: left; margin: 0; padding-left: 20px; color: #d1d5db;">
+                    <li>Start with AI Literacy Bootcamp to build foundational understanding</li>
+                    <li>Implement outcome-oriented AI pilot programs</li>
+                    <li>Establish basic AI governance and experimentation frameworks</li>
+                    <li>Identify and develop initial AI champions within the team</li>
+                  </ul>`;
+                } else if (score <= 4) {
+                  return `<div style="background: #f59e0b; padding: 16px; border-radius: 6px; margin-bottom: 16px;">
+                    <h3 style="color: white; margin: 0 0 8px 0;">Priority: Scale & Measurement</h3>
+                    <p style="color: #fed7aa; margin: 0; font-size: 14px;">Build on existing experiments with structured growth focus</p>
+                  </div>
+                  <ul style="text-align: left; margin: 0; padding-left: 20px; color: #d1d5db;">
+                    <li>Implement revenue KPI tracking for AI initiatives</li>
+                    <li>Scale successful experiments across the organization</li>
+                    <li>Advanced AI workshop focusing on growth applications</li>
+                    <li>Develop power user program and internal AI community</li>
+                  </ul>`;
+                } else if (score === 5) {
+                  return `<div style="background: #059669; padding: 16px; border-radius: 6px; margin-bottom: 16px;">
+                    <h3 style="color: white; margin: 0 0 8px 0;">Priority: Strategic Acceleration</h3>
+                    <p style="color: #a7f3d0; margin: 0; font-size: 14px;">Optimize and scale proven AI-driven growth strategies</p>
+                  </div>
+                  <ul style="text-align: left; margin: 0; padding-left: 20px; color: #d1d5db;">
+                    <li>Executive AI Strategy Workshop for leadership alignment</li>
+                    <li>Advanced automation and agentic workflow implementation</li>
+                    <li>Cross-functional AI integration and optimization</li>
+                    <li>Thought leadership positioning in AI-driven business growth</li>
+                  </ul>`;
+                } else {
+                  return `<div style="background: #7c3aed; padding: 16px; border-radius: 6px; margin-bottom: 16px;">
+                    <h3 style="color: white; margin: 0 0 8px 0;">Priority: Market Leadership</h3>
+                    <p style="color: #ddd6fe; margin: 0; font-size: 14px;">Leverage AI leadership for competitive advantage and market expansion</p>
+                  </div>
+                  <ul style="text-align: left; margin: 0; padding-left: 20px; color: #d1d5db;">
+                    <li>AI Innovation Lab and R&D acceleration programs</li>
+                    <li>Market expansion strategies powered by AI insights</li>
+                    <li>Executive coaching for AI-driven transformation leadership</li>
+                    <li>Strategic partnerships and thought leadership opportunities</li>
+                  </ul>`;
+                }
+              })()}
             </div>
 
             <!-- Footer -->
             <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; text-align: center;">
               <p style="color: #6b7280; margin: 0; font-size: 14px;">
-                Generated automatically when user clicked "Schedule Strategy Call"<br>
-                Assessment completed on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
+                Generated automatically from AI Revenue Impact Pulse assessment<br>
+                Completed on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
               </p>
             </div>
 
