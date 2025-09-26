@@ -1,28 +1,36 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react';
 
-// Strategic discovery data for AI literacy assessment
+// Strategic discovery data for AI revenue impact assessment
 export interface AIDiscoveryData {
   // Core business essentials
   businessName: string;
-  industry: string;
-  employeeCount: number;
-  
-  // AI literacy & readiness assessment
-  currentAIUse: string;
-  biggestChallenges: string[];
-  leadershipVision: string;
-  learningPreferences: string;
-  successMetrics: string[];
-  implementationTimeline: string;
-  
-  // Contact essentials  
   contactName: string;
   contactEmail: string;
-  contactRole: string;
   
-  // OpenAI-generated insights
+  // AI revenue impact assessment
+  aiUsagePercentage: string;
+  growthUseCases: string;
+  messagingAdaptation: string;
+  revenueKPIs: string;
+  powerUsers: string;
+  teamRecognition: string;
+  
+  // Legacy fields for backwards compatibility
+  industry?: string;
+  employeeCount?: number;
+  currentAIUse?: string;
+  biggestChallenges?: string[];
+  leadershipVision?: string;
+  learningPreferences?: string;
+  successMetrics?: string[];
+  implementationTimeline?: string;
+  contactRole?: string;
+  
+  // Assessment results
   aiInsights?: {
     readinessScore: number;
+    category: string;
+    description: string;
     recommendations: string[];
     riskFactors: string[];
     opportunityAreas: string[];
@@ -46,17 +54,14 @@ interface MindmakerContextType {
 
 const initialData: AIDiscoveryData = {
   businessName: '',
-  industry: '',
-  employeeCount: 0,
-  currentAIUse: '',
-  biggestChallenges: [],
-  leadershipVision: '',
-  learningPreferences: '',
-  successMetrics: [],
-  implementationTimeline: '',
   contactName: '',
   contactEmail: '',
-  contactRole: '',
+  aiUsagePercentage: '',
+  growthUseCases: '',
+  messagingAdaptation: '',
+  revenueKPIs: '',
+  powerUsers: '',
+  teamRecognition: '',
 };
 
 const initialState: AppState = {

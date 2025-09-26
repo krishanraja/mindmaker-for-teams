@@ -27,9 +27,11 @@ export const WelcomeScreen: React.FC = () => {
           {/* Main Headline */}
           <div className="mb-8">
             <h1 className="hero-heading hero-text-shimmer mb-6">
-              Teams
+              Is your team's AI literacy driving measurable growth?
             </h1>
-            
+            <p className="text-xl text-white/80 mb-8">
+              Take 2 minutes to pulse check your team's AI impact
+            </p>
           </div>
 
           {/* CTA Button */}
@@ -37,7 +39,7 @@ export const WelcomeScreen: React.FC = () => {
             onClick={handleStartDiscovery}
             className="btn-hero-primary px-8 py-3 text-lg font-medium group"
           >
-            Start Assessment
+            Start the Pulse Check
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform animated-arrow" />
           </button>
         </div>

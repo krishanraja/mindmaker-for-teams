@@ -11,154 +11,86 @@ export const ExecutiveFlow: React.FC = () => {
   const { state, updateDiscoveryData, setCurrentStep, markConversationComplete } = useMindmaker();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [formData, setFormData] = useState({
-    businessName: '',
-    industry: '',
-    employeeCount: '',
-    currentAIUse: '',
-    biggestChallenges: [] as string[],
-    leadershipVision: '',
-    learningPreferences: '',
-    successMetrics: [] as string[],
-    implementationTimeline: '',
+    aiUsagePercentage: '',
+    growthUseCases: '',
+    messagingAdaptation: '',
+    revenueKPIs: '',
+    powerUsers: '',
+    teamRecognition: '',
     contactName: '',
     contactEmail: '',
-    contactRole: ''
+    businessName: ''
   });
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const [justSelected, setJustSelected] = useState(false);
 
   const questions = [
     {
-      id: 'businessName',
-      title: 'Company Name',
-      description: 'What\'s your company called?',
-      icon: Building2,
-      type: 'input',
-      placeholder: 'e.g., Acme Corp'
-    },
-    {
-      id: 'industry',
-      title: 'Industry',
-      description: 'What industry are you in?',
-      icon: Target,
-      type: 'select',
-      options: [
-        'E-commerce',
-        'SaaS',
-        'Digital Marketing/Agency',
-        'FinTech',
-        'EdTech',
-        'MarTech',
-        'Creator Economy',
-        'Technology/Software',
-        'Finance/Banking',
-        'Consulting',
-        'Education',
-        'Other Digital Business'
-      ]
-    },
-    {
-      id: 'employeeCount',
-      title: 'Team Size',
-      description: 'How many employees do you have?',
+      id: 'aiUsagePercentage',
+      title: 'Team AI Usage',
+      description: 'What % of your team uses AI weekly?',
       icon: Users,
       type: 'select',
       options: [
-        '1-10',
-        '11-50',
-        '51-200',
-        '201-1000',
-        '1000+'
+        '0%',
+        '<25%',
+        '25–50%',
+        '>50%'
       ]
     },
     {
-      id: 'currentAIUse',
-      title: 'Current AI Usage',
-      description: 'Where is your organization with AI today?',
-      icon: Brain,
-      type: 'select',
-      options: [
-        'No AI usage - exploring opportunities',
-        'Limited experimentation with ChatGPT/similar tools',
-        'Some teams piloting AI solutions',
-        'AI tools deployed for specific functions',
-        'Comprehensive AI strategy in execution'
-      ]
-    },
-    {
-      id: 'biggestChallenges',
-      title: 'Biggest AI Challenges',
-      description: 'What are your team\'s biggest concerns about AI? (Select all that apply)',
-      icon: Zap,
-      type: 'multi-select',
-      options: [
-        'Fear of job displacement',
-        'Security and data privacy concerns',
-        'Lack of understanding of AI capabilities',
-        'Difficulty identifying valuable use cases',
-        'Resistance to change from team members',
-        'Budget and ROI uncertainties',
-        'Lack of technical expertise',
-        'Regulatory and compliance concerns'
-      ]
-    },
-    {
-      id: 'leadershipVision',
-      title: 'Leadership Vision',
-      description: 'How does leadership view AI\'s role in your organization?',
+      id: 'growthUseCases',
+      title: 'Growth-Oriented AI Use Cases',
+      description: 'Do you have growth-oriented AI use cases (faster GTM, pipeline acceleration)?',
       icon: TrendingUp,
       type: 'select',
       options: [
-        'Essential competitive advantage we must embrace',
-        'Useful tool to improve efficiency and productivity',
-        'Interesting but not urgent priority',
-        'Cautious - want to see how others succeed first',
-        'Mixed views - some excited, others concerned'
+        'Yes',
+        'No'
       ]
     },
     {
-      id: 'learningPreferences',
-      title: 'Learning Preferences',
-      description: 'How does your team prefer to learn new skills?',
+      id: 'messagingAdaptation',
+      title: 'Messaging Adaptation',
+      description: 'Can your team adapt positioning/messaging faster using AI outputs?',
       icon: Target,
       type: 'select',
       options: [
-        'Live workshops with hands-on practice',
-        'Self-paced online modules',
-        'One-on-one coaching sessions',
-        'Peer learning and discussion groups',
-        'Mixed approach with multiple formats'
+        'Yes',
+        'No'
       ]
     },
     {
-      id: 'successMetrics',
-      title: 'Success Metrics',
-      description: 'What outcomes matter most for your AI initiative? (Select all that apply)',
-      icon: Target,
-      type: 'multi-select',
-      options: [
-        'Increased team confidence with AI tools',
-        'Measurable productivity improvements',
-        'Reduced fear and resistance to AI',
-        'Clear governance and best practices',
-        'Identification of high-value use cases',
-        'Cost savings and efficiency gains',
-        'Competitive advantage in market',
-        'Employee satisfaction and engagement'
-      ]
-    },
-    {
-      id: 'implementationTimeline',
-      title: 'Implementation Timeline',
-      description: 'What\'s your preferred timeline for AI literacy training?',
-      icon: Clock,
+      id: 'revenueKPIs',
+      title: 'Revenue KPIs',
+      description: 'Are AI experiments linked to revenue KPIs?',
+      icon: Zap,
       type: 'select',
       options: [
-        'ASAP - urgent business priority',
-        'Within next 1-3 months',
-        'Next quarter (3-6 months)',
-        'This fiscal year',
-        'Flexible - when the right opportunity arises'
+        'Yes',
+        'No'
+      ]
+    },
+    {
+      id: 'powerUsers',
+      title: 'Power Users',
+      description: 'Do you have emerging "power users" who drive business wins?',
+      icon: Brain,
+      type: 'select',
+      options: [
+        'Yes',
+        'No'
+      ]
+    },
+    {
+      id: 'teamRecognition',
+      title: 'Team Recognition',
+      description: 'Is your team recognized internally as growth drivers because of AI?',
+      icon: Building2,
+      type: 'select',
+      options: [
+        'Yes',
+        'No'
       ]
     },
     {
@@ -172,27 +104,18 @@ export const ExecutiveFlow: React.FC = () => {
     {
       id: 'contactEmail',
       title: 'Email Address',
-      description: 'Where can we send your personalized roadmap?',
+      description: 'Where can we send your AI revenue impact results?',
       icon: Target,
       type: 'input',
       placeholder: 'e.g., sarah@company.com'
     },
     {
-      id: 'contactRole',
-      title: 'Your Role',
-      description: 'What\'s your role at the company?',
-      icon: Users,
-      type: 'select',
-      options: [
-        'CEO/President',
-        'CTO/Head of Technology',
-        'COO/Head of Operations',
-        'CHRO/Head of HR',
-        'VP/Director',
-        'Manager/Team Lead',
-        'Other C-Suite',
-        'Consultant/Advisor'
-      ]
+      id: 'businessName',
+      title: 'Company Name',
+      description: 'What\'s your company called?',
+      icon: Building2,
+      type: 'input',
+      placeholder: 'e.g., Acme Corp'
     }
   ];
 
@@ -200,59 +123,57 @@ export const ExecutiveFlow: React.FC = () => {
   const currentQ = questions[currentQuestion];
   const Icon = currentQ.icon;
 
-  const generateAIInsights = async () => {
-    try {
-      setIsGeneratingInsights(true);
-      
-      const { data, error } = await supabase.functions.invoke('generate-ai-insights', {
-        body: {
-          discoveryData: {
-            businessName: formData.businessName,
-            industry: formData.industry,
-            employeeCount: formData.employeeCount,
-            currentAIUse: formData.currentAIUse,
-            biggestChallenges: formData.biggestChallenges,
-            leadershipVision: formData.leadershipVision,
-            learningPreferences: formData.learningPreferences,
-            successMetrics: formData.successMetrics,
-            implementationTimeline: formData.implementationTimeline,
-            contactRole: formData.contactRole
-          }
-        }
-      });
-      
-      if (error) throw error;
-      return data.insights;
-    } catch (error) {
-      // Silently handle error and return fallback
-      return null;
-    } finally {
-      setIsGeneratingInsights(false);
-    }
+  const calculateScore = () => {
+    let score = 0;
+    
+    // Calculate score based on responses
+    if (formData.aiUsagePercentage === '>50%') score += 1;
+    else if (formData.aiUsagePercentage === '25–50%') score += 0.5;
+    
+    if (formData.growthUseCases === 'Yes') score += 1;
+    if (formData.messagingAdaptation === 'Yes') score += 1;
+    if (formData.revenueKPIs === 'Yes') score += 1;
+    if (formData.powerUsers === 'Yes') score += 1;
+    if (formData.teamRecognition === 'Yes') score += 1;
+    
+    return Math.round(score);
+  };
+
+  const getTeamCategory = (score: number) => {
+    if (score <= 2) return { category: 'AI-Confused Team', description: 'Tools without outcomes. Literacy is missing.' };
+    if (score <= 4) return { category: 'AI-Curious Team', description: 'Promising experiments—but no tie to growth yet.' };
+    if (score === 5) return { category: 'AI-Ready Team', description: 'Safe adoption, measurable impact—now scale.' };
+    return { category: 'AI-Enabled Team', description: 'Your team is leading growth with AI.' };
   };
 
   const handleNext = async () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      // Generate AI insights before completing
-      const aiInsights = await generateAIInsights();
+      // Calculate score and category
+      const score = calculateScore();
+      const teamAssessment = getTeamCategory(score);
       
       // Complete the discovery
       updateDiscoveryData({
         businessName: formData.businessName,
-        industry: formData.industry,
-        employeeCount: parseInt(formData.employeeCount.split('-')[0]) || 1,
-        currentAIUse: formData.currentAIUse,
-        biggestChallenges: formData.biggestChallenges,
-        leadershipVision: formData.leadershipVision,
-        learningPreferences: formData.learningPreferences,
-        successMetrics: formData.successMetrics,
-        implementationTimeline: formData.implementationTimeline,
         contactName: formData.contactName,
         contactEmail: formData.contactEmail,
-        contactRole: formData.contactRole,
-        aiInsights: aiInsights
+        aiUsagePercentage: formData.aiUsagePercentage,
+        growthUseCases: formData.growthUseCases,
+        messagingAdaptation: formData.messagingAdaptation,
+        revenueKPIs: formData.revenueKPIs,
+        powerUsers: formData.powerUsers,
+        teamRecognition: formData.teamRecognition,
+        aiInsights: {
+          readinessScore: score,
+          category: teamAssessment.category,
+          description: teamAssessment.description,
+          recommendations: [],
+          riskFactors: [],
+          opportunityAreas: [],
+          investmentRange: ''
+        }
       });
       markConversationComplete();
     }
@@ -294,19 +215,13 @@ export const ExecutiveFlow: React.FC = () => {
   }, [formData[currentQ.id as keyof typeof formData], currentQ.type, currentQuestion, questions.length, justSelected]);
 
   const handleMultiSelectChange = (value: string, checked: boolean) => {
-    const currentValues = formData[currentQ.id as keyof typeof formData] as string[] || [];
-    if (checked) {
-      updateFormData([...currentValues, value]);
-    } else {
-      updateFormData(currentValues.filter(v => v !== value));
-    }
+    // Note: Multi-select is no longer used in the new question set
+    // This function is kept for backwards compatibility
+    updateFormData(value);
   };
 
   const canProceed = () => {
     const value = formData[currentQ.id as keyof typeof formData];
-    if (currentQ.type === 'multi-select') {
-      return Array.isArray(value) && value.length > 0;
-    }
     return value && value !== '';
   };
 
@@ -379,23 +294,7 @@ export const ExecutiveFlow: React.FC = () => {
                   className="h-12 sm:h-14 text-base sm:text-lg text-center border-2 focus-visible:ring-2 touch-target-md"
                   autoFocus
                 />
-              ) : currentQ.type === 'multi-select' ? (
-                <div className="space-y-3 sm:space-y-4">
-                  {currentQ.options?.map((option) => (
-                    <div key={option} className="flex items-start space-x-3 p-4 sm:p-5 border rounded-lg hover:bg-muted/50 touch-target-md">
-                      <Checkbox
-                        id={option}
-                        checked={(formData[currentQ.id as keyof typeof formData] as string[] || []).includes(option)}
-                        onCheckedChange={(checked) => handleMultiSelectChange(option, checked as boolean)}
-                        className="mt-1 flex-shrink-0"
-                      />
-                      <label htmlFor={option} className="text-sm sm:text-base font-medium cursor-pointer flex-grow leading-relaxed">
-                        {option}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              ) : currentQ.options && currentQ.options.length <= 5 ? (
+              ) : currentQ.type === 'select' && currentQ.options && currentQ.options.length <= 4 ? (
                 <ButtonGridSelection
                   title=""
                   choices={currentQ.options.map(option => ({ value: option, label: option }))}
@@ -412,8 +311,8 @@ export const ExecutiveFlow: React.FC = () => {
               )}
             </div>
 
-            {/* Navigation - Only show for multi-select and final question */}
-            {(currentQ.type === 'multi-select' || currentQ.type === 'input' || currentQuestion === questions.length - 1) && (
+            {/* Navigation - Only show for input questions or final question */}
+            {(currentQ.type === 'input' || currentQuestion === questions.length - 1) && (
               <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 sm:gap-6">
                 <button
                   onClick={handleBack}
@@ -444,9 +343,9 @@ export const ExecutiveFlow: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <span className="text-sm sm:text-base">
-                        {currentQuestion === questions.length - 1 ? 'Get My AI Roadmap' : 'Next'}
-                      </span>
+                       <span className="text-sm sm:text-base">
+                         {currentQuestion === questions.length - 1 ? 'Get My Impact Results' : 'Next'}
+                       </span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}

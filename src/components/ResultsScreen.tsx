@@ -46,21 +46,16 @@ export const ResultsScreen: React.FC = () => {
             businessName: discoveryData.businessName,
             contactName: discoveryData.contactName,
             contactEmail: discoveryData.contactEmail,
-            contactRole: discoveryData.contactRole,
             
-            // Business Details
-            industry: discoveryData.industry,
-            employeeCount: discoveryData.employeeCount,
-            currentAIUse: discoveryData.currentAIUse,
+            // AI Revenue Impact Assessment
+            aiUsagePercentage: discoveryData.aiUsagePercentage,
+            growthUseCases: discoveryData.growthUseCases,
+            messagingAdaptation: discoveryData.messagingAdaptation,
+            revenueKPIs: discoveryData.revenueKPIs,
+            powerUsers: discoveryData.powerUsers,
+            teamRecognition: discoveryData.teamRecognition,
             
-            // Assessment Inputs
-            biggestChallenges: discoveryData.biggestChallenges || [],
-            leadershipVision: discoveryData.leadershipVision,
-            successMetrics: discoveryData.successMetrics || [],
-            learningPreferences: discoveryData.learningPreferences || [],
-            implementationTimeline: discoveryData.implementationTimeline,
-            
-            // AI Generated Insights
+            // Assessment Results
             aiInsights: discoveryData.aiInsights
           }
         }
@@ -94,29 +89,51 @@ export const ResultsScreen: React.FC = () => {
             </h1>
             <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs">
               <Brain className="w-3 h-3 mr-1" />
-              AI Analysis Complete
+              AI Revenue Impact Analysis Complete
             </Badge>
           </div>
 
-          {/* Key Insights - Swipeable Cards */}
+          {/* Team Category Result */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-center">Your AI Readiness Profile</h2>
-            <SwipeableResultsCards />
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-primary mb-2">
+                {discoveryData.aiInsights?.category || 'AI-Curious Team'}
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                {discoveryData.aiInsights?.description || 'Promising experiments—but no tie to growth yet.'}
+              </p>
+            </div>
           </div>
 
-          {/* Recommended AI Literacy Modules */}
-          <RecommendedModules />
+          {/* Score Display */}
+          <div className="glass-card bg-gradient-to-r from-primary/5 to-primary/10">
+            <div className="p-6 text-center">
+              <div className="text-4xl font-bold text-primary mb-2">
+                {discoveryData.aiInsights?.readinessScore || 0}/6
+              </div>
+              <p className="text-sm text-muted-foreground">AI Revenue Impact Score</p>
+            </div>
+          </div>
 
 
-          {/* CTA Button */}
-          <div className="flex justify-center px-4 sm:px-0">
-            <button 
-              onClick={handleScheduleConsultation}
-              className="btn-hero-primary text-base sm:text-lg px-6 sm:px-8 py-4 group touch-target-lg"
-            >
-              Schedule Strategy Call
-              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </button>
+          {/* CTA Section */}
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold mb-2">Ready to turn experiments into revenue?</h3>
+              <p className="text-lg text-muted-foreground mb-6">
+                Book a Workflow Redesign Jam: from literacy to measurable growth
+              </p>
+            </div>
+            
+            <div className="flex justify-center px-4 sm:px-0">
+              <button 
+                onClick={handleScheduleConsultation}
+                className="btn-hero-primary text-base sm:text-lg px-6 sm:px-8 py-4 group touch-target-lg"
+              >
+                Book My Session
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
           </div>
 
           {/* Trust & Social Proof */}
