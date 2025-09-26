@@ -316,7 +316,7 @@ serve(async (req) => {
         .insert({
           sync_type: 'unknown',
           status: 'failed',
-          error_message: error.message,
+          error_message: error instanceof Error ? error.message : 'Unknown error occurred',
           sync_metadata: {
             error_timestamp: new Date().toISOString()
           }
@@ -326,7 +326,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error occurred' }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

@@ -99,7 +99,7 @@ serve(async (req) => {
   } catch (error) {
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
         message: "I apologize, but I'm having trouble processing that. Could you try rephrasing your response?"
       }),
       { 
