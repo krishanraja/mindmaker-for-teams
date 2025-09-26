@@ -128,10 +128,10 @@ export const ResultsScreen: React.FC = () => {
             <div className="flex justify-center px-4 sm:px-0">
               <button 
                 onClick={handleScheduleConsultation}
-                className="btn-hero-primary text-base sm:text-lg px-6 sm:px-8 py-4 group touch-target-lg"
+                className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-4 text-base sm:text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group min-h-[56px]"
               >
                 Book My Session
-                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                <Calendar className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>

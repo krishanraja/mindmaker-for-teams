@@ -208,6 +208,65 @@ html {
     background-image: var(--gradient-brand) !important;
   }
 
+  /* === HERO GRADIENT BACKGROUND === */
+  .hero-gradient {
+    background: var(--gradient-brand) !important;
+    min-height: 100vh;
+  }
+
+  /* === HERO TYPOGRAPHY === */
+  .hero-heading {
+    @apply text-4xl sm:text-5xl md:text-6xl font-bold leading-tight;
+    font-family: 'Gobold', 'Inter', system-ui, sans-serif;
+  }
+
+  /* === HERO BUTTON STYLES === */
+  .btn-hero-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white bg-white/20 hover:bg-white/30 border border-white/30 hover:border-white/50 rounded-xl shadow-lg hover:shadow-xl backdrop-blur-sm transition-all duration-300 transform hover:scale-105;
+    min-height: 56px;
+    white-space: nowrap;
+  }
+
+  .animated-arrow {
+    @apply transition-transform duration-300;
+  }
+
+  /* === BUTTON UTILITIES === */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium border border-border bg-background hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors min-h-[44px];
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors min-h-[44px];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors;
+  }
+
+  /* === RESPONSIVE BUTTON ADJUSTMENTS === */
+  @media (max-width: 640px) {
+    .btn-hero-primary {
+      font-size: 1rem;
+      padding: 0.875rem 1.5rem;
+    }
+  }
+
+  /* === TOUCH TARGETS === */
+  .touch-target-md {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* === MOBILE-FRIENDLY CLASSES === */
+  .mobile-readable {
+    line-height: 1.6;
+  }
+
+  .card-mobile {
+    @apply mx-4 sm:mx-0;
+  }
+
   /* === ANIMATION CLASSES === */
   .fade-in-up {
     animation: fade-in-up 0.6s ease-out forwards;

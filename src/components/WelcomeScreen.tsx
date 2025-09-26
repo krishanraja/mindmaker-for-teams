@@ -37,10 +37,10 @@ export const WelcomeScreen: React.FC = () => {
           {/* CTA Button */}
           <button 
             onClick={handleStartDiscovery}
-            className="btn-hero-primary px-8 py-3 text-lg font-medium group"
+            className="btn-hero-primary group"
           >
             Start the Pulse Check
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform animated-arrow" />
+            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 animated-arrow" />
           </button>
         </div>
       </div>
