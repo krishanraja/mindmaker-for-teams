@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from './ui/input';
 import { Card } from './ui/card';
 import { Checkbox } from './ui/checkbox';
-import { ArrowLeft, ArrowRight, Sparkles, Building2, Users, Target, Brain, Zap, TrendingUp, Clock, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Building2, Users, Target, Brain, Zap, TrendingUp, Clock, RotateCcw, Shield } from 'lucide-react';
 import { useMindmaker } from '../contexts/MindmakerContext';
 import { supabase } from '../integrations/supabase/client';
 import { ButtonGridSelection, LargeButtonSelection } from './ai/SelectionComponents';
@@ -17,6 +17,8 @@ export const ExecutiveFlow: React.FC = () => {
     revenueKPIs: '',
     powerUsers: '',
     teamRecognition: '',
+    authorityLevel: '',
+    implementationTimeline: '',
     contactName: '',
     contactEmail: '',
     businessName: ''
@@ -94,6 +96,32 @@ export const ExecutiveFlow: React.FC = () => {
       ]
     },
     {
+      id: 'authorityLevel',
+      title: 'Decision Authority',
+      description: 'What\'s your role in AI/growth initiatives for your team?',
+      icon: Shield,
+      type: 'select',
+      options: [
+        'I lead these decisions',
+        'I influence these decisions',
+        'I\'m exploring for my team',
+        'I\'m researching options'
+      ]
+    },
+    {
+      id: 'implementationTimeline',
+      title: 'Implementation Urgency',
+      description: 'When would you want to see measurable AI revenue impact?',
+      icon: Clock,
+      type: 'select',
+      options: [
+        'Within 90 days',
+        'This quarter',
+        'Next 6 months',
+        'Exploring for future'
+      ]
+    },
+    {
       id: 'contactName',
       title: 'Your Name',
       description: 'What\'s your name?',
@@ -146,13 +174,69 @@ export const ExecutiveFlow: React.FC = () => {
     return { category: 'AI-Enabled Team', description: 'Your team is leading growth with AI.' };
   };
 
+  const calculateLeadScore = () => {
+    let leadScore = 0;
+    
+    // Authority Level (0-25 points)
+    const authority = formData.authorityLevel;
+    if (authority === 'I lead these decisions') leadScore += 25;
+    else if (authority === 'I influence these decisions') leadScore += 15;
+    else if (authority === 'I\'m exploring for my team') leadScore += 8;
+    else if (authority === 'I\'m researching options') leadScore += 3;
+    
+    // Implementation Timeline (0-25 points)
+    const timeline = formData.implementationTimeline;
+    if (timeline === 'Within 90 days') leadScore += 25;
+    else if (timeline === 'This quarter') leadScore += 15;
+    else if (timeline === 'Next 6 months') leadScore += 8;
+    else if (timeline === 'Exploring for future') leadScore += 2;
+    
+    // Email Domain Analysis (0-15 points)
+    const email = formData.contactEmail || '';
+    const emailDomain = email.split('@')[1]?.toLowerCase() || '';
+    const personalDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com'];
+    const isBusinessEmail = email && !personalDomains.includes(emailDomain);
+    if (isBusinessEmail) leadScore += 15;
+    
+    // AI Readiness Score (0-15 points based on revenue questions)
+    const aiScore = calculateScore();
+    if (aiScore >= 5) leadScore += 15;
+    else if (aiScore >= 4) leadScore += 10;
+    else if (aiScore >= 2) leadScore += 5;
+    
+    // Company Name Indicator (0-10 points)
+    const companyName = formData.businessName || '';
+    if (companyName && companyName.length > 2) leadScore += 10;
+    
+    // Deductions for low engagement signals
+    if (authority === 'I\'m researching options') leadScore -= 15;
+    if (timeline === 'Exploring for future') leadScore -= 15;
+    if (!isBusinessEmail) leadScore -= 20;
+    
+    return Math.max(0, Math.min(100, leadScore));
+  };
+
+  const getQualificationTier = (score: number): 'Hot' | 'Warm' | 'Cold' => {
+    if (score >= 80) return 'Hot';
+    if (score >= 50) return 'Warm';
+    return 'Cold';
+  };
+
+  const getEmailDomainType = (email: string): 'Business' | 'Personal' => {
+    const emailDomain = email.split('@')[1]?.toLowerCase() || '';
+    const personalDomains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'icloud.com'];
+    return personalDomains.includes(emailDomain) ? 'Personal' : 'Business';
+  };
+
   const handleNext = async () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      // Calculate score and category
+      // Calculate scores and category
       const score = calculateScore();
+      const leadScore = calculateLeadScore();
       const teamAssessment = getTeamCategory(score);
+      const email = formData.contactEmail || '';
       
       // Complete the discovery
       updateDiscoveryData({
@@ -165,6 +249,11 @@ export const ExecutiveFlow: React.FC = () => {
         revenueKPIs: formData.revenueKPIs,
         powerUsers: formData.powerUsers,
         teamRecognition: formData.teamRecognition,
+        authorityLevel: formData.authorityLevel,
+        implementationTimeline: formData.implementationTimeline,
+        leadScore: leadScore,
+        qualificationTier: getQualificationTier(leadScore),
+        emailDomainType: getEmailDomainType(email),
         aiInsights: {
           readinessScore: score,
           category: teamAssessment.category,

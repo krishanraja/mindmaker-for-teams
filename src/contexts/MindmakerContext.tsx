@@ -15,6 +15,13 @@ export interface AIDiscoveryData {
   powerUsers: string;
   teamRecognition: string;
   
+  // Lead qualification data
+  authorityLevel?: string;
+  implementationTimeline?: string;
+  leadScore?: number;
+  qualificationTier?: 'Hot' | 'Warm' | 'Cold';
+  emailDomainType?: 'Business' | 'Personal';
+  
   // Legacy fields for backwards compatibility
   industry?: string;
   employeeCount?: number;
@@ -23,7 +30,6 @@ export interface AIDiscoveryData {
   leadershipVision?: string;
   learningPreferences?: string;
   successMetrics?: string[];
-  implementationTimeline?: string;
   contactRole?: string;
   
   // Assessment results

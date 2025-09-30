@@ -17,13 +17,20 @@ interface AssessmentNotificationRequest {
     contactName: string;
     contactEmail: string;
     
-    // AI Revenue Impact Assessment Data (6 new questions)
+    // AI Revenue Impact Assessment Data (6 questions)
     aiUsagePercentage: string;
     growthUseCases: string;
     messagingAdaptation: string;
     revenueKPIs: string;
     powerUsers: string;
     teamRecognition: string;
+    
+    // Lead Qualification Data
+    authorityLevel?: string;
+    implementationTimeline?: string;
+    leadScore?: number;
+    qualificationTier?: 'Hot' | 'Warm' | 'Cold';
+    emailDomainType?: 'Business' | 'Personal';
     
     // AI Generated Insights
     aiInsights?: {
@@ -49,10 +56,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Sending assessment notification to krish@fractionl.ai");
     
+    // Calculate qualification tier display
+    const leadScore = assessmentData.leadScore || 0;
+    const qualificationTier = assessmentData.qualificationTier || 'Cold';
+    const tierEmoji = qualificationTier === 'Hot' ? '🔥' : qualificationTier === 'Warm' ? '⚡' : '❄️';
+    const tierColor = qualificationTier === 'Hot' ? '#ef4444' : qualificationTier === 'Warm' ? '#f59e0b' : '#6b7280';
+    const tierBgColor = qualificationTier === 'Hot' ? '#fee2e2' : qualificationTier === 'Warm' ? '#fef3c7' : '#f3f4f6';
+    
     const emailResponse = await resend.emails.send({
       from: "AI Assessment <assessments@fractionl.ai>",
       to: ["krish@fractionl.ai"],
-      subject: `🚀 AI Revenue Impact Pulse - ${assessmentData.businessName} (${assessmentData.aiInsights?.category || 'Assessment Complete'})`,
+      subject: `${tierEmoji} ${qualificationTier.toUpperCase()} LEAD - ${assessmentData.businessName} (${assessmentData.aiInsights?.category || 'Assessment Complete'})`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
           <div style="background: white; border-radius: 12px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
@@ -60,6 +74,48 @@ const handler = async (req: Request): Promise<Response> => {
             <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #e5e7eb;">
               <h1 style="color: #1f2937; margin: 0; font-size: 28px;">🚀 AI Revenue Impact Pulse</h1>
               <p style="color: #6b7280; margin: 8px 0 0 0; font-size: 16px;">Strategic AI readiness assessment for revenue acceleration</p>
+            </div>
+
+            <!-- Lead Qualification Intelligence -->
+            <div style="margin-bottom: 32px; background: ${tierBgColor}; padding: 24px; border-radius: 8px; border: 3px solid ${tierColor};">
+              <h2 style="color: #1f2937; margin: 0 0 16px 0; font-size: 22px; text-align: center;">🎯 Lead Qualification Intelligence</h2>
+              
+              <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+                <div style="text-align: center; margin: 10px;">
+                  <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">Lead Score</div>
+                  <div style="font-size: 48px; font-weight: bold; color: ${tierColor};">${leadScore}/100</div>
+                </div>
+                <div style="text-align: center; margin: 10px;">
+                  <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">Qualification Tier</div>
+                  <div style="font-size: 28px; font-weight: bold; color: ${tierColor}; background: white; padding: 12px 24px; border-radius: 8px; border: 2px solid ${tierColor};">${tierEmoji} ${qualificationTier}</div>
+                </div>
+                <div style="text-align: center; margin: 10px;">
+                  <div style="font-size: 14px; color: #6b7280; margin-bottom: 5px;">Email Type</div>
+                  <div style="font-size: 20px; font-weight: bold; color: ${tierColor};">${assessmentData.emailDomainType || 'Unknown'}</div>
+                </div>
+              </div>
+              
+              <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; margin-bottom: 16px;">
+                <tr>
+                  <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; font-weight: 600;">Authority Level:</td>
+                  <td style="padding: 14px; border-bottom: 1px solid #e5e7eb;">${assessmentData.authorityLevel || 'Not specified'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 14px; font-weight: 600;">Timeline Urgency:</td>
+                  <td style="padding: 14px;">${assessmentData.implementationTimeline || 'Not specified'}</td>
+                </tr>
+              </table>
+              
+              <div style="background: white; padding: 16px; border-radius: 8px; border-left: 4px solid ${tierColor};">
+                <strong style="color: #1f2937; font-size: 16px;">📋 Recommended Action:</strong>
+                <p style="margin: 10px 0 0 0; color: #4b5563; line-height: 1.6;">
+                  ${qualificationTier === 'Hot' 
+                    ? '<strong>⚡ IMMEDIATE FOLLOW-UP RECOMMENDED</strong><br>High authority decision maker with urgent timeline. Priority outreach within 24 hours.' 
+                    : qualificationTier === 'Warm'
+                    ? '<strong>📅 Follow up within 24-48 hours</strong><br>Good potential with moderate urgency. Schedule discovery call and send personalized follow-up.'
+                    : '<strong>📚 Nurture lead approach</strong><br>Lower urgency or authority. Consider content-first approach with educational resources and periodic check-ins.'}
+                </p>
+              </div>
             </div>
 
             <!-- Contact Information -->

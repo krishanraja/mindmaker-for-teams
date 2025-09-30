@@ -55,6 +55,13 @@ export const ResultsScreen: React.FC = () => {
             powerUsers: discoveryData.powerUsers,
             teamRecognition: discoveryData.teamRecognition,
             
+            // Lead Qualification Data
+            authorityLevel: discoveryData.authorityLevel,
+            implementationTimeline: discoveryData.implementationTimeline,
+            leadScore: discoveryData.leadScore,
+            qualificationTier: discoveryData.qualificationTier,
+            emailDomainType: discoveryData.emailDomainType,
+            
             // Assessment Results
             aiInsights: discoveryData.aiInsights
           }
@@ -134,6 +141,10 @@ export const ResultsScreen: React.FC = () => {
                 <Calendar className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
+            
+            <p className="text-xs text-center text-muted-foreground px-4 mt-3">
+              By booking a session, you consent to receiving tailored AI growth insights from Krish Raja at Fractionl.ai
+            </p>
           </div>
 
           {/* Trust & Social Proof */}
