@@ -80,38 +80,30 @@ export const ResultsScreen: React.FC = () => {
             </p>
           </div>
 
-          {/* Team Category Result - More compact on mobile */}
+          {/* Team Category Result - Compact */}
           <Card className="glass-card bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-            <div className="p-4 sm:p-6 md:p-8 text-center space-y-1 sm:space-y-2">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary">
+            <div className="p-3 sm:p-4 text-center">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-primary">
                 {discoveryData.aiInsights?.category || 'AI-Curious Team'}
               </h2>
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground">
-                {discoveryData.aiInsights?.description || 'Promising experiments—but no tie to growth yet.'}
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                Score: <span className="font-bold text-primary">{discoveryData.aiInsights?.readinessScore || 0}/6</span>
               </p>
-              <div className="pt-2 sm:pt-4">
-                <div className="inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
-                  <span className="font-semibold">Score:</span>
-                  <span className="text-xl sm:text-2xl font-bold text-primary">
-                    {discoveryData.aiInsights?.readinessScore || 0}/6
-                  </span>
-                </div>
-              </div>
             </div>
           </Card>
 
-          {/* AI-Powered Insights */}
-          {discoveryData.aiInsights && (
-            <ResultsInsights insights={discoveryData.aiInsights} />
-          )}
-
-          {/* Module Recommendations */}
+          {/* HERO: Module Recommendations First */}
           {discoveryData.aiInsights?.recommendedModules && 
            discoveryData.aiInsights.recommendedModules.length > 0 && (
             <AIModuleRecommendations 
               modules={discoveryData.aiInsights.recommendedModules}
               onBookSession={handleScheduleConsultation}
             />
+          )}
+
+          {/* AI-Powered Insights - Secondary */}
+          {discoveryData.aiInsights && (
+            <ResultsInsights insights={discoveryData.aiInsights} />
           )}
 
           {/* CTA Section (if no modules available, show basic CTA) */}
@@ -141,30 +133,21 @@ export const ResultsScreen: React.FC = () => {
             </div>
           )}
 
-          {/* Trust & Social Proof - Compact on mobile */}
-          <Card className="glass-card bg-gradient-to-r from-muted/30 to-muted/10">
-            <div className="p-3 sm:p-4 md:p-6 text-center">
-              <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-4">Join leaders who've transformed their teams</h4>
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 text-xs sm:text-sm">
-                <div>
-                  <div className="flex justify-center mb-0.5 sm:mb-1">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="text-base sm:text-xl md:text-2xl text-yellow-500">★</div>
-                    ))}
-                  </div>
-                  <div className="text-muted-foreground">Sessions</div>
-                </div>
-                <div>
-                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-primary">200+</div>
-                  <div className="text-muted-foreground">Transformed</div>
-                </div>
-                <div>
-                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-primary">90d</div>
-                  <div className="text-muted-foreground">Impact</div>
-                </div>
-              </div>
+          {/* Trust & Social Proof - Minimal */}
+          <div className="grid grid-cols-3 gap-2 text-center text-xs">
+            <div>
+              <div className="text-lg font-bold text-primary">★★★★★</div>
+              <div className="text-muted-foreground">Rated</div>
             </div>
-          </Card>
+            <div>
+              <div className="text-lg font-bold text-primary">200+</div>
+              <div className="text-muted-foreground">Teams</div>
+            </div>
+            <div>
+              <div className="text-lg font-bold text-primary">90d</div>
+              <div className="text-muted-foreground">Results</div>
+            </div>
+          </div>
 
           {/* Footer Action - Compact on mobile */}
           <div className="text-center pt-4 sm:pt-6 md:pt-8">

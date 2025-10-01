@@ -8,7 +8,8 @@ import {
   CheckCircle,
   BarChart3,
   Zap,
-  Shield
+  Shield,
+  ChevronDown
 } from 'lucide-react';
 
 interface ResultsInsightsProps {
@@ -16,6 +17,7 @@ interface ResultsInsightsProps {
 }
 
 export const ResultsInsights: React.FC<ResultsInsightsProps> = ({ insights }) => {
+  const [expandedSection, setExpandedSection] = React.useState<string | null>(null);
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-blue-600';
@@ -31,151 +33,95 @@ export const ResultsInsights: React.FC<ResultsInsightsProps> = ({ insights }) =>
   };
 
   return (
-    <div className="space-y-3 sm:space-y-4 md:space-y-6">
-      {/* Strategic Summary - More compact on mobile */}
-      {insights?.strategicSummary && (
-        <Card className="glass-card bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
-          <div className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Zap className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm sm:text-base md:text-lg font-bold mb-1 sm:mb-2">Strategic Assessment</h3>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  {insights.strategicSummary}
-                </p>
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Score Dashboard - Compact on mobile */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
-        {/* AI Maturity */}
+    <div className="space-y-2 sm:space-y-3">
+      {/* Score Dashboard - Ultra Compact */}
+      <div className="grid grid-cols-3 gap-2">
         {insights?.aiMaturityScore !== undefined && (
-          <Card className="glass-card">
-            <div className="p-3 sm:p-4 md:p-6">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">AI Maturity</p>
-                  <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(insights.aiMaturityScore)}`}>
-                    {insights.aiMaturityScore}
-                  </p>
-                </div>
+          <Card className="glass-card text-center">
+            <div className="p-2">
+              <BarChart3 className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+              <div className={`text-xl font-bold ${getScoreColor(insights.aiMaturityScore)}`}>
+                {insights.aiMaturityScore}
               </div>
-              <Badge variant="outline" className="text-xs">
-                {getScoreLabel(insights.aiMaturityScore)}
-              </Badge>
+              <div className="text-[10px] text-muted-foreground">Maturity</div>
             </div>
           </Card>
         )}
 
-        {/* Revenue Impact */}
         {insights?.revenueImpactPotential !== undefined && (
-          <Card className="glass-card">
-            <div className="p-3 sm:p-4 md:p-6">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Revenue Impact</p>
-                  <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(insights.revenueImpactPotential)}`}>
-                    {insights.revenueImpactPotential}
-                  </p>
-                </div>
+          <Card className="glass-card text-center">
+            <div className="p-2">
+              <TrendingUp className="w-4 h-4 text-green-600 mx-auto mb-1" />
+              <div className={`text-xl font-bold ${getScoreColor(insights.revenueImpactPotential)}`}>
+                {insights.revenueImpactPotential}
               </div>
-              <Badge variant="outline" className="text-xs">
-                {getScoreLabel(insights.revenueImpactPotential)}
-              </Badge>
+              <div className="text-[10px] text-muted-foreground">Revenue</div>
             </div>
           </Card>
         )}
 
-        {/* Implementation Readiness */}
         {insights?.implementationReadiness !== undefined && (
-          <Card className="glass-card">
-            <div className="p-3 sm:p-4 md:p-6">
-              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Readiness</p>
-                  <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(insights.implementationReadiness)}`}>
-                    {insights.implementationReadiness}
-                  </p>
-                </div>
+          <Card className="glass-card text-center">
+            <div className="p-2">
+              <Shield className="w-4 h-4 text-purple-600 mx-auto mb-1" />
+              <div className={`text-xl font-bold ${getScoreColor(insights.implementationReadiness)}`}>
+                {insights.implementationReadiness}
               </div>
-              <Badge variant="outline" className="text-xs">
-                {getScoreLabel(insights.implementationReadiness)}
-              </Badge>
+              <div className="text-[10px] text-muted-foreground">Readiness</div>
             </div>
           </Card>
         )}
       </div>
 
-      {/* Key Opportunities - Compact on mobile */}
-      {insights?.recommendations && insights.recommendations.length > 0 && (
+      {/* Collapsible Detailed Insights */}
+      {(insights?.strategicSummary || insights?.recommendations || insights?.riskFactors || insights?.investmentInsight) && (
         <Card className="glass-card">
-          <div className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 md:mb-4">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                <Target className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-              </div>
-              <h3 className="text-sm sm:text-base md:text-lg font-bold">Key Opportunities</h3>
+          <button 
+            onClick={() => setExpandedSection(expandedSection === 'details' ? null : 'details')}
+            className="w-full p-3 flex items-center justify-between text-left hover:bg-muted/50 transition-colors rounded-lg"
+          >
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold">Detailed Analysis</span>
             </div>
-            <ul className="space-y-2 sm:space-y-3">
-              {insights.recommendations.map((rec: string, index: number) => (
-                <li key={index} className="flex items-start gap-2 sm:gap-3">
-                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{rec}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Card>
-      )}
-
-      {/* Risk Factors - Compact on mobile */}
-      {insights?.riskFactors && insights.riskFactors.length > 0 && (
-        <Card className="glass-card border-orange-200/50">
-          <div className="p-3 sm:p-4 md:p-6">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 md:mb-4">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-orange-500/10 flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
-              </div>
-              <h3 className="text-sm sm:text-base md:text-lg font-bold">Risk Factors</h3>
+            <ChevronDown className={`w-4 h-4 transition-transform ${expandedSection === 'details' ? 'rotate-180' : ''}`} />
+          </button>
+          
+          {expandedSection === 'details' && (
+            <div className="px-3 pb-3 space-y-3 border-t pt-3">
+              {insights?.recommendations && insights.recommendations.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Target className="w-4 h-4 text-green-600" />
+                    <h4 className="text-xs font-semibold">Opportunities</h4>
+                  </div>
+                  <ul className="space-y-1.5 pl-6">
+                    {insights.recommendations.slice(0, 3).map((rec: string, index: number) => (
+                      <li key={index} className="text-xs text-muted-foreground list-disc">
+                        {rec}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {insights?.riskFactors && insights.riskFactors.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertTriangle className="w-4 h-4 text-orange-600" />
+                    <h4 className="text-xs font-semibold">Watch For</h4>
+                  </div>
+                  <ul className="space-y-1.5 pl-6">
+                    {insights.riskFactors.slice(0, 3).map((risk: string, index: number) => (
+                      <li key={index} className="text-xs text-muted-foreground list-disc">
+                        {risk}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-            <ul className="space-y-2 sm:space-y-3">
-              {insights.riskFactors.map((risk: string, index: number) => (
-                <li key={index} className="flex items-start gap-2 sm:gap-3">
-                  <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{risk}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Card>
-      )}
-
-      {/* Investment Insight - Compact on mobile */}
-      {insights?.investmentInsight && (
-        <Card className="glass-card bg-gradient-to-r from-muted/30 to-muted/10">
-          <div className="p-3 sm:p-4 md:p-6">
-            <h4 className="text-sm sm:text-base font-semibold mb-1 sm:mb-2 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              Investment
-            </h4>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              {insights.investmentInsight}
-            </p>
-          </div>
+          )}
         </Card>
       )}
     </div>
