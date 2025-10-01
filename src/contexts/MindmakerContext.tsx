@@ -50,7 +50,7 @@ export interface AIDiscoveryData {
 }
 
 export interface AppState {
-  currentStep: number; // 1 = welcome, 2 = conversation, 3 = results
+  currentStep: number;
   discoveryData: AIDiscoveryData;
   conversationComplete: boolean;
 }
@@ -62,6 +62,12 @@ interface MindmakerContextType {
   markConversationComplete: () => void;
   resetMindmaker: () => void;
 }
+
+type Action = 
+  | { type: 'UPDATE_DATA'; payload: Partial<AIDiscoveryData> }
+  | { type: 'SET_STEP'; payload: number }
+  | { type: 'COMPLETE_CONVERSATION' }
+  | { type: 'RESET' };
 
 const initialData: AIDiscoveryData = {
   businessName: '',
@@ -81,13 +87,7 @@ const initialState: AppState = {
   conversationComplete: false,
 };
 
-type Action = 
-  | { type: 'UPDATE_DATA'; payload: Partial<AIDiscoveryData> }
-  | { type: 'SET_STEP'; payload: number }
-  | { type: 'COMPLETE_CONVERSATION' }
-  | { type: 'RESET' };
-
-const reducer = (state: AppState, action: Action): AppState => {
+function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'UPDATE_DATA':
       return {
@@ -103,19 +103,19 @@ const reducer = (state: AppState, action: Action): AppState => {
     default:
       return state;
   }
-};
+}
 
 const MindmakerContext = createContext<MindmakerContextType | null>(null);
 
-export const useMindmaker = () => {
+export function useMindmaker() {
   const context = useContext(MindmakerContext);
   if (!context) {
     throw new Error('useMindmaker must be used within MindmakerProvider');
   }
   return context;
-};
+}
 
-export const MindmakerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function MindmakerProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const updateDiscoveryData = useCallback((data: Partial<AIDiscoveryData>) => {
@@ -134,15 +134,17 @@ export const MindmakerProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     dispatch({ type: 'RESET' });
   }, []);
 
+  const value = React.useMemo(() => ({
+    state,
+    updateDiscoveryData,
+    setCurrentStep,
+    markConversationComplete,
+    resetMindmaker,
+  }), [state, updateDiscoveryData, setCurrentStep, markConversationComplete, resetMindmaker]);
+
   return (
-    <MindmakerContext.Provider value={{
-      state,
-      updateDiscoveryData,
-      setCurrentStep,
-      markConversationComplete,
-      resetMindmaker,
-    }}>
+    <MindmakerContext.Provider value={value}>
       {children}
     </MindmakerContext.Provider>
   );
-};
+}
