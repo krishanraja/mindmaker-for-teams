@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Sparkles, Building2, Users, Target, Brain, Zap, 
 import { useMindmaker } from '../contexts/MindmakerContext';
 import { supabase } from '../integrations/supabase/client';
 import { ButtonGridSelection, LargeButtonSelection } from './ai/SelectionComponents';
+import { ProgressiveLoadingStates } from './ai/ProgressiveLoadingStates';
 
 export const ExecutiveFlow: React.FC = () => {
   const { state, updateDiscoveryData, setCurrentStep, markConversationComplete } = useMindmaker();
@@ -386,6 +387,11 @@ export const ExecutiveFlow: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [canProceed, isGeneratingInsights]);
+
+  // Show loading screen during AI generation
+  if (isGeneratingInsights) {
+    return <ProgressiveLoadingStates />;
+  }
 
   return (
     <div className="min-h-screen bg-background">

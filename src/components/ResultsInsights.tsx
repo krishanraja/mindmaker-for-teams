@@ -31,18 +31,18 @@ export const ResultsInsights: React.FC<ResultsInsightsProps> = ({ insights }) =>
   };
 
   return (
-    <div className="space-y-6">
-      {/* Strategic Summary */}
+    <div className="space-y-3 sm:space-y-4 md:space-y-6">
+      {/* Strategic Summary - More compact on mobile */}
       {insights?.strategicSummary && (
         <Card className="glass-card bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
-          <div className="p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Zap className="w-6 h-6 text-primary" />
+          <div className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-primary" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold mb-2">Strategic Assessment</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <h3 className="text-sm sm:text-base md:text-lg font-bold mb-1 sm:mb-2">Strategic Assessment</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   {insights.strategicSummary}
                 </p>
               </div>
@@ -51,19 +51,19 @@ export const ResultsInsights: React.FC<ResultsInsightsProps> = ({ insights }) =>
         </Card>
       )}
 
-      {/* Score Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Score Dashboard - Compact on mobile */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
         {/* AI Maturity */}
         {insights?.aiMaturityScore !== undefined && (
           <Card className="glass-card">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-blue-600" />
+            <div className="p-3 sm:p-4 md:p-6">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">AI Maturity</p>
-                  <p className={`text-2xl font-bold ${getScoreColor(insights.aiMaturityScore)}`}>
+                  <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(insights.aiMaturityScore)}`}>
                     {insights.aiMaturityScore}
                   </p>
                 </div>
@@ -78,14 +78,14 @@ export const ResultsInsights: React.FC<ResultsInsightsProps> = ({ insights }) =>
         {/* Revenue Impact */}
         {insights?.revenueImpactPotential !== undefined && (
           <Card className="glass-card">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-green-600" />
+            <div className="p-3 sm:p-4 md:p-6">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Revenue Impact</p>
-                  <p className={`text-2xl font-bold ${getScoreColor(insights.revenueImpactPotential)}`}>
+                  <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(insights.revenueImpactPotential)}`}>
                     {insights.revenueImpactPotential}
                   </p>
                 </div>
@@ -100,14 +100,14 @@ export const ResultsInsights: React.FC<ResultsInsightsProps> = ({ insights }) =>
         {/* Implementation Readiness */}
         {insights?.implementationReadiness !== undefined && (
           <Card className="glass-card">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-purple-600" />
+            <div className="p-3 sm:p-4 md:p-6">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Readiness</p>
-                  <p className={`text-2xl font-bold ${getScoreColor(insights.implementationReadiness)}`}>
+                  <p className={`text-xl sm:text-2xl font-bold ${getScoreColor(insights.implementationReadiness)}`}>
                     {insights.implementationReadiness}
                   </p>
                 </div>
@@ -120,21 +120,21 @@ export const ResultsInsights: React.FC<ResultsInsightsProps> = ({ insights }) =>
         )}
       </div>
 
-      {/* Key Opportunities */}
+      {/* Key Opportunities - Compact on mobile */}
       {insights?.recommendations && insights.recommendations.length > 0 && (
         <Card className="glass-card">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                <Target className="w-5 h-5 text-green-600" />
+          <div className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 md:mb-4">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                <Target className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
               </div>
-              <h3 className="text-lg font-bold">Key Opportunities</h3>
+              <h3 className="text-sm sm:text-base md:text-lg font-bold">Key Opportunities</h3>
             </div>
-            <ul className="space-y-3">
+            <ul className="space-y-2 sm:space-y-3">
               {insights.recommendations.map((rec: string, index: number) => (
-                <li key={index} className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-muted-foreground leading-relaxed">{rec}</span>
+                <li key={index} className="flex items-start gap-2 sm:gap-3">
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{rec}</span>
                 </li>
               ))}
             </ul>
@@ -142,21 +142,21 @@ export const ResultsInsights: React.FC<ResultsInsightsProps> = ({ insights }) =>
         </Card>
       )}
 
-      {/* Risk Factors */}
+      {/* Risk Factors - Compact on mobile */}
       {insights?.riskFactors && insights.riskFactors.length > 0 && (
         <Card className="glass-card border-orange-200/50">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-orange-600" />
+          <div className="p-3 sm:p-4 md:p-6">
+            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 md:mb-4">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-orange-500/10 flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
               </div>
-              <h3 className="text-lg font-bold">Risk Factors to Address</h3>
+              <h3 className="text-sm sm:text-base md:text-lg font-bold">Risk Factors</h3>
             </div>
-            <ul className="space-y-3">
+            <ul className="space-y-2 sm:space-y-3">
               {insights.riskFactors.map((risk: string, index: number) => (
-                <li key={index} className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-muted-foreground leading-relaxed">{risk}</span>
+                <li key={index} className="flex items-start gap-2 sm:gap-3">
+                  <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{risk}</span>
                 </li>
               ))}
             </ul>
@@ -164,15 +164,15 @@ export const ResultsInsights: React.FC<ResultsInsightsProps> = ({ insights }) =>
         </Card>
       )}
 
-      {/* Investment Insight */}
+      {/* Investment Insight - Compact on mobile */}
       {insights?.investmentInsight && (
         <Card className="glass-card bg-gradient-to-r from-muted/30 to-muted/10">
-          <div className="p-6">
-            <h4 className="font-semibold mb-2 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              Investment Insight
+          <div className="p-3 sm:p-4 md:p-6">
+            <h4 className="text-sm sm:text-base font-semibold mb-1 sm:mb-2 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+              Investment
             </h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               {insights.investmentInsight}
             </p>
           </div>

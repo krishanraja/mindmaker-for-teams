@@ -61,38 +61,38 @@ export const ResultsScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container-width py-6 sm:py-8 md:py-12 px-4 sm:px-6 md:px-0">
-        <div className="max-w-6xl mx-auto space-y-8">
-          {/* Header */}
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 border-2 border-primary/20 mb-4">
-              <Sparkles className="w-8 h-8 text-primary" />
+      <div className="container-width py-4 sm:py-6 md:py-12 px-4 sm:px-6 md:px-0">
+        <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
+          {/* Header - More compact on mobile */}
+          <div className="text-center space-y-2 sm:space-y-3 md:space-y-4">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-primary/10 border-2 border-primary/20 mb-2 sm:mb-4">
+              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
               {discoveryData.businessName}
             </h1>
-            <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-sm">
-              <Brain className="w-4 h-4 mr-1" />
-              AI Revenue Impact Analysis Complete
+            <Badge className="bg-green-500/10 text-green-600 border-green-500/20 text-xs sm:text-sm">
+              <Brain className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              Analysis Complete
             </Badge>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Your personalized AI literacy roadmap, powered by enterprise intelligence
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
+              Your personalized AI literacy roadmap
             </p>
           </div>
 
-          {/* Team Category Result */}
+          {/* Team Category Result - More compact on mobile */}
           <Card className="glass-card bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
-            <div className="p-8 text-center space-y-2">
-              <h2 className="text-3xl sm:text-4xl font-bold text-primary">
+            <div className="p-4 sm:p-6 md:p-8 text-center space-y-1 sm:space-y-2">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary">
                 {discoveryData.aiInsights?.category || 'AI-Curious Team'}
               </h2>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground">
                 {discoveryData.aiInsights?.description || 'Promising experiments—but no tie to growth yet.'}
               </p>
-              <div className="pt-4">
-                <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="font-semibold">Your Score:</span>
-                  <span className="text-2xl font-bold text-primary">
+              <div className="pt-2 sm:pt-4">
+                <div className="inline-flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <span className="font-semibold">Score:</span>
+                  <span className="text-xl sm:text-2xl font-bold text-primary">
                     {discoveryData.aiInsights?.readinessScore || 0}/6
                   </span>
                 </div>
@@ -141,36 +141,36 @@ export const ResultsScreen: React.FC = () => {
             </div>
           )}
 
-          {/* Trust & Social Proof */}
+          {/* Trust & Social Proof - Compact on mobile */}
           <Card className="glass-card bg-gradient-to-r from-muted/30 to-muted/10">
-            <div className="p-6 text-center">
-              <h4 className="font-semibold mb-4">Join leaders who've transformed their teams</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-sm">
+            <div className="p-3 sm:p-4 md:p-6 text-center">
+              <h4 className="font-semibold text-sm sm:text-base mb-2 sm:mb-4">Join leaders who've transformed their teams</h4>
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-6 text-xs sm:text-sm">
                 <div>
-                  <div className="flex justify-center mb-1">
+                  <div className="flex justify-center mb-0.5 sm:mb-1">
                     {[...Array(5)].map((_, i) => (
-                      <div key={i} className="text-2xl text-yellow-500">★</div>
+                      <div key={i} className="text-base sm:text-xl md:text-2xl text-yellow-500">★</div>
                     ))}
                   </div>
-                  <div className="text-muted-foreground">Executive sessions</div>
+                  <div className="text-muted-foreground">Sessions</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-primary">200+</div>
-                  <div className="text-muted-foreground">Individuals transformed</div>
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-primary">200+</div>
+                  <div className="text-muted-foreground">Transformed</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-primary">90 days</div>
-                  <div className="text-muted-foreground">To measurable impact</div>
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-primary">90d</div>
+                  <div className="text-muted-foreground">Impact</div>
                 </div>
               </div>
             </div>
           </Card>
 
-          {/* Footer Action */}
-          <div className="text-center pt-8">
+          {/* Footer Action - Compact on mobile */}
+          <div className="text-center pt-4 sm:pt-6 md:pt-8">
             <button 
               onClick={resetMindmaker}
-              className="btn-ghost text-muted-foreground hover:text-foreground inline-flex items-center gap-2"
+              className="btn-ghost text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm sm:text-base"
             >
               <ArrowLeft className="w-4 h-4" />
               Start Over
