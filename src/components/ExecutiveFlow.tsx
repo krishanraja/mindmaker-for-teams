@@ -232,39 +232,100 @@ export const ExecutiveFlow: React.FC = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      // Calculate scores and category
-      const score = calculateScore();
-      const leadScore = calculateLeadScore();
-      const teamAssessment = getTeamCategory(score);
-      const email = formData.contactEmail || '';
+      setIsGeneratingInsights(true);
       
-      // Complete the discovery
-      updateDiscoveryData({
-        businessName: formData.businessName,
-        contactName: formData.contactName,
-        contactEmail: formData.contactEmail,
-        aiUsagePercentage: formData.aiUsagePercentage,
-        growthUseCases: formData.growthUseCases,
-        messagingAdaptation: formData.messagingAdaptation,
-        revenueKPIs: formData.revenueKPIs,
-        powerUsers: formData.powerUsers,
-        teamRecognition: formData.teamRecognition,
-        authorityLevel: formData.authorityLevel,
-        implementationTimeline: formData.implementationTimeline,
-        leadScore: leadScore,
-        qualificationTier: getQualificationTier(leadScore),
-        emailDomainType: getEmailDomainType(email),
-        aiInsights: {
-          readinessScore: score,
-          category: teamAssessment.category,
-          description: teamAssessment.description,
-          recommendations: [],
-          riskFactors: [],
-          opportunityAreas: [],
-          investmentRange: ''
+      try {
+        // Calculate scores and category
+        const score = calculateScore();
+        const leadScore = calculateLeadScore();
+        const teamAssessment = getTeamCategory(score);
+        const email = formData.contactEmail || '';
+        
+        // Prepare assessment data for AI insights
+        const assessmentData = {
+          businessName: formData.businessName,
+          contactName: formData.contactName,
+          contactEmail: formData.contactEmail,
+          aiUsagePercentage: formData.aiUsagePercentage,
+          growthUseCases: formData.growthUseCases,
+          messagingAdaptation: formData.messagingAdaptation,
+          revenueKPIs: formData.revenueKPIs,
+          powerUsers: formData.powerUsers,
+          teamRecognition: formData.teamRecognition,
+          authorityLevel: formData.authorityLevel,
+          implementationTimeline: formData.implementationTimeline,
+          leadScore: leadScore,
+          qualificationTier: getQualificationTier(leadScore),
+          emailDomainType: getEmailDomainType(email)
+        };
+        
+        // Call AI insights generation
+        const { data: insights, error } = await supabase.functions.invoke('generate-business-insights', {
+          body: { assessmentData }
+        });
+        
+        if (error) {
+          console.error('Error generating insights:', error);
+          throw error;
         }
-      });
-      markConversationComplete();
+        
+        // Complete the discovery with AI-powered insights
+        updateDiscoveryData({
+          ...assessmentData,
+          aiInsights: {
+            readinessScore: score,
+            category: teamAssessment.category,
+            description: teamAssessment.description,
+            recommendations: insights?.keyOpportunities || [],
+            riskFactors: insights?.riskFactors || [],
+            opportunityAreas: insights?.keyOpportunities || [],
+            investmentRange: insights?.investmentInsight || '',
+            aiMaturityScore: insights?.aiMaturityScore || score * 10,
+            revenueImpactPotential: insights?.revenueImpactPotential || 70,
+            implementationReadiness: insights?.implementationReadiness || leadScore,
+            strategicSummary: insights?.strategicSummary || teamAssessment.description,
+            recommendedModules: insights?.recommendedModules || []
+          }
+        });
+        
+        markConversationComplete();
+      } catch (error) {
+        console.error('Failed to generate insights:', error);
+        // Fallback to basic scoring if AI insights fail
+        const score = calculateScore();
+        const leadScore = calculateLeadScore();
+        const teamAssessment = getTeamCategory(score);
+        const email = formData.contactEmail || '';
+        
+        updateDiscoveryData({
+          businessName: formData.businessName,
+          contactName: formData.contactName,
+          contactEmail: formData.contactEmail,
+          aiUsagePercentage: formData.aiUsagePercentage,
+          growthUseCases: formData.growthUseCases,
+          messagingAdaptation: formData.messagingAdaptation,
+          revenueKPIs: formData.revenueKPIs,
+          powerUsers: formData.powerUsers,
+          teamRecognition: formData.teamRecognition,
+          authorityLevel: formData.authorityLevel,
+          implementationTimeline: formData.implementationTimeline,
+          leadScore: leadScore,
+          qualificationTier: getQualificationTier(leadScore),
+          emailDomainType: getEmailDomainType(email),
+          aiInsights: {
+            readinessScore: score,
+            category: teamAssessment.category,
+            description: teamAssessment.description,
+            recommendations: [],
+            riskFactors: [],
+            opportunityAreas: [],
+            investmentRange: ''
+          }
+        });
+        markConversationComplete();
+      } finally {
+        setIsGeneratingInsights(false);
+      }
     }
   };
 

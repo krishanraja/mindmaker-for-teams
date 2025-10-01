@@ -2,7 +2,8 @@ import React from 'react';
 import { Badge } from '../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Card } from '../ui/card';
-import { CheckCircle, Circle, X } from 'lucide-react';
+import { CheckCircle, Circle, X, Check } from 'lucide-react';
+import { EnterpriseSelectionCard } from './EnterpriseSelectionCard';
 
 interface SelectionChoice {
   value: string;
@@ -76,32 +77,28 @@ export const ButtonGridSelection: React.FC<ButtonGridSelectionProps> = ({
   columns = 2
 }) => {
   return (
-    <Card className="p-4">
-      <div className="space-y-3">
-        <div>
-          <h4 className="font-medium text-sm">{title}</h4>
+    <div className="space-y-6">
+      {(title || description) && (
+        <div className="text-center">
+          {title && <h4 className="font-medium text-base">{title}</h4>}
           {description && (
-            <p className="text-xs text-muted-foreground mt-1">{description}</p>
+            <p className="text-sm text-muted-foreground mt-1">{description}</p>
           )}
         </div>
-        <div className={`grid grid-cols-1 md:grid-cols-${columns} gap-2`}>
-          {choices.map((choice) => (
-            <button
-              key={choice.value}
-              onClick={() => onSelect(choice.value)}
-              className={`min-h-[64px] p-3 text-left justify-start flex-col items-start whitespace-normal ${
-                value === choice.value ? "btn-primary" : "btn-outline"
-              }`}
-            >
-              <div className="font-medium text-sm whitespace-normal break-words">{choice.label}</div>
-              {choice.description && (
-                <div className="text-xs opacity-80 mt-1 whitespace-normal break-words">{choice.description}</div>
-              )}
-            </button>
-          ))}
-        </div>
+      )}
+      <div className="grid grid-cols-2 gap-4">
+        {choices.map((choice) => (
+          <EnterpriseSelectionCard
+            key={choice.value}
+            value={choice.value}
+            label={choice.label}
+            description={choice.description}
+            isSelected={value === choice.value}
+            onSelect={() => onSelect(choice.value)}
+          />
+        ))}
       </div>
-    </Card>
+    </div>
   );
 };
 
@@ -121,34 +118,28 @@ export const LargeButtonSelection: React.FC<LargeButtonSelectionProps> = ({
   onSelect
 }) => {
   return (
-    <Card className="p-4">
-      <div className="space-y-3">
-        <div>
-          <h4 className="font-medium text-sm">{title}</h4>
+    <div className="space-y-6">
+      {(title || description) && (
+        <div className="text-center">
+          {title && <h4 className="font-medium text-base">{title}</h4>}
           {description && (
-            <p className="text-xs text-muted-foreground mt-1">{description}</p>
+            <p className="text-sm text-muted-foreground mt-1">{description}</p>
           )}
         </div>
-        <div className="space-y-2">
-          {choices.map((choice) => (
-            <button
-              key={choice.value}
-              onClick={() => onSelect(choice.value)}
-              className={`w-full min-h-[64px] p-4 text-left rounded-md border transition-all whitespace-normal ${
-                value === choice.value
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-border hover:border-primary/50'
-              }`}
-            >
-              <div className="font-medium text-sm whitespace-normal break-words">{choice.label}</div>
-              {choice.description && (
-                <div className="text-xs text-muted-foreground mt-1 whitespace-normal break-words">{choice.description}</div>
-              )}
-            </button>
-          ))}
-        </div>
+      )}
+      <div className="space-y-4">
+        {choices.map((choice) => (
+          <EnterpriseSelectionCard
+            key={choice.value}
+            value={choice.value}
+            label={choice.label}
+            description={choice.description}
+            isSelected={value === choice.value}
+            onSelect={() => onSelect(choice.value)}
+          />
+        ))}
       </div>
-    </Card>
+    </div>
   );
 };
 

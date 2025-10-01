@@ -41,6 +41,11 @@ export interface AIDiscoveryData {
     riskFactors: string[];
     opportunityAreas: string[];
     investmentRange: string;
+    aiMaturityScore?: number;
+    revenueImpactPotential?: number;
+    implementationReadiness?: number;
+    strategicSummary?: string;
+    recommendedModules?: any[];
   };
 }
 

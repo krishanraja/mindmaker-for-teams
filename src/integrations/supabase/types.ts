@@ -91,6 +91,60 @@ export type Database = {
           },
         ]
       }
+      ai_literacy_modules: {
+        Row: {
+          category: string
+          challenges: string[]
+          created_at: string | null
+          credits: number
+          description: string
+          icon: string
+          id: string
+          learning_styles: string[]
+          prerequisites: string[] | null
+          target_audience: string[]
+          team_sizes: string[]
+          tier: string
+          title: string
+          updated_at: string | null
+          urgency: string[]
+        }
+        Insert: {
+          category: string
+          challenges?: string[]
+          created_at?: string | null
+          credits: number
+          description: string
+          icon: string
+          id: string
+          learning_styles?: string[]
+          prerequisites?: string[] | null
+          target_audience?: string[]
+          team_sizes?: string[]
+          tier: string
+          title: string
+          updated_at?: string | null
+          urgency?: string[]
+        }
+        Update: {
+          category?: string
+          challenges?: string[]
+          created_at?: string | null
+          credits?: number
+          description?: string
+          icon?: string
+          id?: string
+          learning_styles?: string[]
+          prerequisites?: string[] | null
+          target_audience?: string[]
+          team_sizes?: string[]
+          tier?: string
+          title?: string
+          updated_at?: string | null
+          urgency?: string[]
+        }
+        Relationships: []
+      }
       booking_requests: {
         Row: {
           company_name: string | null
