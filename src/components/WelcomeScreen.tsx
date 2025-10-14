@@ -1,8 +1,6 @@
 import React from 'react';
-import { Card } from './ui/card';
-import { Sparkles, Zap, Target, Users, ChevronRight, ArrowRight } from 'lucide-react';
+import { Sparkles, Clock, TrendingUp, Users, ArrowRight } from 'lucide-react';
 import { useMindmaker } from '../contexts/MindmakerContext';
-import mindmakerLogo from '../assets/mindmaker-logo.png';
 
 export const WelcomeScreen: React.FC = () => {
   const { setCurrentStep } = useMindmaker();
@@ -12,36 +10,69 @@ export const WelcomeScreen: React.FC = () => {
   };
 
   return (
-    <div className="hero-gradient min-h-screen">
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="text-center max-w-2xl mx-auto">
-          {/* Logo */}
-          <div className="mb-12">
+    <div className="welcome-app-container">
+      {/* Animated Background Layer */}
+      <div className="animated-bg-gradient">
+        <div className="floating-shape shape-1" />
+        <div className="floating-shape shape-2" />
+        <div className="floating-shape shape-3" />
+      </div>
+
+      {/* Main Content */}
+      <div className="min-h-screen flex flex-col items-center justify-center relative z-10 px-4">
+        <div className="hero-glass-card staggered-fade-in text-center">
+          {/* Logo with animation */}
+          <div className="logo-float-animation mb-8 sm:mb-10">
             <img 
               src="/lovable-uploads/mindmaker-logo-64px.png" 
               alt="MINDMAKER" 
-              className="mx-auto h-16 w-auto"
+              className="mx-auto"
             />
           </div>
 
-          {/* Main Headline */}
-          <div className="mb-8">
-            <h1 className="hero-heading hero-text-shimmer mb-6">
-              Is your team's AI literacy driving measurable growth?
-            </h1>
-            <p className="text-xl text-white/80 mb-8">
-              Take 2 minutes to pulse check your team's AI impact
-            </p>
+          {/* Headline & Subtitle */}
+          <h1 className="hero-heading-app">
+            Is your team's AI literacy driving measurable growth?
+          </h1>
+          <p className="hero-subtitle">
+            Take 2 minutes to pulse check your team's AI impact
+          </p>
+
+          {/* Visual Benefit Indicators */}
+          <div className="benefit-badges-grid">
+            <div className="benefit-badge">
+              <Sparkles />
+              <span>AI-Powered</span>
+            </div>
+            <div className="benefit-badge">
+              <Clock />
+              <span>2-Minute</span>
+            </div>
+            <div className="benefit-badge">
+              <TrendingUp />
+              <span>Data-Driven</span>
+            </div>
+            <div className="benefit-badge">
+              <Users />
+              <span>Team Insights</span>
+            </div>
           </div>
 
-          {/* CTA Button */}
+          {/* Enhanced CTA */}
           <button 
             onClick={handleStartDiscovery}
-            className="btn-hero-primary group"
+            className="cta-app-primary"
           >
             Start the Pulse Check
-            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 animated-arrow" />
+            <ArrowRight />
           </button>
+        </div>
+
+        {/* Trust Bar */}
+        <div className="trust-bar">
+          <span>✓ 500+ teams assessed</span>
+          <span>✓ 95% recommend</span>
+          <span>✓ 2-min avg time</span>
         </div>
       </div>
     </div>
