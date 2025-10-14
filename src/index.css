@@ -292,6 +292,71 @@ html {
   .animate-collapsible-up {
     animation: collapsible-up 0.3s ease-out;
   }
+
+  /* === MOBILE APP WELCOME SCREEN === */
+  .mobile-app-welcome {
+    @apply min-h-screen relative overflow-hidden;
+  }
+
+  .animated-gradient-bg {
+    @apply absolute inset-0 overflow-hidden;
+  }
+
+  .floating-shapes {
+    @apply absolute inset-0;
+  }
+
+  .floating-shape {
+    @apply absolute rounded-full opacity-20;
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .glass-card-hero {
+    @apply relative z-10 mx-4 sm:mx-auto max-w-lg;
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+    @apply rounded-3xl shadow-2xl p-8 sm:p-10;
+  }
+
+  .logo-float {
+    animation: logo-float 3s ease-in-out infinite;
+  }
+
+  .fade-in-sequence > * {
+    animation: fade-in-up 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  .fade-in-sequence > *:nth-child(1) { animation-delay: 0.2s; }
+  .fade-in-sequence > *:nth-child(2) { animation-delay: 0.4s; }
+  .fade-in-sequence > *:nth-child(3) { animation-delay: 0.6s; }
+  .fade-in-sequence > *:nth-child(4) { animation-delay: 0.8s; }
+  .fade-in-sequence > *:nth-child(5) { animation-delay: 1s; }
+
+  .cta-primary-large {
+    @apply w-full sm:w-auto inline-flex items-center justify-center gap-3;
+    @apply px-8 py-5 text-lg font-semibold text-white;
+    @apply bg-white/20 hover:bg-white/30 active:bg-white/40;
+    @apply border border-white/30 hover:border-white/50;
+    @apply rounded-2xl shadow-xl hover:shadow-2xl;
+    @apply backdrop-blur-sm transition-all duration-300;
+    @apply transform hover:scale-105 active:scale-95;
+    min-height: 64px;
+  }
+
+  .benefit-icons {
+    @apply flex items-center justify-center gap-6 flex-wrap;
+  }
+
+  .benefit-icon {
+    @apply flex flex-col items-center gap-2 text-white/90;
+  }
+
+  .benefit-icon-circle {
+    @apply w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm;
+    @apply flex items-center justify-center;
+    @apply border border-white/20 shadow-lg;
+    @apply transition-all duration-300 hover:scale-110 hover:bg-white/25;
+  }
 }
 
 /* ========================================
@@ -370,6 +435,27 @@ html {
   to {
     height: 0;
     opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+  }
+  33% {
+    transform: translateY(-30px) translateX(20px) scale(1.05);
+  }
+  66% {
+    transform: translateY(-10px) translateX(-20px) scale(0.95);
+  }
+}
+
+@keyframes logo-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
   }
 }
 
