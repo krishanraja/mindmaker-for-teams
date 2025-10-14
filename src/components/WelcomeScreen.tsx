@@ -14,7 +14,7 @@ export const WelcomeScreen: React.FC = () => {
   return (
     <div className="hero-gradient min-h-screen">
       <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="text-center max-w-2xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto hero-content-card">
           {/* Logo */}
           <div className="mb-12">
             <img 
