@@ -22,7 +22,7 @@ export const RecommendedModules: React.FC = () => {
   const handleBookModule = (module: AILiteracyModule) => {
     // Encode module info for the booking
     const moduleInfo = `Interested in: ${module.title} (${module.credits} credits) - ${module.description}`;
-    const calendlyUrl = `https://calendly.com/krish-raja/mindmaker-teams?notes=${encodeURIComponent(moduleInfo)}`;
+    const calendlyUrl = `https://calendly.com/krish-raja/mindmaker-meeting?notes=${encodeURIComponent(moduleInfo)}`;
     window.open(calendlyUrl, '_blank');
   };
   
@@ -159,7 +159,7 @@ export const RecommendedModules: React.FC = () => {
             <Button 
               size="lg" 
               className="btn-primary w-full sm:w-auto" 
-              onClick={() => window.open('https://calendly.com/krish-raja/mindmaker-teams', '_blank')}
+              onClick={() => window.open('https://calendly.com/krish-raja/mindmaker-meeting', '_blank')}
             >
               <Calendar className="w-4 h-4" />
               Schedule Call

@@ -56,7 +56,7 @@ export const ResultsScreen: React.FC = () => {
     }
     
     // Always open Calendly regardless of email success/failure
-    window.open('https://calendly.com/krish-raja/mindmaker-teams', '_blank');
+    window.open('https://calendly.com/krish-raja/mindmaker-meeting', '_blank');
   };
 
   return (
