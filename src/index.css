@@ -186,49 +186,16 @@ html {
   }
 
   /* === TEXT EFFECTS === */
-  .hero-text-shimmer {
-    background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.4) 0%,
-      rgba(255, 255, 255, 0.8) 20%,
-      rgba(255, 255, 255, 1) 50%,
-      rgba(255, 255, 255, 0.8) 80%,
-      rgba(255, 255, 255, 0.4) 100%
-    ) !important;
-    background-size: 400% 100% !important;
-    background-clip: text !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    animation: hero-text-shimmer 10s linear 2s 1 !important;
-    animation-fill-mode: forwards !important;
-  }
 
   /* === BRAND GRADIENT UTILITY === */
   .bg-brand-gradient {
     background-image: var(--gradient-brand) !important;
   }
 
-  /* === HERO GRADIENT BACKGROUND === */
-  .hero-gradient {
-    background: var(--gradient-brand) !important;
-    min-height: 100vh;
-  }
-
   /* === HERO TYPOGRAPHY === */
   .hero-heading {
     @apply text-4xl sm:text-5xl md:text-6xl font-bold leading-tight;
     font-family: 'Inter', system-ui, sans-serif;
-  }
-
-  /* === HERO BUTTON STYLES === */
-  .btn-hero-primary {
-    @apply inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white bg-white/20 hover:bg-white/30 border border-white/30 hover:border-white/50 rounded-xl shadow-lg hover:shadow-xl backdrop-blur-sm transition-all duration-300 transform hover:scale-105;
-    min-height: 56px;
-    white-space: nowrap;
-  }
-
-  .animated-arrow {
-    @apply transition-transform duration-300;
   }
 
   /* === BUTTON UTILITIES === */
@@ -244,13 +211,6 @@ html {
     @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors;
   }
 
-  /* === RESPONSIVE BUTTON ADJUSTMENTS === */
-  @media (max-width: 640px) {
-    .btn-hero-primary {
-      font-size: 1rem;
-      padding: 0.875rem 1.5rem;
-    }
-  }
 
   /* === TOUCH TARGETS === */
   .touch-target-md {
@@ -309,14 +269,6 @@ html {
   }
 }
 
-@keyframes hero-text-shimmer {
-  0% { 
-    background-position: -200% center;
-  }
-  100% { 
-    background-position: 200% center;
-  }
-}
 
 @keyframes subtle-glow {
   0%, 100% { 
@@ -373,33 +325,6 @@ html {
   }
 }
 
-/* ========================================
-   HERO CONTENT CARD
-   ======================================== */
-
-.hero-content-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1.5rem;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    0 2px 8px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  padding: 3rem 2rem;
-}
-
-@media (min-width: 640px) {
-  .hero-content-card {
-    padding: 4rem 3rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero-content-card {
-    padding: 5rem 4rem;
-  }
-}
 
 /* ========================================
    ACCESSIBILITY & FOCUS STATES
