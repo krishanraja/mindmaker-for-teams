@@ -26,7 +26,7 @@ export const WelcomeScreen: React.FC = () => {
         {/* Main Card */}
         <div className="premium-card max-w-2xl mx-auto mb-8">
           {/* Headline */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight text-center">
+          <h1 className="text-lg sm:text-xl md:text-3xl font-bold mb-4 leading-tight text-center">
             Is your team's AI literacy driving measurable growth?
           </h1>
 
