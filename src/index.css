@@ -220,6 +220,18 @@ html {
     font-family: 'Inter', system-ui, sans-serif;
   }
 
+  /* === PREMIUM HERO TEXT - Gradient + Shimmer === */
+  .premium-hero-text {
+    font-family: 'Inter', system-ui, sans-serif;
+    @apply text-2xl sm:text-3xl md:text-4xl font-semibold leading-[1.2] tracking-[-0.03em] text-center max-w-2xl mx-auto;
+    background: linear-gradient(110deg, hsl(var(--primary)), 45%, hsl(var(--primary-400)), 55%, hsl(var(--primary)));
+    background-size: 250% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 8s ease-in-out infinite;
+  }
+
   /* === BUTTON UTILITIES === */
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium border border-border bg-background hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors min-h-[44px];
