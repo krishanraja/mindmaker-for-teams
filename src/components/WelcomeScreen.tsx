@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from './ui/button';
-import { ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useMindmaker } from '../contexts/MindmakerContext';
 import logo from '@/assets/mindmaker-logo-white-bg.png';
 
@@ -51,29 +51,6 @@ export const WelcomeScreen: React.FC = () => {
           <p className="text-sm text-muted-foreground text-center">
             No credit card required • 2 minute assessment
           </p>
-        </div>
-
-        {/* Feature Cards */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-          <div className="card">
-            <div className="icon-box mb-4">
-              <Sparkles className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold text-primary mb-2">AI-Powered Analysis</h3>
-            <p className="text-muted-foreground">
-              Get instant, personalized insights on your team's AI readiness and growth opportunities
-            </p>
-          </div>
-
-          <div className="card">
-            <div className="icon-box mb-4">
-              <TrendingUp className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold text-primary mb-2">Measurable Impact</h3>
-            <p className="text-muted-foreground">
-              Turn AI literacy into revenue growth with data-driven recommendations
-            </p>
-          </div>
         </div>
       </div>
     </div>
