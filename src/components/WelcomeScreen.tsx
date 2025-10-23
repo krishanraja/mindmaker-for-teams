@@ -7,7 +7,7 @@ import logo from '@/assets/mindmaker-logo-white-bg.png';
 export const WelcomeScreen: React.FC = () => {
   const { setCurrentStep } = useMindmaker();
   
-  const fullText = "AI LITERACY TO UNLOCK COMMERCIAL TEAMS";
+  const fullText = "AI LITERACY FOR COMMERCIAL TEAMS";
   const [displayedText, setDisplayedText] = React.useState('');
   const [isTypingComplete, setIsTypingComplete] = React.useState(false);
 
@@ -32,11 +32,11 @@ export const WelcomeScreen: React.FC = () => {
         {/* Glassmorphic Card - contains all content */}
         <div className="glass-card p-8 md:p-12 lg:p-16">
           {/* Logo - inside card, left aligned, 25% smaller */}
-          <div className="mb-8 -ml-3 md:-ml-2">
+          <div className="mb-8 -ml-4 md:-ml-2">
             <img 
               src={logo}
               alt="MINDMAKER" 
-              className="h-10.5 md:h-12 w-auto"
+              className="h-11 md:h-12 w-auto"
             />
           </div>
 
