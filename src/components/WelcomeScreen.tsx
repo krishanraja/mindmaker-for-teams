@@ -29,19 +29,19 @@ export const WelcomeScreen: React.FC = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
       <div className="max-w-4xl mx-auto w-full">
-        {/* Logo - outside card, centered */}
-        <div className="text-center mb-8">
-          <img 
-            src={logo}
-            alt="MINDMAKER" 
-            className="mx-auto h-14 md:h-16 w-auto"
-          />
-        </div>
-
         {/* Glassmorphic Card - contains all content */}
         <div className="glass-card p-8 md:p-12 lg:p-16">
+          {/* Logo - inside card, left aligned, 25% smaller */}
+          <div className="mb-8">
+            <img 
+              src={logo}
+              alt="MINDMAKER" 
+              className="h-10.5 md:h-12 w-auto"
+            />
+          </div>
+
           {/* Hero Text with Typewriter - left aligned, 30% smaller, bolder */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold uppercase tracking-wide text-primary mb-6 md:mb-10 text-left max-w-4xl min-h-[80px] sm:min-h-[100px] md:min-h-[120px] lg:min-h-[140px]">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold uppercase tracking-wide text-primary mb-3 md:mb-5 text-left max-w-4xl min-h-[80px] sm:min-h-[100px] md:min-h-[120px] lg:min-h-[140px]">
             {displayedText}
             {!isTypingComplete && <span className="typewriter-cursor" />}
           </h1>
