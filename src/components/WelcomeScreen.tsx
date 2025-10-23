@@ -32,7 +32,7 @@ export const WelcomeScreen: React.FC = () => {
         {/* Glassmorphic Card - contains all content */}
         <div className="glass-card p-8 md:p-12 lg:p-16">
           {/* Logo - inside card, left aligned, 25% smaller */}
-          <div className="mb-8">
+          <div className="mb-8 -ml-1.5 md:-ml-2">
             <img 
               src={logo}
               alt="MINDMAKER" 
