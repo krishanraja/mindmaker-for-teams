@@ -41,9 +41,11 @@ export const WelcomeScreen: React.FC = () => {
         {/* Content Container */}
         <div className="max-w-5xl mx-auto">
           {/* Hero Text with Typewriter */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wide text-primary mb-6 md:mb-10 text-center max-w-4xl mx-auto">
-            {displayedText}
-            {!isTypingComplete && <span className="typewriter-cursor" />}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wide text-primary mb-6 md:mb-10 text-center max-w-4xl mx-auto min-h-[120px] sm:min-h-[140px] md:min-h-[180px] lg:min-h-[200px] flex items-center justify-center">
+            <span>
+              {displayedText}
+              {!isTypingComplete && <span className="typewriter-cursor" />}
+            </span>
           </h1>
 
           {/* Description */}
