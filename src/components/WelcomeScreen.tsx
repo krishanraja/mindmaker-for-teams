@@ -6,6 +6,21 @@ import logo from '@/assets/mindmaker-logo-white-bg.png';
 
 export const WelcomeScreen: React.FC = () => {
   const { setCurrentStep } = useMindmaker();
+  
+  const fullText = "Is your team's AI literacy driving measurable growth?";
+  const [displayedText, setDisplayedText] = React.useState('');
+  const [isTypingComplete, setIsTypingComplete] = React.useState(false);
+
+  React.useEffect(() => {
+    if (displayedText.length < fullText.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(fullText.slice(0, displayedText.length + 1));
+      }, 60);
+      return () => clearTimeout(timeout);
+    } else {
+      setIsTypingComplete(true);
+    }
+  }, [displayedText, fullText.length]);
 
   const handleStartDiscovery = () => {
     setCurrentStep(2);
@@ -15,28 +30,29 @@ export const WelcomeScreen: React.FC = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
       <div className="max-w-4xl mx-auto">
         {/* Logo */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-16">
           <img 
             src={logo}
             alt="MINDMAKER" 
-            className="mx-auto h-12 w-auto"
+            className="mx-auto h-14 md:h-16 w-auto"
           />
         </div>
 
-        {/* Main Card */}
-        <div className="premium-card max-w-2xl mx-auto mb-8">
-          {/* Headline */}
-          <h1 className="premium-hero-text mb-4">
-            Is your team's AI literacy driving measurable growth?
+        {/* Content Container */}
+        <div className="max-w-5xl mx-auto">
+          {/* Hero Text with Typewriter */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wide text-primary mb-6 md:mb-10 text-center max-w-4xl mx-auto">
+            {displayedText}
+            {!isTypingComplete && <span className="typewriter-cursor" />}
           </h1>
 
-          {/* Subtext */}
-          <p className="text-lg text-muted-foreground mb-8 text-center max-w-xl mx-auto">
+          {/* Description */}
+          <p className="text-xs md:text-sm font-normal leading-relaxed text-muted-foreground mb-4 md:mb-6 text-center max-w-xl mx-auto">
             Take 2 minutes to pulse check your team's AI impact
           </p>
 
           {/* CTA Button */}
-          <div className="text-center mb-6">
+          <div className="text-center mb-8">
             <Button
               onClick={handleStartDiscovery}
               size="lg"
@@ -48,7 +64,7 @@ export const WelcomeScreen: React.FC = () => {
           </div>
 
           {/* Trust Indicator */}
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-xs text-muted-foreground/60 text-center tracking-wide uppercase">
             No credit card required • 2 minute assessment
           </p>
         </div>

@@ -23,14 +23,14 @@
     --background: 250 60% 97%;
     --foreground: 240 10% 15%;
     --muted: 250 40% 90%;
-    --muted-foreground: 240 10% 40%;
+    --muted-foreground: 215 28% 25%;  /* #2e3a4d */
 
     /* === BRAND SYSTEM - Premium Purple === */
-    --primary: 263 70% 63%;          /* Main purple */
-    --primary-100: 263 70% 97%;
-    --primary-200: 263 70% 90%;
-    --primary-400: 263 70% 75%;
-    --primary-600: 263 70% 55%;
+    --primary: 248 73% 67%;          /* Main purple - #667eea */
+    --primary-100: 248 73% 97%;
+    --primary-200: 248 73% 90%;
+    --primary-400: 248 73% 75%;
+    --primary-600: 248 73% 55%;
     --primary-foreground: 0 0% 100%;
 
     /* === BRAND ACCENT === */
@@ -286,6 +286,16 @@ html {
   .animate-collapsible-up {
     animation: collapsible-up 0.3s ease-out;
   }
+
+  /* === TYPEWRITER CURSOR === */
+  .typewriter-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background-color: hsl(var(--primary));
+    animation: blink 1s step-end infinite;
+    margin-left: 2px;
+  }
 }
 
 /* ========================================
@@ -357,6 +367,11 @@ html {
     height: 0;
     opacity: 0;
   }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
 }
 
 
