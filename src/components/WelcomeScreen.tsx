@@ -7,7 +7,7 @@ import logo from '@/assets/mindmaker-logo-white-bg.png';
 export const WelcomeScreen: React.FC = () => {
   const { setCurrentStep } = useMindmaker();
   
-  const fullText = "Is your team's AI literacy driving measurable growth?";
+  const fullText = "AI LITERACY TO UNLOCK COMMERCIAL TEAMS";
   const [displayedText, setDisplayedText] = React.useState('');
   const [isTypingComplete, setIsTypingComplete] = React.useState(false);
 
