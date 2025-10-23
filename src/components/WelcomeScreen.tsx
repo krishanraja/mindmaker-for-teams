@@ -28,9 +28,9 @@ export const WelcomeScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
-      <div className="max-w-4xl mx-auto">
-        {/* Logo */}
-        <div className="text-center mb-16">
+      <div className="max-w-4xl mx-auto w-full">
+        {/* Logo - outside card, centered */}
+        <div className="text-center mb-8">
           <img 
             src={logo}
             alt="MINDMAKER" 
@@ -38,21 +38,21 @@ export const WelcomeScreen: React.FC = () => {
           />
         </div>
 
-        {/* Content Container */}
-        <div className="max-w-5xl mx-auto">
-          {/* Hero Text with Typewriter */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold uppercase tracking-wide text-primary mb-6 md:mb-10 text-center max-w-4xl mx-auto min-h-[120px] sm:min-h-[140px] md:min-h-[180px] lg:min-h-[200px] flex flex-col justify-center">
+        {/* Glassmorphic Card - contains all content */}
+        <div className="glass-card p-8 md:p-12 lg:p-16">
+          {/* Hero Text with Typewriter - left aligned, 30% smaller, bolder */}
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold uppercase tracking-wide text-primary mb-6 md:mb-10 text-left max-w-4xl min-h-[80px] sm:min-h-[100px] md:min-h-[120px] lg:min-h-[140px]">
             {displayedText}
             {!isTypingComplete && <span className="typewriter-cursor" />}
           </h1>
 
-          {/* Description */}
-          <p className="text-xs md:text-sm font-normal leading-relaxed text-muted-foreground mb-4 md:mb-6 text-center max-w-xl mx-auto">
+          {/* Description - left aligned */}
+          <p className="text-xs md:text-sm font-normal leading-relaxed text-muted-foreground mb-4 md:mb-6 text-left max-w-xl">
             Take 2 minutes to pulse check your team's AI impact
           </p>
 
-          {/* CTA Button */}
-          <div className="text-center mb-8">
+          {/* CTA Button - left aligned */}
+          <div className="mb-8">
             <Button
               onClick={handleStartDiscovery}
               size="lg"
@@ -63,8 +63,8 @@ export const WelcomeScreen: React.FC = () => {
             </Button>
           </div>
 
-          {/* Trust Indicator */}
-          <p className="text-xs text-muted-foreground/60 text-center tracking-wide uppercase">
+          {/* Trust Indicator - left aligned */}
+          <p className="text-xs text-muted-foreground/60 text-left tracking-wide uppercase">
             No credit card required • 2 minute assessment
           </p>
         </div>
