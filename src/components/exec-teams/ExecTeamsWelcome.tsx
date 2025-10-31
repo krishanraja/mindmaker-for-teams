@@ -31,7 +31,7 @@ export const ExecTeamsWelcome: React.FC = () => {
   }, [displayedText]);
 
   return (
-    <div className="min-h-screen flex items-start justify-start p-8 md:p-12 bg-gradient-to-br from-background via-background to-accent/5">
+    <div key={`welcome-${Date.now()}`} className="min-h-screen flex items-start justify-start p-8 md:p-12 bg-gradient-to-br from-background via-background to-accent/5">
       <div className="w-full max-w-5xl">
         <Card className="border-2 border-border/50 shadow-2xl">
           <CardHeader className="space-y-2 pb-8 text-left">
