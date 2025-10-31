@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Brain, Target, Users, Zap } from 'lucide-react';
 import logo from '@/assets/mindmaker-logo-new.png';
 
-const FULL_TEXT = "DESIGN YOUR AI LEADERSHIP BOOTCAMP";
+const FULL_TEXT = "DESIGN YOUR AI\nLEADERSHIP BOOTCAMP";
 
 export const ExecTeamsWelcome: React.FC = () => {
   const { setCurrentStep } = useExecTeams();
@@ -40,7 +40,7 @@ export const ExecTeamsWelcome: React.FC = () => {
             </div>
             
             <div>
-              <CardTitle className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px]">
+              <CardTitle className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px] whitespace-pre-line">
                 {displayedText}
                 {!isTypingComplete && <span className="typewriter-cursor" />}
               </CardTitle>
