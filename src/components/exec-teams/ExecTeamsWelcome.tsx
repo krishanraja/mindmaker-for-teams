@@ -3,30 +3,46 @@ import { useExecTeams } from '@/contexts/ExecTeamsContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Brain, Target, Users, Zap } from 'lucide-react';
-import logo from '@/assets/mindmaker-logo.png';
+import logo from '@/assets/mindmaker-logo-new.png';
 
 export const ExecTeamsWelcome: React.FC = () => {
   const { setCurrentStep } = useExecTeams();
+  
+  const fullText = "BENCHMARK YOUR AI LEADERSHIP";
+  const [displayedText, setDisplayedText] = React.useState('');
+  const [isTypingComplete, setIsTypingComplete] = React.useState(false);
+
+  React.useEffect(() => {
+    if (displayedText.length < fullText.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(fullText.slice(0, displayedText.length + 1));
+      }, 60);
+      return () => clearTimeout(timeout);
+    } else {
+      setIsTypingComplete(true);
+    }
+  }, [displayedText, fullText.length]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-accent/5">
+    <div className="min-h-screen flex items-start justify-start p-8 md:p-12 bg-gradient-to-br from-background via-background to-accent/5">
       <div className="w-full max-w-5xl">
         <Card className="border-2 border-border/50 shadow-2xl">
-          <CardHeader className="text-center space-y-6 pb-8">
-            <div className="flex justify-center mb-4">
+          <CardHeader className="space-y-6 pb-8 text-left">
+            <div className="flex justify-start mb-4">
               <img src={logo} alt="MINDMAKER" className="h-12 w-auto" />
             </div>
             
             <div>
-              <CardTitle className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                AI Literacy for Exec Teams
+              <CardTitle className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px]">
+                {displayedText}
+                {!isTypingComplete && <span className="typewriter-cursor" />}
               </CardTitle>
-              <CardDescription className="text-xl md:text-2xl text-foreground/80 font-medium">
+              <CardDescription className="text-xl md:text-2xl text-foreground/80 font-medium text-left">
                 From Hype to Strategy in 4 Hours
               </CardDescription>
             </div>
 
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-3xl text-left">
               Your executive team will run 2 real-world AI decision simulations, surface cognitive gaps, 
               and leave with a 90-day pilot charter. No theory. No vendor pitches. Just strategic clarity.
             </p>
@@ -99,7 +115,7 @@ export const ExecTeamsWelcome: React.FC = () => {
               </Card>
             </div>
 
-            <div className="flex flex-col items-center gap-4 pt-6">
+            <div className="flex flex-col items-start gap-4 pt-6">
               <Button 
                 onClick={() => setCurrentStep(2)}
                 size="lg"
