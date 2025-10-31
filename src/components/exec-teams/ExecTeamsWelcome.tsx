@@ -8,7 +8,7 @@ import logo from '@/assets/mindmaker-logo-new.png';
 export const ExecTeamsWelcome: React.FC = () => {
   const { setCurrentStep } = useExecTeams();
   
-  const fullText = "BENCHMARK YOUR AI LEADERSHIP";
+  const fullText = "DESIGN YOUR AI LEADERSHIP BOOTCAMP";
   const [displayedText, setDisplayedText] = React.useState('');
   const [isTypingComplete, setIsTypingComplete] = React.useState(false);
 
@@ -27,13 +27,13 @@ export const ExecTeamsWelcome: React.FC = () => {
     <div className="min-h-screen flex items-start justify-start p-8 md:p-12 bg-gradient-to-br from-background via-background to-accent/5">
       <div className="w-full max-w-5xl">
         <Card className="border-2 border-border/50 shadow-2xl">
-          <CardHeader className="space-y-6 pb-8 text-left">
-            <div className="flex justify-start mb-4">
+          <CardHeader className="space-y-4 pb-8 text-left">
+            <div className="flex justify-start -ml-3 mb-2">
               <img src={logo} alt="MINDMAKER" className="h-12 w-auto" />
             </div>
             
             <div>
-              <CardTitle className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px]">
+              <CardTitle className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px]">
                 {displayedText}
                 {!isTypingComplete && <span className="typewriter-cursor" />}
               </CardTitle>
