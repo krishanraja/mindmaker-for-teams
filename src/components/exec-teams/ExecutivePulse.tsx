@@ -194,7 +194,7 @@ export const ExecutivePulse: React.FC = () => {
         application_score: Math.round(scores.applicationScore),
         trust_score: Math.round(scores.trustScore),
         governance_score: Math.round(scores.governanceScore),
-        pulse_responses: responses,
+        pulse_responses: responses as any,
         completed_at: new Date().toISOString(),
       });
 

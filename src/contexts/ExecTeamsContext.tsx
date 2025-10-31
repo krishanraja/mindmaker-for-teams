@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo } from 'react';
 
 export interface Participant {
   name: string;
@@ -180,7 +180,7 @@ export function ExecTeamsProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'RESET' });
   }, []);
 
-  const value = React.useMemo(() => ({
+  const value = useMemo(() => ({
     state,
     updateIntakeData,
     setCurrentStep,
