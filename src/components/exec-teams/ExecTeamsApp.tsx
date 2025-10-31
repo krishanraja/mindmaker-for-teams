@@ -9,7 +9,7 @@ export const ExecTeamsApp: React.FC = () => {
   const { state } = useExecTeams();
 
   if (state.currentStep === 1) {
-    return <ExecTeamsWelcome />;
+    return <ExecTeamsWelcome key="welcome-step-1" />;
   }
 
   if (state.currentStep === 2) {
@@ -24,5 +24,5 @@ export const ExecTeamsApp: React.FC = () => {
     return <BootcampBookingSummary />;
   }
 
-  return <ExecTeamsWelcome />;
+  return <ExecTeamsWelcome key="welcome-default" />;
 }

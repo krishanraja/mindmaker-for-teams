@@ -5,29 +5,36 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Brain, Target, Users, Zap } from 'lucide-react';
 import logo from '@/assets/mindmaker-logo-new.png';
 
+const FULL_TEXT = "DESIGN YOUR AI LEADERSHIP BOOTCAMP";
+
 export const ExecTeamsWelcome: React.FC = () => {
   const { setCurrentStep } = useExecTeams();
   
-  const fullText = "DESIGN YOUR AI LEADERSHIP BOOTCAMP";
   const [displayedText, setDisplayedText] = React.useState('');
   const [isTypingComplete, setIsTypingComplete] = React.useState(false);
 
   React.useEffect(() => {
-    if (displayedText.length < fullText.length) {
+    // Reset on mount
+    setDisplayedText('');
+    setIsTypingComplete(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (displayedText.length < FULL_TEXT.length) {
       const timeout = setTimeout(() => {
-        setDisplayedText(fullText.slice(0, displayedText.length + 1));
+        setDisplayedText(FULL_TEXT.slice(0, displayedText.length + 1));
       }, 60);
       return () => clearTimeout(timeout);
-    } else {
+    } else if (displayedText.length === FULL_TEXT.length) {
       setIsTypingComplete(true);
     }
-  }, [displayedText, fullText.length]);
+  }, [displayedText]);
 
   return (
     <div className="min-h-screen flex items-start justify-start p-8 md:p-12 bg-gradient-to-br from-background via-background to-accent/5">
       <div className="w-full max-w-5xl">
         <Card className="border-2 border-border/50 shadow-2xl">
-          <CardHeader className="space-y-4 pb-8 text-left">
+          <CardHeader className="space-y-2 pb-8 text-left">
             <div className="flex justify-start -ml-3 mb-2">
               <img src={logo} alt="MINDMAKER" className="h-12 w-auto" />
             </div>
