@@ -185,7 +185,7 @@ export const ExecutivePulse: React.FC = () => {
     try {
       const scores = calculateScores();
 
-      const { error } = await supabase.from('exec_pulses').insert({
+      const { data, error } = await supabase.from('exec_pulses').insert({
         intake_id: intakeId,
         participant_email: emailHash || 'unknown',
         participant_name: 'Participant',
@@ -196,9 +196,18 @@ export const ExecutivePulse: React.FC = () => {
         governance_score: Math.round(scores.governanceScore),
         pulse_responses: responses as any,
         completed_at: new Date().toISOString(),
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // Send pulse completion email to Krish
+      await supabase.functions.invoke('send-exec-summary-email', {
+        body: {
+          type: 'pulse_completed',
+          intakeId: intakeId,
+          pulseId: data?.id,
+        },
+      });
 
       setSubmitted(true);
       toast.success('Pulse submitted successfully!');

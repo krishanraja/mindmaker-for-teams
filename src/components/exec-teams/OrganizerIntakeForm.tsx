@@ -133,6 +133,14 @@ export const OrganizerIntakeForm: React.FC = () => {
         },
       });
 
+      // Send summary email to Krish
+      await supabase.functions.invoke('send-exec-summary-email', {
+        body: {
+          type: 'intake_created',
+          intakeId: intake.id,
+        },
+      });
+
       toast.success('Intake submitted! Pulse emails sent to participants.');
       setCurrentStep(3);
     } catch (error: any) {
