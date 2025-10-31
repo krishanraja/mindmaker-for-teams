@@ -33,7 +33,7 @@ export const ExecTeamsWelcome: React.FC = () => {
             </div>
             
             <div>
-              <CardTitle className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px]">
+              <CardTitle className="text-4xl md:text-5xl font-bold mb-1 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px]">
                 {displayedText}
                 {!isTypingComplete && <span className="typewriter-cursor" />}
               </CardTitle>
