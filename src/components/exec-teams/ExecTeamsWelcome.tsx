@@ -19,7 +19,7 @@ export const ExecTeamsWelcome: React.FC = () => {
             
             <div>
               <CardTitle className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Half-Day AI Leadership Bootcamp
+                AI Literacy for Exec Teams
               </CardTitle>
               <CardDescription className="text-xl md:text-2xl text-foreground/80 font-medium">
                 From Hype to Strategy in 4 Hours
