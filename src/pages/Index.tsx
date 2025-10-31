@@ -1,11 +1,11 @@
-import { MindmakerApp } from "@/components/MindmakerApp";
-import { MindmakerProvider } from "@/contexts/MindmakerContext";
+import { ExecTeamsApp } from "@/components/exec-teams/ExecTeamsApp";
+import { ExecTeamsProvider } from "@/contexts/ExecTeamsContext";
 
 const Index = () => {
   return (
-    <MindmakerProvider>
-      <MindmakerApp />
-    </MindmakerProvider>
+    <ExecTeamsProvider>
+      <ExecTeamsApp />
+    </ExecTeamsProvider>
   );
 };
 
