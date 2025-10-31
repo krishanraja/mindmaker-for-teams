@@ -35,12 +35,12 @@ export const ExecTeamsWelcome: React.FC = () => {
       <div className="w-full max-w-5xl">
         <Card className="border-2 border-border/50 shadow-2xl">
           <CardHeader className="space-y-2 pb-8 text-left">
-            <div className="flex justify-start -ml-3 mb-2">
+            <div className="flex justify-start -ml-3 mb-6">
               <img src={logo} alt="MINDMAKER" className="h-12 w-auto" />
             </div>
             
             <div>
-              <CardTitle className="text-4xl md:text-5xl font-bold mb-1 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px]">
+              <CardTitle className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px]">
                 {displayedText}
                 {!isTypingComplete && <span className="typewriter-cursor" />}
               </CardTitle>
