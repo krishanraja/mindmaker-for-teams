@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Eye, QrCode, Sparkles, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+// QR Code component for generating activity QR codes
 import { QRCodeSVG } from 'qrcode.react';
 
 interface Segment2BottleneckBoardProps {
