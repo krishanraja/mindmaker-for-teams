@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SegmentNavigator } from '@/components/facilitator/SegmentNavigator';
-import { Segment0Provocation } from '@/components/facilitator/segments/Segment0Provocation';
 import { Segment1Mythbuster } from '@/components/facilitator/segments/Segment1Mythbuster';
 import { Segment2BottleneckBoard } from '@/components/facilitator/segments/Segment2BottleneckBoard';
 import { Segment3EffortlessEnterprise } from '@/components/facilitator/segments/Segment3EffortlessEnterprise';
 import { Segment4SimulationLab } from '@/components/facilitator/segments/Segment4SimulationLab';
 import { Segment5StrategyAddendum } from '@/components/facilitator/segments/Segment5StrategyAddendum';
 import { Segment6PilotCharter } from '@/components/facilitator/segments/Segment6PilotCharter';
+import { Segment7Provocation } from '@/components/facilitator/segments/Segment7Provocation';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -39,7 +39,7 @@ export const FacilitatorDashboard: React.FC = () => {
     }
 
     setWorkshop(data);
-    setCurrentSegment(data.current_segment || 0);
+    setCurrentSegment(data.current_segment || 1);
     setLoading(false);
   };
 
@@ -78,14 +78,14 @@ export const FacilitatorDashboard: React.FC = () => {
 
   const renderSegment = () => {
     switch (currentSegment) {
-      case 0: return <Segment0Provocation workshopId={workshopId!} />;
       case 1: return <Segment1Mythbuster workshopId={workshopId!} />;
       case 2: return <Segment2BottleneckBoard workshopId={workshopId!} />;
       case 3: return <Segment3EffortlessEnterprise workshopId={workshopId!} />;
       case 4: return <Segment4SimulationLab workshopId={workshopId!} />;
       case 5: return <Segment5StrategyAddendum workshopId={workshopId!} />;
       case 6: return <Segment6PilotCharter workshopId={workshopId!} />;
-      default: return <Segment0Provocation workshopId={workshopId!} />;
+      case 7: return <Segment7Provocation workshopId={workshopId!} />;
+      default: return <Segment1Mythbuster workshopId={workshopId!} />;
     }
   };
 
