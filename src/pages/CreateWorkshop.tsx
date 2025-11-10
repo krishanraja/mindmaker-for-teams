@@ -6,12 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/hooks/use-toast';
-import { Calendar } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
+import { format, parse, isSameDay } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 export const CreateWorkshop: React.FC = () => {
   const navigate = useNavigate();
   const [intakes, setIntakes] = useState<any[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedTime, setSelectedTime] = useState('09:00');
+  const [preferredDates, setPreferredDates] = useState<Date[]>([]);
   const [formData, setFormData] = useState({
     intake_id: '',
     facilitator_name: '',
@@ -22,6 +29,12 @@ export const CreateWorkshop: React.FC = () => {
     loadIntakes();
   }, []);
 
+  useEffect(() => {
+    if (formData.intake_id) {
+      loadPreferredDates(formData.intake_id);
+    }
+  }, [formData.intake_id]);
+
   const loadIntakes = async () => {
     const { data } = await supabase
       .from('exec_intakes')
@@ -31,11 +44,31 @@ export const CreateWorkshop: React.FC = () => {
     if (data) setIntakes(data);
   };
 
+  const loadPreferredDates = async (intakeId: string) => {
+    const { data } = await supabase
+      .from('exec_intakes')
+      .select('preferred_dates')
+      .eq('id', intakeId)
+      .single();
+
+    if (data?.preferred_dates) {
+      const dates = (data.preferred_dates as string[]).map(dateStr => new Date(dateStr));
+      setPreferredDates(dates);
+    } else {
+      setPreferredDates([]);
+    }
+  };
+
   const handleCreate = async () => {
-    if (!formData.intake_id || !formData.facilitator_name || !formData.workshop_date) {
+    if (!formData.intake_id || !formData.facilitator_name || !selectedDate) {
       toast({ title: 'Please fill all fields', variant: 'destructive' });
       return;
     }
+
+    // Combine date and time
+    const [hours, minutes] = selectedTime.split(':');
+    const workshopDateTime = new Date(selectedDate);
+    workshopDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
     // Get facilitator email - for now use facilitator_name as placeholder
     const facilitatorEmail = `${formData.facilitator_name.toLowerCase().replace(/\s+/g, '.')}@mindmaker.com`;
@@ -54,7 +87,7 @@ export const CreateWorkshop: React.FC = () => {
         facilitator_name: formData.facilitator_name,
         facilitator_email: facilitatorEmail,
         bootcamp_plan_id: bootcampPlan?.id || null,
-        workshop_date: formData.workshop_date,
+        workshop_date: workshopDateTime.toISOString(),
         status: 'scheduled',
         current_segment: 1,
       })
@@ -109,13 +142,63 @@ export const CreateWorkshop: React.FC = () => {
               />
             </div>
 
-            <div>
-              <Label>Workshop Date & Time</Label>
-              <Input
-                type="datetime-local"
-                value={formData.workshop_date}
-                onChange={(e) => setFormData({ ...formData, workshop_date: e.target.value })}
-              />
+            <div className="space-y-4">
+              <div>
+                <Label>Workshop Date & Time</Label>
+                {preferredDates.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Customer preferred dates are highlighted in green
+                  </p>
+                )}
+              </div>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-start text-left font-normal',
+                      !selectedDate && 'text-muted-foreground'
+                    )}
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, 'PPP') : 'Pick a date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                    modifiers={{
+                      preferred: preferredDates,
+                    }}
+                    modifiersStyles={{
+                      preferred: {
+                        backgroundColor: 'hsl(var(--primary) / 0.15)',
+                        color: 'hsl(var(--primary))',
+                        fontWeight: 'bold',
+                        border: '2px solid hsl(var(--primary))',
+                      },
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <div className="space-y-2">
+                <Label htmlFor="time">Time</Label>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="time"
+                    type="time"
+                    value={selectedTime}
+                    onChange={(e) => setSelectedTime(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
 
             <Button onClick={handleCreate} className="w-full" size="lg">
