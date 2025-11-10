@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, QrCode, Sparkles, Download } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Eye, QrCode, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-// QR Code component for generating activity QR codes
 import { QRCodeSVG } from 'qrcode.react';
+import { AIInsightCard } from '../AIInsightCard';
 
 interface Segment2BottleneckBoardProps {
   workshopId: string;
@@ -16,6 +17,8 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [clusteredSubmissions, setClusteredSubmissions] = useState<any[]>([]);
   const [isClustering, setIsClustering] = useState(false);
+  const [aiInsight, setAiInsight] = useState<string>('');
+  const [loadingInsight, setLoadingInsight] = useState(false);
 
   useEffect(() => {
     loadSubmissions();
@@ -99,6 +102,24 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
 
     toast({ title: 'Bottlenecks clustered successfully!' });
     loadSubmissions();
+    generateInsight();
+  };
+
+  const generateInsight = async () => {
+    if (submissions.length === 0) return;
+    
+    setLoadingInsight(true);
+    const { data, error } = await supabase.functions.invoke('generate-workshop-insights', {
+      body: { 
+        segment: 'bottleneck',
+        data: submissions.map(s => ({ text: s.bottleneck_text, cluster: s.cluster_name }))
+      }
+    });
+
+    setLoadingInsight(false);
+    if (!error && data?.insight) {
+      setAiInsight(data.insight);
+    }
   };
 
   const getClusters = () => {
@@ -113,17 +134,24 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Eye className="h-6 w-6 text-primary" />
-            Segment 2: The Mirror - Bottleneck Board (45 minutes)
-          </CardTitle>
+    <div className="space-y-8 animate-fade-in">
+      <Card className="border-2 border-purple-500/30 bg-gradient-to-br from-purple-500/5 via-background to-purple-500/10">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="p-4 rounded-2xl bg-purple-500/20">
+              <Eye className="h-10 w-10 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <Badge variant="secondary" className="mb-2 text-xs">45 Minutes</Badge>
+              <CardTitle className="text-4xl font-bold text-foreground">
+                The Mirror: Bottleneck Board
+              </CardTitle>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
-            <strong>Objective:</strong> Identify and cluster organizational bottlenecks through team input.
+        <CardContent className="space-y-6">
+          <p className="text-xl text-muted-foreground leading-relaxed">
+            <strong className="text-foreground">Objective:</strong> Surface and cluster the organizational friction points that slow your team down.
           </p>
 
           <div className="flex gap-4">
@@ -151,25 +179,38 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
             </Card>
           )}
 
+          {(aiInsight || loadingInsight) && (
+            <AIInsightCard insight={aiInsight} loading={loadingInsight} />
+          )}
+
           {clusteredSubmissions.length > 0 ? (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Clustered Bottlenecks</h3>
-              {getClusters().map(([clusterId, items]) => (
-                <Card key={clusterId} className="border-l-4 border-l-primary">
-                  <CardHeader>
-                    <CardTitle className="text-base">{items[0]?.cluster_name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {items.map((item) => (
-                        <div key={item.id} className="text-sm p-2 bg-muted rounded">
-                          <span className="font-medium">{item.participant_name}:</span> {item.bottleneck_text}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <span className="h-1 w-16 bg-purple-500 rounded-full"></span>
+                <h3 className="font-bold text-2xl">Clustered Bottlenecks</h3>
+              </div>
+              <div className="grid gap-6">
+                {getClusters().map(([clusterId, items]) => (
+                  <Card key={clusterId} className="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">{items.length} items</Badge>
+                        {items[0]?.cluster_name}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {items.map((item) => (
+                          <div key={item.id} className="text-base p-4 bg-muted/50 rounded-lg border border-border/50 hover:border-purple-500/30 transition-colors">
+                            <span className="font-semibold text-purple-600">{item.participant_name}:</span>{' '}
+                            <span className="text-foreground">{item.bottleneck_text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           ) : (
             <Card className="p-6 text-center">

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Clock, QrCode } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Clock, QrCode, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
+import { AIInsightCard } from '../AIInsightCard';
 
 interface Segment3EffortlessEnterpriseProps {
   workshopId: string;
@@ -21,6 +23,8 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
   const [activitySession, setActivitySession] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [votingSession, setVotingSession] = useState<any>(null);
+  const [aiInsight, setAiInsight] = useState<string>('');
+  const [loadingInsight, setLoadingInsight] = useState(false);
 
   useEffect(() => {
     loadItems();
@@ -71,6 +75,26 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
 
     setVotingSession(data);
     toast({ title: 'Voting session started!' });
+    if (items.length > 0) {
+      generateInsight();
+    }
+  };
+
+  const generateInsight = async () => {
+    if (items.length === 0) return;
+    
+    setLoadingInsight(true);
+    const { data, error } = await supabase.functions.invoke('generate-workshop-insights', {
+      body: { 
+        segment: 'effortless_map',
+        data: items.map(i => ({ lane: i.lane, text: i.item_text, votes: i.vote_count }))
+      }
+    });
+
+    setLoadingInsight(false);
+    if (!error && data?.insight) {
+      setAiInsight(data.insight);
+    }
   };
 
   const loadItems = async () => {
@@ -108,29 +132,46 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-6 w-6 text-primary" />
-            Segment 3: The Time Machine - Effortless Enterprise (60 minutes)
-          </CardTitle>
+    <div className="space-y-8 animate-fade-in">
+      <Card className="border-2 border-green-500/30 bg-gradient-to-br from-green-500/5 via-background to-green-500/10">
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="p-4 rounded-2xl bg-green-500/20">
+              <Clock className="h-10 w-10 text-green-600" />
+            </div>
+            <div className="flex-1">
+              <Badge variant="secondary" className="mb-2 text-xs">60 Minutes</Badge>
+              <CardTitle className="text-4xl font-bold text-foreground">
+                The Time Machine: Effortless Enterprise
+              </CardTitle>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
-            <strong>Objective:</strong> Map current friction points and envision an AI-augmented future state.
+        <CardContent className="space-y-6">
+          <p className="text-xl text-muted-foreground leading-relaxed">
+            <strong className="text-foreground">Objective:</strong> Map current friction points and envision an AI-augmented future state across key business areas.
           </p>
 
-          <div className="flex gap-4">
-            <Button onClick={generateMapQR} disabled={!!activitySession}>
-              <QrCode className="mr-2 h-4 w-4" />
+          <div className="flex gap-4 flex-wrap">
+            <Button onClick={generateMapQR} disabled={!!activitySession} size="lg" className="gap-2">
+              <QrCode className="h-5 w-5" />
               Generate Mapping QR
             </Button>
-            <Button onClick={generateVotingQR} disabled={!items.length || !!votingSession} variant="secondary">
-              <QrCode className="mr-2 h-4 w-4" />
+            <Button onClick={generateVotingQR} disabled={!items.length || !!votingSession} variant="secondary" size="lg" className="gap-2">
+              <QrCode className="h-5 w-5" />
               Start Dot Voting
             </Button>
+            {items.length > 0 && (
+              <Button onClick={generateInsight} disabled={loadingInsight} variant="outline" size="lg" className="gap-2">
+                <Sparkles className="h-5 w-5" />
+                Generate AI Insight
+              </Button>
+            )}
           </div>
+
+          {(aiInsight || loadingInsight) && (
+            <AIInsightCard insight={aiInsight} loading={loadingInsight} />
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {activitySession && (
@@ -153,34 +194,40 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-6">
             {LANES.map(lane => (
-              <Card key={lane.id} className={`border-2 ${lane.color}`}>
-                <CardHeader>
-                  <CardTitle className="text-base">{lane.name}</CardTitle>
+              <Card key={lane.id} className={`border-2 ${lane.color} hover:shadow-lg transition-all`}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl flex items-center justify-between">
+                    <span>{lane.name}</span>
+                    <Badge variant="secondary">{getItemsByLane(lane.id).length} items</Badge>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {getItemsByLane(lane.id).map(item => (
-                      <div key={item.id} className="p-2 bg-card rounded border">
-                        <div className="flex justify-between items-start">
+                      <div key={item.id} className="p-4 bg-card rounded-lg border border-border/50 hover:border-green-500/30 transition-colors">
+                        <div className="flex justify-between items-start gap-4">
                           <div className="flex-1">
-                            <p className="text-sm font-medium">{item.item_text}</p>
-                            <p className="text-xs text-muted-foreground">by {item.participant_name}</p>
+                            <p className="text-base font-medium text-foreground mb-1">{item.item_text}</p>
+                            <p className="text-sm text-muted-foreground">by {item.participant_name}</p>
+                            {item.sponsor_name && (
+                              <p className="text-sm text-green-600 mt-1">
+                                💼 Sponsor: {item.sponsor_name}
+                              </p>
+                            )}
                           </div>
-                          <div className="text-sm font-bold text-primary ml-2">
-                            {item.vote_count} votes
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-lg font-bold">
+                              {item.vote_count} 
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">votes</span>
                           </div>
                         </div>
-                        {item.sponsor_name && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Sponsor: {item.sponsor_name}
-                          </p>
-                        )}
                       </div>
                     ))}
                     {getItemsByLane(lane.id).length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-4">
+                      <p className="text-center py-8 text-muted-foreground">
                         No items yet
                       </p>
                     )}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SegmentNavigator } from '@/components/facilitator/SegmentNavigator';
+import { Segment0Provocation } from '@/components/facilitator/segments/Segment0Provocation';
 import { Segment1Mythbuster } from '@/components/facilitator/segments/Segment1Mythbuster';
 import { Segment2BottleneckBoard } from '@/components/facilitator/segments/Segment2BottleneckBoard';
 import { Segment3EffortlessEnterprise } from '@/components/facilitator/segments/Segment3EffortlessEnterprise';
@@ -38,7 +39,7 @@ export const FacilitatorDashboard: React.FC = () => {
     }
 
     setWorkshop(data);
-    setCurrentSegment(data.current_segment || 1);
+    setCurrentSegment(data.current_segment || 0);
     setLoading(false);
   };
 
@@ -77,13 +78,14 @@ export const FacilitatorDashboard: React.FC = () => {
 
   const renderSegment = () => {
     switch (currentSegment) {
+      case 0: return <Segment0Provocation workshopId={workshopId!} />;
       case 1: return <Segment1Mythbuster workshopId={workshopId!} />;
       case 2: return <Segment2BottleneckBoard workshopId={workshopId!} />;
       case 3: return <Segment3EffortlessEnterprise workshopId={workshopId!} />;
       case 4: return <Segment4SimulationLab workshopId={workshopId!} />;
       case 5: return <Segment5StrategyAddendum workshopId={workshopId!} />;
       case 6: return <Segment6PilotCharter workshopId={workshopId!} />;
-      default: return <Segment1Mythbuster workshopId={workshopId!} />;
+      default: return <Segment0Provocation workshopId={workshopId!} />;
     }
   };
 
@@ -95,22 +97,23 @@ export const FacilitatorDashboard: React.FC = () => {
       />
 
       <div className="flex-1 flex flex-col">
-        <header className="border-b bg-card px-6 py-4 flex items-center justify-between">
+        <header className="border-b bg-gradient-to-r from-card via-primary/5 to-card px-8 py-6 flex items-center justify-between shadow-sm">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold text-foreground mb-1">
               {workshop?.exec_intakes?.company_name} Leadership Bootcamp
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
               Facilitator: {workshop?.facilitator_name}
             </p>
           </div>
-          <Button onClick={handleGeneratePDF} size="lg">
-            <Download className="mr-2 h-4 w-4" />
-            Generate Executive PDF
+          <Button onClick={handleGeneratePDF} size="lg" className="shadow-lg">
+            <Download className="mr-2 h-5 w-5" />
+            Generate PDF Report
           </Button>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-background via-background to-muted/10">
           {renderSegment()}
         </main>
       </div>

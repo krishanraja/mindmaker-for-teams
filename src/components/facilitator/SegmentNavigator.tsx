@@ -10,6 +10,7 @@ interface SegmentNavigatorProps {
 }
 
 const SEGMENTS = [
+  { id: 0, name: 'The Provocation', icon: Sparkles, duration: 15, color: 'text-amber-500' },
   { id: 1, name: 'Mythbuster', icon: Zap, duration: 30, color: 'text-blue-500' },
   { id: 2, name: 'The Mirror', icon: Eye, duration: 45, color: 'text-purple-500' },
   { id: 3, name: 'The Time Machine', icon: Clock, duration: 60, color: 'text-green-500' },
@@ -56,17 +57,37 @@ export const SegmentNavigator: React.FC<SegmentNavigatorProps> = ({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const totalDuration = SEGMENTS.reduce((sum, s) => sum + s.duration, 0);
+  const progressPercent = ((SEGMENTS.find(s => s.id === currentSegment)?.id || 0) / SEGMENTS.length) * 100;
+
   return (
-    <div className="w-80 border-r bg-card flex flex-col">
-      <div className="p-6 border-b">
-        <h2 className="text-lg font-semibold text-foreground mb-2">Workshop Segments</h2>
-        <Card className="p-4 bg-primary/10">
+    <div className="w-80 border-r bg-gradient-to-b from-card to-muted/20 flex flex-col">
+      <div className="p-6 border-b space-y-4">
+        <div>
+          <h2 className="text-lg font-bold text-foreground mb-1">Workshop Progress</h2>
+          <p className="text-xs text-muted-foreground">Total Duration: {totalDuration} minutes</p>
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="space-y-2">
+          <div className="h-3 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground text-center">
+            Segment {currentSegment + 1} of {SEGMENTS.length}
+          </p>
+        </div>
+
+        <Card className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <div className="text-center">
-            <div className="text-4xl font-bold text-primary mb-2">
+            <div className="text-5xl font-bold text-primary mb-2 tabular-nums">
               {formatTime(timeRemaining)}
             </div>
-            <div className="text-sm text-muted-foreground mb-3">
-              {currentSegmentData?.name} ({currentSegmentData?.duration}min)
+            <div className="text-sm font-medium text-foreground mb-3">
+              {currentSegmentData?.name}
             </div>
             <div className="flex gap-2">
               {!isTimerRunning ? (
