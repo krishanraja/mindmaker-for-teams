@@ -1,0 +1,210 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Target } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+
+interface Segment6PilotCharterProps {
+  workshopId: string;
+}
+
+export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ workshopId }) => {
+  const [charter, setCharter] = useState({
+    pilot_owner: '',
+    pilot_budget: '',
+    executive_sponsor: '',
+    milestone_d10: '',
+    milestone_d30: '',
+    milestone_d60: '',
+    milestone_d90: '',
+    kill_criteria: '',
+    extend_criteria: '',
+    scale_criteria: '',
+    meeting_cadence: 'Weekly',
+  });
+
+  useEffect(() => {
+    loadCharter();
+  }, [workshopId]);
+
+  const loadCharter = async () => {
+    const { data } = await supabase
+      .from('pilot_charter')
+      .select('*')
+      .eq('workshop_session_id', workshopId)
+      .single();
+
+    if (data) {
+      setCharter({
+        pilot_owner: data.pilot_owner || '',
+        pilot_budget: data.pilot_budget?.toString() || '',
+        executive_sponsor: data.executive_sponsor || '',
+        milestone_d10: data.milestone_d10 || '',
+        milestone_d30: data.milestone_d30 || '',
+        milestone_d60: data.milestone_d60 || '',
+        milestone_d90: data.milestone_d90 || '',
+        kill_criteria: data.kill_criteria || '',
+        extend_criteria: data.extend_criteria || '',
+        scale_criteria: data.scale_criteria || '',
+        meeting_cadence: data.meeting_cadence || 'Weekly',
+      });
+    }
+  };
+
+  const handleSave = async () => {
+    const { error } = await supabase
+      .from('pilot_charter')
+      .upsert({
+        workshop_session_id: workshopId,
+        ...charter,
+        pilot_budget: charter.pilot_budget ? parseFloat(charter.pilot_budget) : null,
+      });
+
+    if (error) {
+      toast({ title: 'Error saving pilot charter', variant: 'destructive' });
+      return;
+    }
+
+    toast({ title: 'Pilot charter saved successfully!' });
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-6 w-6 text-primary" />
+            Segment 6: The Huddle - 90-Day Pilot Charter (30 minutes)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <p className="text-muted-foreground">
+            <strong>Objective:</strong> Lock in commitment, ownership, and decision gates for the 90-day pilot.
+          </p>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <Label>Pilot Owner</Label>
+              <Input
+                value={charter.pilot_owner}
+                onChange={(e) => setCharter({ ...charter, pilot_owner: e.target.value })}
+                placeholder="Name and role"
+              />
+            </div>
+            <div>
+              <Label>Executive Sponsor</Label>
+              <Input
+                value={charter.executive_sponsor}
+                onChange={(e) => setCharter({ ...charter, executive_sponsor: e.target.value })}
+                placeholder="C-level sponsor"
+              />
+            </div>
+            <div>
+              <Label>Pilot Budget (USD)</Label>
+              <Input
+                type="number"
+                value={charter.pilot_budget}
+                onChange={(e) => setCharter({ ...charter, pilot_budget: e.target.value })}
+                placeholder="50000"
+              />
+            </div>
+            <div>
+              <Label>Meeting Cadence</Label>
+              <Input
+                value={charter.meeting_cadence}
+                onChange={(e) => setCharter({ ...charter, meeting_cadence: e.target.value })}
+                placeholder="Weekly, Bi-weekly"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Milestone Gating (D10/D30/D60/D90)</h3>
+            
+            <div>
+              <Label>Day 10 Milestone</Label>
+              <Textarea
+                rows={2}
+                value={charter.milestone_d10}
+                onChange={(e) => setCharter({ ...charter, milestone_d10: e.target.value })}
+                placeholder="Team onboarded, data access secured..."
+              />
+            </div>
+
+            <div>
+              <Label>Day 30 Milestone</Label>
+              <Textarea
+                rows={2}
+                value={charter.milestone_d30}
+                onChange={(e) => setCharter({ ...charter, milestone_d30: e.target.value })}
+                placeholder="First prototype tested..."
+              />
+            </div>
+
+            <div>
+              <Label>Day 60 Milestone</Label>
+              <Textarea
+                rows={2}
+                value={charter.milestone_d60}
+                onChange={(e) => setCharter({ ...charter, milestone_d60: e.target.value })}
+                placeholder="User feedback incorporated, KPIs tracked..."
+              />
+            </div>
+
+            <div>
+              <Label>Day 90 Milestone</Label>
+              <Textarea
+                rows={2}
+                value={charter.milestone_d90}
+                onChange={(e) => setCharter({ ...charter, milestone_d90: e.target.value })}
+                placeholder="Final decision: Kill, Extend, or Scale..."
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Decision Gates</h3>
+            
+            <div>
+              <Label>Kill Criteria (Stop the pilot)</Label>
+              <Textarea
+                rows={2}
+                value={charter.kill_criteria}
+                onChange={(e) => setCharter({ ...charter, kill_criteria: e.target.value })}
+                placeholder="No measurable improvement, budget overrun by 50%..."
+              />
+            </div>
+
+            <div>
+              <Label>Extend Criteria (Continue testing)</Label>
+              <Textarea
+                rows={2}
+                value={charter.extend_criteria}
+                onChange={(e) => setCharter({ ...charter, extend_criteria: e.target.value })}
+                placeholder="Promising results but need more data..."
+              />
+            </div>
+
+            <div>
+              <Label>Scale Criteria (Roll out enterprise-wide)</Label>
+              <Textarea
+                rows={2}
+                value={charter.scale_criteria}
+                onChange={(e) => setCharter({ ...charter, scale_criteria: e.target.value })}
+                placeholder="ROI proven, user adoption >70%, compliance cleared..."
+              />
+            </div>
+          </div>
+
+          <Button onClick={handleSave} className="w-full" size="lg">
+            Save Pilot Charter
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};

@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.send-exec-summary-email]
 verify_jwt = false
+
+[functions.generate-activity-qr]
+verify_jwt = false
+
+[functions.cluster-bottleneck-inputs]
+verify_jwt = false
+
+[functions.generate-executive-pdf]
+verify_jwt = false

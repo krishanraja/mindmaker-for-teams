@@ -14,6 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_sessions: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          qr_code_url: string
+          workshop_session_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          qr_code_url: string
+          workshop_session_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          qr_code_url?: string
+          workshop_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_sessions_workshop_session_id_fkey"
+            columns: ["workshop_session_id"]
+            isOneToOne: false
+            referencedRelation: "workshop_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      adoption_momentum: {
+        Row: {
+          company_identifier_hash: string
+          company_size: string | null
+          created_at: string | null
+          days_between_first_last: number | null
+          first_assessment_date: string | null
+          id: string
+          industry: string | null
+          latest_assessment_date: string | null
+          metadata: Json | null
+          momentum_score: number | null
+          momentum_tier: Database["public"]["Enums"]["momentum_tier"] | null
+          recency_decay: number | null
+          referral_quality_score: number | null
+          referred_companies: number | null
+          repeat_rate_capped: number | null
+          team_growth_sqrt: number | null
+          total_advisory_sprints: number | null
+          total_assessments: number | null
+          total_unique_users: number | null
+          total_workshop_bookings: number | null
+          updated_at: string | null
+          verified_referrals: number | null
+        }
+        Insert: {
+          company_identifier_hash: string
+          company_size?: string | null
+          created_at?: string | null
+          days_between_first_last?: number | null
+          first_assessment_date?: string | null
+          id?: string
+          industry?: string | null
+          latest_assessment_date?: string | null
+          metadata?: Json | null
+          momentum_score?: number | null
+          momentum_tier?: Database["public"]["Enums"]["momentum_tier"] | null
+          recency_decay?: number | null
+          referral_quality_score?: number | null
+          referred_companies?: number | null
+          repeat_rate_capped?: number | null
+          team_growth_sqrt?: number | null
+          total_advisory_sprints?: number | null
+          total_assessments?: number | null
+          total_unique_users?: number | null
+          total_workshop_bookings?: number | null
+          updated_at?: string | null
+          verified_referrals?: number | null
+        }
+        Update: {
+          company_identifier_hash?: string
+          company_size?: string | null
+          created_at?: string | null
+          days_between_first_last?: number | null
+          first_assessment_date?: string | null
+          id?: string
+          industry?: string | null
+          latest_assessment_date?: string | null
+          metadata?: Json | null
+          momentum_score?: number | null
+          momentum_tier?: Database["public"]["Enums"]["momentum_tier"] | null
+          recency_decay?: number | null
+          referral_quality_score?: number | null
+          referred_companies?: number | null
+          repeat_rate_capped?: number | null
+          team_growth_sqrt?: number | null
+          total_advisory_sprints?: number | null
+          total_assessments?: number | null
+          total_unique_users?: number | null
+          total_workshop_bookings?: number | null
+          updated_at?: string | null
+          verified_referrals?: number | null
+        }
+        Relationships: []
+      }
       ai_conversations: {
         Row: {
           business_context: Json | null
@@ -88,6 +201,92 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "conversation_sessions"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_leadership_index_snapshots: {
+        Row: {
+          avg_readiness_score: number | null
+          avg_readiness_score_ci_lower: number | null
+          avg_readiness_score_ci_upper: number | null
+          company_size_benchmarks: Json | null
+          consent_rate: number | null
+          created_at: string | null
+          dimension_benchmarks: Json | null
+          effective_sample_size: number | null
+          id: string
+          industry_benchmarks: Json | null
+          median_readiness_score: number | null
+          metadata: Json | null
+          methodology_version: string | null
+          published_at: string | null
+          qoq_change: number | null
+          qoq_change_significant: boolean | null
+          quarter: string
+          role_benchmarks: Json | null
+          tier_advancing_pct: number | null
+          tier_emerging_pct: number | null
+          tier_establishing_pct: number | null
+          tier_leading_pct: number | null
+          total_assessments: number | null
+        }
+        Insert: {
+          avg_readiness_score?: number | null
+          avg_readiness_score_ci_lower?: number | null
+          avg_readiness_score_ci_upper?: number | null
+          company_size_benchmarks?: Json | null
+          consent_rate?: number | null
+          created_at?: string | null
+          dimension_benchmarks?: Json | null
+          effective_sample_size?: number | null
+          id?: string
+          industry_benchmarks?: Json | null
+          median_readiness_score?: number | null
+          metadata?: Json | null
+          methodology_version?: string | null
+          published_at?: string | null
+          qoq_change?: number | null
+          qoq_change_significant?: boolean | null
+          quarter: string
+          role_benchmarks?: Json | null
+          tier_advancing_pct?: number | null
+          tier_emerging_pct?: number | null
+          tier_establishing_pct?: number | null
+          tier_leading_pct?: number | null
+          total_assessments?: number | null
+        }
+        Update: {
+          avg_readiness_score?: number | null
+          avg_readiness_score_ci_lower?: number | null
+          avg_readiness_score_ci_upper?: number | null
+          company_size_benchmarks?: Json | null
+          consent_rate?: number | null
+          created_at?: string | null
+          dimension_benchmarks?: Json | null
+          effective_sample_size?: number | null
+          id?: string
+          industry_benchmarks?: Json | null
+          median_readiness_score?: number | null
+          metadata?: Json | null
+          methodology_version?: string | null
+          published_at?: string | null
+          qoq_change?: number | null
+          qoq_change_significant?: boolean | null
+          quarter?: string
+          role_benchmarks?: Json | null
+          tier_advancing_pct?: number | null
+          tier_emerging_pct?: number | null
+          tier_establishing_pct?: number | null
+          tier_leading_pct?: number | null
+          total_assessments?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_leadership_index_snapshots_methodology_version_fkey"
+            columns: ["methodology_version"]
+            isOneToOne: false
+            referencedRelation: "index_publication_rules"
+            referencedColumns: ["version"]
           },
         ]
       }
@@ -275,6 +474,60 @@ export type Database = {
           },
         ]
       }
+      bottleneck_submissions: {
+        Row: {
+          activity_session_id: string | null
+          bottleneck_text: string
+          cluster_id: string | null
+          cluster_name: string | null
+          created_at: string | null
+          id: string
+          participant_name: string
+          position_x: number | null
+          position_y: number | null
+          workshop_session_id: string | null
+        }
+        Insert: {
+          activity_session_id?: string | null
+          bottleneck_text: string
+          cluster_id?: string | null
+          cluster_name?: string | null
+          created_at?: string | null
+          id?: string
+          participant_name: string
+          position_x?: number | null
+          position_y?: number | null
+          workshop_session_id?: string | null
+        }
+        Update: {
+          activity_session_id?: string | null
+          bottleneck_text?: string
+          cluster_id?: string | null
+          cluster_name?: string | null
+          created_at?: string | null
+          id?: string
+          participant_name?: string
+          position_x?: number | null
+          position_y?: number | null
+          workshop_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bottleneck_submissions_activity_session_id_fkey"
+            columns: ["activity_session_id"]
+            isOneToOne: false
+            referencedRelation: "activity_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bottleneck_submissions_workshop_session_id_fkey"
+            columns: ["workshop_session_id"]
+            isOneToOne: false
+            referencedRelation: "workshop_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -315,6 +568,77 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_identifier_salt: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          rotated_at: string | null
+          salt_value: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rotated_at?: string | null
+          salt_value: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rotated_at?: string | null
+          salt_value?: string
+        }
+        Relationships: []
+      }
+      consent_audit: {
+        Row: {
+          changed_at: string | null
+          changed_by: string | null
+          consent_purpose: Database["public"]["Enums"]["consent_purpose"]
+          id: string
+          ip_address: unknown
+          new_value: boolean
+          participant_id: string | null
+          previous_value: boolean | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          changed_at?: string | null
+          changed_by?: string | null
+          consent_purpose: Database["public"]["Enums"]["consent_purpose"]
+          id?: string
+          ip_address?: unknown
+          new_value: boolean
+          participant_id?: string | null
+          previous_value?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          changed_at?: string | null
+          changed_by?: string | null
+          consent_purpose?: Database["public"]["Enums"]["consent_purpose"]
+          id?: string
+          ip_address?: unknown
+          new_value?: boolean
+          participant_id?: string | null
+          previous_value?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_audit_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "index_participant_data"
             referencedColumns: ["id"]
           },
         ]
@@ -413,6 +737,63 @@ export type Database = {
             columns: ["session_id"]
             isOneToOne: false
             referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      effortless_map_items: {
+        Row: {
+          activity_session_id: string | null
+          constraint_inverted: boolean | null
+          created_at: string | null
+          id: string
+          item_text: string
+          lane: string
+          participant_name: string
+          priority_rank: number | null
+          sponsor_name: string | null
+          vote_count: number | null
+          workshop_session_id: string | null
+        }
+        Insert: {
+          activity_session_id?: string | null
+          constraint_inverted?: boolean | null
+          created_at?: string | null
+          id?: string
+          item_text: string
+          lane: string
+          participant_name: string
+          priority_rank?: number | null
+          sponsor_name?: string | null
+          vote_count?: number | null
+          workshop_session_id?: string | null
+        }
+        Update: {
+          activity_session_id?: string | null
+          constraint_inverted?: boolean | null
+          created_at?: string | null
+          id?: string
+          item_text?: string
+          lane?: string
+          participant_name?: string
+          priority_rank?: number | null
+          sponsor_name?: string | null
+          vote_count?: number | null
+          workshop_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "effortless_map_items_activity_session_id_fkey"
+            columns: ["activity_session_id"]
+            isOneToOne: false
+            referencedRelation: "activity_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "effortless_map_items_workshop_session_id_fkey"
+            columns: ["workshop_session_id"]
+            isOneToOne: false
+            referencedRelation: "workshop_sessions"
             referencedColumns: ["id"]
           },
         ]
@@ -602,6 +983,128 @@ export type Database = {
         }
         Relationships: []
       }
+      index_participant_data: {
+        Row: {
+          assessment_type: string | null
+          company_identifier_hash: string | null
+          company_size: string | null
+          completed_at: string
+          confidence_weight: number | null
+          consent_flags: Json | null
+          consent_updated_at: string | null
+          created_at: string | null
+          dimension_scores: Json | null
+          effective_sample_contribution: number | null
+          id: string
+          industry: string | null
+          readiness_score: number | null
+          role_title: string | null
+          session_id: string | null
+          tier: string | null
+          user_id: string | null
+        }
+        Insert: {
+          assessment_type?: string | null
+          company_identifier_hash?: string | null
+          company_size?: string | null
+          completed_at: string
+          confidence_weight?: number | null
+          consent_flags?: Json | null
+          consent_updated_at?: string | null
+          created_at?: string | null
+          dimension_scores?: Json | null
+          effective_sample_contribution?: number | null
+          id?: string
+          industry?: string | null
+          readiness_score?: number | null
+          role_title?: string | null
+          session_id?: string | null
+          tier?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          assessment_type?: string | null
+          company_identifier_hash?: string | null
+          company_size?: string | null
+          completed_at?: string
+          confidence_weight?: number | null
+          consent_flags?: Json | null
+          consent_updated_at?: string | null
+          created_at?: string | null
+          dimension_scores?: Json | null
+          effective_sample_contribution?: number | null
+          id?: string
+          industry?: string | null
+          readiness_score?: number | null
+          role_title?: string | null
+          session_id?: string | null
+          tier?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "index_participant_data_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      index_publication_rules: {
+        Row: {
+          bootstrap_iterations: number | null
+          changelog: string | null
+          confidence_level: number | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          methodology_url: string | null
+          min_effective_sample_size: number | null
+          min_segment_size: number | null
+          outlier_method: string | null
+          outlier_threshold: number | null
+          percentile_rounding: number | null
+          published_at: string | null
+          version: string
+        }
+        Insert: {
+          bootstrap_iterations?: number | null
+          changelog?: string | null
+          confidence_level?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          methodology_url?: string | null
+          min_effective_sample_size?: number | null
+          min_segment_size?: number | null
+          outlier_method?: string | null
+          outlier_threshold?: number | null
+          percentile_rounding?: number | null
+          published_at?: string | null
+          version: string
+        }
+        Update: {
+          bootstrap_iterations?: number | null
+          changelog?: string | null
+          confidence_level?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          methodology_url?: string | null
+          min_effective_sample_size?: number | null
+          min_segment_size?: number | null
+          outlier_method?: string | null
+          outlier_threshold?: number | null
+          percentile_rounding?: number | null
+          published_at?: string | null
+          version?: string
+        }
+        Relationships: []
+      }
       lead_qualification_scores: {
         Row: {
           business_readiness_score: number | null
@@ -700,6 +1203,136 @@ export type Database = {
           },
         ]
       }
+      pilot_charter: {
+        Row: {
+          calendar_events: Json | null
+          created_at: string | null
+          executive_sponsor: string
+          extend_criteria: string | null
+          id: string
+          kill_criteria: string | null
+          meeting_cadence: string
+          milestone_d10: string | null
+          milestone_d30: string | null
+          milestone_d60: string | null
+          milestone_d90: string | null
+          pilot_budget: number | null
+          pilot_owner: string
+          scale_criteria: string | null
+          updated_at: string | null
+          workshop_session_id: string | null
+        }
+        Insert: {
+          calendar_events?: Json | null
+          created_at?: string | null
+          executive_sponsor: string
+          extend_criteria?: string | null
+          id?: string
+          kill_criteria?: string | null
+          meeting_cadence: string
+          milestone_d10?: string | null
+          milestone_d30?: string | null
+          milestone_d60?: string | null
+          milestone_d90?: string | null
+          pilot_budget?: number | null
+          pilot_owner: string
+          scale_criteria?: string | null
+          updated_at?: string | null
+          workshop_session_id?: string | null
+        }
+        Update: {
+          calendar_events?: Json | null
+          created_at?: string | null
+          executive_sponsor?: string
+          extend_criteria?: string | null
+          id?: string
+          kill_criteria?: string | null
+          meeting_cadence?: string
+          milestone_d10?: string | null
+          milestone_d30?: string | null
+          milestone_d60?: string | null
+          milestone_d90?: string | null
+          pilot_budget?: number | null
+          pilot_owner?: string
+          scale_criteria?: string | null
+          updated_at?: string | null
+          workshop_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_charter_workshop_session_id_fkey"
+            columns: ["workshop_session_id"]
+            isOneToOne: false
+            referencedRelation: "workshop_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pre_workshop_inputs: {
+        Row: {
+          created_at: string | null
+          id: string
+          intake_id: string | null
+          participant_email: string
+          participant_name: string
+          pre_work_responses: Json | null
+          submitted_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          intake_id?: string | null
+          participant_email: string
+          participant_name: string
+          pre_work_responses?: Json | null
+          submitted_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          intake_id?: string | null
+          participant_email?: string
+          participant_name?: string
+          pre_work_responses?: Json | null
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_workshop_inputs_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "exec_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
       prompt_library_profiles: {
         Row: {
           bottleneck_analysis: Json
@@ -765,6 +1398,137 @@ export type Database = {
           },
         ]
       }
+      referrals: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          referral_source: string | null
+          referred_at: string | null
+          referred_company_completed_assessment: boolean | null
+          referred_company_first_assessment_date: string | null
+          referred_company_hash: string
+          referring_company_hash: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          referral_source?: string | null
+          referred_at?: string | null
+          referred_company_completed_assessment?: boolean | null
+          referred_company_first_assessment_date?: string | null
+          referred_company_hash: string
+          referring_company_hash: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          referral_source?: string | null
+          referred_at?: string | null
+          referred_company_completed_assessment?: boolean | null
+          referred_company_first_assessment_date?: string | null
+          referred_company_hash?: string
+          referring_company_hash?: string
+        }
+        Relationships: []
+      }
+      roi_actuals: {
+        Row: {
+          actual_metric_description: string | null
+          actual_monthly_value: number | null
+          aggregate_weight: number | null
+          allow_index_aggregation: boolean | null
+          baseline_value_monthly: number | null
+          confidence_level: string | null
+          confidence_weight: number | null
+          created_at: string | null
+          currency_code: string | null
+          exceeded_prediction: boolean | null
+          fte_count: number | null
+          id: string
+          normalized_monthly_per_fte: number | null
+          pilot_tracker_id: string | null
+          predicted_conservative_monthly: number | null
+          predicted_likely_monthly: number | null
+          provenance: Database["public"]["Enums"]["roi_provenance"]
+          provenance_weight: number | null
+          reported_at: string | null
+          reported_via: string | null
+          roi_variance_pct: number | null
+          session_id: string | null
+          unit_type: Database["public"]["Enums"]["roi_unit_type"]
+          unit_value_monthly: number | null
+          user_id: string | null
+          window_days: number | null
+        }
+        Insert: {
+          actual_metric_description?: string | null
+          actual_monthly_value?: number | null
+          aggregate_weight?: number | null
+          allow_index_aggregation?: boolean | null
+          baseline_value_monthly?: number | null
+          confidence_level?: string | null
+          confidence_weight?: number | null
+          created_at?: string | null
+          currency_code?: string | null
+          exceeded_prediction?: boolean | null
+          fte_count?: number | null
+          id?: string
+          normalized_monthly_per_fte?: number | null
+          pilot_tracker_id?: string | null
+          predicted_conservative_monthly?: number | null
+          predicted_likely_monthly?: number | null
+          provenance: Database["public"]["Enums"]["roi_provenance"]
+          provenance_weight?: number | null
+          reported_at?: string | null
+          reported_via?: string | null
+          roi_variance_pct?: number | null
+          session_id?: string | null
+          unit_type: Database["public"]["Enums"]["roi_unit_type"]
+          unit_value_monthly?: number | null
+          user_id?: string | null
+          window_days?: number | null
+        }
+        Update: {
+          actual_metric_description?: string | null
+          actual_monthly_value?: number | null
+          aggregate_weight?: number | null
+          allow_index_aggregation?: boolean | null
+          baseline_value_monthly?: number | null
+          confidence_level?: string | null
+          confidence_weight?: number | null
+          created_at?: string | null
+          currency_code?: string | null
+          exceeded_prediction?: boolean | null
+          fte_count?: number | null
+          id?: string
+          normalized_monthly_per_fte?: number | null
+          pilot_tracker_id?: string | null
+          predicted_conservative_monthly?: number | null
+          predicted_likely_monthly?: number | null
+          provenance?: Database["public"]["Enums"]["roi_provenance"]
+          provenance_weight?: number | null
+          reported_at?: string | null
+          reported_via?: string | null
+          roi_variance_pct?: number | null
+          session_id?: string | null
+          unit_type?: Database["public"]["Enums"]["roi_unit_type"]
+          unit_value_monthly?: number | null
+          user_id?: string | null
+          window_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roi_actuals_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_audit_log: {
         Row: {
           action: string
@@ -800,6 +1564,115 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      simulation_results: {
+        Row: {
+          after_snapshot: Json
+          before_snapshot: Json
+          cost_savings_usd: number | null
+          created_at: string | null
+          id: string
+          is_selected: boolean | null
+          org_changes_checklist: Json | null
+          quality_improvement_pct: number | null
+          simulation_id: string
+          simulation_name: string
+          time_savings_pct: number | null
+          vote_count: number | null
+          workshop_session_id: string | null
+        }
+        Insert: {
+          after_snapshot?: Json
+          before_snapshot?: Json
+          cost_savings_usd?: number | null
+          created_at?: string | null
+          id?: string
+          is_selected?: boolean | null
+          org_changes_checklist?: Json | null
+          quality_improvement_pct?: number | null
+          simulation_id: string
+          simulation_name: string
+          time_savings_pct?: number | null
+          vote_count?: number | null
+          workshop_session_id?: string | null
+        }
+        Update: {
+          after_snapshot?: Json
+          before_snapshot?: Json
+          cost_savings_usd?: number | null
+          created_at?: string | null
+          id?: string
+          is_selected?: boolean | null
+          org_changes_checklist?: Json | null
+          quality_improvement_pct?: number | null
+          simulation_id?: string
+          simulation_name?: string
+          time_savings_pct?: number | null
+          vote_count?: number | null
+          workshop_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "simulation_results_workshop_session_id_fkey"
+            columns: ["workshop_session_id"]
+            isOneToOne: false
+            referencedRelation: "workshop_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      strategy_addendum: {
+        Row: {
+          ai_leverage_points: Json | null
+          ceo_approved: boolean | null
+          created_at: string | null
+          data_governance_changes: string | null
+          id: string
+          org_process_changes: Json | null
+          pilot_kpis: string | null
+          policy_risk_checklist: Json | null
+          targets_at_risk: string | null
+          updated_at: string | null
+          working_group_inputs: Json | null
+          workshop_session_id: string | null
+        }
+        Insert: {
+          ai_leverage_points?: Json | null
+          ceo_approved?: boolean | null
+          created_at?: string | null
+          data_governance_changes?: string | null
+          id?: string
+          org_process_changes?: Json | null
+          pilot_kpis?: string | null
+          policy_risk_checklist?: Json | null
+          targets_at_risk?: string | null
+          updated_at?: string | null
+          working_group_inputs?: Json | null
+          workshop_session_id?: string | null
+        }
+        Update: {
+          ai_leverage_points?: Json | null
+          ceo_approved?: boolean | null
+          created_at?: string | null
+          data_governance_changes?: string | null
+          id?: string
+          org_process_changes?: Json | null
+          pilot_kpis?: string | null
+          policy_risk_checklist?: Json | null
+          targets_at_risk?: string | null
+          updated_at?: string | null
+          working_group_inputs?: Json | null
+          workshop_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategy_addendum_workshop_session_id_fkey"
+            columns: ["workshop_session_id"]
+            isOneToOne: false
+            referencedRelation: "workshop_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_business_context: {
         Row: {
@@ -864,6 +1737,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           auth_user_id: string | null
@@ -874,6 +1768,7 @@ export type Database = {
           full_name: string | null
           id: string
           industry: string | null
+          profile_id: string | null
           role_title: string | null
           updated_at: string | null
         }
@@ -886,6 +1781,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           industry?: string | null
+          profile_id?: string | null
           role_title?: string | null
           updated_at?: string | null
         }
@@ -898,16 +1794,430 @@ export type Database = {
           full_name?: string | null
           id?: string
           industry?: string | null
+          profile_id?: string | null
           role_title?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      velocity_events: {
+        Row: {
+          action_signal_level: Database["public"]["Enums"]["action_signal_level"]
+          assessment_completed_at: string
+          contact_email: string
+          created_at: string | null
+          days_since_assessment: number | null
+          event_date: string
+          event_description: string | null
+          event_metadata: Json | null
+          event_type: string
+          id: string
+          initial_readiness_score: number | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_signal_level: Database["public"]["Enums"]["action_signal_level"]
+          assessment_completed_at: string
+          contact_email: string
+          created_at?: string | null
+          days_since_assessment?: number | null
+          event_date: string
+          event_description?: string | null
+          event_metadata?: Json | null
+          event_type: string
+          id?: string
+          initial_readiness_score?: number | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_signal_level?: Database["public"]["Enums"]["action_signal_level"]
+          assessment_completed_at?: string
+          contact_email?: string
+          created_at?: string | null
+          days_since_assessment?: number | null
+          event_date?: string
+          event_description?: string | null
+          event_metadata?: Json | null
+          event_type?: string
+          id?: string
+          initial_readiness_score?: number | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "velocity_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voice_instrumentation: {
+        Row: {
+          created_at: string | null
+          dwell_time_seconds: number | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          module_name: string | null
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dwell_time_seconds?: number | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          module_name?: string | null
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dwell_time_seconds?: number | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          module_name?: string | null
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_instrumentation_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voice_sessions: {
+        Row: {
+          audio_retention_consent: boolean | null
+          compass_completed_at: string | null
+          compass_focus_areas: string[] | null
+          compass_scores: Json | null
+          compass_tier: string | null
+          created_at: string | null
+          gated_unlocked_at: string | null
+          id: string
+          roi_assumptions: string[] | null
+          roi_completed_at: string | null
+          roi_conservative_value: number | null
+          roi_inputs: Json | null
+          roi_likely_value: number | null
+          roi_transcript: string | null
+          session_id: string
+          sprint_signup_source: string | null
+          updated_at: string | null
+          voice_enabled: boolean | null
+        }
+        Insert: {
+          audio_retention_consent?: boolean | null
+          compass_completed_at?: string | null
+          compass_focus_areas?: string[] | null
+          compass_scores?: Json | null
+          compass_tier?: string | null
+          created_at?: string | null
+          gated_unlocked_at?: string | null
+          id?: string
+          roi_assumptions?: string[] | null
+          roi_completed_at?: string | null
+          roi_conservative_value?: number | null
+          roi_inputs?: Json | null
+          roi_likely_value?: number | null
+          roi_transcript?: string | null
+          session_id: string
+          sprint_signup_source?: string | null
+          updated_at?: string | null
+          voice_enabled?: boolean | null
+        }
+        Update: {
+          audio_retention_consent?: boolean | null
+          compass_completed_at?: string | null
+          compass_focus_areas?: string[] | null
+          compass_scores?: Json | null
+          compass_tier?: string | null
+          created_at?: string | null
+          gated_unlocked_at?: string | null
+          id?: string
+          roi_assumptions?: string[] | null
+          roi_completed_at?: string | null
+          roi_conservative_value?: number | null
+          roi_inputs?: Json | null
+          roi_likely_value?: number | null
+          roi_transcript?: string | null
+          session_id?: string
+          sprint_signup_source?: string | null
+          updated_at?: string | null
+          voice_enabled?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_sessions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voting_results: {
+        Row: {
+          activity_session_id: string | null
+          created_at: string | null
+          dots_allocated: number | null
+          id: string
+          item_id: string
+          item_type: string
+          participant_name: string
+          workshop_session_id: string | null
+        }
+        Insert: {
+          activity_session_id?: string | null
+          created_at?: string | null
+          dots_allocated?: number | null
+          id?: string
+          item_id: string
+          item_type: string
+          participant_name: string
+          workshop_session_id?: string | null
+        }
+        Update: {
+          activity_session_id?: string | null
+          created_at?: string | null
+          dots_allocated?: number | null
+          id?: string
+          item_id?: string
+          item_type?: string
+          participant_name?: string
+          workshop_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voting_results_activity_session_id_fkey"
+            columns: ["activity_session_id"]
+            isOneToOne: false
+            referencedRelation: "activity_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voting_results_workshop_session_id_fkey"
+            columns: ["workshop_session_id"]
+            isOneToOne: false
+            referencedRelation: "workshop_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      working_group_inputs: {
+        Row: {
+          activity_session_id: string | null
+          created_at: string | null
+          id: string
+          input_category: string
+          input_text: string
+          participant_name: string
+          table_number: number
+          workshop_session_id: string | null
+        }
+        Insert: {
+          activity_session_id?: string | null
+          created_at?: string | null
+          id?: string
+          input_category: string
+          input_text: string
+          participant_name: string
+          table_number: number
+          workshop_session_id?: string | null
+        }
+        Update: {
+          activity_session_id?: string | null
+          created_at?: string | null
+          id?: string
+          input_category?: string
+          input_text?: string
+          participant_name?: string
+          table_number?: number
+          workshop_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "working_group_inputs_activity_session_id_fkey"
+            columns: ["activity_session_id"]
+            isOneToOne: false
+            referencedRelation: "activity_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "working_group_inputs_workshop_session_id_fkey"
+            columns: ["workshop_session_id"]
+            isOneToOne: false
+            referencedRelation: "workshop_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workshop_sessions: {
+        Row: {
+          cognitive_baseline_data: Json | null
+          completed_at: string | null
+          created_at: string | null
+          current_segment: number | null
+          facilitator_name: string
+          id: string
+          intake_id: string | null
+          participant_count: number | null
+          segment_timers: Json | null
+          status: string
+          updated_at: string | null
+          workshop_date: string
+          workshop_metadata: Json | null
+        }
+        Insert: {
+          cognitive_baseline_data?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_segment?: number | null
+          facilitator_name: string
+          id?: string
+          intake_id?: string | null
+          participant_count?: number | null
+          segment_timers?: Json | null
+          status?: string
+          updated_at?: string | null
+          workshop_date: string
+          workshop_metadata?: Json | null
+        }
+        Update: {
+          cognitive_baseline_data?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_segment?: number | null
+          facilitator_name?: string
+          id?: string
+          intake_id?: string | null
+          participant_count?: number | null
+          segment_timers?: Json | null
+          status?: string
+          updated_at?: string | null
+          workshop_date?: string
+          workshop_metadata?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workshop_sessions_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "exec_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      public_index_snapshots: {
+        Row: {
+          avg_readiness_score: number | null
+          avg_readiness_score_ci_lower: number | null
+          avg_readiness_score_ci_upper: number | null
+          company_size_benchmarks: Json | null
+          consent_rate: number | null
+          dimension_benchmarks: Json | null
+          effective_sample_size: number | null
+          industry_benchmarks: Json | null
+          median_readiness_score: number | null
+          methodology_version: string | null
+          published_at: string | null
+          qoq_change: number | null
+          qoq_change_significant: boolean | null
+          quarter: string | null
+          role_benchmarks: Json | null
+          tier_advancing_pct: number | null
+          tier_emerging_pct: number | null
+          tier_establishing_pct: number | null
+          tier_leading_pct: number | null
+          total_assessments: number | null
+        }
+        Insert: {
+          avg_readiness_score?: number | null
+          avg_readiness_score_ci_lower?: number | null
+          avg_readiness_score_ci_upper?: number | null
+          company_size_benchmarks?: Json | null
+          consent_rate?: number | null
+          dimension_benchmarks?: Json | null
+          effective_sample_size?: number | null
+          industry_benchmarks?: Json | null
+          median_readiness_score?: number | null
+          methodology_version?: string | null
+          published_at?: string | null
+          qoq_change?: number | null
+          qoq_change_significant?: boolean | null
+          quarter?: string | null
+          role_benchmarks?: Json | null
+          tier_advancing_pct?: number | null
+          tier_emerging_pct?: number | null
+          tier_establishing_pct?: number | null
+          tier_leading_pct?: number | null
+          total_assessments?: number | null
+        }
+        Update: {
+          avg_readiness_score?: number | null
+          avg_readiness_score_ci_lower?: number | null
+          avg_readiness_score_ci_upper?: number | null
+          company_size_benchmarks?: Json | null
+          consent_rate?: number | null
+          dimension_benchmarks?: Json | null
+          effective_sample_size?: number | null
+          industry_benchmarks?: Json | null
+          median_readiness_score?: number | null
+          methodology_version?: string | null
+          published_at?: string | null
+          qoq_change?: number | null
+          qoq_change_significant?: boolean | null
+          quarter?: string | null
+          role_benchmarks?: Json | null
+          tier_advancing_pct?: number | null
+          tier_emerging_pct?: number | null
+          tier_establishing_pct?: number | null
+          tier_leading_pct?: number | null
+          total_assessments?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_leadership_index_snapshots_methodology_version_fkey"
+            columns: ["methodology_version"]
+            isOneToOne: false
+            referencedRelation: "index_publication_rules"
+            referencedColumns: ["version"]
+          },
+        ]
+      }
     }
     Functions: {
+      calculate_bootstrap_ci: {
+        Args: {
+          confidence_level?: number
+          iterations?: number
+          sample_values: number[]
+        }
+        Returns: {
+          ci_lower: number
+          ci_upper: number
+          mean: number
+        }[]
+      }
       calculate_conversion_metrics: {
         Args: { session_uuid: string }
         Returns: {
@@ -917,6 +2227,17 @@ export type Database = {
           total_sessions: number
         }[]
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      hash_company_identifier: {
+        Args: { email_domain: string }
+        Returns: string
+      }
       process_pending_sync_logs: {
         Args: never
         Returns: {
@@ -924,6 +2245,10 @@ export type Database = {
           processed_count: number
           success_count: number
         }[]
+      }
+      round_percentile: {
+        Args: { raw_percentile: number; rounding?: number }
+        Returns: number
       }
       schedule_sync_processing: { Args: never; Returns: undefined }
       sync_lead_to_sheets: {
@@ -944,6 +2269,14 @@ export type Database = {
       }
     }
     Enums: {
+      action_signal_level: "low" | "mid" | "high"
+      app_role: "admin" | "moderator" | "user"
+      consent_purpose:
+        | "index_publication"
+        | "sales_outreach"
+        | "case_study"
+        | "product_improvements"
+        | "research_partnerships"
       exec_role:
         | "CEO"
         | "CTO"
@@ -953,6 +2286,14 @@ export type Database = {
         | "VP"
         | "Director"
         | "Other"
+      momentum_tier: "experimenting" | "scaling" | "institutionalizing"
+      roi_provenance: "instrumented" | "system_report" | "estimate"
+      roi_unit_type:
+        | "hours_saved"
+        | "revenue_increase"
+        | "cost_reduction"
+        | "nps_increase"
+        | "time_to_market"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1080,7 +2421,25 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      action_signal_level: ["low", "mid", "high"],
+      app_role: ["admin", "moderator", "user"],
+      consent_purpose: [
+        "index_publication",
+        "sales_outreach",
+        "case_study",
+        "product_improvements",
+        "research_partnerships",
+      ],
       exec_role: ["CEO", "CTO", "COO", "CMO", "CFO", "VP", "Director", "Other"],
+      momentum_tier: ["experimenting", "scaling", "institutionalizing"],
+      roi_provenance: ["instrumented", "system_report", "estimate"],
+      roi_unit_type: [
+        "hours_saved",
+        "revenue_increase",
+        "cost_reduction",
+        "nps_increase",
+        "time_to_market",
+      ],
     },
   },
 } as const

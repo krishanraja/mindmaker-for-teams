@@ -5,6 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ExecutivePulse } from "@/components/exec-teams/ExecutivePulse";
+import { FacilitatorDashboard } from "./pages/FacilitatorDashboard";
+import { CreateWorkshop } from "./pages/CreateWorkshop";
+import { MobileBottleneck } from "./pages/MobileBottleneck";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -20,6 +23,9 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/exec-pulse/:intakeId/:emailHash" element={<ExecutivePulse />} />
+            <Route path="/facilitator/:workshopId" element={<FacilitatorDashboard />} />
+            <Route path="/create-workshop" element={<CreateWorkshop />} />
+            <Route path="/mobile/bottleneck/:workshopId" element={<MobileBottleneck />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
