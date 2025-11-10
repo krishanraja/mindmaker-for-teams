@@ -10,6 +10,7 @@ import { AIInsightCard } from '../AIInsightCard';
 
 interface Segment3EffortlessEnterpriseProps {
   workshopId: string;
+  bootcampPlanData?: any;
 }
 
 const LANES = [
@@ -19,7 +20,7 @@ const LANES = [
   { id: 'risk', name: 'Risk', color: 'bg-red-500/20 border-red-500' },
 ];
 
-export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterpriseProps> = ({ workshopId }) => {
+export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterpriseProps> = ({ workshopId, bootcampPlanData }) => {
   const [activitySession, setActivitySession] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [votingSession, setVotingSession] = useState<any>(null);
@@ -151,6 +152,26 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
           <p className="text-xl text-muted-foreground leading-relaxed">
             <strong className="text-foreground">Objective:</strong> Map current friction points and envision an AI-augmented future state across key business areas.
           </p>
+
+          {bootcampPlanData?.strategic_goals_2026 && bootcampPlanData.strategic_goals_2026.length > 0 && (
+            <Card className="bg-primary/10 border-2 border-primary/30">
+              <CardContent className="pt-4">
+                <h4 className="font-semibold text-base mb-3 flex items-center gap-2">
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">From Customer Intake</span>
+                  2026 Strategic Goals
+                </h4>
+                <p className="text-sm text-muted-foreground mb-2">Keep these goals in mind while mapping AI opportunities:</p>
+                <ul className="space-y-2">
+                  {bootcampPlanData.strategic_goals_2026.map((goal: string, idx: number) => (
+                    <li key={idx} className="text-sm text-foreground flex gap-2">
+                      <span className="text-primary">•</span>
+                      <span>{goal}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="flex gap-4 flex-wrap">
             <Button onClick={generateMapQR} disabled={!!activitySession} size="lg" className="gap-2">

@@ -10,9 +10,10 @@ import { AIInsightCard } from '../AIInsightCard';
 
 interface Segment2BottleneckBoardProps {
   workshopId: string;
+  bootcampPlanData?: any;
 }
 
-export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = ({ workshopId }) => {
+export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = ({ workshopId, bootcampPlanData }) => {
   const [activitySession, setActivitySession] = useState<any>(null);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [clusteredSubmissions, setClusteredSubmissions] = useState<any[]>([]);
@@ -153,6 +154,26 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
           <p className="text-xl text-muted-foreground leading-relaxed">
             <strong className="text-foreground">Objective:</strong> Surface and cluster the organizational friction points that slow your team down.
           </p>
+
+          {bootcampPlanData?.current_bottlenecks && bootcampPlanData.current_bottlenecks.length > 0 && (
+            <Card className="bg-primary/10 border-2 border-primary/30">
+              <CardContent className="pt-4">
+                <h4 className="font-semibold text-base mb-3 flex items-center gap-2">
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">From Customer Intake</span>
+                  Pre-Identified Bottlenecks
+                </h4>
+                <p className="text-sm text-muted-foreground mb-2">These bottlenecks were identified during intake - use as conversation starters:</p>
+                <ul className="space-y-2">
+                  {bootcampPlanData.current_bottlenecks.map((bottleneck: string, idx: number) => (
+                    <li key={idx} className="text-sm text-foreground flex gap-2">
+                      <span className="text-primary">•</span>
+                      <span>{bottleneck}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="flex gap-4">
             <Button onClick={generateQRCode} disabled={!!activitySession}>

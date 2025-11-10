@@ -4,9 +4,10 @@ import { Zap } from 'lucide-react';
 
 interface Segment1MythbusterProps {
   workshopId: string;
+  bootcampPlanData?: any;
 }
 
-export const Segment1Mythbuster: React.FC<Segment1MythbusterProps> = () => {
+export const Segment1Mythbuster: React.FC<Segment1MythbusterProps> = ({ bootcampPlanData }) => {
   const myths = [
     {
       myth: 'AI will replace all jobs',
@@ -39,6 +40,25 @@ export const Segment1Mythbuster: React.FC<Segment1MythbusterProps> = () => {
           <p className="text-muted-foreground">
             <strong>Objective:</strong> Debunk common AI misconceptions and establish a foundation of realistic expectations.
           </p>
+
+          {bootcampPlanData?.ai_myths_concerns && bootcampPlanData.ai_myths_concerns.length > 0 && (
+            <Card className="bg-primary/10 border-2 border-primary/30">
+              <CardContent className="pt-4">
+                <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">From Customer Intake</span>
+                  Customer's AI Concerns & Myths
+                </h4>
+                <ul className="space-y-2">
+                  {bootcampPlanData.ai_myths_concerns.map((concern: string, idx: number) => (
+                    <li key={idx} className="text-foreground flex gap-2">
+                      <span className="text-primary">•</span>
+                      <span>{concern}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
           
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Key Talking Points:</h3>

@@ -9,21 +9,34 @@ import { toast } from '@/hooks/use-toast';
 
 interface Segment4SimulationLabProps {
   workshopId: string;
+  bootcampPlanData?: any;
 }
 
-const SIMULATIONS = [
-  { id: 'analyst-brief', name: 'Analyst Brief (Tedious Research → AI-Augmented Insights)' },
-  { id: 'contract-review', name: 'Contract Review (Manual Red-lining → AI First-Pass)' },
-  { id: 'customer-support', name: 'Customer Support Ticket Triage' },
-  { id: 'sales-proposal', name: 'Sales Proposal Generation' },
-  { id: 'compliance-audit', name: 'Compliance Audit Pre-Check' },
-];
-
-export const Segment4SimulationLab: React.FC<Segment4SimulationLabProps> = ({ workshopId }) => {
+export const Segment4SimulationLab: React.FC<Segment4SimulationLabProps> = ({ workshopId, bootcampPlanData }) => {
   const [selectedSimulation, setSelectedSimulation] = useState<string | null>(null);
   const [beforeData, setBeforeData] = useState({ time_hours: '', cost_usd: '', quality_score: '' });
   const [afterData, setAfterData] = useState({ time_hours: '', cost_usd: '', quality_score: '' });
   const [results, setResults] = useState<any[]>([]);
+
+  // Get customer's selected simulations or use defaults
+  const customerSimulations = React.useMemo(() => {
+    const sims = [];
+    if (bootcampPlanData?.simulation_1_id && bootcampPlanData?.simulation_1_snapshot) {
+      sims.push({
+        id: bootcampPlanData.simulation_1_id,
+        name: bootcampPlanData.simulation_1_snapshot.name || bootcampPlanData.simulation_1_id,
+        context: bootcampPlanData.simulation_1_snapshot
+      });
+    }
+    if (bootcampPlanData?.simulation_2_id && bootcampPlanData?.simulation_2_snapshot) {
+      sims.push({
+        id: bootcampPlanData.simulation_2_id,
+        name: bootcampPlanData.simulation_2_snapshot.name || bootcampPlanData.simulation_2_id,
+        context: bootcampPlanData.simulation_2_snapshot
+      });
+    }
+    return sims;
+  }, [bootcampPlanData]);
 
   useEffect(() => {
     loadResults();
@@ -42,7 +55,7 @@ export const Segment4SimulationLab: React.FC<Segment4SimulationLabProps> = ({ wo
   const handleSaveSimulation = async () => {
     if (!selectedSimulation) return;
 
-    const simulationName = SIMULATIONS.find(s => s.id === selectedSimulation)?.name || '';
+    const simulationName = customerSimulations.find(s => s.id === selectedSimulation)?.name || selectedSimulation;
 
     const before = {
       time_hours: parseFloat(beforeData.time_hours),
@@ -100,10 +113,32 @@ export const Segment4SimulationLab: React.FC<Segment4SimulationLabProps> = ({ wo
             <strong>Objective:</strong> Run before/after simulations to quantify AI impact on key workflows.
           </p>
 
+          {customerSimulations.length > 0 && (
+            <Card className="bg-primary/10 border-2 border-primary/30">
+              <CardContent className="pt-4">
+                <h4 className="font-semibold text-base mb-2 flex items-center gap-2">
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">From Customer Intake</span>
+                  Customer's Selected Simulations
+                </h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  These workflows were prioritized during the intake process. Run simulations to quantify AI impact.
+                </p>
+                {customerSimulations.map((sim, idx) => (
+                  <div key={idx} className="mb-3 p-3 bg-card rounded-lg border border-border">
+                    <div className="font-medium text-sm mb-1">{sim.name}</div>
+                    {sim.context?.description && (
+                      <div className="text-xs text-muted-foreground">{sim.context.description}</div>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
           <div className="space-y-4">
-            <h3 className="font-semibold">Select Simulation</h3>
+            <h3 className="font-semibold">{customerSimulations.length > 0 ? 'Run Simulations' : 'Select Simulation'}</h3>
             <div className="grid grid-cols-1 gap-2">
-              {SIMULATIONS.map(sim => (
+              {customerSimulations.length > 0 ? customerSimulations.map(sim => (
                 <Button
                   key={sim.id}
                   variant={selectedSimulation === sim.id ? 'default' : 'outline'}
@@ -112,7 +147,13 @@ export const Segment4SimulationLab: React.FC<Segment4SimulationLabProps> = ({ wo
                 >
                   {sim.name}
                 </Button>
-              ))}
+              )) : (
+                <div className="p-6 bg-muted/50 rounded-lg border border-dashed border-border text-center">
+                  <p className="text-sm text-muted-foreground">
+                    No simulations selected during intake. Contact customer to define workflows to simulate.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

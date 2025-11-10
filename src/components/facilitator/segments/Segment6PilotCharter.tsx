@@ -10,9 +10,10 @@ import { toast } from '@/hooks/use-toast';
 
 interface Segment6PilotCharterProps {
   workshopId: string;
+  bootcampPlanData?: any;
 }
 
-export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ workshopId }) => {
+export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ workshopId, bootcampPlanData }) => {
   const [charter, setCharter] = useState({
     pilot_owner: '',
     pilot_budget: '',
@@ -30,6 +31,19 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
   useEffect(() => {
     loadCharter();
   }, [workshopId]);
+
+  // Pre-populate with customer pilot expectations if available
+  useEffect(() => {
+    if (bootcampPlanData?.pilot_expectations && charter.pilot_owner === '') {
+      const expectations = bootcampPlanData.pilot_expectations;
+      setCharter(prev => ({
+        ...prev,
+        pilot_owner: expectations.owner || '',
+        executive_sponsor: expectations.sponsor || '',
+        pilot_budget: expectations.budget_min ? `${expectations.budget_min}-${expectations.budget_max}` : '',
+      }));
+    }
+  }, [bootcampPlanData]);
 
   const loadCharter = async () => {
     const { data } = await supabase
@@ -85,6 +99,39 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
           <p className="text-muted-foreground">
             <strong>Objective:</strong> Lock in commitment, ownership, and decision gates for the 90-day pilot.
           </p>
+
+          {bootcampPlanData?.pilot_expectations && (
+            <Card className="bg-primary/10 border-2 border-primary/30">
+              <CardContent className="pt-4">
+                <h4 className="font-semibold text-base mb-2 flex items-center gap-2">
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">From Customer Intake</span>
+                  Pilot Expectations
+                </h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  {bootcampPlanData.pilot_expectations.description && (
+                    <div className="col-span-2">
+                      <div className="font-medium">Pilot Description:</div>
+                      <div className="text-muted-foreground">{bootcampPlanData.pilot_expectations.description}</div>
+                    </div>
+                  )}
+                  {bootcampPlanData.pilot_expectations.owner && (
+                    <div>
+                      <div className="font-medium">Expected Owner:</div>
+                      <div className="text-muted-foreground">{bootcampPlanData.pilot_expectations.owner}</div>
+                    </div>
+                  )}
+                  {bootcampPlanData.pilot_expectations.budget_min && (
+                    <div>
+                      <div className="font-medium">Budget Range:</div>
+                      <div className="text-muted-foreground">
+                        ${bootcampPlanData.pilot_expectations.budget_min}k - ${bootcampPlanData.pilot_expectations.budget_max}k
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="grid grid-cols-2 gap-6">
             <div>

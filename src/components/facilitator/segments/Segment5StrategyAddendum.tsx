@@ -10,9 +10,10 @@ import { QRCodeSVG } from 'qrcode.react';
 
 interface Segment5StrategyAddendumProps {
   workshopId: string;
+  bootcampPlanData?: any;
 }
 
-export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> = ({ workshopId }) => {
+export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> = ({ workshopId, bootcampPlanData }) => {
   const [activitySession, setActivitySession] = useState<any>(null);
   const [addendum, setAddendum] = useState({
     targets_at_risk: '',
@@ -23,6 +24,20 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
   useEffect(() => {
     loadAddendum();
   }, [workshopId]);
+
+  // Pre-populate with customer data if available
+  useEffect(() => {
+    if (bootcampPlanData && addendum.targets_at_risk === '') {
+      const initialTargets = bootcampPlanData.strategic_goals_2026?.join('\n• ') || '';
+      const initialBottlenecks = bootcampPlanData.current_bottlenecks?.join('\n• ') || '';
+      const competitiveLandscape = bootcampPlanData.competitive_landscape || '';
+      
+      setAddendum(prev => ({
+        ...prev,
+        targets_at_risk: initialTargets ? `Strategic targets:\n• ${initialTargets}\n\nCompetitive Context:\n${competitiveLandscape}` : '',
+      }));
+    }
+  }, [bootcampPlanData]);
 
   const generateWorkingGroupQR = async () => {
     const activityUrl = `${window.location.origin}/mobile/working-group/${workshopId}`;
@@ -105,14 +120,38 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
             </Card>
           )}
 
+          {bootcampPlanData && (
+            <Card className="bg-primary/10 border-2 border-primary/30">
+              <CardContent className="pt-4">
+                <h4 className="font-semibold text-base mb-2 flex items-center gap-2">
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">Customer Context</span>
+                  Strategic Background
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <div className="font-medium mb-1">AI Experience:</div>
+                    <div className="text-muted-foreground">{bootcampPlanData.ai_experience_level || 'Not specified'}</div>
+                  </div>
+                  <div>
+                    <div className="font-medium mb-1">Risk Tolerance:</div>
+                    <div className="text-muted-foreground">{bootcampPlanData.risk_tolerance ? `${bootcampPlanData.risk_tolerance}/10` : 'Not specified'}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="space-y-4">
             <div>
               <Label className="text-base font-semibold">Block 1: Targets at Risk</Label>
               <p className="text-sm text-muted-foreground mb-2">
                 Which 2026 strategic targets are now at risk due to competitive AI adoption?
               </p>
+              {bootcampPlanData?.strategic_goals_2026 && (
+                <p className="text-xs text-primary mb-2">Pre-populated with customer's strategic goals</p>
+              )}
               <Textarea
-                rows={4}
+                rows={6}
                 value={addendum.targets_at_risk}
                 onChange={(e) => setAddendum({ ...addendum, targets_at_risk: e.target.value })}
                 placeholder="List strategic targets that may be impacted..."

@@ -120,10 +120,27 @@ export const FacilitatorDashboard: React.FC = () => {
             <h1 className="text-3xl font-bold text-foreground mb-1">
               {workshop?.exec_intakes?.company_name} Leadership Bootcamp
             </h1>
-            <p className="text-sm text-muted-foreground flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-              Facilitator: {workshop?.facilitator_name}
-            </p>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                Facilitator: {workshop?.facilitator_name}
+              </span>
+              {bootcampPlan?.ai_experience_level && (
+                <span className="px-2 py-1 bg-muted rounded text-xs">
+                  AI Experience: {bootcampPlan.ai_experience_level}
+                </span>
+              )}
+              {workshop?.exec_intakes?.industry && (
+                <span className="px-2 py-1 bg-muted rounded text-xs">
+                  {workshop.exec_intakes.industry}
+                </span>
+              )}
+              {workshop?.participant_count > 0 && (
+                <span className="px-2 py-1 bg-muted rounded text-xs">
+                  {workshop.participant_count} participants
+                </span>
+              )}
+            </div>
           </div>
           <Button onClick={handleGeneratePDF} size="lg" className="shadow-lg">
             <Download className="mr-2 h-5 w-5" />
