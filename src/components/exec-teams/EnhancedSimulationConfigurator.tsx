@@ -46,6 +46,50 @@ const SIMULATIONS = [
   },
 ];
 
+const SIMULATION_PLACEHOLDERS: Record<string, {
+  currentState: string;
+  stakeholders: string;
+  desiredOutcome: string;
+  successCriteria: string;
+}> = {
+  'gtm-pivot': {
+    currentState: "Our current GTM strategy targets SMBs but we're seeing more traction with enterprise buyers. Need to pivot messaging and sales approach.",
+    stakeholders: 'CMO, VP Sales, Product Marketing',
+    desiredOutcome: 'Complete repositioning with new messaging, collateral, and sales playbook ready for enterprise segment',
+    successCriteria: 'Launch in new vertical within 90 days, 50% increase in enterprise deal pipeline, $2M ARR from new segment in 6 months',
+  },
+  'board-deck-crisis': {
+    currentState: "We're struggling to create quarterly board narratives that tell a compelling story. Takes 3+ weeks of back-and-forth.",
+    stakeholders: 'CFO, Board, Executive team',
+    desiredOutcome: 'Board deck drafted in 2 days with AI assistance, compelling narrative that ties metrics to strategy',
+    successCriteria: 'Reduce deck creation time by 80%, maintain board approval rate above 90%, improve narrative quality scores',
+  },
+  'competitive-response': {
+    currentState: 'Major competitor just launched a feature that threatens our core differentiator. Team is scrambling for a response strategy.',
+    stakeholders: 'CEO, Product, Marketing, Sales leadership',
+    desiredOutcome: 'Clear competitive positioning and response plan within 72 hours, ready for immediate market execution',
+    successCriteria: 'Counter-message in market within 1 week, maintain customer retention above 95%, win rate stays above 60%',
+  },
+  'ma-due-diligence': {
+    currentState: 'Evaluating acquisition target but their tech stack is complex. Manual review would take 6 weeks - deal timeline is 3 weeks.',
+    stakeholders: 'CTO, M&A team, Technical leads',
+    desiredOutcome: 'Comprehensive tech due diligence report with risk assessment, integration plan, and cost projections',
+    successCriteria: 'Complete assessment in 2 weeks, identify all critical risks, provide accurate integration cost estimate within 10%',
+  },
+  'talent-retention': {
+    currentState: 'Lost 3 senior engineers to competitors in 2 months. Exit interviews cite growth opportunities and comp as main factors.',
+    stakeholders: 'Head of Engineering, HR, Department leads',
+    desiredOutcome: 'Data-driven retention plan with career paths, comp adjustments, and team engagement initiatives',
+    successCriteria: 'Reduce engineering attrition to <10% annually, improve engagement scores by 30%, fill talent gaps within 90 days',
+  },
+  'pricing-strategy': {
+    currentState: 'Current pricing model built 3 years ago. Market has shifted, competitors undercut us, customers asking for new packaging options.',
+    stakeholders: 'CFO, Sales, Customer Success, Product',
+    desiredOutcome: 'New pricing strategy aligned with current market, optimized for revenue growth and customer retention',
+    successCriteria: 'Roll out new pricing within 60 days, achieve 20% increase in average deal size, maintain <5% churn during transition',
+  },
+};
+
 const AI_MYTHS_OPTIONS = [
   'AI will replace our team',
   'AI is too expensive to implement',
@@ -527,6 +571,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                     {state.selectedSimulations.map((simId, index) => {
                       const sim = SIMULATIONS.find(s => s.id === simId);
                       const snapshot = getSimulationSnapshot(index);
+                      const placeholders = SIMULATION_PLACEHOLDERS[simId] || SIMULATION_PLACEHOLDERS['board-deck-crisis'];
                       return (
                         <Card key={simId} className="border-2">
                           <CardHeader className="bg-accent/5">
@@ -551,7 +596,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                               <Textarea
                                 value={snapshot?.currentState || ''}
                                 onChange={(e) => updateSnapshot(index, 'currentState', e.target.value)}
-                                placeholder="Example: We're struggling to create quarterly board narratives that tell a compelling story. Takes 3+ weeks of back-and-forth."
+                                placeholder={placeholders.currentState}
                                 maxLength={150}
                                 rows={3}
                               />
@@ -577,7 +622,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                               <Input
                                 value={snapshot?.stakeholders || ''}
                                 onChange={(e) => updateSnapshot(index, 'stakeholders', e.target.value)}
-                                placeholder="e.g., CFO, Board, Executive team"
+                                placeholder={placeholders.stakeholders}
                               />
                             </div>
 
@@ -598,7 +643,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                               <Input
                                 value={snapshot?.desiredOutcome || ''}
                                 onChange={(e) => updateSnapshot(index, 'desiredOutcome', e.target.value)}
-                                placeholder="What does success look like? e.g., Board deck drafted in 2 days with AI assistance"
+                                placeholder={placeholders.desiredOutcome}
                               />
                             </div>
 
@@ -682,7 +727,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                               <Textarea
                                 value={snapshot?.successCriteria || ''}
                                 onChange={(e) => updateSnapshot(index, 'successCriteria', e.target.value)}
-                                placeholder="Example: Reduce deck creation time by 80%, maintain board approval rate above 90%"
+                                placeholder={placeholders.successCriteria}
                                 rows={2}
                               />
                             </div>
