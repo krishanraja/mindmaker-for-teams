@@ -123,17 +123,36 @@ function reducer(state: ExecTeamsState, action: Action): ExecTeamsState {
     case 'UPDATE_AI_READINESS':
       return {
         ...state,
-        aiReadinessData: { ...state.aiReadinessData, ...action.payload } as AIReadinessData,
+        aiReadinessData: { 
+          aiMythsConcerns: [],
+          currentBottlenecks: [],
+          aiExperienceLevel: 'none' as const,
+          ...state.aiReadinessData, 
+          ...action.payload 
+        } as AIReadinessData,
       };
     case 'UPDATE_STRATEGIC_CONTEXT':
       return {
         ...state,
-        strategicContextData: { ...state.strategicContextData, ...action.payload } as StrategicContextData,
+        strategicContextData: { 
+          strategicGoals2026: [],
+          competitiveLandscape: '',
+          riskTolerance: 3,
+          ...state.strategicContextData, 
+          ...action.payload 
+        } as StrategicContextData,
       };
     case 'UPDATE_PILOT_EXPECTATIONS':
       return {
         ...state,
-        pilotExpectationsData: { ...state.pilotExpectationsData, ...action.payload } as PilotExpectationsData,
+        pilotExpectationsData: { 
+          pilotDescription: '',
+          pilotOwnerName: '',
+          pilotOwnerRole: '',
+          budgetRange: '',
+          ...state.pilotExpectationsData, 
+          ...action.payload 
+        } as PilotExpectationsData,
       };
     case 'SET_STEP':
       return { ...state, currentStep: action.payload };

@@ -12,11 +12,14 @@ export const ExecTeamsWelcome: React.FC = () => {
   
   const [displayedText, setDisplayedText] = React.useState('');
   const [isTypingComplete, setIsTypingComplete] = React.useState(false);
+  const [logoVisible, setLogoVisible] = React.useState(false);
 
   React.useEffect(() => {
     // Reset on mount
     setDisplayedText('');
     setIsTypingComplete(false);
+    // Fade in logo immediately
+    setLogoVisible(true);
   }, []);
 
   React.useEffect(() => {
@@ -36,7 +39,11 @@ export const ExecTeamsWelcome: React.FC = () => {
         <Card className="border-2 border-border/50 shadow-2xl">
           <CardHeader className="space-y-2 pb-8 text-left">
             <div className="flex justify-start -ml-3 mb-6">
-              <img src={logo} alt="MINDMAKER" className="h-12 w-auto" />
+              <img 
+                src={logo} 
+                alt="MINDMAKER" 
+                className={`h-12 w-auto transition-opacity duration-500 ${logoVisible ? 'opacity-100' : 'opacity-0'}`} 
+              />
             </div>
             
             <div>
