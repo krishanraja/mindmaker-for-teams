@@ -142,10 +142,10 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
           </div>
 
           {activitySession && (
-            <Card className="p-6 flex flex-col items-center bg-card">
-              <h3 className="font-semibold mb-4">Scan to Submit Bottlenecks</h3>
+            <Card className="p-8 flex flex-col items-center bg-card border-2">
+              <h3 className="font-semibold text-lg mb-4">Scan to Submit Bottlenecks</h3>
               <QRCodeSVG value={activitySession.qr_code_url} size={256} />
-              <p className="text-sm text-muted-foreground mt-4">
+              <p className="text-xs text-muted-foreground mt-4 text-center break-all max-w-xs">
                 {activitySession.qr_code_url}
               </p>
             </Card>

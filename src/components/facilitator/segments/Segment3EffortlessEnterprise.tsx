@@ -132,17 +132,23 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {activitySession && (
-              <Card className="p-4 flex flex-col items-center">
-                <h4 className="font-semibold mb-2">Map Items</h4>
-                <QRCodeSVG value={activitySession.qr_code_url} size={128} />
+              <Card className="p-8 flex flex-col items-center bg-card border-2">
+                <h4 className="font-semibold text-lg mb-4">Map Items QR Code</h4>
+                <QRCodeSVG value={activitySession.qr_code_url} size={256} />
+                <p className="text-xs text-muted-foreground mt-4 text-center break-all max-w-xs">
+                  {activitySession.qr_code_url}
+                </p>
               </Card>
             )}
             {votingSession && (
-              <Card className="p-4 flex flex-col items-center">
-                <h4 className="font-semibold mb-2">Dot Voting</h4>
-                <QRCodeSVG value={votingSession.qr_code_url} size={128} />
+              <Card className="p-8 flex flex-col items-center bg-card border-2">
+                <h4 className="font-semibold text-lg mb-4">Dot Voting QR Code</h4>
+                <QRCodeSVG value={votingSession.qr_code_url} size={256} />
+                <p className="text-xs text-muted-foreground mt-4 text-center break-all max-w-xs">
+                  {votingSession.qr_code_url}
+                </p>
               </Card>
             )}
           </div>
