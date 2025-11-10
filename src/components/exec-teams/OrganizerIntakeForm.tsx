@@ -245,13 +245,7 @@ export const OrganizerIntakeForm: React.FC = () => {
 
           {step === 2 && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <Label className="text-lg">Executive Participants</Label>
-                <Button onClick={handleAddParticipant} variant="outline" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Participant
-                </Button>
-              </div>
+              <Label className="text-lg">Executive Participants</Label>
 
               <div className="space-y-4">
                 {state.intakeData.participants.map((participant, index) => (
@@ -313,6 +307,11 @@ export const OrganizerIntakeForm: React.FC = () => {
                   No participants added yet. Click "Add Participant" to begin.
                 </p>
               )}
+
+              <Button onClick={handleAddParticipant} variant="outline" size="sm" className="w-full">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Participant
+              </Button>
             </div>
           )}
 
