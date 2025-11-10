@@ -125,9 +125,11 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
     setCognitiveBaseline,
   } = useExecTeams();
 
-  const [wizardStep, setWizardStep] = useState(1); // 1: AI Readiness, 2: Simulations, 3: Strategic Context, 4: Pilot Expectations
+  const [wizardStep, setWizardStep] = useState(1); // 1: AI Readiness, 2: Simulations, 3: Strategic Context, 4: Pilot Expectations, 5: Pre-Work Forms
   const [loading, setLoading] = useState(false);
   const [cognitiveData, setCognitiveData] = useState<any>(null);
+  const [qrCodesGenerated, setQrCodesGenerated] = useState(false);
+  const [qrData, setQrData] = useState<any[]>([]);
 
   // Initialize AI readiness data
   const aiReadiness = state.aiReadinessData || {
@@ -285,6 +287,49 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
     }
   };
 
+  const handleGenerateQRCodes = async () => {
+    setLoading(true);
+    try {
+      // Call edge function to generate QR codes
+      const { data: qrResults, error: qrError } = await supabase.functions.invoke('generate-prework-qr', {
+        body: { 
+          intakeId: state.intakeId, 
+          bootcampPlanId: state.bootcampPlanId,
+          participants: state.intakeData.participants 
+        }
+      });
+
+      if (qrError) throw qrError;
+      
+      setQrData(qrResults.results);
+
+      // Get workshop date from first preferred date
+      const workshopDate = state.intakeData.preferredDates[0] || new Date().toISOString();
+
+      // Send emails with QR codes and links
+      const { error: emailError } = await supabase.functions.invoke('send-prework-emails', {
+        body: {
+          intakeId: state.intakeId,
+          participants: state.intakeData.participants,
+          organizerName: state.intakeData.organizerName,
+          companyName: state.intakeData.companyName,
+          workshopDate,
+          qrData: qrResults.results
+        }
+      });
+
+      if (emailError) throw emailError;
+      
+      setQrCodesGenerated(true);
+      toast.success('QR codes generated and emails sent!');
+    } catch (error: any) {
+      console.error('Error generating QR codes:', error);
+      toast.error(error.message || 'Failed to generate QR codes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateWizardStep()) return;
 
@@ -342,7 +387,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
 
   const renderProgressBar = () => (
     <div className="flex items-center justify-between mb-6">
-      {[1, 2, 3, 4].map((step) => (
+      {[1, 2, 3, 4, 5].map((step) => (
         <div key={step} className="flex items-center flex-1">
           <div
             className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
@@ -355,7 +400,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
           >
             {step < wizardStep ? <CheckCircle2 className="w-5 h-5" /> : step}
           </div>
-          {step < 4 && (
+          {step < 5 && (
             <div
               className={`h-1 flex-1 mx-2 transition-all ${
                 step < wizardStep ? 'bg-primary' : 'bg-muted'
@@ -374,7 +419,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-3xl">Configure Your Bootcamp Agenda</CardTitle>
             <CardDescription className="text-lg">
-              Step {wizardStep} of 4 • Comprehensive workshop preparation
+              Step {wizardStep} of 5 • Comprehensive workshop preparation
             </CardDescription>
           </CardHeader>
 
@@ -883,6 +928,66 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
               </div>
             )}
 
+            {/* STEP 5: Send Pre-Workshop Forms */}
+            {wizardStep === 5 && (
+              <div className="space-y-6">
+                <CardTitle>Send Pre-Workshop Questionnaires</CardTitle>
+                <CardDescription>
+                  Generate personalized QR codes and send enrichment forms to your team members.
+                  Their individual input will help tailor the bootcamp simulations.
+                </CardDescription>
+                
+                <Card className="border-2 border-accent">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Team Members ({state.intakeData.participants.length})</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {state.intakeData.participants.map((p: any) => (
+                      <div key={p.email} className="flex items-center justify-between py-2 border-b last:border-0">
+                        <div>
+                          <div className="font-medium">{p.name}</div>
+                          <div className="text-sm text-muted-foreground">{p.email} • {p.role}</div>
+                        </div>
+                        {qrCodesGenerated && (
+                          <CheckCircle2 className="text-green-500" />
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                {!qrCodesGenerated ? (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg">
+                      <p className="text-sm">
+                        This will generate unique QR codes and send personalized emails to all participants with a 3-minute questionnaire to collect their individual input on bottlenecks, AI concerns, and simulation experience.
+                      </p>
+                    </div>
+                    <Button onClick={handleGenerateQRCodes} disabled={loading} size="lg" className="w-full">
+                      {loading ? 'Generating...' : 'Generate QR Codes & Send Forms'}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <Card className="bg-green-50 border-green-200">
+                      <CardContent className="pt-6">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="font-semibold text-green-900 mb-1">Forms Sent!</h4>
+                            <p className="text-sm text-green-800">
+                              QR codes generated and emails sent to all {state.intakeData.participants.length} participants.
+                              They can complete the form anytime before the workshop.
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="flex justify-between pt-6 border-t">
               <Button
                 onClick={() => setWizardStep(wizardStep - 1)}
@@ -892,13 +997,13 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                 Previous
               </Button>
 
-              {wizardStep < 4 ? (
+              {wizardStep < 5 ? (
                 <Button onClick={handleNext}>
                   Next Step
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (
-                <Button onClick={handleSubmit} disabled={loading} size="lg">
+                <Button onClick={handleSubmit} disabled={loading || !qrCodesGenerated} size="lg">
                   {loading ? 'Creating Plan...' : 'Complete & Generate Bootcamp Plan'}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>

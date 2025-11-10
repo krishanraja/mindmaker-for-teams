@@ -2331,7 +2331,7 @@ export type Database = {
     }
     Enums: {
       action_signal_level: "low" | "mid" | "high"
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "facilitator"
       consent_purpose:
         | "index_publication"
         | "sales_outreach"
@@ -2483,7 +2483,7 @@ export const Constants = {
   public: {
     Enums: {
       action_signal_level: ["low", "mid", "high"],
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "facilitator"],
       consent_purpose: [
         "index_publication",
         "sales_outreach",

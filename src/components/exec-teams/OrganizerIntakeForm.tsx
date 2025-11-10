@@ -22,6 +22,11 @@ const BOTTLENECK_OPTIONS = [
 
 const ROLE_OPTIONS = ['CEO', 'CTO', 'COO', 'CMO', 'CFO', 'VP', 'Director', 'Other'];
 
+const AUTHORIZED_ORGANIZERS = [
+  { email: 'krish@fractionl.ai', name: 'Krish Munot' },
+  { email: 'demo@fractionl.ai', name: 'Demo User' },
+];
+
 export const OrganizerIntakeForm: React.FC = () => {
   const { state, updateIntakeData, setCurrentStep, setIntakeId } = useExecTeams();
   const [step, setStep] = useState(1);
@@ -176,13 +181,24 @@ export const OrganizerIntakeForm: React.FC = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="organizerEmail">Your Email *</Label>
-                <Input
-                  id="organizerEmail"
-                  type="email"
+                <Select
                   value={state.intakeData.organizerEmail}
-                  onChange={(e) => updateIntakeData({ organizerEmail: e.target.value })}
-                  placeholder="jane@company.com"
-                />
+                  onValueChange={(value) => updateIntakeData({ organizerEmail: value })}
+                >
+                  <SelectTrigger id="organizerEmail">
+                    <SelectValue placeholder="Select your email" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AUTHORIZED_ORGANIZERS.map((organizer) => (
+                      <SelectItem key={organizer.email} value={organizer.email}>
+                        {organizer.name} ({organizer.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Not listed? <a href="mailto:support@fractionl.ai" className="underline">Contact support</a>
+                </p>
               </div>
 
               <div className="space-y-2">

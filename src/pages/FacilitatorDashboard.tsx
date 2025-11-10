@@ -12,6 +12,8 @@ import { Segment7Provocation } from '@/components/facilitator/segments/Segment7P
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { PreWorkProgressCard } from '@/components/exec-teams/PreWorkProgressCard';
+import { PreWorkResponsesModal } from '@/components/facilitator/PreWorkResponsesModal';
 
 export const FacilitatorDashboard: React.FC = () => {
   const { workshopId } = useParams<{ workshopId: string }>();
@@ -20,6 +22,7 @@ export const FacilitatorDashboard: React.FC = () => {
   const [bootcampPlan, setBootcampPlan] = useState<any>(null);
   const [currentSegment, setCurrentSegment] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [showResponsesModal, setShowResponsesModal] = useState(false);
 
   useEffect(() => {
     loadWorkshop();
@@ -115,42 +118,63 @@ export const FacilitatorDashboard: React.FC = () => {
       />
 
       <div className="flex-1 flex flex-col">
-        <header className="border-b bg-gradient-to-r from-card via-primary/5 to-card px-8 py-6 flex items-center justify-between shadow-sm">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-1">
-              {workshop?.exec_intakes?.company_name} Leadership Bootcamp
-            </h1>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-                Facilitator: {workshop?.facilitator_name}
-              </span>
-              {bootcampPlan?.ai_experience_level && (
-                <span className="px-2 py-1 bg-muted rounded text-xs">
-                  AI Experience: {bootcampPlan.ai_experience_level}
+        <header className="border-b bg-gradient-to-r from-card via-primary/5 to-card px-8 py-6 shadow-sm">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground mb-1">
+                {workshop?.exec_intakes?.company_name} Leadership Bootcamp
+              </h1>
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                  Facilitator: {workshop?.facilitator_name}
                 </span>
-              )}
-              {workshop?.exec_intakes?.industry && (
-                <span className="px-2 py-1 bg-muted rounded text-xs">
-                  {workshop.exec_intakes.industry}
-                </span>
-              )}
-              {workshop?.participant_count > 0 && (
-                <span className="px-2 py-1 bg-muted rounded text-xs">
-                  {workshop.participant_count} participants
-                </span>
-              )}
+                {bootcampPlan?.ai_experience_level && (
+                  <span className="px-2 py-1 bg-muted rounded text-xs">
+                    AI Experience: {bootcampPlan.ai_experience_level}
+                  </span>
+                )}
+                {workshop?.exec_intakes?.industry && (
+                  <span className="px-2 py-1 bg-muted rounded text-xs">
+                    {workshop.exec_intakes.industry}
+                  </span>
+                )}
+                {workshop?.participant_count > 0 && (
+                  <span className="px-2 py-1 bg-muted rounded text-xs">
+                    {workshop.participant_count} participants
+                  </span>
+                )}
+              </div>
             </div>
+            <Button onClick={handleGeneratePDF} size="lg" className="shadow-lg">
+              <Download className="mr-2 h-5 w-5" />
+              Generate PDF Report
+            </Button>
           </div>
-          <Button onClick={handleGeneratePDF} size="lg" className="shadow-lg">
-            <Download className="mr-2 h-5 w-5" />
-            Generate PDF Report
-          </Button>
+
+          {/* Pre-Work Progress Card */}
+          {workshop?.exec_intakes?.id && (
+            <div className="mt-4">
+              <PreWorkProgressCard
+                intakeId={workshop.exec_intakes.id}
+                onViewResponses={() => setShowResponsesModal(true)}
+              />
+            </div>
+          )}
         </header>
 
         <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-background via-background to-muted/10">
           {renderSegment()}
         </main>
+
+        {/* Pre-Work Responses Modal */}
+        {workshop?.exec_intakes?.id && (
+          <PreWorkResponsesModal
+            open={showResponsesModal}
+            onOpenChange={setShowResponsesModal}
+            intakeId={workshop.exec_intakes.id}
+          />
+        )}
       </div>
     </div>
   );
