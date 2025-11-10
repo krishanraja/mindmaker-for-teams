@@ -10,39 +10,7 @@ import { CheckCircle2, Circle, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CognitiveBaselineRadar } from './CognitiveBaselineRadar';
-
-const SIMULATIONS = [
-  {
-    id: 'gtm-pivot',
-    title: 'Go-To-Market Pivot',
-    description: 'Reposition a product for a new vertical in 90 days',
-  },
-  {
-    id: 'board-deck-crisis',
-    title: 'Board Deck Crisis',
-    description: 'Draft quarterly results narrative under time pressure',
-  },
-  {
-    id: 'competitive-response',
-    title: 'Competitive Response',
-    description: "Counter a disruptive competitor's launch announcement",
-  },
-  {
-    id: 'ma-due-diligence',
-    title: 'M&A Due Diligence',
-    description: "Evaluate an acquisition target's tech stack",
-  },
-  {
-    id: 'talent-retention',
-    title: 'Talent Retention',
-    description: 'Design a retention plan after losing 3 key engineers',
-  },
-  {
-    id: 'pricing-strategy',
-    title: 'Pricing Strategy Overhaul',
-    description: 'Restructure pricing in response to market shift',
-  },
-];
+import { SIMULATIONS } from '@/lib/simulation-constants';
 
 const AGENDA_SEGMENTS = [
   { name: 'CEO Promise', duration: 10 },

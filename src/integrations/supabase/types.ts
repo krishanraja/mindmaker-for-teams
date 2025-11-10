@@ -1592,10 +1592,19 @@ export type Database = {
           before_snapshot: Json
           cost_savings_usd: number | null
           created_at: string | null
+          error_rate_after_pct: number | null
+          error_rate_before_pct: number | null
           id: string
           is_selected: boolean | null
           org_changes_checklist: Json | null
+          org_changes_required: Json | null
+          people_involved_after: number | null
+          people_involved_before: number | null
+          qualitative_changes: string | null
           quality_improvement_pct: number | null
+          risks_introduced: string | null
+          satisfaction_after: number | null
+          satisfaction_before: number | null
           simulation_id: string
           simulation_name: string
           time_savings_pct: number | null
@@ -1607,10 +1616,19 @@ export type Database = {
           before_snapshot?: Json
           cost_savings_usd?: number | null
           created_at?: string | null
+          error_rate_after_pct?: number | null
+          error_rate_before_pct?: number | null
           id?: string
           is_selected?: boolean | null
           org_changes_checklist?: Json | null
+          org_changes_required?: Json | null
+          people_involved_after?: number | null
+          people_involved_before?: number | null
+          qualitative_changes?: string | null
           quality_improvement_pct?: number | null
+          risks_introduced?: string | null
+          satisfaction_after?: number | null
+          satisfaction_before?: number | null
           simulation_id: string
           simulation_name: string
           time_savings_pct?: number | null
@@ -1622,10 +1640,19 @@ export type Database = {
           before_snapshot?: Json
           cost_savings_usd?: number | null
           created_at?: string | null
+          error_rate_after_pct?: number | null
+          error_rate_before_pct?: number | null
           id?: string
           is_selected?: boolean | null
           org_changes_checklist?: Json | null
+          org_changes_required?: Json | null
+          people_involved_after?: number | null
+          people_involved_before?: number | null
+          qualitative_changes?: string | null
           quality_improvement_pct?: number | null
+          risks_introduced?: string | null
+          satisfaction_after?: number | null
+          satisfaction_before?: number | null
           simulation_id?: string
           simulation_name?: string
           time_savings_pct?: number | null
