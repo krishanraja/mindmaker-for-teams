@@ -275,10 +275,6 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
         toast.error('Please specify who will own the pilot');
         return false;
       }
-      if (!pilotExpectations.budgetRange) {
-        toast.error('Please select a budget range');
-        return false;
-      }
     }
     return true;
   };
@@ -881,24 +877,6 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                           placeholder="e.g., VP of Operations"
                         />
                       </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Budget Range for Pilot *</Label>
-                      <Select
-                        value={pilotExpectations.budgetRange}
-                        onValueChange={(value) => updatePilotExpectationsData({ budgetRange: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select expected budget" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="10k-50k">$10K - $50K</SelectItem>
-                          <SelectItem value="50k-100k">$50K - $100K</SelectItem>
-                          <SelectItem value="100k-250k">$100K - $250K</SelectItem>
-                          <SelectItem value="250k+">$250K+</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                   </CardContent>
                 </Card>
