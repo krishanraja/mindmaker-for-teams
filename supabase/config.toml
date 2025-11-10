@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.generate-workshop-insights]
 verify_jwt = false
+
+[functions.generate-provocation-report]
+verify_jwt = false

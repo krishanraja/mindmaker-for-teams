@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, AlertTriangle } from 'lucide-react';
 import { BenchmarkComparisonChart } from './provocation/BenchmarkComparisonChart';
 import { CostFramingChart } from './provocation/CostFramingChart';
+import { ExecutiveReportCard } from './provocation/ExecutiveReportCard';
 
 interface Segment7ProvocationProps {
   workshopId: string;
@@ -12,8 +13,8 @@ export const Segment7Provocation: React.FC<Segment7ProvocationProps> = ({ worksh
   return (
     <div className="space-y-12 p-8 max-w-7xl mx-auto">
       {/* Hero Section - Provocative Question */}
-      <Card className="border-2 border-border bg-gradient-to-br from-primary/5 via-background to-accent/5 shadow-lg">
-        <CardHeader className="text-center py-12">
+      <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-background to-accent/10 shadow-xl">
+        <CardHeader className="text-center py-16">
           <CardTitle className="text-4xl md:text-6xl font-bold leading-tight text-foreground mb-8">
             If an AI-native startup launched tomorrow with your data...
           </CardTitle>
@@ -21,11 +22,14 @@ export const Segment7Provocation: React.FC<Segment7ProvocationProps> = ({ worksh
             Would they beat you?
           </p>
           <div className="flex items-center justify-center gap-3 text-muted-foreground mt-8">
-            <AlertTriangle className="h-5 w-5" />
-            <p className="text-lg">The urgency is real. The window is closing.</p>
+            <AlertTriangle className="h-6 w-6" />
+            <p className="text-xl">The urgency is real. The window is closing.</p>
           </div>
         </CardHeader>
       </Card>
+
+      {/* AI-Powered Executive Report Card */}
+      <ExecutiveReportCard workshopId={workshopId} />
 
       {/* Competitive Benchmark */}
       <div className="space-y-6">
