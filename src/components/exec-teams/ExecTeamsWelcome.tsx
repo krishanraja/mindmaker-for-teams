@@ -1,14 +1,16 @@
 import React from 'react';
 import { useExecTeams } from '@/contexts/ExecTeamsContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, Target, Users, Zap } from 'lucide-react';
+import { Brain, Target, Users, Zap, Lock } from 'lucide-react';
 import logo from '@/assets/mindmaker-logo-new.png';
 
 const FULL_TEXT = "DESIGN YOUR AI\nLEADERSHIP BOOTCAMP";
 
 export const ExecTeamsWelcome: React.FC = () => {
   const { setCurrentStep } = useExecTeams();
+  const navigate = useNavigate();
   
   const [displayedText, setDisplayedText] = React.useState('');
   const [isTypingComplete, setIsTypingComplete] = React.useState(false);
@@ -35,7 +37,20 @@ export const ExecTeamsWelcome: React.FC = () => {
 
   return (
     <div key={`welcome-${Date.now()}`} className="min-h-screen flex items-start justify-start p-8 md:p-12 bg-gradient-to-br from-background via-background to-accent/5">
-      <div className="w-full max-w-5xl">
+      <div className="w-full max-w-5xl relative">
+        {/* Facilitator Login Button - Top Right */}
+        <div className="absolute -top-2 right-0 z-10">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => navigate('/facilitator-login')}
+            className="text-xs opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <Lock className="h-3 w-3 mr-1" />
+            Facilitator Login
+          </Button>
+        </div>
+
         <Card className="border-2 border-border/50 shadow-2xl">
           <CardHeader className="space-y-2 pb-8 text-left">
             <div className="flex justify-start -ml-3 mb-6">

@@ -10,8 +10,11 @@ import { CreateWorkshop } from "./pages/CreateWorkshop";
 import { MobileBottleneck } from "./pages/MobileBottleneck";
 import { MobileEffortlessMap } from "./pages/MobileEffortlessMap";
 import { MobileDotVoting } from "./pages/MobileDotVoting";
+import FacilitatorLogin from "./pages/FacilitatorLogin";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -22,17 +25,34 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/exec-pulse/:intakeId/:emailHash" element={<ExecutivePulse />} />
-            <Route path="/facilitator/:workshopId" element={<FacilitatorDashboard />} />
-            <Route path="/create-workshop" element={<CreateWorkshop />} />
-            <Route path="/mobile/bottleneck/:workshopId" element={<MobileBottleneck />} />
-            <Route path="/mobile/effortless-map/:workshopId" element={<MobileEffortlessMap />} />
-            <Route path="/mobile/voting/:workshopId" element={<MobileDotVoting />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/exec-pulse/:intakeId/:emailHash" element={<ExecutivePulse />} />
+              <Route path="/facilitator-login" element={<FacilitatorLogin />} />
+              <Route 
+                path="/facilitator/:workshopId" 
+                element={
+                  <ProtectedRoute>
+                    <FacilitatorDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/create-workshop" 
+                element={
+                  <ProtectedRoute>
+                    <CreateWorkshop />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/mobile/bottleneck/:workshopId" element={<MobileBottleneck />} />
+              <Route path="/mobile/effortless-map/:workshopId" element={<MobileEffortlessMap />} />
+              <Route path="/mobile/voting/:workshopId" element={<MobileDotVoting />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
