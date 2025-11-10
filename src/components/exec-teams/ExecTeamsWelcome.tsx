@@ -33,7 +33,7 @@ export const ExecTeamsWelcome: React.FC = () => {
   }, [displayedText]);
 
   return (
-    <div key={`welcome-${Date.now()}`} className="min-h-screen flex items-start justify-start p-8 md:p-12 bg-gradient-to-br from-background via-background to-accent/5">
+    <div className="min-h-screen flex items-start justify-start p-8 md:p-12 bg-gradient-to-br from-background via-background to-accent/5">
       <div className="w-full max-w-5xl relative">
         {/* Facilitator Login Button - Top Right */}
         <div className="absolute top-4 right-4 z-10">
@@ -50,13 +50,11 @@ export const ExecTeamsWelcome: React.FC = () => {
 
         <Card className="border-2 border-border/50 shadow-2xl">
           <CardHeader className="space-y-2 pb-8 text-left">
-            <div className="flex justify-start mb-6">
-              <img 
-                src={logo} 
-                alt="MINDMAKER" 
-                className="h-12 w-auto" 
-              />
-            </div>
+            <img 
+              src={logo} 
+              alt="MINDMAKER" 
+              className="h-12 w-auto -ml-3 mb-6" 
+            />
             
             <div>
               <CardTitle className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[120px] md:min-h-[140px] whitespace-pre-line">
