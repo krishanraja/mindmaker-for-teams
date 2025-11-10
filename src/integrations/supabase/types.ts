@@ -421,48 +421,69 @@ export type Database = {
       bootcamp_plans: {
         Row: {
           agenda_config: Json | null
+          ai_experience_level: string | null
+          ai_myths_concerns: Json | null
           booked_at: string | null
           calendly_booking_url: string | null
           cognitive_baseline: Json | null
+          competitive_landscape: string | null
           created_at: string
+          current_bottlenecks: Json | null
           id: string
           intake_id: string | null
+          pilot_expectations: Json | null
           required_prework: Json | null
+          risk_tolerance: number | null
           simulation_1_id: string
           simulation_1_snapshot: Json | null
           simulation_2_id: string
           simulation_2_snapshot: Json | null
           status: string
+          strategic_goals_2026: Json | null
         }
         Insert: {
           agenda_config?: Json | null
+          ai_experience_level?: string | null
+          ai_myths_concerns?: Json | null
           booked_at?: string | null
           calendly_booking_url?: string | null
           cognitive_baseline?: Json | null
+          competitive_landscape?: string | null
           created_at?: string
+          current_bottlenecks?: Json | null
           id?: string
           intake_id?: string | null
+          pilot_expectations?: Json | null
           required_prework?: Json | null
+          risk_tolerance?: number | null
           simulation_1_id: string
           simulation_1_snapshot?: Json | null
           simulation_2_id: string
           simulation_2_snapshot?: Json | null
           status?: string
+          strategic_goals_2026?: Json | null
         }
         Update: {
           agenda_config?: Json | null
+          ai_experience_level?: string | null
+          ai_myths_concerns?: Json | null
           booked_at?: string | null
           calendly_booking_url?: string | null
           cognitive_baseline?: Json | null
+          competitive_landscape?: string | null
           created_at?: string
+          current_bottlenecks?: Json | null
           id?: string
           intake_id?: string | null
+          pilot_expectations?: Json | null
           required_prework?: Json | null
+          risk_tolerance?: number | null
           simulation_1_id?: string
           simulation_1_snapshot?: Json | null
           simulation_2_id?: string
           simulation_2_snapshot?: Json | null
           status?: string
+          strategic_goals_2026?: Json | null
         }
         Relationships: [
           {
@@ -2071,10 +2092,12 @@ export type Database = {
       }
       workshop_sessions: {
         Row: {
+          bootcamp_plan_id: string | null
           cognitive_baseline_data: Json | null
           completed_at: string | null
           created_at: string | null
           current_segment: number | null
+          facilitator_email: string
           facilitator_name: string
           id: string
           intake_id: string | null
@@ -2086,10 +2109,12 @@ export type Database = {
           workshop_metadata: Json | null
         }
         Insert: {
+          bootcamp_plan_id?: string | null
           cognitive_baseline_data?: Json | null
           completed_at?: string | null
           created_at?: string | null
           current_segment?: number | null
+          facilitator_email?: string
           facilitator_name: string
           id?: string
           intake_id?: string | null
@@ -2101,10 +2126,12 @@ export type Database = {
           workshop_metadata?: Json | null
         }
         Update: {
+          bootcamp_plan_id?: string | null
           cognitive_baseline_data?: Json | null
           completed_at?: string | null
           created_at?: string | null
           current_segment?: number | null
+          facilitator_email?: string
           facilitator_name?: string
           id?: string
           intake_id?: string | null
@@ -2116,6 +2143,13 @@ export type Database = {
           workshop_metadata?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "workshop_sessions_bootcamp_plan_id_fkey"
+            columns: ["bootcamp_plan_id"]
+            isOneToOne: false
+            referencedRelation: "bootcamp_plans"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "workshop_sessions_intake_id_fkey"
             columns: ["intake_id"]

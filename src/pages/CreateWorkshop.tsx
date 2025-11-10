@@ -37,11 +37,23 @@ export const CreateWorkshop: React.FC = () => {
       return;
     }
 
+    // Get facilitator email - for now use facilitator_name as placeholder
+    const facilitatorEmail = `${formData.facilitator_name.toLowerCase().replace(/\s+/g, '.')}@mindmaker.com`;
+
+    // First, get the bootcamp_plan_id for this intake
+    const { data: bootcampPlan } = await supabase
+      .from('bootcamp_plans')
+      .select('id')
+      .eq('intake_id', formData.intake_id)
+      .single();
+
     const { data, error } = await supabase
       .from('workshop_sessions')
       .insert({
         intake_id: formData.intake_id,
         facilitator_name: formData.facilitator_name,
+        facilitator_email: facilitatorEmail,
+        bootcamp_plan_id: bootcampPlan?.id || null,
         workshop_date: formData.workshop_date,
         status: 'scheduled',
         current_segment: 1,

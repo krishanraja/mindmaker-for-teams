@@ -29,13 +29,36 @@ export interface ExecIntakeData {
   organizerEmail: string;
 }
 
+// AI Readiness & Workshop Context
+export interface AIReadinessData {
+  aiMythsConcerns: string[];
+  currentBottlenecks: string[];
+  aiExperienceLevel: 'none' | 'experimenting' | 'deploying' | 'scaled';
+}
+
+export interface StrategicContextData {
+  strategicGoals2026: string[];
+  competitiveLandscape: string;
+  riskTolerance: number; // 1-5
+}
+
+export interface PilotExpectationsData {
+  pilotDescription: string;
+  pilotOwnerName: string;
+  pilotOwnerRole: string;
+  budgetRange: string;
+}
+
 export interface ExecTeamsState {
-  currentStep: number; // 1: intake, 2: configurator, 3: summary
+  currentStep: number; // 1: welcome, 2: intake, 3: configurator, 4: summary
   intakeData: ExecIntakeData;
   intakeId?: string;
   selectedSimulations: string[];
   simulation1Snapshot?: SimulationSnapshot;
   simulation2Snapshot?: SimulationSnapshot;
+  aiReadinessData?: AIReadinessData;
+  strategicContextData?: StrategicContextData;
+  pilotExpectationsData?: PilotExpectationsData;
   bootcampPlanId?: string;
   cognitiveBaseline?: any;
 }
@@ -43,6 +66,9 @@ export interface ExecTeamsState {
 interface ExecTeamsContextType {
   state: ExecTeamsState;
   updateIntakeData: (data: Partial<ExecIntakeData>) => void;
+  updateAIReadinessData: (data: Partial<AIReadinessData>) => void;
+  updateStrategicContextData: (data: Partial<StrategicContextData>) => void;
+  updatePilotExpectationsData: (data: Partial<PilotExpectationsData>) => void;
   setCurrentStep: (step: number) => void;
   setIntakeId: (id: string) => void;
   selectSimulation: (simulationId: string) => void;
@@ -56,6 +82,9 @@ interface ExecTeamsContextType {
 
 type Action = 
   | { type: 'UPDATE_INTAKE_DATA'; payload: Partial<ExecIntakeData> }
+  | { type: 'UPDATE_AI_READINESS'; payload: Partial<AIReadinessData> }
+  | { type: 'UPDATE_STRATEGIC_CONTEXT'; payload: Partial<StrategicContextData> }
+  | { type: 'UPDATE_PILOT_EXPECTATIONS'; payload: Partial<PilotExpectationsData> }
   | { type: 'SET_STEP'; payload: number }
   | { type: 'SET_INTAKE_ID'; payload: string }
   | { type: 'SELECT_SIMULATION'; payload: string }
@@ -90,6 +119,21 @@ function reducer(state: ExecTeamsState, action: Action): ExecTeamsState {
       return {
         ...state,
         intakeData: { ...state.intakeData, ...action.payload },
+      };
+    case 'UPDATE_AI_READINESS':
+      return {
+        ...state,
+        aiReadinessData: { ...state.aiReadinessData, ...action.payload } as AIReadinessData,
+      };
+    case 'UPDATE_STRATEGIC_CONTEXT':
+      return {
+        ...state,
+        strategicContextData: { ...state.strategicContextData, ...action.payload } as StrategicContextData,
+      };
+    case 'UPDATE_PILOT_EXPECTATIONS':
+      return {
+        ...state,
+        pilotExpectationsData: { ...state.pilotExpectationsData, ...action.payload } as PilotExpectationsData,
       };
     case 'SET_STEP':
       return { ...state, currentStep: action.payload };
@@ -144,6 +188,18 @@ export function ExecTeamsProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'UPDATE_INTAKE_DATA', payload: data });
   }, []);
 
+  const updateAIReadinessData = useCallback((data: Partial<AIReadinessData>) => {
+    dispatch({ type: 'UPDATE_AI_READINESS', payload: data });
+  }, []);
+
+  const updateStrategicContextData = useCallback((data: Partial<StrategicContextData>) => {
+    dispatch({ type: 'UPDATE_STRATEGIC_CONTEXT', payload: data });
+  }, []);
+
+  const updatePilotExpectationsData = useCallback((data: Partial<PilotExpectationsData>) => {
+    dispatch({ type: 'UPDATE_PILOT_EXPECTATIONS', payload: data });
+  }, []);
+
   const setCurrentStep = useCallback((step: number) => {
     dispatch({ type: 'SET_STEP', payload: step });
   }, []);
@@ -183,6 +239,9 @@ export function ExecTeamsProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({
     state,
     updateIntakeData,
+    updateAIReadinessData,
+    updateStrategicContextData,
+    updatePilotExpectationsData,
     setCurrentStep,
     setIntakeId,
     selectSimulation,
@@ -195,6 +254,9 @@ export function ExecTeamsProvider({ children }: { children: React.ReactNode }) {
   }), [
     state,
     updateIntakeData,
+    updateAIReadinessData,
+    updateStrategicContextData,
+    updatePilotExpectationsData,
     setCurrentStep,
     setIntakeId,
     selectSimulation,

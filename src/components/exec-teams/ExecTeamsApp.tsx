@@ -2,7 +2,7 @@ import React from 'react';
 import { useExecTeams } from '@/contexts/ExecTeamsContext';
 import { ExecTeamsWelcome } from './ExecTeamsWelcome';
 import { OrganizerIntakeForm } from './OrganizerIntakeForm';
-import { SimulationConfigurator } from './SimulationConfigurator';
+import { EnhancedSimulationConfigurator } from './EnhancedSimulationConfigurator';
 import { BootcampBookingSummary } from './BootcampBookingSummary';
 
 export const ExecTeamsApp: React.FC = () => {
@@ -17,7 +17,7 @@ export const ExecTeamsApp: React.FC = () => {
   }
 
   if (state.currentStep === 3) {
-    return <SimulationConfigurator />;
+    return <EnhancedSimulationConfigurator />;
   }
 
   if (state.currentStep === 4) {

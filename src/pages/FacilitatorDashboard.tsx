@@ -17,6 +17,7 @@ export const FacilitatorDashboard: React.FC = () => {
   const { workshopId } = useParams<{ workshopId: string }>();
   const navigate = useNavigate();
   const [workshop, setWorkshop] = useState<any>(null);
+  const [bootcampPlan, setBootcampPlan] = useState<any>(null);
   const [currentSegment, setCurrentSegment] = useState(1);
   const [loading, setLoading] = useState(true);
 
@@ -40,6 +41,18 @@ export const FacilitatorDashboard: React.FC = () => {
 
     setWorkshop(data);
     setCurrentSegment(data.current_segment || 1);
+
+    // Load bootcamp plan data for auto-population
+    if (data.bootcamp_plan_id) {
+      const { data: planData } = await supabase
+        .from('bootcamp_plans')
+        .select('*')
+        .eq('id', data.bootcamp_plan_id)
+        .single();
+      
+      setBootcampPlan(planData);
+    }
+
     setLoading(false);
   };
 
@@ -77,15 +90,20 @@ export const FacilitatorDashboard: React.FC = () => {
   }
 
   const renderSegment = () => {
+    const baseProps = {
+      workshopId: workshopId!,
+      bootcampPlanData: bootcampPlan,
+    };
+
     switch (currentSegment) {
-      case 1: return <Segment1Mythbuster workshopId={workshopId!} />;
-      case 2: return <Segment2BottleneckBoard workshopId={workshopId!} />;
-      case 3: return <Segment3EffortlessEnterprise workshopId={workshopId!} />;
-      case 4: return <Segment4SimulationLab workshopId={workshopId!} />;
-      case 5: return <Segment5StrategyAddendum workshopId={workshopId!} />;
-      case 6: return <Segment6PilotCharter workshopId={workshopId!} />;
-      case 7: return <Segment7Provocation workshopId={workshopId!} />;
-      default: return <Segment1Mythbuster workshopId={workshopId!} />;
+      case 1: return <Segment1Mythbuster {...baseProps} />;
+      case 2: return <Segment2BottleneckBoard {...baseProps} />;
+      case 3: return <Segment3EffortlessEnterprise {...baseProps} />;
+      case 4: return <Segment4SimulationLab {...baseProps} />;
+      case 5: return <Segment5StrategyAddendum {...baseProps} />;
+      case 6: return <Segment6PilotCharter {...baseProps} />;
+      case 7: return <Segment7Provocation {...baseProps} />;
+      default: return <Segment1Mythbuster {...baseProps} />;
     }
   };
 
