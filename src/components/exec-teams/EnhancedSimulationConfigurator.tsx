@@ -535,7 +535,19 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                           </CardHeader>
                           <CardContent className="space-y-4 pt-6">
                             <div className="space-y-2">
-                              <Label>Current State Description * <span className="text-muted-foreground text-xs">(Max 150 chars)</span></Label>
+                              <div className="flex items-center gap-2">
+                                <Label>Current State Description * <span className="text-muted-foreground text-xs">(Max 150 chars)</span></Label>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="max-w-xs">Describe your team's current pain point or challenge. Be specific about what's not working.</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
                               <Textarea
                                 value={snapshot?.currentState || ''}
                                 onChange={(e) => updateSnapshot(index, 'currentState', e.target.value)}
@@ -549,7 +561,19 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                              <Label>Key Stakeholders Involved</Label>
+                              <div className="flex items-center gap-2">
+                                <Label>Key Stakeholders Involved</Label>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="max-w-xs">Who are the main decision-makers or people affected by this process?</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
                               <Input
                                 value={snapshot?.stakeholders || ''}
                                 onChange={(e) => updateSnapshot(index, 'stakeholders', e.target.value)}
@@ -558,7 +582,19 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                              <Label>Desired Business Outcome *</Label>
+                              <div className="flex items-center gap-2">
+                                <Label>Desired Business Outcome *</Label>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="max-w-xs">What does the ideal end result look like? Focus on business impact, not just task completion.</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
                               <Input
                                 value={snapshot?.desiredOutcome || ''}
                                 onChange={(e) => updateSnapshot(index, 'desiredOutcome', e.target.value)}
@@ -568,7 +604,19 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
 
                             <div className="grid md:grid-cols-3 gap-4">
                               <div className="space-y-2">
-                                <Label>Time Constraint</Label>
+                                <div className="flex items-center gap-2">
+                                  <Label>Time Constraint</Label>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="max-w-xs">How quickly does this need to be completed? (e.g., 48 hours, 1 week)</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
                                 <Input
                                   value={snapshot?.timeConstraint || ''}
                                   onChange={(e) => updateSnapshot(index, 'timeConstraint', e.target.value)}
@@ -576,7 +624,19 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                                 />
                               </div>
                               <div className="space-y-2">
-                                <Label>Budget Constraint</Label>
+                                <div className="flex items-center gap-2">
+                                  <Label>Budget Constraint</Label>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="max-w-xs">What's your available budget for tools, resources, or consulting? (e.g., $10K, No budget)</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
                                 <Input
                                   value={snapshot?.budgetConstraint || ''}
                                   onChange={(e) => updateSnapshot(index, 'budgetConstraint', e.target.value)}
@@ -584,7 +644,19 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                                 />
                               </div>
                               <div className="space-y-2">
-                                <Label>Data Availability</Label>
+                                <div className="flex items-center gap-2">
+                                  <Label>Data Availability</Label>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="max-w-xs">How accessible is the data needed? (e.g., Full access, Limited, None available)</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
                                 <Input
                                   value={snapshot?.dataAvailability || ''}
                                   onChange={(e) => updateSnapshot(index, 'dataAvailability', e.target.value)}
@@ -594,7 +666,19 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                              <Label>Success Criteria * <span className="text-muted-foreground text-xs">(How will you measure success?)</span></Label>
+                              <div className="flex items-center gap-2">
+                                <Label>Success Criteria * <span className="text-muted-foreground text-xs">(How will you measure success?)</span></Label>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="max-w-xs">Define specific, measurable outcomes that indicate success (e.g., time saved, quality improvement, cost reduction)</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
                               <Textarea
                                 value={snapshot?.successCriteria || ''}
                                 onChange={(e) => updateSnapshot(index, 'successCriteria', e.target.value)}
