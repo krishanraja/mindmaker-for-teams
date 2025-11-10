@@ -27,9 +27,9 @@ const data = [
 
 export const BenchmarkComparisonChart: React.FC = () => {
   return (
-    <Card className="border-2 border-primary/30">
-      <CardContent className="p-8">
-        <h3 className="text-2xl font-bold mb-6 text-center text-foreground">
+    <Card className="border border-border/60 shadow-lg">
+      <CardContent className="p-10">
+        <h3 className="text-3xl font-semibold mb-8 text-center text-foreground">
           AI-Native vs Traditional: The Gap is Real
         </h3>
         
@@ -51,18 +51,18 @@ export const BenchmarkComparisonChart: React.FC = () => {
           </BarChart>
         </ResponsiveContainer>
 
-        <div className="mt-8 grid md:grid-cols-3 gap-4">
-          <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
-            <div className="text-sm text-muted-foreground mb-1">Organization Velocity</div>
-            <div className="text-2xl font-bold text-primary">3-5x Faster</div>
+        <div className="mt-10 grid md:grid-cols-3 gap-6">
+          <div className="p-6 bg-primary/5 rounded-xl border border-primary/20">
+            <div className="text-sm uppercase tracking-wide text-muted-foreground mb-2 font-medium">Organization Velocity</div>
+            <div className="text-3xl font-semibold text-primary">3-5x Faster</div>
           </div>
-          <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
-            <div className="text-sm text-muted-foreground mb-1">Cost Basis</div>
-            <div className="text-2xl font-bold text-primary">60-80% Lower</div>
+          <div className="p-6 bg-primary/5 rounded-xl border border-primary/20">
+            <div className="text-sm uppercase tracking-wide text-muted-foreground mb-2 font-medium">Cost Basis</div>
+            <div className="text-3xl font-semibold text-primary">60-80% Lower</div>
           </div>
-          <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
-            <div className="text-sm text-muted-foreground mb-1">Weekly Experiments</div>
-            <div className="text-2xl font-bold text-primary">10-20 vs 1-2</div>
+          <div className="p-6 bg-primary/5 rounded-xl border border-primary/20">
+            <div className="text-sm uppercase tracking-wide text-muted-foreground mb-2 font-medium">Weekly Experiments</div>
+            <div className="text-3xl font-semibold text-primary">10-20 vs 1-2</div>
           </div>
         </div>
       </CardContent>

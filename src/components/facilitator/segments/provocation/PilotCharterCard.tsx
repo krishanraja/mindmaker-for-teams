@@ -30,14 +30,16 @@ export const PilotCharterCard: React.FC<PilotCharterCardProps> = ({ charter }) =
   }
 
   return (
-    <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Rocket className="h-6 w-6 text-primary" />
-          Pilot Charter Summary
-        </CardTitle>
+    <Card className="border border-primary/30 bg-gradient-to-br from-primary/5 to-background shadow-md">
+      <CardHeader className="pb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Rocket className="h-6 w-6 text-primary" />
+          </div>
+          <CardTitle className="text-2xl">Pilot Charter Summary</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8 pt-6">
         {/* Key Players */}
         <div className="grid md:grid-cols-2 gap-4">
           <div className="flex items-start gap-3 p-4 bg-background rounded-lg border">

@@ -22,16 +22,20 @@ export const StrategicAlignmentGrid: React.FC<StrategicAlignmentGridProps> = ({
   pilotMilestones = {}
 }) => {
   return (
-    <Card className="border-2">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-6 w-6" />
-          Strategic Alignment Dashboard
-        </CardTitle>
-        <p className="text-muted-foreground">How your pilot connects to strategic goals</p>
+    <Card className="border border-border/60 shadow-lg">
+      <CardHeader className="pb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Target className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-2xl">Strategic Alignment Dashboard</CardTitle>
+            <p className="text-muted-foreground mt-1">How your pilot connects to strategic goals</p>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid md:grid-cols-4 gap-6">
+      <CardContent className="pt-6">
+        <div className="grid md:grid-cols-4 gap-8">
           {/* Column 1: Strategic Goals */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 mb-4">

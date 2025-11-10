@@ -4,9 +4,9 @@ import { TrendingDown, TrendingUp } from 'lucide-react';
 
 export const CostFramingChart: React.FC = () => {
   return (
-    <Card className="border-2 border-border">
-      <CardContent className="p-8">
-        <div className="grid md:grid-cols-2 gap-8">
+    <Card className="border border-border/60 shadow-lg">
+      <CardContent className="p-10">
+        <div className="grid md:grid-cols-2 gap-10">
           {/* Cost of Learning */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 pb-4 border-b-2 border-green-500">

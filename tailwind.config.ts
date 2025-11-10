@@ -17,6 +17,14 @@ export default {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         gobold: ['Gobold', 'Impact', 'Arial Black', 'sans-serif'],
       },
+      fontSize: {
+        'display': ['4.5rem', { lineHeight: '1', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'headline-1': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'headline-2': ['2rem', { lineHeight: '1.2', letterSpacing: '-0.005em', fontWeight: '600' }],
+        'body-large': ['1.125rem', { lineHeight: '1.6' }],
+        'body': ['1rem', { lineHeight: '1.5' }],
+        'caption': ['0.875rem', { lineHeight: '1.4' }],
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

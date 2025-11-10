@@ -62,11 +62,24 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
 
   if (loading) {
     return (
-      <Card className="border-2">
-        <CardContent className="p-12 flex flex-col items-center justify-center">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <p className="text-lg text-muted-foreground">Generating executive report card...</p>
-          <p className="text-sm text-muted-foreground mt-2">Analyzing workshop data with AI</p>
+      <Card className="border border-border/60 shadow-md">
+        <CardContent className="p-16">
+          <div className="flex flex-col items-center justify-center text-center space-y-6">
+            {/* Custom spinner */}
+            <div className="relative w-16 h-16">
+              <div className="absolute inset-0 rounded-full border-4 border-border/40" />
+              <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-xl font-medium text-foreground">
+                Generating Executive Report
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Analyzing workshop data with AI
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
@@ -97,17 +110,28 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
   return (
     <div className="space-y-8">
       {/* Header with Company Context */}
-      <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-background to-accent/10">
-        <CardHeader className="pb-4">
+      <Card className="bg-gradient-to-br from-background to-primary/5 border border-border/60 shadow-lg">
+        <CardHeader className="pb-6">
           <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-3xl mb-2">
-                {contextData.company.name} Executive Report
-              </CardTitle>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline">{contextData.company.industry}</Badge>
-                <Badge variant="outline">AI Experience: {contextData.preWorkshop.aiExperience}</Badge>
-                <Badge variant="outline">{workshop.participant_count || 0} Participants</Badge>
+            <div className="space-y-4">
+              <div>
+                <h1 className="text-4xl font-semibold text-foreground mb-2">
+                  {contextData.company.name}
+                </h1>
+                <p className="text-muted-foreground text-lg">
+                  AI Leadership Assessment
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <span className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium">
+                  {contextData.company.industry}
+                </span>
+                <span className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium">
+                  AI Experience: {contextData.preWorkshop.aiExperience}
+                </span>
+                <span className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium">
+                  {workshop.participant_count || 0} Participants
+                </span>
               </div>
             </div>
             <Button
@@ -122,23 +146,35 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
               ) : (
                 <RefreshCw className="h-4 w-4" />
               )}
-              Regenerate AI Insights
+              Regenerate
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="p-4 bg-background/50 rounded-lg border">
-              <div className="text-sm text-muted-foreground mb-1">Bottlenecks Identified</div>
-              <div className="text-3xl font-bold text-primary">{contextData.workshop.bottlenecksIdentified}</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-card border border-border/60 rounded-xl p-6 shadow-sm">
+              <div className="text-sm uppercase tracking-wide text-muted-foreground mb-2 font-medium">
+                Bottlenecks Identified
+              </div>
+              <div className="text-5xl font-semibold text-primary">
+                {contextData.workshop.bottlenecksIdentified}
+              </div>
             </div>
-            <div className="p-4 bg-background/50 rounded-lg border">
-              <div className="text-sm text-muted-foreground mb-1">Opportunities Prioritized</div>
-              <div className="text-3xl font-bold text-primary">{contextData.workshop.opportunitiesPrioritized}</div>
+            <div className="bg-card border border-border/60 rounded-xl p-6 shadow-sm">
+              <div className="text-sm uppercase tracking-wide text-muted-foreground mb-2 font-medium">
+                Opportunities Prioritized
+              </div>
+              <div className="text-5xl font-semibold text-primary">
+                {contextData.workshop.opportunitiesPrioritized}
+              </div>
             </div>
-            <div className="p-4 bg-background/50 rounded-lg border">
-              <div className="text-sm text-muted-foreground mb-1">Simulations Completed</div>
-              <div className="text-3xl font-bold text-primary">{contextData.workshop.simulationsRun}</div>
+            <div className="bg-card border border-border/60 rounded-xl p-6 shadow-sm">
+              <div className="text-sm uppercase tracking-wide text-muted-foreground mb-2 font-medium">
+                Simulations Completed
+              </div>
+              <div className="text-5xl font-semibold text-primary">
+                {contextData.workshop.simulationsRun}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -151,59 +187,69 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
 
       {/* The Numbers That Matter - ROI Metrics */}
       {roiMetrics.length > 0 && (
-        <Card className="border-2 border-success/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-6 w-6 text-success" />
-              The Numbers That Matter
-            </CardTitle>
-            <p className="text-muted-foreground">Simulation-driven ROI from your selected scenarios</p>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              {roiMetrics.map((metric: any, idx: number) => (
-                <div key={idx} className="space-y-4">
-                  <div className="font-semibold text-lg text-primary">{metric.name}</div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {roiMetrics.map((metric: any, idx: number) => (
+              <Card key={idx} className="border border-border/60 shadow-md">
+                <CardContent className="p-8">
+                  <h4 className="text-xl font-semibold text-foreground mb-6">
+                    {metric.name}
+                  </h4>
                   
-                  {metric.timeSavings && (
-                    <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock className="h-5 w-5 text-success" />
-                        <div className="text-sm text-muted-foreground">Time Savings</div>
+                  <div className="space-y-5">
+                    {metric.timeSavings && (
+                      <div className="flex items-center justify-between pb-5 border-b border-border">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          </div>
+                          <span className="text-sm text-muted-foreground font-medium">
+                            Time Saved
+                          </span>
+                        </div>
+                        <span className="text-3xl font-semibold text-emerald-600 dark:text-emerald-400">
+                          {metric.timeSavings}%
+                        </span>
                       </div>
-                      <div className="text-3xl font-bold text-success">{metric.timeSavings}%</div>
-                      <div className="text-sm text-muted-foreground mt-1">Faster workflow execution</div>
-                    </div>
-                  )}
-                  
-                  {metric.costSavings && (
-                    <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <DollarSign className="h-5 w-5 text-success" />
-                        <div className="text-sm text-muted-foreground">Cost Savings</div>
+                    )}
+                    
+                    {metric.costSavings && (
+                      <div className="flex items-center justify-between pb-5 border-b border-border">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
+                            <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          </div>
+                          <span className="text-sm text-muted-foreground font-medium">
+                            Cost Reduction
+                          </span>
+                        </div>
+                        <span className="text-3xl font-semibold text-emerald-600 dark:text-emerald-400">
+                          ${(metric.costSavings / 1000).toFixed(0)}K
+                        </span>
                       </div>
-                      <div className="text-3xl font-bold text-success">
-                        ${metric.costSavings.toLocaleString()}
+                    )}
+                    
+                    {metric.qualityImprovement && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
+                            <Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          </div>
+                          <span className="text-sm text-muted-foreground font-medium">
+                            Quality Gain
+                          </span>
+                        </div>
+                        <span className="text-3xl font-semibold text-emerald-600 dark:text-emerald-400">
+                          {metric.qualityImprovement}%
+                        </span>
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">Annual savings</div>
-                    </div>
-                  )}
-                  
-                  {metric.qualityImprovement && (
-                    <div className="p-4 bg-success/5 border border-success/20 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Target className="h-5 w-5 text-success" />
-                        <div className="text-sm text-muted-foreground">Quality Improvement</div>
-                      </div>
-                      <div className="text-3xl font-bold text-success">{metric.qualityImprovement}%</div>
-                      <div className="text-sm text-muted-foreground mt-1">Better outcomes</div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Urgency Score Gauge */}
