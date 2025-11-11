@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Plus, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -278,6 +279,14 @@ export const OrganizerIntakeForm: React.FC = () => {
           {step === 2 && (
             <div className="space-y-6">
               <Label className="text-lg">Executive Participants</Label>
+
+              <Alert className="border-primary/30 bg-primary/5">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Tip: Team Self-Registration Available</AlertTitle>
+                <AlertDescription>
+                  You can add a few key participants now, or skip this and use the QR code self-registration feature in the next step. Team members can register themselves with their own information!
+                </AlertDescription>
+              </Alert>
 
               <div className="space-y-4">
                 {state.intakeData.participants.map((participant, index) => (
