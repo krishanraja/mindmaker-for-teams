@@ -1,5 +1,7 @@
 export const cleanAIText = (text: string): string => {
   return text
+    // Remove markdown headers
+    .replace(/^#{1,6}\s+/gm, '')
     // Remove markdown bold
     .replace(/\*\*(.+?)\*\*/g, '$1')
     // Remove markdown italic

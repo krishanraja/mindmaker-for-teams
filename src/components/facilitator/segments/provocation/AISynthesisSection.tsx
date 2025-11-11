@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, AlertTriangle, Clock, Target, Sparkles } from 'lucide-react';
-import { UrgencyScoreGauge } from './UrgencyScoreGauge';
 import { parseAIContent } from '@/lib/text-formatting';
 
 interface AISynthesisSectionProps {
@@ -111,9 +110,6 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({ synthesi
           </Card>
         )}
       </div>
-
-      {/* Urgency Gauge */}
-      <UrgencyScoreGauge score={urgencyScore} />
 
       {/* The Window */}
       {theWindow && (

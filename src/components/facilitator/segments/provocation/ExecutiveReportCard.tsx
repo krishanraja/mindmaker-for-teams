@@ -180,6 +180,19 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         </CardContent>
       </Card>
 
+      {/* Strategic Alignment Grid - Moved to top */}
+      <StrategicAlignmentGrid
+        strategicGoals={contextData.company.strategicGoals}
+        bottleneckClusters={bottleneckClusters}
+        aiLeveragePoints={strategy?.ai_leverage_points}
+        pilotMilestones={{
+          d10: charter?.milestone_d10,
+          d30: charter?.milestone_d30,
+          d60: charter?.milestone_d60,
+          d90: charter?.milestone_d90,
+        }}
+      />
+
       {/* AI Synthesis Section */}
       {aiSynthesis && (
         <AISynthesisSection synthesis={aiSynthesis} urgencyScore={urgencyScore} />
@@ -254,19 +267,6 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
 
       {/* Urgency Score Gauge */}
       <UrgencyScoreGauge score={urgencyScore} />
-
-      {/* Strategic Alignment Grid */}
-      <StrategicAlignmentGrid
-        strategicGoals={contextData.company.strategicGoals}
-        bottleneckClusters={bottleneckClusters}
-        aiLeveragePoints={strategy?.ai_leverage_points}
-        pilotMilestones={{
-          d10: charter?.milestone_d10,
-          d30: charter?.milestone_d30,
-          d60: charter?.milestone_d60,
-          d90: charter?.milestone_d90,
-        }}
-      />
 
       {/* Pilot Charter Summary */}
       <PilotCharterCard charter={charter} />
