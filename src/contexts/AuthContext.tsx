@@ -21,17 +21,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Check facilitator role after auth state changes
+        // Check facilitator role SYNCHRONOUSLY (no setTimeout)
         if (session?.user) {
-          setTimeout(async () => {
-            await checkFacilitatorRole(session.user.id);
-          }, 0);
+          const isFacilitatorRole = await checkFacilitatorRole(session.user.id);
+          if (mounted) {
+            setIsFacilitator(isFacilitatorRole);
+          }
         } else {
           setIsFacilitator(false);
         }
@@ -41,21 +46,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    const initSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!mounted) return;
+      
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        await checkFacilitatorRole(session.user.id);
+        const isFacilitatorRole = await checkFacilitatorRole(session.user.id);
+        if (mounted) {
+          setIsFacilitator(isFacilitatorRole);
+        }
       }
       
       setLoading(false);
-    });
+    };
+    
+    initSession();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const checkFacilitatorRole = async (userId: string) => {
+  const checkFacilitatorRole = async (userId: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase
         .from('user_roles')
@@ -66,14 +82,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error checking facilitator role:', error);
-        setIsFacilitator(false);
-        return;
+        return false;
       }
 
-      setIsFacilitator(data?.role === 'facilitator');
+      return data?.role === 'facilitator';
     } catch (error) {
       console.error('Error checking facilitator role:', error);
-      setIsFacilitator(false);
+      return false;
     }
   };
 

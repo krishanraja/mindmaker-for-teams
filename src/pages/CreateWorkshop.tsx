@@ -35,6 +35,8 @@ export const CreateWorkshop: React.FC = () => {
   const [intakeDeleteDialogOpen, setIntakeDeleteDialogOpen] = useState(false);
   const [intakeToDelete, setIntakeToDelete] = useState<string | null>(null);
   const [intakeDropdownOpen, setIntakeDropdownOpen] = useState(false);
+  const [workshopDropdownOpen, setWorkshopDropdownOpen] = useState(false);
+  const [selectedWorkshopId, setSelectedWorkshopId] = useState<string>('');
   const [formData, setFormData] = useState({
     intake_id: '',
     facilitator_name: '',
@@ -162,6 +164,7 @@ export const CreateWorkshop: React.FC = () => {
     toast({ title: 'Workshop deleted successfully' });
     setDeleteDialogOpen(false);
     setWorkshopToDelete(null);
+    setSelectedWorkshopId('');
     await loadWorkshops();
   };
 
@@ -194,44 +197,87 @@ export const CreateWorkshop: React.FC = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Saved Workshop Sessions */}
+        {/* Saved Workshop Sessions - Dropdown Selector */}
         {workshops.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>Saved Workshop Sessions</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {workshops.map((workshop) => (
-                  <div
-                    key={workshop.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
-                  >
-                    <div className="flex-1">
-                      <div className="font-semibold">
-                        {workshop.exec_intakes?.company_name || 'Unknown Company'}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {format(new Date(workshop.workshop_date), 'PPP p')} • {workshop.facilitator_name}
-                      </div>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Select Workshop Session</Label>
+                <Popover open={workshopDropdownOpen} onOpenChange={setWorkshopDropdownOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={workshopDropdownOpen}
+                      className="w-full justify-between"
+                    >
+                      {selectedWorkshopId
+                        ? workshops.find((w) => w.id === selectedWorkshopId)
+                            ? `${workshops.find((w) => w.id === selectedWorkshopId)?.exec_intakes?.company_name} - ${format(new Date(workshops.find((w) => w.id === selectedWorkshopId)?.workshop_date), 'PP')}`
+                            : "Choose a workshop..."
+                        : "Choose a workshop..."}
+                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[600px] p-0 bg-popover border border-border z-[110]" align="start">
+                    <Command className="bg-popover">
+                      <CommandGroup>
+                        {workshops.map((workshop) => (
+                          <CommandItem
+                            key={workshop.id}
+                            value={workshop.id}
+                            onSelect={(value) => {
+                              setSelectedWorkshopId(value);
+                              setWorkshopDropdownOpen(false);
+                            }}
+                            className="cursor-pointer hover:bg-accent"
+                          >
+                            <div className="flex flex-col">
+                              <span className="font-semibold">
+                                {workshop.exec_intakes?.company_name || 'Unknown Company'}
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                {format(new Date(workshop.workshop_date), 'PPP p')} • {workshop.facilitator_name}
+                              </span>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                
+                {selectedWorkshopId && (
+                  <div className="mt-2 p-3 border rounded-md bg-accent/20 flex items-center justify-between">
+                    <div className="text-sm">
+                      <span className="font-medium">Selected: </span>
+                      {workshops.find(w => w.id === selectedWorkshopId)?.exec_intakes?.company_name} - 
+                      {workshops.find(w => w.id === selectedWorkshopId)?.facilitator_name}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
                         size="sm"
-                        onClick={() => navigate(`/facilitator/${workshop.id}`)}
+                        onClick={() => navigate(`/facilitator/${selectedWorkshopId}`)}
                       >
                         Open
                       </Button>
                       <Button
                         size="sm"
-                        variant="destructive"
-                        onClick={() => handleDeleteClick(workshop.id)}
+                        variant="ghost"
+                        className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => {
+                          setWorkshopToDelete(selectedWorkshopId);
+                          setDeleteDialogOpen(true);
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
@@ -271,9 +317,9 @@ export const CreateWorkshop: React.FC = () => {
                         <CommandItem
                           key={intake.id}
                           value={intake.id}
-                          onSelect={() => {
-                            setFormData(prev => ({ ...prev, intake_id: intake.id }));
-                            setTimeout(() => setIntakeDropdownOpen(false), 0);
+                          onSelect={(value) => {
+                            setFormData(prev => ({ ...prev, intake_id: value }));
+                            setIntakeDropdownOpen(false);
                           }}
                           className="cursor-pointer hover:bg-accent"
                         >

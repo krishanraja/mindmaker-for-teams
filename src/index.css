@@ -464,7 +464,7 @@ input:focus-visible {
    ======================================== */
 
 [data-radix-popper-content-wrapper] {
-  z-index: var(--dropdown-z-index, 50);
+  z-index: 100 !important;
 }
 
 /* Command dropdowns get higher z-index */
