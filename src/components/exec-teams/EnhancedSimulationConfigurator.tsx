@@ -191,7 +191,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
     } else if (state.selectedSimulations.length < 2) {
       selectSimulation(simulationId);
     } else {
-      toast.error('You can select exactly 2 simulations');
+      toast.error('You can select up to 2 simulations');
     }
   };
 
@@ -340,10 +340,10 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
         .from('bootcamp_plans')
         .insert([{
           intake_id: state.intakeId,
-          simulation_1_id: state.selectedSimulations[0],
-          simulation_1_snapshot: state.simulation1Snapshot as any,
-          simulation_2_id: state.selectedSimulations[1],
-          simulation_2_snapshot: state.simulation2Snapshot as any,
+          simulation_1_id: state.selectedSimulations[0] || null,
+          simulation_1_snapshot: (state.simulation1Snapshot || null) as any,
+          simulation_2_id: state.selectedSimulations[1] || null,
+          simulation_2_snapshot: (state.simulation2Snapshot || null) as any,
           ai_myths_concerns: aiReadiness.aiMythsConcerns as any,
           current_bottlenecks: aiReadiness.currentBottlenecks as any,
           ai_experience_level: aiReadiness.aiExperienceLevel,

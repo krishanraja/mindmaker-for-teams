@@ -434,9 +434,9 @@ export type Database = {
           pilot_expectations: Json | null
           required_prework: Json | null
           risk_tolerance: number | null
-          simulation_1_id: string
+          simulation_1_id: string | null
           simulation_1_snapshot: Json | null
-          simulation_2_id: string
+          simulation_2_id: string | null
           simulation_2_snapshot: Json | null
           status: string
           strategic_goals_2026: Json | null
@@ -456,9 +456,9 @@ export type Database = {
           pilot_expectations?: Json | null
           required_prework?: Json | null
           risk_tolerance?: number | null
-          simulation_1_id: string
+          simulation_1_id?: string | null
           simulation_1_snapshot?: Json | null
-          simulation_2_id: string
+          simulation_2_id?: string | null
           simulation_2_snapshot?: Json | null
           status?: string
           strategic_goals_2026?: Json | null
@@ -478,9 +478,9 @@ export type Database = {
           pilot_expectations?: Json | null
           required_prework?: Json | null
           risk_tolerance?: number | null
-          simulation_1_id?: string
+          simulation_1_id?: string | null
           simulation_1_snapshot?: Json | null
-          simulation_2_id?: string
+          simulation_2_id?: string | null
           simulation_2_snapshot?: Json | null
           status?: string
           strategic_goals_2026?: Json | null
