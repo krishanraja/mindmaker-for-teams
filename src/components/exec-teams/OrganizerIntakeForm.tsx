@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useExecTeams } from '@/contexts/ExecTeamsContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +35,21 @@ export const OrganizerIntakeForm: React.FC = () => {
   const { state, updateIntakeData, setCurrentStep, setIntakeId } = useExecTeams();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  // Auto-populate first participant with organizer details when moving to step 2
+  useEffect(() => {
+    if (step === 2 && state.intakeData.participants.length === 0) {
+      if (state.intakeData.organizerName && state.intakeData.organizerEmail) {
+        updateIntakeData({
+          participants: [{
+            name: state.intakeData.organizerName,
+            email: state.intakeData.organizerEmail,
+            role: '',
+          }],
+        });
+      }
+    }
+  }, [step]);
 
   const handleAddParticipant = () => {
     const newParticipant = { name: '', email: '', role: '' };
@@ -92,16 +107,15 @@ export const OrganizerIntakeForm: React.FC = () => {
         return false;
       }
     } else if (step === 2) {
-      if (state.intakeData.participants.length === 0) {
-        toast.error('Please add at least one participant');
-        return false;
-      }
-      const invalidParticipants = state.intakeData.participants.filter(
-        p => !p.name || !p.email || !p.role
-      );
-      if (invalidParticipants.length > 0) {
-        toast.error('Please complete all participant information');
-        return false;
+      // Allow skipping participants - they can use QR code registration
+      if (state.intakeData.participants.length > 0) {
+        const invalidParticipants = state.intakeData.participants.filter(
+          p => !p.name || !p.email || !p.role
+        );
+        if (invalidParticipants.length > 0) {
+          toast.error('Please complete all participant information or remove incomplete entries');
+          return false;
+        }
       }
       // Validate participant email formats
       const invalidEmails = state.intakeData.participants.filter(
@@ -272,7 +286,7 @@ export const OrganizerIntakeForm: React.FC = () => {
 
               <div className="space-y-4">
                 {state.intakeData.participants.map((participant, index) => (
-                  <Card key={index} className="p-4">
+                  <Card key={index} className="p-4 relative">
                     <div className="grid gap-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -314,8 +328,9 @@ export const OrganizerIntakeForm: React.FC = () => {
                         </div>
                         <Button
                           onClick={() => handleRemoveParticipant(index)}
-                          variant="destructive"
+                          variant="ghost"
                           size="icon"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
