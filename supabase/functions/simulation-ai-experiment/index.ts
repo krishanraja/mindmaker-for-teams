@@ -12,45 +12,115 @@ serve(async (req) => {
   }
 
   try {
-    const { scenarioContext, userPrompt } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const { scenarioContext, userPrompt, mode = 'iterate' } = await req.json();
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    if (!OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY not configured');
     }
 
-    console.log('Simulation AI Experiment:', { scenarioContext, promptLength: userPrompt?.length });
+    console.log('Mindmaker AI Simulation:', { mode, scenarioContext, promptLength: userPrompt?.length });
 
-    // Build system prompt with scenario context
-    const systemPrompt = `You are an AI assistant helping a leadership team test AI capabilities for their business scenario.
+    let systemPrompt = '';
+    let userMessage = '';
+
+    if (mode === 'generate_simulation') {
+      // Initial simulation generation mode
+      systemPrompt = `You are Mindmaker AI, an enterprise AI consultant helping leadership teams understand how AI can transform their specific workflow.
+
+SCENARIO DETAILS:
+Current Situation: ${scenarioContext.currentState || 'Not specified'}
+Key Stakeholders: ${scenarioContext.stakeholders || 'Not specified'}
+Desired Outcome: ${scenarioContext.desiredOutcome || 'Not specified'}
+Constraints: ${scenarioContext.constraints || 'Not specified'}
+
+YOUR TASK: Generate a comprehensive, boardroom-ready simulation showing exactly how AI could transform this specific scenario.
+
+Return your analysis as a JSON object with this EXACT structure:
+{
+  "sections": [
+    {
+      "type": "analysis",
+      "title": "Current State Analysis",
+      "bullets": ["3-4 specific bottlenecks or inefficiencies in THIS scenario", "Be concrete, not generic"]
+    },
+    {
+      "type": "simulation",
+      "title": "AI-Augmented Future State",
+      "bullets": ["4-5 specific ways AI transforms THIS workflow", "Include concrete capabilities"],
+      "metrics": {
+        "time_saved": "e.g., 60% reduction in task time",
+        "cost_impact": "e.g., $50K annual savings",
+        "quality_improvement": "e.g., 30% fewer errors"
+      }
+    },
+    {
+      "type": "tasks",
+      "title": "Task Breakdown",
+      "items": [
+        {"task": "Specific task name", "ai_capability": 80, "human_oversight": "What human needs to check"},
+        {"task": "Another task", "ai_capability": 40, "human_oversight": "Required review"}
+      ]
+    },
+    {
+      "type": "discussion",
+      "title": "Key Discussion Points",
+      "prompts": ["Strategic question 1 for leadership", "Change management consideration", "Implementation priority question"]
+    },
+    {
+      "type": "risks",
+      "title": "Risks & Guardrails Needed",
+      "items": [
+        {"risk": "Specific risk", "guardrail": "Required safeguard"},
+        {"risk": "Another risk", "guardrail": "Mitigation approach"}
+      ]
+    }
+  ]
+}
+
+CRITICAL: 
+- Be SPECIFIC to this scenario, not generic
+- Keep each section concise and scannable
+- Use concrete numbers and examples
+- Think like a consultant presenting to executives
+- Return ONLY valid JSON, no markdown or extra text`;
+
+      userMessage = `Generate a detailed simulation for this scenario. Analyze the current state, propose AI-augmented improvements, break down tasks, identify discussion points, and outline risks/guardrails.`;
+    } else {
+      // Iterative prompting mode
+      systemPrompt = `You are Mindmaker AI, an enterprise AI consultant helping a leadership team explore AI capabilities for their business scenario.
 
 SCENARIO CONTEXT:
-${scenarioContext.currentState ? `Current Situation: ${scenarioContext.currentState}` : ''}
-${scenarioContext.stakeholders ? `Key Stakeholders: ${scenarioContext.stakeholders}` : ''}
-${scenarioContext.desiredOutcome ? `Desired Outcome: ${scenarioContext.desiredOutcome}` : ''}
-${scenarioContext.constraints ? `Constraints: ${scenarioContext.constraints}` : ''}
+Current Situation: ${scenarioContext.currentState || 'Not specified'}
+Key Stakeholders: ${scenarioContext.stakeholders || 'Not specified'}
+Desired Outcome: ${scenarioContext.desiredOutcome || 'Not specified'}
+Constraints: ${scenarioContext.constraints || 'Not specified'}
 
-Your goal is to demonstrate what AI can do to help with this scenario. Be practical, specific, and acknowledge limitations. If the user's prompt is unclear or too vague, ask clarifying questions. Your response should be actionable and show real value.`;
+The team has a specific question about implementing AI for this scenario. Provide practical, specific guidance that acknowledges limitations and real-world implementation considerations. Keep your response concise and boardroom-ready.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      userMessage = userPrompt;
+    }
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gpt-5-mini-2025-08-07',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: 'user', content: userMessage }
         ],
-        stream: true,
+        max_completion_tokens: mode === 'generate_simulation' ? 2000 : 800,
+        stream: mode === 'iterate',
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI Gateway Error:', response.status, errorText);
+      console.error('OpenAI API Error:', response.status, errorText);
       
       if (response.status === 429) {
         return new Response(JSON.stringify({ 
@@ -61,25 +131,37 @@ Your goal is to demonstrate what AI can do to help with this scenario. Be practi
         });
       }
       
-      if (response.status === 402) {
+      if (response.status === 401) {
         return new Response(JSON.stringify({ 
-          error: 'AI credits exhausted. Please add credits to continue.' 
+          error: 'OpenAI API key is invalid or not configured.' 
         }), {
-          status: 402,
+          status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      throw new Error(`AI Gateway returned ${response.status}: ${errorText}`);
+      throw new Error(`OpenAI API returned ${response.status}: ${errorText}`);
     }
 
-    // Stream the response back
-    return new Response(response.body, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'text/event-stream',
-      },
-    });
+    if (mode === 'generate_simulation') {
+      // Non-streaming for initial generation (need full JSON)
+      const data = await response.json();
+      const content = data.choices[0].message.content;
+      
+      console.log('Generated simulation:', content.substring(0, 200));
+      
+      return new Response(JSON.stringify({ content }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } else {
+      // Stream the response for iterative prompts
+      return new Response(response.body, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'text/event-stream',
+        },
+      });
+    }
 
   } catch (error) {
     console.error('Error in simulation-ai-experiment:', error);

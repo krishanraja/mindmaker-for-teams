@@ -7,25 +7,26 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Sparkles } from "lucide-react";
 import { SIMULATIONS, getSimulationById } from "@/lib/simulation-constants";
 import { ContextCard } from "./simulation/ContextCard";
-import { LivePromptingInterface } from "./simulation/LivePromptingInterface";
-import { TaskBreakdownCanvas } from "./simulation/TaskBreakdownCanvas";
-import { GuardrailDesigner } from "./simulation/GuardrailDesigner";
+import { SimulationInterface } from "./simulation/SimulationInterface";
+import { TaskBreakdownCanvas, Task } from "./simulation/TaskBreakdownCanvas";
+import { GuardrailDesigner, Guardrail } from "./simulation/GuardrailDesigner";
+import { ParsedSimulation, extractTasksFromSimulation, extractGuardrailsFromSimulation } from "@/lib/ai-response-parser";
 
 interface Segment4SimulationLabProps {
   workshopId: string;
   bootcampPlanData?: any;
 }
 
-type Phase = 'setup' | 'prompting' | 'tasks' | 'guardrails' | 'complete';
+type Phase = 'setup' | 'simulation' | 'tasks' | 'guardrails' | 'complete';
 
 export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4SimulationLabProps) => {
   const { toast } = useToast();
   const [selectedSimulation, setSelectedSimulation] = useState<string | null>(null);
   const [currentPhase, setCurrentPhase] = useState<Phase>('setup');
   const [scenarioContext, setScenarioContext] = useState<any>({});
-  const [promptIterations, setPromptIterations] = useState<any[]>([]);
-  const [taskBreakdown, setTaskBreakdown] = useState<any>(null);
-  const [guardrails, setGuardrails] = useState<any>(null);
+  const [generatedSimulation, setGeneratedSimulation] = useState<ParsedSimulation | null>(null);
+  const [taskBreakdown, setTaskBreakdown] = useState<Task[]>([]);
+  const [guardrails, setGuardrails] = useState<Guardrail | null>(null);
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -82,44 +83,42 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
   };
 
   const handleSaveSimulation = async () => {
-    if (!selectedSimulation || !taskBreakdown || !guardrails) return;
+    if (!selectedSimulation || !generatedSimulation || !taskBreakdown || !guardrails) return;
 
     setLoading(true);
     try {
       const simulation = getSimulationById(selectedSimulation);
-      const avgRating = promptIterations.length > 0
-        ? promptIterations.reduce((sum, it) => sum + (it.rating || 0), 0) / promptIterations.length
+      const automationPct = taskBreakdown.length > 0 
+        ? Math.round(((taskBreakdown.filter(t => t.category === 'ai-capable').length + taskBreakdown.filter(t => t.category === 'ai-human').length * 0.5) / taskBreakdown.length) * 100)
         : 0;
 
-      const { error } = await supabase.from("simulation_results").insert({
+      const { error } = await supabase.from("simulation_results").insert([{
         workshop_session_id: workshopId,
         simulation_id: selectedSimulation,
-        simulation_name: simulation?.title || selectedSimulation,
-        scenario_context: scenarioContext,
-        prompts_used: promptIterations,
-        ai_outputs: promptIterations.map(it => ({ prompt: it.prompt, response: it.response })),
-        output_quality_ratings: promptIterations.map(it => it.rating),
-        task_breakdown: taskBreakdown,
-        guardrails: guardrails,
+        simulation_name: getSimulationById(selectedSimulation)?.title || selectedSimulation,
+        scenario_context: scenarioContext as any,
+        ai_outputs: generatedSimulation.sections as any,
+        task_breakdown: taskBreakdown as any,
+        guardrails: guardrails as any,
         before_snapshot: {},
         after_snapshot: {},
-        time_savings_pct: taskBreakdown.automationPct,
-        quality_improvement_pct: avgRating * 10,
-      });
+        time_savings_pct: automationPct,
+        quality_improvement_pct: 70,
+      }]);
 
       if (error) throw error;
 
       toast({
-        title: "AI Experiment Saved",
-        description: "Live simulation results captured successfully"
+        title: "Simulation Saved",
+        description: "AI simulation results captured successfully"
       });
 
       // Reset
       setSelectedSimulation(null);
       setCurrentPhase('setup');
       setScenarioContext({});
-      setPromptIterations([]);
-      setTaskBreakdown(null);
+      setGeneratedSimulation(null);
+      setTaskBreakdown([]);
       setGuardrails(null);
       loadResults();
     } catch (error) {
@@ -140,16 +139,25 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
     return sim?.snapshot || null;
   }, [selectedSimulation, customerSimulations]);
 
-  const avgPromptRating = useMemo(() => {
-    if (promptIterations.length === 0) return 0;
-    return Math.round(promptIterations.reduce((sum, it) => sum + (it.rating || 0), 0) / promptIterations.length);
-  }, [promptIterations]);
-
   const handleStartSimulation = () => {
     if (!selectedSimulation) return;
     const sim = customerSimulations.find(s => s.id === selectedSimulation);
     setScenarioContext(sim?.snapshot || {});
-    setCurrentPhase('prompting');
+    setCurrentPhase('simulation');
+  };
+
+  const handleSimulationGenerated = (simulation: ParsedSimulation) => {
+    setGeneratedSimulation(simulation);
+    
+    // Pre-populate task breakdown
+    const tasks = extractTasksFromSimulation(simulation);
+    setTaskBreakdown(tasks);
+    
+    // Pre-populate guardrails
+    const extractedGuardrails = extractGuardrailsFromSimulation(simulation);
+    if (extractedGuardrails) {
+      setGuardrails(extractedGuardrails);
+    }
   };
 
   return (
@@ -220,25 +228,23 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
         </Card>
       )}
 
-      {currentPhase === 'prompting' && (
+      {currentPhase === 'simulation' && (
         <div className="space-y-6">
           {selectedSnapshot && <ContextCard snapshot={selectedSnapshot} />}
           
-          <LivePromptingInterface
+          <SimulationInterface
             scenarioContext={scenarioContext}
-            iterations={promptIterations}
-            onIterationComplete={(iteration) => {
-              setPromptIterations([...promptIterations, iteration]);
-            }}
+            onSimulationGenerated={handleSimulationGenerated}
+            generatedSimulation={generatedSimulation || undefined}
           />
 
           <Button
             onClick={() => setCurrentPhase('tasks')}
-            disabled={promptIterations.length === 0}
+            disabled={!generatedSimulation}
             size="lg"
             className="w-full"
           >
-            Continue to Task Breakdown ({promptIterations.length} iterations completed)
+            Continue to Task Breakdown
           </Button>
         </div>
       )}
@@ -247,14 +253,14 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
         <div className="space-y-6">
           <Card className="p-4 bg-primary/5">
             <p className="text-sm">
-              <strong>Reflection:</strong> You completed {promptIterations.length} prompt iteration(s) with an average quality rating of {avgPromptRating}/10. 
-              Now let's break down which tasks AI can handle based on what you observed.
+              <strong>Review & Adjust:</strong> Tasks have been pre-populated from the Mindmaker AI simulation. Review and adjust as needed.
             </p>
           </Card>
 
           <TaskBreakdownCanvas
+            initialTasks={taskBreakdown}
             onBreakdownComplete={(breakdown) => {
-              setTaskBreakdown(breakdown);
+              setTaskBreakdown(breakdown.tasks);
               setCurrentPhase('guardrails');
             }}
           />
@@ -265,16 +271,16 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
         <div className="space-y-6">
           <Card className="p-4 bg-primary/5">
             <p className="text-sm">
-              <strong>Progress:</strong> Based on task decomposition, ~{taskBreakdown?.automationPct}% of this workflow could be AI-augmented. 
-              Now design the safeguards needed to deploy this responsibly.
+              <strong>Review & Refine:</strong> Guardrails have been pre-populated from the Mindmaker AI simulation. Review and refine as needed.
             </p>
           </Card>
 
           <GuardrailDesigner
-            aiOutputQuality={avgPromptRating}
+            aiOutputQuality={7}
+            initialGuardrail={guardrails || undefined}
             onGuardrailsComplete={(guardrailData) => {
               setGuardrails(guardrailData);
-              setCurrentPhase('complete');
+              handleSaveSimulation();
             }}
           />
         </div>
@@ -282,63 +288,32 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
 
       {currentPhase === 'complete' && (
         <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Experiment Complete!</h3>
+          <h3 className="text-xl font-semibold mb-4">Simulation Complete!</h3>
           
           <div className="space-y-4 mb-6">
-            <div className="grid md:grid-cols-3 gap-4">
-              <Card className="p-4">
-                <p className="text-sm text-muted-foreground mb-1">AI Output Quality</p>
-                <p className="text-2xl font-bold">{avgPromptRating}/10</p>
-              </Card>
-              <Card className="p-4">
-                <p className="text-sm text-muted-foreground mb-1">Automation Potential</p>
-                <p className="text-2xl font-bold">{taskBreakdown?.automationPct}%</p>
-              </Card>
-              <Card className="p-4">
-                <p className="text-sm text-muted-foreground mb-1">Tasks Analyzed</p>
-                <p className="text-2xl font-bold">{taskBreakdown?.tasks.length}</p>
-              </Card>
-            </div>
-
             <Card className="p-4 bg-muted/50">
-              <h4 className="font-semibold mb-2">Key Learnings</h4>
+              <h4 className="font-semibold mb-2">Simulation Summary</h4>
               <ul className="text-sm space-y-1">
-                <li>✓ Team tested AI with {promptIterations.length} real prompts</li>
-                <li>✓ Decomposed workflow into {taskBreakdown?.tasks.length} discrete tasks</li>
-                <li>✓ Designed guardrails based on observed AI behavior</li>
-                <li>✓ Estimates grounded in actual experimentation, not guesses</li>
+                <li>✓ Generated AI-powered simulation with Mindmaker AI</li>
+                <li>✓ Analyzed {taskBreakdown.length} discrete tasks</li>
+                <li>✓ Designed comprehensive guardrails</li>
+                <li>✓ Results based on AI analysis of your specific scenario</li>
               </ul>
             </Card>
           </div>
 
           <Button
-            onClick={handleSaveSimulation}
-            disabled={loading}
-            size="lg"
-            className="w-full"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Experiment Results"
-            )}
-          </Button>
-
-          <Button
             onClick={() => {
               setSelectedSimulation(null);
               setCurrentPhase('setup');
-              setPromptIterations([]);
-              setTaskBreakdown(null);
+              setGeneratedSimulation(null);
+              setTaskBreakdown([]);
               setGuardrails(null);
             }}
             variant="outline"
             className="w-full mt-2"
           >
-            Run Another Experiment
+            Run Another Simulation
           </Button>
         </Card>
       )}

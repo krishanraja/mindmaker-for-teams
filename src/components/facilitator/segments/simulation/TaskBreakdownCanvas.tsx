@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 
 type TaskCategory = 'ai-capable' | 'ai-human' | 'human-only';
 
-interface Task {
+export interface Task {
   id: string;
   description: string;
   category: TaskCategory;

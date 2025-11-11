@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Shield, AlertTriangle, CheckCircle2, Plus, X } from "lucide-react";
 
-interface Guardrail {
+export interface Guardrail {
   riskIdentified: string;
   humanCheckpoint: string;
   validationRequired: string;
@@ -17,13 +17,15 @@ interface Guardrail {
 interface GuardrailDesignerProps {
   aiOutputQuality: number;
   onGuardrailsComplete: (guardrails: Guardrail) => void;
+  initialGuardrail?: Guardrail;
 }
 
 export const GuardrailDesigner = ({ 
   aiOutputQuality,
-  onGuardrailsComplete 
+  onGuardrailsComplete,
+  initialGuardrail
 }: GuardrailDesignerProps) => {
-  const [guardrail, setGuardrail] = useState<Guardrail>({
+  const [guardrail, setGuardrail] = useState<Guardrail>(initialGuardrail || {
     riskIdentified: "",
     humanCheckpoint: "",
     validationRequired: "",
