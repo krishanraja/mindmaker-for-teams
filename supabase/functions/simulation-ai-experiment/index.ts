@@ -38,66 +38,59 @@ serve(async (req) => {
 
     if (mode === 'generate_simulation') {
       // Initial simulation generation mode
-      systemPrompt = `You are Mindmaker AI, an enterprise AI consultant helping leadership teams understand how AI can transform their specific workflow.
+      systemPrompt = `You are Mindmaker AI, a management consultant presenting to C-suite executives.
 
-SCENARIO DETAILS:
+SCENARIO:
 Current Situation: ${scenarioContext.currentState || 'Not specified'}
-Key Stakeholders: ${scenarioContext.stakeholders || 'Not specified'}
 Desired Outcome: ${scenarioContext.desiredOutcome || 'Not specified'}
-Constraints: ${scenarioContext.constraints || 'Not specified'}
 
-YOUR TASK: Generate a comprehensive, boardroom-ready simulation showing exactly how AI could transform this specific scenario.
+YOUR TASK: Generate a concise discussion guide (think McKinsey slide deck, not engineering doc) for THIS specific scenario.
 
-Return your analysis as a JSON object with this EXACT structure:
+Return ONLY valid JSON (no markdown) with this EXACT structure:
 {
   "sections": [
     {
-      "type": "analysis",
-      "title": "Current State Analysis",
-      "bullets": ["3-4 specific bottlenecks or inefficiencies in THIS scenario", "Be concrete, not generic"]
-    },
-    {
-      "type": "simulation",
-      "title": "AI-Augmented Future State",
-      "bullets": ["4-5 specific ways AI transforms THIS workflow", "Include concrete capabilities"],
-      "metrics": {
-        "time_saved": "e.g., 60% reduction in task time",
-        "cost_impact": "e.g., $50K annual savings",
-        "quality_improvement": "e.g., 30% fewer errors"
-      }
-    },
-    {
-      "type": "tasks",
-      "title": "Task Breakdown",
-      "items": [
-        {"task": "Specific task name", "ai_capability": 80, "human_oversight": "What human needs to check"},
-        {"task": "Another task", "ai_capability": 40, "human_oversight": "Required review"}
+      "type": "current_state",
+      "title": "Today's Reality",
+      "insights": [
+        "2-3 crisp observations about current inefficiencies",
+        "Be concrete and quantifiable where possible"
       ]
     },
     {
-      "type": "discussion",
-      "title": "Key Discussion Points",
-      "prompts": ["Strategic question 1 for leadership", "Change management consideration", "Implementation priority question"]
+      "type": "ai_transformation",
+      "title": "With AI Augmentation",
+      "insights": [
+        "3-4 specific ways AI changes the game for THIS scenario",
+        "Focus on strategic impact, not technical details"
+      ],
+      "metrics": {
+        "time_saved": "e.g., 60% faster turnaround",
+        "cost_impact": "e.g., $200K annual savings",
+        "quality_improvement": "e.g., 40% fewer errors"
+      }
     },
     {
-      "type": "risks",
-      "title": "Risks & Guardrails Needed",
-      "items": [
-        {"risk": "Specific risk", "guardrail": "Required safeguard"},
-        {"risk": "Another risk", "guardrail": "Mitigation approach"}
+      "type": "discussion",
+      "title": "Key Questions for Your Team",
+      "prompts": [
+        "Strategic question that probes implementation readiness",
+        "Change management consideration for this transformation",
+        "Risk or guardrail question specific to this scenario"
       ]
     }
   ]
 }
 
-CRITICAL: 
-- Be SPECIFIC to this scenario, not generic
-- Keep each section concise and scannable
-- Use concrete numbers and examples
-- Think like a consultant presenting to executives
-- Return ONLY valid JSON, no markdown or extra text`;
+RULES:
+- Maximum 3-4 bullets per section
+- Use their exact situation (quote their words)
+- Include concrete numbers/metrics
+- Write for executives, not engineers
+- Keep it scannable and discussion-focused
+- Return ONLY the JSON object`;
 
-      userMessage = `Generate a detailed simulation for this scenario. Analyze the current state, propose AI-augmented improvements, break down tasks, identify discussion points, and outline risks/guardrails.`;
+      userMessage = `Generate an executive discussion guide for this scenario.`;
     } else {
       // Iterative prompting mode
       systemPrompt = `You are Mindmaker AI, an enterprise AI consultant helping a leadership team explore AI capabilities for their business scenario.
@@ -114,12 +107,12 @@ The team has a specific question about implementing AI for this scenario. Provid
     }
 
     const requestPayload = {
-      model: 'gpt-5-mini-2025-08-07',
+      model: 'gpt-4o-mini',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage }
       ],
-      max_completion_tokens: mode === 'generate_simulation' ? 2000 : 800,
+      max_tokens: mode === 'generate_simulation' ? 1000 : 600,
       stream: mode === 'iterate',
     };
 

@@ -1,19 +1,12 @@
 export interface SimulationSection {
-  type: 'analysis' | 'simulation' | 'tasks' | 'discussion' | 'risks';
+  type: 'current_state' | 'ai_transformation' | 'discussion';
   title: string;
-  bullets?: string[];
+  insights?: string[];
   metrics?: {
     time_saved?: string;
     cost_impact?: string;
     quality_improvement?: string;
   };
-  items?: Array<{
-    task?: string;
-    ai_capability?: number;
-    human_oversight?: string;
-    risk?: string;
-    guardrail?: string;
-  }>;
   prompts?: string[];
 }
 
@@ -44,9 +37,9 @@ export function parseSimulationResponse(content: string): ParsedSimulation {
     return {
       sections: [
         {
-          type: 'analysis',
+          type: 'current_state',
           title: 'Analysis',
-          bullets: [content.substring(0, 500) + '...']
+          insights: [content.substring(0, 500) + '...']
         }
       ]
     };
@@ -54,31 +47,28 @@ export function parseSimulationResponse(content: string): ParsedSimulation {
 }
 
 export function extractTasksFromSimulation(simulation: ParsedSimulation) {
-  const tasksSection = simulation.sections.find(s => s.type === 'tasks');
-  if (!tasksSection?.items) return [];
+  // Extract insights from ai_transformation section as pseudo-tasks
+  const aiSection = simulation.sections.find(s => s.type === 'ai_transformation');
+  if (!aiSection?.insights) return [];
 
-  return tasksSection.items.map((item, index) => ({
+  return aiSection.insights.map((insight, index) => ({
     id: `task-${index}`,
-    description: item.task || '',
-    category: item.ai_capability! >= 70 ? 'ai-capable' as const : 
-              item.ai_capability! >= 30 ? 'ai-human' as const : 
-              'human-only' as const,
-    aiCapability: item.ai_capability || 0,
-    humanOversight: item.human_oversight || ''
+    description: insight,
+    category: 'ai-human' as const,
+    aiCapability: 60,
+    humanOversight: 'Strategic oversight required'
   }));
 }
 
 export function extractGuardrailsFromSimulation(simulation: ParsedSimulation) {
-  const risksSection = simulation.sections.find(s => s.type === 'risks');
-  if (!risksSection?.items) return null;
-
-  const risks = risksSection.items.map(item => item.risk).filter(Boolean);
-  const guardrails = risksSection.items.map(item => item.guardrail).filter(Boolean);
+  // Extract discussion prompts as guardrail considerations
+  const discussionSection = simulation.sections.find(s => s.type === 'discussion');
+  if (!discussionSection?.prompts) return null;
 
   return {
-    riskIdentified: risks.join('\n'),
-    humanCheckpoint: guardrails.slice(0, 2).join('\n'),
-    validationRequired: guardrails.slice(2).join('\n') || 'Quality review process needed',
+    riskIdentified: 'Implementation risks identified in discussion guide',
+    humanCheckpoint: discussionSection.prompts.slice(0, 2).join('\n'),
+    validationRequired: discussionSection.prompts[2] || 'Quality review process needed',
     redFlags: ['Output quality below threshold', 'Compliance concerns detected', 'Stakeholder feedback negative']
   };
 }

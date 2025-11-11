@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { BarChart, Sparkles, CheckCircle2, MessageSquare, AlertTriangle } from 'lucide-react';
+import { BarChart, Sparkles, MessageSquare } from 'lucide-react';
 import { SimulationSection } from '@/lib/ai-response-parser';
 
 interface StructuredSimulationDisplayProps {
@@ -10,111 +9,78 @@ interface StructuredSimulationDisplayProps {
 
 const getSectionIcon = (type: string) => {
   switch (type) {
-    case 'analysis': return <BarChart className="w-5 h-5" />;
-    case 'simulation': return <Sparkles className="w-5 h-5" />;
-    case 'tasks': return <CheckCircle2 className="w-5 h-5" />;
-    case 'discussion': return <MessageSquare className="w-5 h-5" />;
-    case 'risks': return <AlertTriangle className="w-5 h-5" />;
+    case 'current_state': return <BarChart className="w-6 h-6" />;
+    case 'ai_transformation': return <Sparkles className="w-6 h-6" />;
+    case 'discussion': return <MessageSquare className="w-6 h-6" />;
     default: return null;
   }
 };
 
 const getSectionColor = (type: string) => {
   switch (type) {
-    case 'analysis': return 'text-blue-600 dark:text-blue-400';
-    case 'simulation': return 'text-purple-600 dark:text-purple-400';
-    case 'tasks': return 'text-green-600 dark:text-green-400';
+    case 'current_state': return 'text-blue-600 dark:text-blue-400';
+    case 'ai_transformation': return 'text-purple-600 dark:text-purple-400';
     case 'discussion': return 'text-orange-600 dark:text-orange-400';
-    case 'risks': return 'text-red-600 dark:text-red-400';
     default: return 'text-foreground';
   }
 };
 
 export const StructuredSimulationDisplay: React.FC<StructuredSimulationDisplayProps> = ({ sections }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {sections.map((section, index) => (
-        <Card key={index} className="border-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3">
+        <Card key={index} className="border-2 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3 text-xl">
               <span className={getSectionColor(section.type)}>
                 {getSectionIcon(section.type)}
               </span>
               <span>{section.title}</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Bullets */}
-            {section.bullets && section.bullets.length > 0 && (
-              <ul className="space-y-2">
-                {section.bullets.map((bullet, i) => (
-                  <li key={i} className="flex gap-2 text-sm">
-                    <span className="text-primary mt-1">•</span>
-                    <span>{bullet}</span>
+          <CardContent className="space-y-4">
+            {/* Insights */}
+            {section.insights && section.insights.length > 0 && (
+              <ul className="space-y-3">
+                {section.insights.map((insight, i) => (
+                  <li key={i} className="flex gap-3 text-base leading-relaxed">
+                    <span className="text-primary text-xl font-bold mt-0.5 flex-shrink-0">•</span>
+                    <span className="flex-1">{insight}</span>
                   </li>
                 ))}
               </ul>
             )}
 
-            {/* Metrics */}
+            {/* Metrics - larger and more prominent */}
             {section.metrics && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-4 border-t">
                 {section.metrics.time_saved && (
-                  <div className="bg-muted/50 p-3 rounded-lg">
-                    <div className="text-xs text-muted-foreground mb-1">Time Saved</div>
-                    <div className="font-semibold">{section.metrics.time_saved}</div>
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-2 uppercase tracking-wide">Time Saved</div>
+                    <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{section.metrics.time_saved}</div>
                   </div>
                 )}
                 {section.metrics.cost_impact && (
-                  <div className="bg-muted/50 p-3 rounded-lg">
-                    <div className="text-xs text-muted-foreground mb-1">Cost Impact</div>
-                    <div className="font-semibold">{section.metrics.cost_impact}</div>
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="text-xs font-semibold text-green-600 dark:text-green-400 mb-2 uppercase tracking-wide">Cost Impact</div>
+                    <div className="text-2xl font-bold text-green-900 dark:text-green-100">{section.metrics.cost_impact}</div>
                   </div>
                 )}
                 {section.metrics.quality_improvement && (
-                  <div className="bg-muted/50 p-3 rounded-lg">
-                    <div className="text-xs text-muted-foreground mb-1">Quality</div>
-                    <div className="font-semibold">{section.metrics.quality_improvement}</div>
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <div className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-2 uppercase tracking-wide">Quality</div>
+                    <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">{section.metrics.quality_improvement}</div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Task Items */}
-            {section.type === 'tasks' && section.items && (
-              <div className="space-y-2 mt-2">
-                {section.items.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">{item.task}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{item.human_oversight}</div>
-                    </div>
-                    <Badge variant="secondary" className="ml-3">
-                      {item.ai_capability}% AI
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Discussion Prompts */}
+            {/* Discussion Prompts - more prominent */}
             {section.prompts && section.prompts.length > 0 && (
-              <div className="space-y-2 mt-2">
+              <div className="space-y-3 mt-2">
                 {section.prompts.map((prompt, i) => (
-                  <div key={i} className="p-3 bg-accent/20 rounded-lg border-l-4 border-primary">
-                    <p className="text-sm font-medium">{prompt}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Risk Items */}
-            {section.type === 'risks' && section.items && (
-              <div className="space-y-2 mt-2">
-                {section.items.map((item, i) => (
-                  <div key={i} className="p-3 bg-destructive/5 rounded-lg border border-destructive/20">
-                    <div className="font-medium text-sm text-destructive mb-1">⚠️ {item.risk}</div>
-                    <div className="text-xs text-muted-foreground">→ {item.guardrail}</div>
+                  <div key={i} className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950 rounded-lg border-l-4 border-orange-500">
+                    <p className="text-base font-semibold leading-relaxed">{prompt}</p>
                   </div>
                 ))}
               </div>

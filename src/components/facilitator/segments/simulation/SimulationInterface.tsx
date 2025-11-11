@@ -20,12 +20,26 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
   generatedSimulation
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [loadingStage, setLoadingStage] = useState('');
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [followUpPrompt, setFollowUpPrompt] = useState('');
   const [isAsking, setIsAsking] = useState(false);
   const [followUpResponse, setFollowUpResponse] = useState('');
 
   const handleGenerateSimulation = async () => {
     setIsGenerating(true);
+    setElapsedTime(0);
+    setLoadingStage('Analyzing scenario...');
+
+    const timer = setInterval(() => {
+      setElapsedTime(prev => {
+        const next = prev + 1;
+        if (next === 2) setLoadingStage('Generating executive insights...');
+        if (next === 4) setLoadingStage('Almost there...');
+        return next;
+      });
+    }, 1000);
+
     try {
       const { data, error } = await supabase.functions.invoke('simulation-ai-experiment', {
         body: {
@@ -38,12 +52,14 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
 
       const parsed = parseSimulationResponse(data.content);
       onSimulationGenerated(parsed);
-      toast.success('Simulation generated successfully');
+      toast.success('Discussion guide ready');
     } catch (error) {
       console.error('Error generating simulation:', error);
       toast.error('Failed to generate simulation');
     } finally {
+      clearInterval(timer);
       setIsGenerating(false);
+      setLoadingStage('');
     }
   };
 
@@ -133,14 +149,17 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
             className="w-full"
           >
             {isGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating with Mindmaker AI...
-              </>
+              <div className="flex flex-col items-center gap-1 py-1">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>{loadingStage}</span>
+                </div>
+                <span className="text-xs opacity-70">{elapsedTime}s</span>
+              </div>
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                Generate Simulation with Mindmaker AI
+                Generate Executive Discussion Guide
               </>
             )}
           </Button>
