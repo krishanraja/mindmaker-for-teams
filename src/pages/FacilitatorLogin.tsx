@@ -16,6 +16,13 @@ export default function FacilitatorLogin() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Redirect if already logged in as facilitator
+  useEffect(() => {
+    if (!authLoading && user && isFacilitator) {
+      navigate('/create-workshop', { replace: true });
+    }
+  }, [user, isFacilitator, authLoading, navigate]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -47,10 +54,8 @@ export default function FacilitatorLogin() {
         description: 'Successfully logged in as facilitator'
       });
       
-      // Wait briefly for auth state to update, then navigate
-      setTimeout(() => {
-        navigate('/create-workshop');
-      }, 500);
+      // Clear loading state - navigation will happen via useEffect
+      setIsSubmitting(false);
     } catch (error) {
       toast({
         title: 'Error',
