@@ -40,9 +40,12 @@ export const ExecTeamsWelcome: React.FC = () => {
 
     const handleScroll = () => {
       const scrollLeft = carousel.scrollLeft;
-      const cardWidth = carousel.offsetWidth * 0.8;
-      const newIndex = Math.round(scrollLeft / (cardWidth + 16));
-      setActiveCardIndex(newIndex);
+      const cardWidth = carousel.offsetWidth * 0.82;
+      const gap = 16;
+      const paddingLeft = carousel.offsetWidth * 0.09;
+      const adjustedScroll = scrollLeft - paddingLeft + (carousel.offsetWidth - cardWidth) / 2;
+      const newIndex = Math.round(adjustedScroll / (cardWidth + gap));
+      setActiveCardIndex(Math.max(0, Math.min(3, newIndex)));
     };
 
     carousel.addEventListener('scroll', handleScroll);
@@ -166,11 +169,14 @@ export const ExecTeamsWelcome: React.FC = () => {
                   onClick={() => {
                     const carousel = carouselRef.current;
                     if (carousel) {
-                      const cardWidth = carousel.offsetWidth * 0.8;
-                      carousel.scrollTo({
-                        left: index * (cardWidth + 16),
-                        behavior: 'smooth'
-                      });
+                      const cards = carousel.children;
+                      if (cards[index]) {
+                        cards[index].scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'nearest',
+                          inline: 'center'
+                        });
+                      }
                     }
                   }}
                   className={`h-2 rounded-full transition-all ${

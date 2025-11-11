@@ -384,11 +384,11 @@ html {
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   gap: 1rem;
-  padding: 0 20px 20px 20px;
+  padding: 0 9vw 20px 9vw;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
-  scroll-padding: 20px;
+  scroll-padding: 9vw;
 }
 
 .mobile-carousel::-webkit-scrollbar {
@@ -397,7 +397,7 @@ html {
 
 .mobile-carousel-item {
   flex: 0 0 82vw;
-  scroll-snap-align: start;
+  scroll-snap-align: center;
   height: 240px;
   display: flex;
   flex-direction: column;
