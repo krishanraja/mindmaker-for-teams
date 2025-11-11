@@ -26,7 +26,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Generate registration URL
+    // Use actual deployed app URL
     const appUrl = 'https://bkyuxvschuwngtcdhsyg.lovable.app';
     const registrationUrl = `${appUrl}/mobile-registration/${intakeId}`;
 

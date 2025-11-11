@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { scenarioContext, userPrompt, mode = 'iterate' } = await req.json();
+    const { scenarioContext, userPrompt, mode = 'iterate', jargonLevel = 50 } = await req.json();
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
     console.log('🔍 CP0 Diagnostic - API Key Check:', {
@@ -36,15 +36,24 @@ serve(async (req) => {
     let systemPrompt = '';
     let userMessage = '';
 
+    // Build jargon guidance based on level
+    const getJargonGuidance = (level: number) => {
+      if (level < 33) return "Use only plain English. Avoid ALL acronyms, technical terms, and industry jargon. Explain concepts as if to someone with no business or tech background. Use simple, everyday language.";
+      if (level < 67) return "Balance plain English with industry terms. Define acronyms on first use. Keep language accessible to smart generalists.";
+      return "Use industry-standard terminology and acronyms freely. Assume expert audience familiar with business and AI concepts.";
+    };
+
     if (mode === 'generate_simulation') {
       // Initial simulation generation mode
       systemPrompt = `You are Mindmaker AI, a senior management consultant presenting to C-suite executives.
+
+${getJargonGuidance(jargonLevel)}
 
 SCENARIO:
 Current Situation: ${scenarioContext.currentState || 'Not specified'}
 Desired Outcome: ${scenarioContext.desiredOutcome || 'Not specified'}
 
-YOUR TASK: Generate an executive discussion guide for THIS specific scenario.
+YOUR TASK: Generate an executive discussion guide for THIS specific scenario in plain, actionable language.
 
 Return ONLY valid JSON (no markdown) with this EXACT structure:
 {
@@ -78,26 +87,26 @@ Return ONLY valid JSON (no markdown) with this EXACT structure:
       "prompts": [
         {
           "question": "Specific strategic question about THIS scenario",
-          "options": [
-            "Option A: First concrete approach to consider",
-            "Option B: Second concrete approach to consider",
-            "Option C: Third concrete approach to consider"
+          "ideas": [
+            "Idea 1: First concrete approach you could try",
+            "Idea 2: Second concrete approach you could try",
+            "Idea 3: Third concrete approach you could try"
           ]
         },
         {
           "question": "Change management question specific to THIS transformation",
-          "options": [
-            "Option A: First stakeholder/adoption strategy",
-            "Option B: Second stakeholder/adoption strategy",
-            "Option C: Third stakeholder/adoption strategy"
+          "ideas": [
+            "Idea 1: First stakeholder/adoption strategy",
+            "Idea 2: Second stakeholder/adoption strategy",
+            "Idea 3: Third stakeholder/adoption strategy"
           ]
         },
         {
           "question": "Risk/guardrail question for THIS specific scenario",
-          "options": [
-            "Option A: First mitigation approach",
-            "Option B: Second mitigation approach",
-            "Option C: Third mitigation approach"
+          "ideas": [
+            "Idea 1: First mitigation approach",
+            "Idea 2: Second mitigation approach",
+            "Idea 3: Third mitigation approach"
           ]
         }
       ]
@@ -108,15 +117,17 @@ Return ONLY valid JSON (no markdown) with this EXACT structure:
 CRITICAL RULES:
 1. CURRENT STATE: Don't just describe it - explain WHY it's a problem. What's breaking? What's the cost?
 2. AI TRANSFORMATION: Reference specific companies/industries solving similar problems. Be concrete, not theoretical.
-3. DISCUSSION PROMPTS: Each question must have 3 distinct, actionable options the team can debate and select.
+3. DISCUSSION PROMPTS: Frame as "ideas to consider" not rigid options. Each question must have 3 distinct, actionable ideas the team can discuss. Use the word "ideas" not "options".
 4. Use THEIR exact words and situation throughout
-5. Be specific to THIS scenario - no generic platitudes
+5. Be specific to THIS scenario - no generic platitudes or jargon
 6. Return ONLY the JSON object`;
 
       userMessage = `Generate an executive discussion guide for this scenario.`;
     } else {
       // Iterative prompting mode
       systemPrompt = `You are Mindmaker AI, an enterprise AI consultant helping a leadership team explore AI capabilities for their business scenario.
+
+${getJargonGuidance(jargonLevel)}
 
 SCENARIO CONTEXT:
 Current Situation: ${scenarioContext.currentState || 'Not specified'}

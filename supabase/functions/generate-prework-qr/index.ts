@@ -26,8 +26,8 @@ serve(async (req) => {
 
     const { intakeId, participants } = await req.json() as GenerateQRRequest;
 
-    const appOrigin = Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '') || 'https://bkyuxvschuwngtcdhsyg.supabase.co';
-    const appUrl = appOrigin.replace('https://bkyuxvschuwngtcdhsyg.supabase.co', 'https://lovable.app'); // Replace with actual app URL
+    // Use actual deployed app URL
+    const appUrl = 'https://bkyuxvschuwngtcdhsyg.lovable.app';
 
     const results = [];
 

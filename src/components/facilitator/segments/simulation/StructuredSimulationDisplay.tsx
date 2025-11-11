@@ -22,13 +22,27 @@ const getSectionColor = (type: string) => {
 };
 
 export const StructuredSimulationDisplay: React.FC<StructuredSimulationDisplayProps> = ({ sections }) => {
-  const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>({});
+  const [selectedOptions, setSelectedOptions] = useState<Record<number, number | string>>({});
+  const [customInputs, setCustomInputs] = useState<Record<number, string>>({});
 
   const handleOptionSelect = (promptIndex: number, optionIndex: number) => {
     setSelectedOptions(prev => ({
       ...prev,
       [promptIndex]: optionIndex
     }));
+  };
+
+  const handleCustomInput = (promptIndex: number, value: string) => {
+    setCustomInputs(prev => ({
+      ...prev,
+      [promptIndex]: value
+    }));
+    if (value.trim()) {
+      setSelectedOptions(prev => ({
+        ...prev,
+        [promptIndex]: `custom:${value}`
+      }));
+    }
   };
 
   return (
@@ -87,37 +101,53 @@ export const StructuredSimulationDisplay: React.FC<StructuredSimulationDisplayPr
                   const isStructured = typeof prompt !== 'string' && 'question' in prompt;
                   const promptData = isStructured ? prompt as DiscussionPrompt : null;
                   const promptText = isStructured ? promptData!.question : prompt as string;
+                  const ideas = promptData && (promptData.options || (promptData as any).ideas);
 
                   return (
                     <div key={i} className="p-4 bg-muted/30 border border-border rounded-lg">
                       <p className="text-base font-semibold text-foreground mb-4">{promptText}</p>
                       
-                      {/* Interactive options if available */}
-                      {promptData && promptData.options && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-                          {promptData.options.map((option, optionIdx) => {
-                            const isSelected = selectedOptions[i] === optionIdx;
-                            return (
-                              <Button
-                                key={optionIdx}
-                                variant={isSelected ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => handleOptionSelect(i, optionIdx)}
-                                className="h-auto py-3 px-4 text-left justify-start whitespace-normal rounded-md"
-                              >
-                                <div className="flex items-center gap-2 w-full">
-                                  <div className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center ${
-                                    isSelected 
-                                      ? 'bg-primary border-primary' 
-                                      : 'border-muted-foreground/40'
-                                  }`}>
-                                    {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                      {/* Interactive ideas if available */}
+                      {ideas && (
+                        <div className="space-y-3 mt-4">
+                          <p className="text-xs text-muted-foreground mb-2">Ideas to consider:</p>
+                          <div className="grid grid-cols-1 gap-3">
+                            {ideas.map((idea: string, optionIdx: number) => {
+                              const isSelected = selectedOptions[i] === optionIdx;
+                              return (
+                                <Button
+                                  key={optionIdx}
+                                  variant={isSelected ? "default" : "outline"}
+                                  size="sm"
+                                  onClick={() => handleOptionSelect(i, optionIdx)}
+                                  className="h-auto py-3 px-4 text-left justify-start whitespace-normal rounded-md"
+                                >
+                                  <div className="flex items-center gap-2 w-full">
+                                    <div className={`flex-shrink-0 w-4 h-4 rounded border-2 flex items-center justify-center ${
+                                      isSelected 
+                                        ? 'bg-primary border-primary' 
+                                        : 'border-muted-foreground/40'
+                                    }`}>
+                                      {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                                    </div>
+                                    <span className="flex-1 text-sm">{idea}</span>
                                   </div>
-                                  <span className="flex-1 text-sm">{option}</span>
-                                </div>
-                              </Button>
-                            );
-                          })}
+                                </Button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Custom Input Option */}
+                          <div className="mt-3 pt-3 border-t border-border">
+                            <label className="text-xs text-muted-foreground mb-2 block">Or enter your own idea:</label>
+                            <input
+                              type="text"
+                              value={customInputs[i] || ''}
+                              onChange={(e) => handleCustomInput(i, e.target.value)}
+                              placeholder="Type your custom approach here..."
+                              className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            />
+                          </div>
                         </div>
                       )}
                     </div>

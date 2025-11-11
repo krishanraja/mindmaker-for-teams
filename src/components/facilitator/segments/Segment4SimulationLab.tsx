@@ -29,6 +29,7 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
   const [guardrails, setGuardrails] = useState<Guardrail | null>(null);
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [jargonLevel, setJargonLevel] = useState(33); // Default to plain English
 
   const customerSimulations = useMemo(() => {
     if (!bootcampPlanData) return [];
@@ -170,10 +171,35 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
         <p className="text-muted-foreground mb-4">
           Test AI capabilities live with your team. See what AI can actually do, then design guardrails based on real observations—not guesses.
         </p>
-        <div className="flex gap-2">
+        <div className="flex gap-2 mb-6">
           <Badge variant="outline">Live AI Testing</Badge>
           <Badge variant="outline">Task Decomposition</Badge>
           <Badge variant="outline">Risk Assessment</Badge>
+        </div>
+
+        {/* Technical Jargon Slider */}
+        <div className="border-t pt-4 mt-4">
+          <label className="text-sm font-semibold mb-3 block">Content Complexity Level</label>
+          <div className="space-y-2">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={jargonLevel}
+              onChange={(e) => setJargonLevel(Number(e.target.value))}
+              className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span className={jargonLevel < 33 ? 'font-bold text-primary' : ''}>Plain English</span>
+              <span className={jargonLevel >= 33 && jargonLevel < 67 ? 'font-bold text-primary' : ''}>Balanced</span>
+              <span className={jargonLevel >= 67 ? 'font-bold text-primary' : ''}>Technical</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {jargonLevel < 33 && "AI will use simple, everyday language with no jargon"}
+              {jargonLevel >= 33 && jargonLevel < 67 && "AI will balance plain English with industry terms"}
+              {jargonLevel >= 67 && "AI will use industry-standard terminology freely"}
+            </p>
+          </div>
         </div>
       </Card>
 
@@ -236,6 +262,7 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
             scenarioContext={scenarioContext}
             onSimulationGenerated={handleSimulationGenerated}
             generatedSimulation={generatedSimulation || undefined}
+            jargonLevel={jargonLevel}
           />
 
           <Button

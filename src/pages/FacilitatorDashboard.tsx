@@ -23,6 +23,7 @@ export const FacilitatorDashboard: React.FC = () => {
   const [currentSegment, setCurrentSegment] = useState(1);
   const [loading, setLoading] = useState(true);
   const [showResponsesModal, setShowResponsesModal] = useState(false);
+  const [skippedSegments, setSkippedSegments] = useState<number[]>([]);
 
   useEffect(() => {
     loadWorkshop();
@@ -60,11 +61,20 @@ export const FacilitatorDashboard: React.FC = () => {
   };
 
   const handleSegmentChange = async (segment: number) => {
+    if (skippedSegments.includes(segment)) return;
     setCurrentSegment(segment);
     await supabase
       .from('workshop_sessions')
       .update({ current_segment: segment })
       .eq('id', workshopId);
+  };
+
+  const handleToggleSkip = (segment: number) => {
+    setSkippedSegments(prev => 
+      prev.includes(segment) 
+        ? prev.filter(s => s !== segment)
+        : [...prev, segment]
+    );
   };
 
   const handleGeneratePDF = async () => {
@@ -98,6 +108,21 @@ export const FacilitatorDashboard: React.FC = () => {
       bootcampPlanData: bootcampPlan,
     };
 
+    if (skippedSegments.includes(currentSegment)) {
+      return (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <h3 className="text-xl font-semibold text-muted-foreground">
+              Segment {currentSegment} has been skipped
+            </h3>
+            <Button onClick={() => handleToggleSkip(currentSegment)} variant="outline">
+              Include This Segment
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     switch (currentSegment) {
       case 1: return <Segment1Mythbuster {...baseProps} />;
       case 2: return <Segment2BottleneckBoard {...baseProps} />;
@@ -115,6 +140,8 @@ export const FacilitatorDashboard: React.FC = () => {
       <SegmentNavigator
         currentSegment={currentSegment}
         onSegmentChange={handleSegmentChange}
+        skippedSegments={skippedSegments}
+        onToggleSkip={handleToggleSkip}
       />
 
       <div className="flex-1 flex flex-col">

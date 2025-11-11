@@ -70,42 +70,70 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({ synthesi
         </Card>
       )}
 
-      {/* Strengths & Gaps - Two Column Layout */}
+      {/* Strengths & Gaps - Icon-Based Cards */}
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Strengths */}
         {strengths && (
-          <Card className="bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/20 dark:to-slate-900 border border-emerald-200/60 dark:border-emerald-800/40 shadow-md">
+          <Card className="bg-card border border-border shadow-sm">
             <CardContent className="p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex flex-col items-center text-center mb-6">
+                <div className="w-16 h-16 rounded-full bg-muted border border-border flex items-center justify-center mb-4">
+                  <CheckCircle2 className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-2xl font-semibold text-foreground">
                   Strengths Identified
                 </h3>
               </div>
-              <div className="space-y-4">
-                {renderContent(strengths)}
-              </div>
+              <ul className="space-y-3">
+                {(() => {
+                  const content = renderContent(strengths);
+                  const firstBlock = content[0];
+                  if (firstBlock && typeof firstBlock === 'object' && 'type' in firstBlock && firstBlock.type === 'list' && 'items' in firstBlock) {
+                    return (firstBlock.items as string[]).slice(0, 3).map((item: string, idx: number) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <span className="text-primary mt-1 flex-shrink-0">•</span>
+                        <span className="text-sm leading-relaxed">
+                          {item.length > 60 ? item.slice(0, 60) + '...' : item}
+                        </span>
+                      </li>
+                    ));
+                  }
+                  return <li className="text-sm">{strengths.slice(0, 180)}...</li>;
+                })()}
+              </ul>
             </CardContent>
           </Card>
         )}
 
         {/* Gaps */}
         {gaps && (
-          <Card className="bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/20 dark:to-slate-900 border border-amber-200/60 dark:border-amber-800/40 shadow-md">
+          <Card className="bg-card border border-border shadow-sm">
             <CardContent className="p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+              <div className="flex flex-col items-center text-center mb-6">
+                <div className="w-16 h-16 rounded-full bg-muted border border-border flex items-center justify-center mb-4">
+                  <AlertTriangle className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-2xl font-semibold text-foreground">
                   Critical Gaps
                 </h3>
               </div>
-              <div className="space-y-4">
-                {renderContent(gaps)}
-              </div>
+              <ul className="space-y-3">
+                {(() => {
+                  const content = renderContent(gaps);
+                  const firstBlock = content[0];
+                  if (firstBlock && typeof firstBlock === 'object' && 'type' in firstBlock && firstBlock.type === 'list' && 'items' in firstBlock) {
+                    return (firstBlock.items as string[]).slice(0, 3).map((item: string, idx: number) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <span className="text-primary mt-1 flex-shrink-0">•</span>
+                        <span className="text-sm leading-relaxed">
+                          {item.length > 60 ? item.slice(0, 60) + '...' : item}
+                        </span>
+                      </li>
+                    ));
+                  }
+                  return <li className="text-sm">{gaps.slice(0, 180)}...</li>;
+                })()}
+              </ul>
             </CardContent>
           </Card>
         )}

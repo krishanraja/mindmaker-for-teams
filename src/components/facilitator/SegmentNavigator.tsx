@@ -7,6 +7,8 @@ import { Zap, Eye, Clock, Sparkles, FileText, Target } from 'lucide-react';
 interface SegmentNavigatorProps {
   currentSegment: number;
   onSegmentChange: (segment: number) => void;
+  skippedSegments?: number[];
+  onToggleSkip?: (segment: number) => void;
 }
 
 const SEGMENTS = [
@@ -22,6 +24,8 @@ const SEGMENTS = [
 export const SegmentNavigator: React.FC<SegmentNavigatorProps> = ({
   currentSegment,
   onSegmentChange,
+  skippedSegments = [],
+  onToggleSkip,
 }) => {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -106,39 +110,60 @@ export const SegmentNavigator: React.FC<SegmentNavigatorProps> = ({
           const Icon = segment.icon;
           const isActive = segment.id === currentSegment;
           const isCompleted = segment.id < currentSegment;
+          const isSkipped = skippedSegments.includes(segment.id);
+          const isHuddleSegment = segment.id === 6;
 
           return (
-            <Button
-              key={segment.id}
-              onClick={() => onSegmentChange(segment.id)}
-              variant={isActive ? 'default' : 'ghost'}
-              className={cn(
-                'w-full justify-start h-auto py-3',
-                isActive && 'bg-primary text-primary-foreground',
-                !isActive && 'hover:bg-muted'
-              )}
-            >
-              <div className="flex items-center gap-3 w-full">
-                <div className={cn(
-                  'p-2 rounded-lg',
-                  isActive ? 'bg-primary-foreground/20' : 'bg-muted'
-                )}>
-                  <Icon className={cn('h-5 w-5', isActive ? 'text-primary-foreground' : segment.color)} />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="font-medium">{segment.name}</div>
-                  <div className={cn(
-                    'text-xs',
-                    isActive ? 'text-primary-foreground/70' : 'text-muted-foreground'
-                  )}>
-                    {segment.duration} minutes
-                  </div>
-                </div>
-                {isCompleted && (
-                  <div className="h-2 w-2 rounded-full bg-green-500" />
+            <div key={segment.id} className="relative">
+              <Button
+                onClick={() => onSegmentChange(segment.id)}
+                variant={isActive ? 'default' : 'ghost'}
+                className={cn(
+                  'w-full justify-start h-auto py-3',
+                  isActive && 'bg-primary text-primary-foreground',
+                  !isActive && 'hover:bg-muted',
+                  isSkipped && 'opacity-50'
                 )}
-              </div>
-            </Button>
+                disabled={isSkipped}
+              >
+                <div className="flex items-center gap-3 w-full">
+                  <div className={cn(
+                    'p-2 rounded-lg',
+                    isActive ? 'bg-primary-foreground/20' : 'bg-muted'
+                  )}>
+                    <Icon className={cn('h-5 w-5', isActive ? 'text-primary-foreground' : segment.color)} />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium">
+                      {segment.name}
+                      {isSkipped && <span className="text-xs ml-2">(Skipped)</span>}
+                    </div>
+                    <div className={cn(
+                      'text-xs',
+                      isActive ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                    )}>
+                      {segment.duration} minutes
+                    </div>
+                  </div>
+                  {isCompleted && !isSkipped && (
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                  )}
+                </div>
+              </Button>
+              
+              {/* Skip toggle for Huddle segment */}
+              {isHuddleSegment && onToggleSkip && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleSkip(segment.id);
+                  }}
+                  className="absolute top-2 right-2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  {isSkipped ? 'Include' : 'Skip'}
+                </button>
+              )}
+            </div>
           );
         })}
       </div>

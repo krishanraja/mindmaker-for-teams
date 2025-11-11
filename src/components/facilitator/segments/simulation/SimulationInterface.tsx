@@ -12,12 +12,14 @@ interface SimulationInterfaceProps {
   scenarioContext: any;
   onSimulationGenerated: (simulation: ParsedSimulation) => void;
   generatedSimulation?: ParsedSimulation;
+  jargonLevel?: number;
 }
 
 export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
   scenarioContext,
   onSimulationGenerated,
-  generatedSimulation
+  generatedSimulation,
+  jargonLevel = 50
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingStage, setLoadingStage] = useState('');
@@ -44,7 +46,8 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
       const { data, error } = await supabase.functions.invoke('simulation-ai-experiment', {
         body: {
           scenarioContext,
-          mode: 'generate_simulation'
+          mode: 'generate_simulation',
+          jargonLevel
         }
       });
 
@@ -81,7 +84,8 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
           body: JSON.stringify({
             scenarioContext,
             userPrompt: followUpPrompt,
-            mode: 'iterate'
+            mode: 'iterate',
+            jargonLevel
           })
         }
       );

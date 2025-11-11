@@ -144,11 +144,13 @@ Their AI myths/concerns: ${JSON.stringify(contextData.preWorkshop.aiMyths)}
 
 Simulation ROI: ${JSON.stringify(contextData.results.roiMetrics)}
 
-Generate:
+Generate (with strict character limits):
 1. Executive summary (150-200 words) - company snapshot, workshop ROI narrative
-2. Top 3 strengths identified (bullet points)
-3. Top 3 gaps to close (bullet points)
-4. Urgency verdict (2-3 sentences) that answers: "If an AI-native startup launched tomorrow with your data, would they beat you?"`;
+2. Strengths: EXACTLY 3 bullet points, each under 60 characters
+3. Gaps: EXACTLY 3 bullet points, each under 60 characters  
+4. Urgency verdict (2-3 sentences) that answers: "If an AI-native startup launched tomorrow with your data, would they beat you?"
+
+CRITICAL: Keep Strengths and Gaps concise (max 60 chars each). Be specific and impactful.`;
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
