@@ -584,7 +584,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                     <CardContent>
                       <Button
                         onClick={handleGenerateSharedQR}
-                        disabled={loading || !validateWizardStep()}
+                        disabled={loading}
                         size="lg"
                         className="w-full"
                       >
