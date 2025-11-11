@@ -146,25 +146,7 @@ export const OrganizerIntakeForm: React.FC = () => {
 
       setIntakeId(intake.id);
 
-      // Send pulse emails
-      await supabase.functions.invoke('send-exec-pulse-emails', {
-        body: {
-          intakeId: intake.id,
-          participants: state.intakeData.participants,
-          organizerName: state.intakeData.organizerName,
-          companyName: state.intakeData.companyName,
-        },
-      });
-
-      // Send summary email to Krish
-      await supabase.functions.invoke('send-exec-summary-email', {
-        body: {
-          type: 'intake_created',
-          intakeId: intake.id,
-        },
-      });
-
-      toast.success('Intake submitted! Pulse emails sent to participants.');
+      toast.success('Intake submitted successfully!');
       setCurrentStep(3);
     } catch (error: any) {
       console.error('Error submitting intake:', error);
