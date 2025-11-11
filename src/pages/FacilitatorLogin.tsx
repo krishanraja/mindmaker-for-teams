@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,10 +11,17 @@ import { Loader2, Lock } from 'lucide-react';
 export default function FacilitatorLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { signIn, user, isFacilitator, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Navigate when auth state confirms facilitator role
+  useEffect(() => {
+    if (user && isFacilitator && !authLoading) {
+      navigate('/create-workshop');
+    }
+  }, [user, isFacilitator, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +35,7 @@ export default function FacilitatorLogin() {
       return;
     }
 
-    setLoading(true);
+    setIsSubmitting(true);
     try {
       const { error } = await signIn(email, password);
       
@@ -38,6 +45,7 @@ export default function FacilitatorLogin() {
           description: 'Invalid credentials. Please try again.',
           variant: 'destructive'
         });
+        setIsSubmitting(false);
         return;
       }
 
@@ -46,15 +54,14 @@ export default function FacilitatorLogin() {
         description: 'Successfully logged in as facilitator'
       });
       
-      navigate('/create-workshop');
+      // Navigation handled by useEffect when auth state updates
     } catch (error) {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
         variant: 'destructive'
       });
-    } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -80,7 +87,7 @@ export default function FacilitatorLogin() {
                 placeholder="facilitator@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
+                disabled={isSubmitting || authLoading}
                 required
               />
             </div>
@@ -93,7 +100,7 @@ export default function FacilitatorLogin() {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
+                disabled={isSubmitting || authLoading}
                 required
               />
             </div>
@@ -101,9 +108,9 @@ export default function FacilitatorLogin() {
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={loading}
+              disabled={isSubmitting || authLoading}
             >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {(isSubmitting || authLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In
             </Button>
           </form>
