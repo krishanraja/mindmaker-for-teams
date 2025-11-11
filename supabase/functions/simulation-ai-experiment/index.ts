@@ -15,11 +15,23 @@ serve(async (req) => {
     const { scenarioContext, userPrompt, mode = 'iterate' } = await req.json();
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
+    console.log('🔍 CP0 Diagnostic - API Key Check:', {
+      keyExists: !!OPENAI_API_KEY,
+      keyLength: OPENAI_API_KEY?.length || 0,
+      keyPrefix: OPENAI_API_KEY?.substring(0, 7) || 'none'
+    });
+
     if (!OPENAI_API_KEY) {
       throw new Error('OPENAI_API_KEY not configured');
     }
 
-    console.log('Mindmaker AI Simulation:', { mode, scenarioContext, promptLength: userPrompt?.length });
+    console.log('🔍 CP0 Diagnostic - Request:', { 
+      mode, 
+      scenarioContext, 
+      promptLength: userPrompt?.length,
+      hasCurrentState: !!scenarioContext?.currentState,
+      hasDesiredOutcome: !!scenarioContext?.desiredOutcome
+    });
 
     let systemPrompt = '';
     let userMessage = '';
@@ -101,26 +113,57 @@ The team has a specific question about implementing AI for this scenario. Provid
       userMessage = userPrompt;
     }
 
+    const requestPayload = {
+      model: 'gpt-5-mini-2025-08-07',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage }
+      ],
+      max_completion_tokens: mode === 'generate_simulation' ? 2000 : 800,
+      stream: mode === 'iterate',
+    };
+
+    console.log('🔍 CP0 Diagnostic - OpenAI Request:', {
+      model: requestPayload.model,
+      systemPromptLength: systemPrompt.length,
+      userMessageLength: userMessage.length,
+      maxTokens: requestPayload.max_completion_tokens,
+      stream: requestPayload.stream,
+      messageCount: requestPayload.messages.length
+    });
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'gpt-5-mini-2025-08-07',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage }
-        ],
-        max_completion_tokens: mode === 'generate_simulation' ? 2000 : 800,
-        stream: mode === 'iterate',
-      }),
+      body: JSON.stringify(requestPayload),
+    });
+
+    console.log('🔍 CP0 Diagnostic - OpenAI Response Status:', {
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenAI API Error:', response.status, errorText);
+      console.error('🚨 CP0 Diagnostic - OpenAI API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorBody: errorText,
+        errorBodyLength: errorText.length
+      });
+      
+      // Try to parse error as JSON for better diagnostics
+      try {
+        const errorJson = JSON.parse(errorText);
+        console.error('🚨 CP0 Diagnostic - Parsed Error:', errorJson);
+      } catch {
+        console.error('🚨 CP0 Diagnostic - Raw Error Text:', errorText);
+      }
       
       if (response.status === 429) {
         return new Response(JSON.stringify({ 
@@ -146,9 +189,43 @@ The team has a specific question about implementing AI for this scenario. Provid
     if (mode === 'generate_simulation') {
       // Non-streaming for initial generation (need full JSON)
       const data = await response.json();
+      
+      console.log('🔍 CP0 Diagnostic - OpenAI Response Structure:', {
+        hasChoices: !!data.choices,
+        choicesLength: data.choices?.length || 0,
+        hasFirstChoice: !!data.choices?.[0],
+        hasMessage: !!data.choices?.[0]?.message,
+        hasContent: !!data.choices?.[0]?.message?.content,
+        contentType: typeof data.choices?.[0]?.message?.content,
+        contentLength: data.choices?.[0]?.message?.content?.length || 0,
+        fullResponseKeys: Object.keys(data),
+        usage: data.usage,
+        model: data.model,
+        error: data.error
+      });
+      
+      // Validate response structure
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        console.error('🚨 CP0 Diagnostic - Invalid Response Structure:', JSON.stringify(data, null, 2));
+        throw new Error('OpenAI returned invalid response structure');
+      }
+      
       const content = data.choices[0].message.content;
       
-      console.log('Generated simulation:', content.substring(0, 200));
+      if (!content || content.trim() === '') {
+        console.error('🚨 CP0 Diagnostic - Empty Content:', {
+          content,
+          fullMessage: data.choices[0].message,
+          fullData: JSON.stringify(data, null, 2)
+        });
+        throw new Error('OpenAI returned empty content');
+      }
+      
+      console.log('✅ CP0 Diagnostic - Valid Content Received:', {
+        contentLength: content.length,
+        contentPreview: content.substring(0, 200),
+        contentSuffix: content.substring(content.length - 100)
+      });
       
       return new Response(JSON.stringify({ content }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
