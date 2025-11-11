@@ -69,7 +69,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send email to Krish
     const emailResponse = await resend.emails.send({
       from: "Fractionl.ai Executive Bootcamp <onboarding@resend.dev>",
-      to: ["krish@fractionl.ai"],
+      to: ["krish@themindmaker.ai"],
       subject: subject,
       html: emailHtml,
     });

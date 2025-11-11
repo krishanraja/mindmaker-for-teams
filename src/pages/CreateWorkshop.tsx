@@ -9,16 +9,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/hooks/use-toast';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, Trash2 } from 'lucide-react';
 import { format, parse, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export const CreateWorkshop: React.FC = () => {
   const navigate = useNavigate();
   const [intakes, setIntakes] = useState<any[]>([]);
+  const [workshops, setWorkshops] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState('09:00');
   const [preferredDates, setPreferredDates] = useState<Date[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [workshopToDelete, setWorkshopToDelete] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     intake_id: '',
     facilitator_name: '',
@@ -27,6 +40,7 @@ export const CreateWorkshop: React.FC = () => {
 
   useEffect(() => {
     loadIntakes();
+    loadWorkshops();
   }, []);
 
   useEffect(() => {
@@ -42,6 +56,15 @@ export const CreateWorkshop: React.FC = () => {
       .order('created_at', { ascending: false });
 
     if (data) setIntakes(data);
+  };
+
+  const loadWorkshops = async () => {
+    const { data } = await supabase
+      .from('workshop_sessions')
+      .select('*, exec_intakes(company_name, organizer_name)')
+      .order('workshop_date', { ascending: false });
+
+    if (data) setWorkshops(data);
   };
 
   const loadPreferredDates = async (intakeId: string) => {
@@ -100,12 +123,81 @@ export const CreateWorkshop: React.FC = () => {
     }
 
     toast({ title: 'Workshop created successfully!' });
+    await loadWorkshops();
     navigate(`/facilitator/${data.id}`);
+  };
+
+  const handleDeleteClick = (workshopId: string) => {
+    setWorkshopToDelete(workshopId);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!workshopToDelete) return;
+
+    const { error } = await supabase
+      .from('workshop_sessions')
+      .delete()
+      .eq('id', workshopToDelete);
+
+    if (error) {
+      toast({ title: 'Error deleting workshop', variant: 'destructive' });
+      return;
+    }
+
+    toast({ title: 'Workshop deleted successfully' });
+    setDeleteDialogOpen(false);
+    setWorkshopToDelete(null);
+    await loadWorkshops();
   };
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Saved Workshop Sessions */}
+        {workshops.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Saved Workshop Sessions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {workshops.map((workshop) => (
+                  <div
+                    key={workshop.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <div className="font-semibold">
+                        {workshop.exec_intakes?.company_name || 'Unknown Company'}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {format(new Date(workshop.workshop_date), 'PPP p')} • {workshop.facilitator_name}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => navigate(`/facilitator/${workshop.id}`)}
+                      >
+                        Open
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteClick(workshop.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Create New Workshop */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -206,6 +298,27 @@ export const CreateWorkshop: React.FC = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete this workshop session and all associated data. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

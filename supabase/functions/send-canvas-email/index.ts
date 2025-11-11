@@ -42,7 +42,7 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { businessName, userName, businessEmail, mindmakerData, aiRecommendation }: MindmakerEmailRequest = await req.json();
 
-    console.log("Attempting to send email to:", ["hello@krishraja.com", "krish@fractionl.ai"]);
+    console.log("Attempting to send email to:", ["hello@krishraja.com", "krish@themindmaker.ai"]);
     
     // Calculate average anxiety
     const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
@@ -107,10 +107,10 @@ const handler = async (req: Request): Promise<Response> => {
     // Send to second email
     const emailResponse2 = await resend.emails.send({
       ...baseEmailData,
-      to: ["krish@fractionl.ai"]
+      to: ["krish@themindmaker.ai"]
     });
     
-    console.log("Email 2 response (krish@fractionl.ai):", JSON.stringify(emailResponse2, null, 2));
+    console.log("Email 2 response (krish@themindmaker.ai):", JSON.stringify(emailResponse2, null, 2));
 
     // Check for errors in either response
     if (emailResponse1.error) {
@@ -118,7 +118,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
     
     if (emailResponse2.error) {
-      console.error("Resend API error for krish@fractionl.ai:", emailResponse2.error);
+      console.error("Resend API error for krish@themindmaker.ai:", emailResponse2.error);
     }
 
     const emailResponse = {

@@ -54,7 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { assessmentData }: AssessmentNotificationRequest = await req.json();
 
-    console.log("Sending assessment notification to krish@fractionl.ai");
+    console.log("Sending assessment notification to krish@themindmaker.ai");
     
     // Calculate qualification tier display
     const leadScore = assessmentData.leadScore || 0;
@@ -65,7 +65,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     const emailResponse = await resend.emails.send({
       from: "AI Assessment <assessments@fractionl.ai>",
-      to: ["krish@fractionl.ai"],
+      to: ["krish@themindmaker.ai"],
       subject: `${tierEmoji} ${qualificationTier.toUpperCase()} LEAD - ${assessmentData.businessName} (${assessmentData.aiInsights?.category || 'Assessment Complete'})`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
