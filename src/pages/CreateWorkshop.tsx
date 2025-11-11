@@ -7,11 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Calendar, Clock, Trash2, ChevronDown } from 'lucide-react';
+import { Calendar, Clock, Trash2, LogOut } from 'lucide-react';
 import { format, parse, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,7 @@ import {
 
 export const CreateWorkshop: React.FC = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [intakes, setIntakes] = useState<any[]>([]);
   const [workshops, setWorkshops] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
@@ -34,8 +36,6 @@ export const CreateWorkshop: React.FC = () => {
   const [workshopToDelete, setWorkshopToDelete] = useState<string | null>(null);
   const [intakeDeleteDialogOpen, setIntakeDeleteDialogOpen] = useState(false);
   const [intakeToDelete, setIntakeToDelete] = useState<string | null>(null);
-  const [intakeDropdownOpen, setIntakeDropdownOpen] = useState(false);
-  const [workshopDropdownOpen, setWorkshopDropdownOpen] = useState(false);
   const [selectedWorkshopId, setSelectedWorkshopId] = useState<string>('');
   const [formData, setFormData] = useState({
     intake_id: '',
@@ -197,8 +197,29 @@ export const CreateWorkshop: React.FC = () => {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
+        {/* User Profile Header */}
+        <Card>
+          <CardContent className="flex items-center justify-between pt-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-primary font-semibold text-lg">
+                  {user?.email?.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Logged in as</p>
+                <p className="text-sm text-muted-foreground">{user?.email}</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={signOut} className="gap-2">
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Saved Workshop Sessions - Dropdown Selector */}
-        {workshops.length > 0 && (
+        {workshops && workshops.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle>Saved Workshop Sessions</CardTitle>
@@ -206,49 +227,25 @@ export const CreateWorkshop: React.FC = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label>Select Workshop Session</Label>
-                <Popover open={workshopDropdownOpen} onOpenChange={setWorkshopDropdownOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={workshopDropdownOpen}
-                      className="w-full justify-between"
-                    >
-                      {selectedWorkshopId
-                        ? workshops.find((w) => w.id === selectedWorkshopId)
-                            ? `${workshops.find((w) => w.id === selectedWorkshopId)?.exec_intakes?.company_name} - ${format(new Date(workshops.find((w) => w.id === selectedWorkshopId)?.workshop_date), 'PP')}`
-                            : "Choose a workshop..."
-                        : "Choose a workshop..."}
-                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[600px] p-0 bg-popover border border-border z-[110]" align="start">
-                    <Command className="bg-popover">
-                      <CommandGroup>
-                        {workshops.map((workshop) => (
-                          <CommandItem
-                            key={workshop.id}
-                            value={workshop.id}
-                            onSelect={(value) => {
-                              setSelectedWorkshopId(value);
-                              setWorkshopDropdownOpen(false);
-                            }}
-                            className="cursor-pointer hover:bg-accent"
-                          >
-                            <div className="flex flex-col">
-                              <span className="font-semibold">
-                                {workshop.exec_intakes?.company_name || 'Unknown Company'}
-                              </span>
-                              <span className="text-sm text-muted-foreground">
-                                {format(new Date(workshop.workshop_date), 'PPP p')} • {workshop.facilitator_name}
-                              </span>
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <Select value={selectedWorkshopId} onValueChange={setSelectedWorkshopId}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose a workshop..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workshops.map((workshop) => (
+                      <SelectItem key={workshop.id} value={workshop.id}>
+                        <div className="flex flex-col">
+                          <span className="font-semibold">
+                            {workshop.exec_intakes?.company_name || 'Unknown Company'}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {format(new Date(workshop.workshop_date), 'PPP p')} • {workshop.facilitator_name}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 
                 {selectedWorkshopId && (
                   <div className="mt-2 p-3 border rounded-md bg-accent/20 flex items-center justify-between">
@@ -294,42 +291,27 @@ export const CreateWorkshop: React.FC = () => {
           <CardContent className="space-y-6">
             <div>
               <Label>Select Executive Intake</Label>
-              <Popover open={intakeDropdownOpen} onOpenChange={setIntakeDropdownOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={intakeDropdownOpen}
-                    className="w-full justify-between"
-                  >
-                    {formData.intake_id
-                      ? intakes.find((intake) => intake.id === formData.intake_id)
-                          ? `${intakes.find((intake) => intake.id === formData.intake_id)?.company_name} - ${intakes.find((intake) => intake.id === formData.intake_id)?.organizer_name}`
-                          : "Choose an intake..."
-                      : "Choose an intake..."}
-                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[600px] p-0 bg-popover border border-border z-[110]" align="start">
-                  <Command className="bg-popover">
-                    <CommandGroup>
-                      {intakes.map((intake) => (
-                        <CommandItem
-                          key={intake.id}
-                          value={intake.id}
-                          onSelect={(value) => {
-                            setFormData(prev => ({ ...prev, intake_id: value }));
-                            setIntakeDropdownOpen(false);
-                          }}
-                          className="cursor-pointer hover:bg-accent"
-                        >
-                          {intake.company_name} - {intake.organizer_name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              {intakes && intakes.length > 0 ? (
+                <Select 
+                  value={formData.intake_id} 
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, intake_id: value }))}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose an intake..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {intakes.map((intake) => (
+                      <SelectItem key={intake.id} value={intake.id}>
+                        {intake.company_name} - {intake.organizer_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="text-sm text-muted-foreground p-4 border rounded-md">
+                  Loading intakes...
+                </div>
+              )}
               
               {formData.intake_id && (
                 <div className="mt-2 p-3 border rounded-md bg-accent/20 flex items-center justify-between">
