@@ -11,6 +11,7 @@ import { MobileBottleneck } from "./pages/MobileBottleneck";
 import { MobileEffortlessMap } from "./pages/MobileEffortlessMap";
 import { MobileDotVoting } from "./pages/MobileDotVoting";
 import { MobilePreWorkshop } from "./pages/MobilePreWorkshop";
+import { MobileRegistration } from "./pages/MobileRegistration";
 import FacilitatorLogin from "./pages/FacilitatorLogin";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/mobile/effortless-map/:workshopId" element={<MobileEffortlessMap />} />
               <Route path="/mobile/voting/:workshopId" element={<MobileDotVoting />} />
               <Route path="/pre-workshop/:intakeId/:participantHash" element={<MobilePreWorkshop />} />
+              <Route path="/mobile-registration/:intakeId" element={<MobileRegistration />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CognitiveBaselineRadar } from './CognitiveBaselineRadar';
+import { SharedQRDisplay } from './SharedQRDisplay';
 
 const SIMULATIONS = [
   {
@@ -130,6 +131,9 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
   const [cognitiveData, setCognitiveData] = useState<any>(null);
   const [qrCodesGenerated, setQrCodesGenerated] = useState(false);
   const [qrData, setQrData] = useState<any[]>([]);
+  const [sharedQRGenerated, setSharedQRGenerated] = useState(false);
+  const [sharedQRUrl, setSharedQRUrl] = useState('');
+  const [sharedDirectUrl, setSharedDirectUrl] = useState('');
 
   // Initialize AI readiness data
   const aiReadiness = state.aiReadinessData || {
@@ -279,6 +283,27 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
       }
     }
     return true;
+  };
+
+  const handleGenerateSharedQR = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-shared-prework-qr', {
+        body: { intakeId: state.intakeId }
+      });
+
+      if (error) throw error;
+
+      setSharedQRUrl(data.qrCodeUrl);
+      setSharedDirectUrl(data.directUrl);
+      setSharedQRGenerated(true);
+      toast.success('Registration QR code generated!');
+    } catch (error: any) {
+      console.error('Error generating shared QR:', error);
+      toast.error(error.message || 'Failed to generate QR code');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNext = () => {
@@ -542,6 +567,40 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+            )}
+
+            {/* Shared QR Code Generation - After Step 1 */}
+            {wizardStep === 1 && (
+              <div className="space-y-6 pt-6 border-t">
+                {!sharedQRGenerated ? (
+                  <Card className="border-2 border-primary/20">
+                    <CardHeader>
+                      <CardTitle>Next: Generate Participant Registration QR Code</CardTitle>
+                      <CardDescription>
+                        Once you've completed the AI readiness questions above, generate a QR code to share with all workshop participants for self-registration.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button
+                        onClick={handleGenerateSharedQR}
+                        disabled={loading || !validateWizardStep()}
+                        size="lg"
+                        className="w-full"
+                      >
+                        {loading ? 'Generating QR Code...' : 'Generate Registration QR Code'}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <SharedQRDisplay
+                    qrCodeUrl={sharedQRUrl}
+                    directUrl={sharedDirectUrl}
+                    companyName={state.intakeData.companyName}
+                    organizerName={state.intakeData.organizerName}
+                  />
+                )}
               </div>
             )}
 
