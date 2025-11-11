@@ -75,66 +75,66 @@ export const ExecTeamsWelcome: React.FC = () => {
           </CardHeader>
 
           <CardContent className="space-y-6 md:space-y-8 pb-6 md:pb-12">
-            <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-              <Card className="border border-border/50 bg-card/50">
-                <CardHeader>
+            <div className="mobile-carousel">
+              <Card className="mobile-carousel-item border border-border/50 bg-card/50">
+                <CardHeader className="card-header">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
+                    <div className="icon-wrapper p-2 rounded-lg bg-primary/10">
                       <Brain className="w-6 h-6 text-primary" />
                     </div>
-                    <CardTitle className="text-lg md:text-xl">Decision Simulations</CardTitle>
+                    <CardTitle className="card-title">Decision Simulations</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm md:text-base text-muted-foreground">
+                <CardContent className="card-content">
+                  <p className="card-description text-muted-foreground">
                     Choose 2 scenarios that mirror your current challenges. We'll configure the room agenda and lock timeboxes for maximum impact.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="border border-border/50 bg-card/50">
-                <CardHeader>
+              <Card className="mobile-carousel-item border border-border/50 bg-card/50">
+                <CardHeader className="card-header">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
+                    <div className="icon-wrapper p-2 rounded-lg bg-primary/10">
                       <Target className="w-6 h-6 text-primary" />
                     </div>
-                    <CardTitle className="text-lg md:text-xl">Cognitive Baseline</CardTitle>
+                    <CardTitle className="card-title">Cognitive Baseline</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm md:text-base text-muted-foreground">
+                <CardContent className="card-content">
+                  <p className="card-description text-muted-foreground">
                     Team pulse across 4 dimensions reveals alignment gaps and readiness scores before you walk into the room.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="border border-border/50 bg-card/50">
-                <CardHeader>
+              <Card className="mobile-carousel-item border border-border/50 bg-card/50">
+                <CardHeader className="card-header">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
+                    <div className="icon-wrapper p-2 rounded-lg bg-primary/10">
                       <Users className="w-6 h-6 text-primary" />
                     </div>
-                    <CardTitle className="text-lg md:text-xl">Leadership Alignment</CardTitle>
+                    <CardTitle className="card-title">Leadership Alignment</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm md:text-base text-muted-foreground">
+                <CardContent className="card-content">
+                  <p className="card-description text-muted-foreground">
                     Six structured segments (Mirror, Time Machine, Crystal Ball, Rewrite, Huddle, Provocation) ensure strategic coherence.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="border border-border/50 bg-card/50">
-                <CardHeader>
+              <Card className="mobile-carousel-item border border-border/50 bg-card/50">
+                <CardHeader className="card-header">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
+                    <div className="icon-wrapper p-2 rounded-lg bg-primary/10">
                       <Zap className="w-6 h-6 text-primary" />
                     </div>
-                    <CardTitle className="text-lg md:text-xl">90-Day Pilot Charter</CardTitle>
+                    <CardTitle className="card-title">90-Day Pilot Charter</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm md:text-base text-muted-foreground">
+                <CardContent className="card-content">
+                  <p className="card-description text-muted-foreground">
                     Leave with actionable next steps, documented insights, and a clear implementation roadmap.
                   </p>
                 </CardContent>
