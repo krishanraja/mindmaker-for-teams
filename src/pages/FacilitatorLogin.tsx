@@ -16,13 +16,6 @@ export default function FacilitatorLogin() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Navigate when auth state confirms facilitator role
-  useEffect(() => {
-    if (user && isFacilitator && !authLoading) {
-      navigate('/create-workshop');
-    }
-  }, [user, isFacilitator, authLoading, navigate]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -54,7 +47,10 @@ export default function FacilitatorLogin() {
         description: 'Successfully logged in as facilitator'
       });
       
-      // Navigation handled by useEffect when auth state updates
+      // Wait briefly for auth state to update, then navigate
+      setTimeout(() => {
+        navigate('/create-workshop');
+      }, 500);
     } catch (error) {
       toast({
         title: 'Error',
@@ -87,7 +83,7 @@ export default function FacilitatorLogin() {
                 placeholder="facilitator@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isSubmitting || authLoading}
+                disabled={isSubmitting}
                 required
               />
             </div>
@@ -100,7 +96,7 @@ export default function FacilitatorLogin() {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isSubmitting || authLoading}
+                disabled={isSubmitting}
                 required
               />
             </div>
@@ -108,9 +104,9 @@ export default function FacilitatorLogin() {
             <Button 
               type="submit" 
               className="w-full" 
-              disabled={isSubmitting || authLoading}
+              disabled={isSubmitting}
             >
-              {(isSubmitting || authLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In
             </Button>
           </form>

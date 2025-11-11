@@ -9,6 +9,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isFacilitator, loading } = useAuth();
 
+  // Show loading spinner while checking auth state - don't redirect prematurely
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -17,6 +18,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
+  // Only redirect after loading is complete and we're certain of the role
   if (!user || !isFacilitator) {
     return <Navigate to="/facilitator-login" replace />;
   }
