@@ -229,16 +229,28 @@ export const CreateWorkshop: React.FC = () => {
                 <Label>Select Workshop Session</Label>
                 <Select value={selectedWorkshopId} onValueChange={setSelectedWorkshopId}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose a workshop..." />
+                    <SelectValue placeholder="Choose a workshop...">
+                      {selectedWorkshopId && workshops.find(w => w.id === selectedWorkshopId) && (
+                        <div className="flex items-center gap-2 text-left">
+                          <span className="font-semibold">
+                            {workshops.find(w => w.id === selectedWorkshopId)?.exec_intakes?.company_name}
+                          </span>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="text-sm text-muted-foreground">
+                            {format(new Date(workshops.find(w => w.id === selectedWorkshopId)!.workshop_date), 'PP')} • {workshops.find(w => w.id === selectedWorkshopId)?.facilitator_name}
+                          </span>
+                        </div>
+                      )}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {workshops.map((workshop) => (
                       <SelectItem key={workshop.id} value={workshop.id}>
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-1">
                           <span className="font-semibold">
                             {workshop.exec_intakes?.company_name || 'Unknown Company'}
                           </span>
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             {format(new Date(workshop.workshop_date), 'PPP p')} • {workshop.facilitator_name}
                           </span>
                         </div>
