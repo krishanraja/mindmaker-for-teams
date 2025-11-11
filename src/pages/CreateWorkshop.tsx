@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/hooks/use-toast';
-import { Calendar, Clock, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Trash2, ChevronDown, X } from 'lucide-react';
 import { format, parse, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +32,9 @@ export const CreateWorkshop: React.FC = () => {
   const [preferredDates, setPreferredDates] = useState<Date[]>([]);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [workshopToDelete, setWorkshopToDelete] = useState<string | null>(null);
+  const [intakeDeleteDialogOpen, setIntakeDeleteDialogOpen] = useState(false);
+  const [intakeToDelete, setIntakeToDelete] = useState<string | null>(null);
+  const [intakeDropdownOpen, setIntakeDropdownOpen] = useState(false);
   const [formData, setFormData] = useState({
     intake_id: '',
     facilitator_name: '',
@@ -151,6 +154,37 @@ export const CreateWorkshop: React.FC = () => {
     await loadWorkshops();
   };
 
+  const handleIntakeDeleteClick = (e: React.MouseEvent, intakeId: string) => {
+    e.stopPropagation();
+    setIntakeToDelete(intakeId);
+    setIntakeDeleteDialogOpen(true);
+  };
+
+  const handleIntakeDeleteConfirm = async () => {
+    if (!intakeToDelete) return;
+
+    const { error } = await supabase
+      .from('exec_intakes')
+      .delete()
+      .eq('id', intakeToDelete);
+
+    if (error) {
+      toast({ title: 'Error deleting intake', variant: 'destructive' });
+      return;
+    }
+
+    toast({ title: 'Executive intake deleted successfully' });
+    setIntakeDeleteDialogOpen(false);
+    setIntakeToDelete(null);
+    
+    // Clear selection if deleted intake was selected
+    if (formData.intake_id === intakeToDelete) {
+      setFormData({ ...formData, intake_id: '' });
+    }
+    
+    await loadIntakes();
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -208,21 +242,52 @@ export const CreateWorkshop: React.FC = () => {
           <CardContent className="space-y-6">
             <div>
               <Label>Select Executive Intake</Label>
-              <Select
-                value={formData.intake_id}
-                onValueChange={(value) => setFormData({ ...formData, intake_id: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an intake..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {intakes.map((intake) => (
-                    <SelectItem key={intake.id} value={intake.id}>
-                      {intake.company_name} - {intake.organizer_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={intakeDropdownOpen} onOpenChange={setIntakeDropdownOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={intakeDropdownOpen}
+                    className="w-full justify-between"
+                  >
+                    {formData.intake_id
+                      ? intakes.find((intake) => intake.id === formData.intake_id)
+                          ? `${intakes.find((intake) => intake.id === formData.intake_id)?.company_name} - ${intakes.find((intake) => intake.id === formData.intake_id)?.organizer_name}`
+                          : "Choose an intake..."
+                      : "Choose an intake..."}
+                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[600px] p-0 bg-popover z-50" align="start">
+                  <Command className="bg-popover">
+                    <CommandGroup>
+                      {intakes.map((intake) => (
+                        <CommandItem
+                          key={intake.id}
+                          value={intake.id}
+                          onSelect={() => {
+                            setFormData({ ...formData, intake_id: intake.id });
+                            setIntakeDropdownOpen(false);
+                          }}
+                          className="flex items-center justify-between cursor-pointer hover:bg-accent"
+                        >
+                          <span className="flex-1">
+                            {intake.company_name} - {intake.organizer_name}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                            onClick={(e) => handleIntakeDeleteClick(e, intake.id)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div>
@@ -299,7 +364,7 @@ export const CreateWorkshop: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Delete Confirmation Dialog */}
+        {/* Delete Workshop Confirmation Dialog */}
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -312,6 +377,27 @@ export const CreateWorkshop: React.FC = () => {
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Intake Confirmation Dialog */}
+        <AlertDialog open={intakeDeleteDialogOpen} onOpenChange={setIntakeDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Executive Intake?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete this executive intake. Any workshops associated with this intake may be affected. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleIntakeDeleteConfirm}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Delete
