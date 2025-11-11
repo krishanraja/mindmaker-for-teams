@@ -155,9 +155,12 @@ export const CreateWorkshop: React.FC = () => {
   };
 
   const handleIntakeDeleteClick = (e: React.MouseEvent, intakeId: string) => {
+    e.preventDefault();
     e.stopPropagation();
+    e.nativeEvent.stopImmediatePropagation();
     setIntakeToDelete(intakeId);
     setIntakeDeleteDialogOpen(true);
+    setIntakeDropdownOpen(false); // Close dropdown immediately
   };
 
   const handleIntakeDeleteConfirm = async () => {
@@ -258,27 +261,41 @@ export const CreateWorkshop: React.FC = () => {
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[600px] p-0 bg-popover z-50" align="start">
+                <PopoverContent className="w-[600px] p-0 bg-popover border border-border z-[100]" align="start">
                   <Command className="bg-popover">
                     <CommandGroup>
                       {intakes.map((intake) => (
                         <CommandItem
                           key={intake.id}
                           value={intake.id}
-                          onSelect={() => {
-                            setFormData({ ...formData, intake_id: intake.id });
-                            setIntakeDropdownOpen(false);
+                          onSelect={(currentValue) => {
+                            // Only select if not clicking delete button
+                            if (currentValue === intake.id) {
+                              setFormData({ ...formData, intake_id: intake.id });
+                              setIntakeDropdownOpen(false);
+                            }
                           }}
                           className="flex items-center justify-between cursor-pointer hover:bg-accent"
                         >
-                          <span className="flex-1">
+                          <span 
+                            className="flex-1 cursor-pointer"
+                            onClick={() => {
+                              setFormData({ ...formData, intake_id: intake.id });
+                              setIntakeDropdownOpen(false);
+                            }}
+                          >
                             {intake.company_name} - {intake.organizer_name}
                           </span>
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                            type="button"
+                            className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive z-10 relative"
                             onClick={(e) => handleIntakeDeleteClick(e, intake.id)}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
                           >
                             <X className="h-4 w-4" />
                           </Button>

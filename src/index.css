@@ -460,14 +460,23 @@ input:focus-visible {
 }
 
 /* ========================================
-   DROPDOWN FIX - PREVENT TRANSPARENCY
+   DROPDOWN FIX - PREVENT TRANSPARENCY & ENSURE PROPER LAYERING
    ======================================== */
 
 [role="menu"],
 [role="listbox"],
+[role="dialog"],
 .dropdown-content,
-[data-radix-popper-content-wrapper] {
+[data-radix-popper-content-wrapper],
+[data-radix-portal] {
   background: hsl(var(--popover)) !important;
   border: 1px solid hsl(var(--border)) !important;
-  z-index: 50 !important;
+  z-index: 100 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure Command/Combobox dropdowns are fully interactive */
+[cmdk-root] {
+  background: hsl(var(--popover)) !important;
+  pointer-events: auto !important;
 }
