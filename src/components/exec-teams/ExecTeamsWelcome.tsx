@@ -56,7 +56,7 @@ export const ExecTeamsWelcome: React.FC = () => {
     <div className="min-h-screen flex items-start justify-start p-4 md:p-8 lg:p-12 bg-gradient-to-br from-background via-background to-accent/5">
       <div className="w-full max-w-5xl relative">
         {/* Facilitator Login Button - Top Right */}
-        <div className="absolute top-12 md:top-4 right-4 z-10">
+        <div className="absolute top-[4.5rem] md:top-8 right-4 z-10">
           <Button 
             variant="ghost" 
             size="sm"
