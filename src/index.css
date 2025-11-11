@@ -460,23 +460,27 @@ input:focus-visible {
 }
 
 /* ========================================
-   DROPDOWN FIX - PREVENT TRANSPARENCY & ENSURE PROPER LAYERING
+   DROPDOWN FIX - LAYERED Z-INDEX APPROACH
    ======================================== */
 
-[role="menu"],
-[role="listbox"],
-[role="dialog"],
-.dropdown-content,
-[data-radix-popper-content-wrapper],
-[data-radix-portal] {
-  background: hsl(var(--popover)) !important;
-  border: 1px solid hsl(var(--border)) !important;
-  z-index: 100 !important;
-  pointer-events: auto !important;
+[data-radix-popper-content-wrapper] {
+  z-index: var(--dropdown-z-index, 50);
 }
 
-/* Ensure Command/Combobox dropdowns are fully interactive */
+/* Command dropdowns get higher z-index */
 [cmdk-root] {
-  background: hsl(var(--popover)) !important;
-  pointer-events: auto !important;
+  background: hsl(var(--popover));
+  pointer-events: auto;
+}
+
+/* Only force background/border on actual content, not wrappers */
+[role="menu"],
+[role="listbox"] {
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Dialogs always on top */
+[role="dialog"] {
+  z-index: 9999 !important;
 }

@@ -47,9 +47,22 @@ export const CreateWorkshop: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (formData.intake_id) {
-      loadPreferredDates(formData.intake_id);
+    if (!formData.intake_id) {
+      setPreferredDates([]);
+      return;
     }
+    
+    let cancelled = false;
+    
+    loadPreferredDates(formData.intake_id).then((dates) => {
+      if (!cancelled && dates) {
+        setPreferredDates(dates);
+      }
+    });
+    
+    return () => {
+      cancelled = true;
+    };
   }, [formData.intake_id]);
 
   const loadIntakes = async () => {
@@ -70,7 +83,7 @@ export const CreateWorkshop: React.FC = () => {
     if (data) setWorkshops(data);
   };
 
-  const loadPreferredDates = async (intakeId: string) => {
+  const loadPreferredDates = async (intakeId: string): Promise<Date[]> => {
     const { data } = await supabase
       .from('exec_intakes')
       .select('preferred_dates')
@@ -78,11 +91,9 @@ export const CreateWorkshop: React.FC = () => {
       .single();
 
     if (data?.preferred_dates) {
-      const dates = (data.preferred_dates as string[]).map(dateStr => new Date(dateStr));
-      setPreferredDates(dates);
-    } else {
-      setPreferredDates([]);
+      return (data.preferred_dates as string[]).map(dateStr => new Date(dateStr));
     }
+    return [];
   };
 
   const handleCreate = async () => {
@@ -253,7 +264,7 @@ export const CreateWorkshop: React.FC = () => {
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[600px] p-0 bg-popover border border-border z-[100]" align="start">
+                <PopoverContent className="w-[600px] p-0 bg-popover border border-border z-[110]" align="start">
                   <Command className="bg-popover">
                     <CommandGroup>
                       {intakes.map((intake) => (
@@ -261,8 +272,8 @@ export const CreateWorkshop: React.FC = () => {
                           key={intake.id}
                           value={intake.id}
                           onSelect={() => {
-                            setFormData({ ...formData, intake_id: intake.id });
-                            setIntakeDropdownOpen(false);
+                            setFormData(prev => ({ ...prev, intake_id: intake.id }));
+                            setTimeout(() => setIntakeDropdownOpen(false), 0);
                           }}
                           className="cursor-pointer hover:bg-accent"
                         >
