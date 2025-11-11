@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Plus, Trash2, ArrowRight, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -21,6 +22,8 @@ const BOTTLENECK_OPTIONS = [
 ];
 
 const ROLE_OPTIONS = ['CEO', 'CTO', 'COO', 'CMO', 'CFO', 'VP', 'Director', 'Other'];
+
+const INDUSTRY_OPTIONS = ['Media', 'Telco', 'Finance', 'Healthcare', 'Retail & CPG', 'Education', 'Consulting', 'Other'];
 
 const AUTHORIZED_ORGANIZERS = [
   { email: 'krish@fractionl.ai', name: 'Krish Munot' },
@@ -211,14 +214,24 @@ export const OrganizerIntakeForm: React.FC = () => {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label htmlFor="industry">Industry</Label>
-                <Input
-                  id="industry"
+                <ToggleGroup
+                  type="single"
                   value={state.intakeData.industry}
-                  onChange={(e) => updateIntakeData({ industry: e.target.value })}
-                  placeholder="SaaS, FinTech, Healthcare..."
-                />
+                  onValueChange={(value) => value && updateIntakeData({ industry: value })}
+                  className="grid grid-cols-2 gap-2"
+                >
+                  {INDUSTRY_OPTIONS.map((industry) => (
+                    <ToggleGroupItem
+                      key={industry}
+                      value={industry}
+                      className="text-sm py-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                    >
+                      {industry}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
               </div>
 
               <div className="space-y-2">
