@@ -61,18 +61,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
-        .single();
+        .eq('role', 'facilitator')
+        .maybeSingle();
 
       if (error) {
-        if (error.code !== 'PGRST116') { // Not found is expected if user isn't facilitator
-          console.error('Error checking facilitator role:', error);
-        }
+        console.error('Error checking facilitator role:', error);
         setIsFacilitator(false);
         return;
       }
 
-      // Check if user has facilitator role (cast to string for comparison since types aren't updated yet)
-      setIsFacilitator(data?.role === ('facilitator' as any));
+      setIsFacilitator(data?.role === 'facilitator');
     } catch (error) {
       console.error('Error checking facilitator role:', error);
       setIsFacilitator(false);
