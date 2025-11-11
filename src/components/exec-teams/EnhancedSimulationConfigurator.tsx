@@ -254,15 +254,15 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
         const snapshot2 = state.simulation2Snapshot;
         
         if (state.selectedSimulations.length >= 1) {
-          if (!snapshot1?.currentState || !snapshot1?.desiredOutcome || !snapshot1?.successCriteria) {
-            toast.error('Please complete all required fields for Simulation 1');
+          if (!snapshot1?.currentState || !snapshot1?.desiredOutcome) {
+            toast.error('Please complete current state and desired outcome for Simulation 1');
             return false;
           }
         }
         
         if (state.selectedSimulations.length >= 2) {
-          if (!snapshot2?.currentState || !snapshot2?.desiredOutcome || !snapshot2?.successCriteria) {
-            toast.error('Please complete all required fields for Simulation 2');
+          if (!snapshot2?.currentState || !snapshot2?.desiredOutcome) {
+            toast.error('Please complete current state and desired outcome for Simulation 2');
             return false;
           }
         }
@@ -684,159 +684,26 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                         <Card key={simId} className="border-2">
                           <CardHeader className="bg-accent/5">
                             <CardTitle className="text-xl">{sim?.title} - Simulation Details</CardTitle>
-                            <CardDescription>Describe the current state and desired outcomes for this scenario</CardDescription>
+                            <CardDescription>Quick overview of the challenge and desired outcome</CardDescription>
                           </CardHeader>
                           <CardContent className="space-y-4 pt-6">
                             <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Label>Current State Description * <span className="text-muted-foreground text-xs">(Max 150 chars)</span></Label>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="max-w-xs">Describe your team's current pain point or challenge. Be specific about what's not working.</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
+                              <Label>Current State * <span className="text-muted-foreground text-xs">(What's the challenge?)</span></Label>
                               <Textarea
                                 value={snapshot?.currentState || ''}
                                 onChange={(e) => updateSnapshot(index, 'currentState', e.target.value)}
                                 placeholder={placeholders.currentState}
-                                maxLength={150}
                                 rows={3}
                               />
-                              <p className="text-xs text-muted-foreground">
-                                {(snapshot?.currentState || '').length}/150 characters
-                              </p>
                             </div>
 
                             <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Label>Key Stakeholders Involved</Label>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="max-w-xs">Who are the main decision-makers or people affected by this process?</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                              <Input
-                                value={snapshot?.stakeholders || ''}
-                                onChange={(e) => updateSnapshot(index, 'stakeholders', e.target.value)}
-                                placeholder={placeholders.stakeholders}
-                              />
-                            </div>
-
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Label>Desired Business Outcome *</Label>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="max-w-xs">What does the ideal end result look like? Focus on business impact, not just task completion.</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                              <Input
+                              <Label>Desired Outcome * <span className="text-muted-foreground text-xs">(What success looks like)</span></Label>
+                              <Textarea
                                 value={snapshot?.desiredOutcome || ''}
                                 onChange={(e) => updateSnapshot(index, 'desiredOutcome', e.target.value)}
                                 placeholder={placeholders.desiredOutcome}
-                              />
-                            </div>
-
-                            <div className="grid md:grid-cols-3 gap-4">
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <Label>Time Constraint</Label>
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p className="max-w-xs">How quickly does this need to be completed? (e.g., 48 hours, 1 week)</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </div>
-                                <Input
-                                  value={snapshot?.timeConstraint || ''}
-                                  onChange={(e) => updateSnapshot(index, 'timeConstraint', e.target.value)}
-                                  placeholder="e.g., 48 hours"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <Label>Budget Constraint</Label>
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p className="max-w-xs">What's your available budget for tools, resources, or consulting? (e.g., $10K, No budget)</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </div>
-                                <Input
-                                  value={snapshot?.budgetConstraint || ''}
-                                  onChange={(e) => updateSnapshot(index, 'budgetConstraint', e.target.value)}
-                                  placeholder="e.g., $10K"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <Label>Data Availability</Label>
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p className="max-w-xs">How accessible is the data needed? (e.g., Full access, Limited, None available)</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </div>
-                                <Input
-                                  value={snapshot?.dataAvailability || ''}
-                                  onChange={(e) => updateSnapshot(index, 'dataAvailability', e.target.value)}
-                                  placeholder="e.g., Full access"
-                                />
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <Label>Success Criteria * <span className="text-muted-foreground text-xs">(How will you measure success?)</span></Label>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="max-w-xs">Define specific, measurable outcomes that indicate success (e.g., time saved, quality improvement, cost reduction)</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
-                              <Textarea
-                                value={snapshot?.successCriteria || ''}
-                                onChange={(e) => updateSnapshot(index, 'successCriteria', e.target.value)}
-                                placeholder={placeholders.successCriteria}
-                                rows={2}
+                                rows={3}
                               />
                             </div>
                           </CardContent>
