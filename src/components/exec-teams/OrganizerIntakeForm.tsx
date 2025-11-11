@@ -84,6 +84,12 @@ export const OrganizerIntakeForm: React.FC = () => {
         toast.error('Please fill in all required fields');
         return false;
       }
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(state.intakeData.organizerEmail)) {
+        toast.error('Please enter a valid email address');
+        return false;
+      }
     } else if (step === 2) {
       if (state.intakeData.participants.length === 0) {
         toast.error('Please add at least one participant');
@@ -94,6 +100,14 @@ export const OrganizerIntakeForm: React.FC = () => {
       );
       if (invalidParticipants.length > 0) {
         toast.error('Please complete all participant information');
+        return false;
+      }
+      // Validate participant email formats
+      const invalidEmails = state.intakeData.participants.filter(
+        p => p.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)
+      );
+      if (invalidEmails.length > 0) {
+        toast.error('Please enter valid email addresses for all participants');
         return false;
       }
     }
@@ -184,24 +198,13 @@ export const OrganizerIntakeForm: React.FC = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="organizerEmail">Your Email *</Label>
-                <Select
+                <Input
+                  id="organizerEmail"
+                  type="email"
                   value={state.intakeData.organizerEmail}
-                  onValueChange={(value) => updateIntakeData({ organizerEmail: value })}
-                >
-                  <SelectTrigger id="organizerEmail">
-                    <SelectValue placeholder="Select your email" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {AUTHORIZED_ORGANIZERS.map((organizer) => (
-                      <SelectItem key={organizer.email} value={organizer.email}>
-                        {organizer.name} ({organizer.email})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Not listed? <a href="mailto:support@fractionl.ai" className="underline">Contact support</a>
-                </p>
+                  onChange={(e) => updateIntakeData({ organizerEmail: e.target.value })}
+                  placeholder="your.email@company.com"
+                />
               </div>
 
               <div className="space-y-2">
