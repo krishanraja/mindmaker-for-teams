@@ -14,6 +14,8 @@ export const ExecTeamsWelcome: React.FC = () => {
   
   const [displayedText, setDisplayedText] = React.useState('');
   const [isTypingComplete, setIsTypingComplete] = React.useState(false);
+  const [activeCardIndex, setActiveCardIndex] = React.useState(0);
+  const carouselRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     // Reset on mount
@@ -31,6 +33,21 @@ export const ExecTeamsWelcome: React.FC = () => {
       setIsTypingComplete(true);
     }
   }, [displayedText]);
+
+  React.useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const handleScroll = () => {
+      const scrollLeft = carousel.scrollLeft;
+      const cardWidth = carousel.offsetWidth * 0.8;
+      const newIndex = Math.round(scrollLeft / (cardWidth + 16));
+      setActiveCardIndex(newIndex);
+    };
+
+    carousel.addEventListener('scroll', handleScroll);
+    return () => carousel.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className="min-h-screen flex items-start justify-start p-4 md:p-8 lg:p-12 bg-gradient-to-br from-background via-background to-accent/5">
@@ -75,7 +92,7 @@ export const ExecTeamsWelcome: React.FC = () => {
           </CardHeader>
 
           <CardContent className="space-y-6 md:space-y-8 pb-6 md:pb-12">
-            <div className="mobile-carousel">
+            <div ref={carouselRef} className="mobile-carousel">
               <Card className="mobile-carousel-item border border-border/50 bg-card/50">
                 <CardHeader className="card-header">
                   <div className="flex items-center gap-3">
@@ -139,6 +156,31 @@ export const ExecTeamsWelcome: React.FC = () => {
                   </p>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* Carousel Dot Indicators - Mobile Only */}
+            <div className="flex md:hidden justify-center gap-2 pt-4 pb-2">
+              {[0, 1, 2, 3].map((index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    const carousel = carouselRef.current;
+                    if (carousel) {
+                      const cardWidth = carousel.offsetWidth * 0.8;
+                      carousel.scrollTo({
+                        left: index * (cardWidth + 16),
+                        behavior: 'smooth'
+                      });
+                    }
+                  }}
+                  className={`h-2 rounded-full transition-all ${
+                    activeCardIndex === index 
+                      ? 'w-8 bg-primary' 
+                      : 'w-2 bg-muted-foreground/30'
+                  }`}
+                  aria-label={`Go to card ${index + 1}`}
+                />
+              ))}
             </div>
 
             <div className="w-full px-4 flex flex-col items-start gap-4 pt-6">
