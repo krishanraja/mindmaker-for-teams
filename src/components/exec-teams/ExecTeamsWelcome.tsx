@@ -58,7 +58,7 @@ export const ExecTeamsWelcome: React.FC = () => {
         <div className="border-2 border-border/50 shadow-2xl rounded-lg bg-card text-card-foreground">
           <div className="space-y-2 pb-8 text-left p-6">
             {/* Logo and Facilitator Button - Horizontal Layout */}
-            <div className="flex justify-between items-center mb-6 -ml-2 md:-ml-3">
+            <div className="flex justify-between items-center mb-6 -ml-5 md:-ml-6">
               <img 
                 src={logo} 
                 alt="MINDMAKER" 
