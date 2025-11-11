@@ -183,15 +183,15 @@ export const ExecTeamsWelcome: React.FC = () => {
               ))}
             </div>
 
-            <div className="w-full px-4 flex flex-col items-start gap-4 pt-6">
+            <div className="w-full px-4 flex flex-col items-start gap-3 pt-6">
               <Button 
                 onClick={() => setCurrentStep(2)}
                 size="lg"
-                className="w-full max-w-full text-base md:text-lg px-6 md:px-8 py-6 whitespace-normal"
+                className="w-full max-w-full text-sm md:text-base px-6 md:px-8 py-5 whitespace-normal"
               >
                 Configure Your Bootcamp Session
               </Button>
-              <p className="text-xs md:text-sm text-muted-foreground px-4">
+              <p className="text-[11px] md:text-xs text-muted-foreground px-2">
                 Takes 10 minutes • Sends pulse to your team • Generates custom agenda
               </p>
             </div>
