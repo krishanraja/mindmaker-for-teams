@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -62,6 +63,20 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
     }
     return sims;
   }, [bootcampPlanData]);
+
+  const availableSimulations = useMemo(() => {
+    if (customerSimulations.length > 0) {
+      return customerSimulations;
+    }
+    
+    // Fallback: show all simulations
+    return SIMULATIONS.map(sim => ({
+      id: sim.id,
+      snapshot: null
+    }));
+  }, [customerSimulations]);
+
+  const hasPreselectedSimulations = customerSimulations.length > 0;
 
   useEffect(() => {
     loadResults();
@@ -168,33 +183,72 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
           Run guided simulations based on your customer's real scenarios. Lead a structured discussion to quantify AI's potential impact.
         </p>
 
-        {customerSimulations.length > 0 && (
-          <div className="mb-6">
-            <h3 className="font-semibold mb-3">Customer-Selected Simulations</h3>
-            <div className="grid md:grid-cols-2 gap-3">
-              {customerSimulations.map((sim) => {
-                const simInfo = getSimulationById(sim.id);
-                return (
-                  <Button
-                    key={sim.id}
-                    variant={selectedSimulation === sim.id ? "default" : "outline"}
-                    className="h-auto py-4 px-4 justify-start text-left"
-                    onClick={() => setSelectedSimulation(sim.id)}
-                  >
-                    <div>
-                      <div className="font-semibold">{simInfo?.title || sim.id}</div>
-                      <div className="text-xs opacity-80 mt-1">{simInfo?.description}</div>
-                    </div>
-                  </Button>
-                );
-              })}
-            </div>
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="font-semibold">
+              {hasPreselectedSimulations ? "Customer Pre-Selected Simulations" : "Available Simulations"}
+            </h3>
+            <Badge variant={hasPreselectedSimulations ? "default" : "outline"}>
+              {hasPreselectedSimulations ? "From Bootcamp Plan" : "Choose During Workshop"}
+            </Badge>
           </div>
-        )}
+          {!hasPreselectedSimulations && (
+            <p className="text-sm text-muted-foreground mb-4">
+              Select a simulation scenario to run with your team. You'll define the context together.
+            </p>
+          )}
+          <div className="grid md:grid-cols-2 gap-3">
+            {availableSimulations.map((sim) => {
+              const simInfo = getSimulationById(sim.id);
+              return (
+                <Button
+                  key={sim.id}
+                  variant={selectedSimulation === sim.id ? "default" : "outline"}
+                  className="h-auto py-4 px-4 justify-start text-left"
+                  onClick={() => setSelectedSimulation(sim.id)}
+                >
+                  <div>
+                    <div className="font-semibold">{simInfo?.title || sim.id}</div>
+                    <div className="text-xs opacity-80 mt-1">{simInfo?.description}</div>
+                  </div>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
 
-        {selectedSimulation && selectedSnapshot && (
+        {selectedSimulation && (
           <div className="space-y-6">
-            <ContextCard snapshot={selectedSnapshot} />
+            {selectedSnapshot ? (
+              <ContextCard snapshot={selectedSnapshot} />
+            ) : (
+              <Card className="p-6 bg-muted/50">
+                <h3 className="font-semibold mb-3">📋 Define Your Scenario</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Work with your team to describe the specific scenario you want to simulate.
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <Label>Current State</Label>
+                    <Textarea 
+                      placeholder="Describe the current process/challenge..."
+                      rows={2}
+                    />
+                  </div>
+                  <div>
+                    <Label>Desired Outcome</Label>
+                    <Textarea 
+                      placeholder="What would success look like?"
+                      rows={2}
+                    />
+                  </div>
+                  <div>
+                    <Label>Key Stakeholders</Label>
+                    <Input placeholder="Who is impacted?" />
+                  </div>
+                </div>
+              </Card>
+            )}
             
             <DiscussionPrompts />
 
