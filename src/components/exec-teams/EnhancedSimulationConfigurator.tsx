@@ -146,6 +146,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
     strategicGoals2026: ['', '', ''],
     competitiveLandscape: '',
     riskTolerance: 3,
+    stillDefiningObjectives: false,
   };
 
   const pilotExpectations = state.pilotExpectationsData || {
@@ -268,14 +269,17 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
         }
       }
     } else if (wizardStep === 3) {
-      const validGoals = strategicContext.strategicGoals2026.filter(g => g.trim() !== '');
-      if (validGoals.length === 0) {
-        toast.error('Please enter at least one strategic goal for 2026');
-        return false;
-      }
-      if (!strategicContext.competitiveLandscape?.trim()) {
-        toast.error('Please describe your competitive landscape');
-        return false;
+      // Allow skipping if user indicates they're still defining objectives
+      if (!strategicContext.stillDefiningObjectives) {
+        const validGoals = strategicContext.strategicGoals2026.filter(g => g.trim() !== '');
+        if (validGoals.length === 0) {
+          toast.error('Please enter at least one strategic goal for 2026, or check "Still defining our strategic objectives"');
+          return false;
+        }
+        if (!strategicContext.competitiveLandscape?.trim()) {
+          toast.error('Please describe your competitive landscape, or check "Still defining our strategic objectives"');
+          return false;
+        }
       }
     } else if (wizardStep === 4) {
       if (!pilotExpectations.pilotDescription?.trim()) {
@@ -722,13 +726,16 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                   <CardHeader>
                     <div className="flex items-center gap-2">
                       <CardTitle>2026 Strategic Objectives</CardTitle>
+                      <span className="text-xs px-2 py-1 rounded-full bg-accent/50 text-muted-foreground font-medium">
+                        Optional but Recommended
+                      </span>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
                             <HelpCircle className="w-4 h-4 text-muted-foreground" />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p className="max-w-xs">These will frame The Rewrite segment discussions</p>
+                            <p className="max-w-xs">These will frame The Rewrite segment discussions. If you don't have clear objectives yet, you can skip this section.</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -736,75 +743,104 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                     <CardDescription>What are your top 3 strategic priorities for 2026?</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {[0, 1, 2].map((index) => (
-                      <div key={index} className="space-y-2">
-                        <Label>Strategic Goal #{index + 1} {index === 0 && '*'}</Label>
-                        <Input
-                          value={strategicContext.strategicGoals2026[index] || ''}
-                          onChange={(e) => handleStrategicGoalChange(index, e.target.value)}
-                          placeholder={`e.g., ${
-                            index === 0
-                              ? 'Achieve 40% revenue growth'
-                              : index === 1
-                              ? 'Launch in 3 new markets'
-                              : 'Improve customer retention to 95%'
-                          }`}
-                        />
+                    <div className="flex items-start space-x-2 p-4 bg-accent/10 border border-accent/20 rounded-lg">
+                      <Checkbox
+                        id="stillDefining"
+                        checked={strategicContext.stillDefiningObjectives}
+                        onCheckedChange={(checked) => 
+                          updateStrategicContextData({ stillDefiningObjectives: checked as boolean })
+                        }
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <label
+                          htmlFor="stillDefining"
+                          className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          We're still defining our strategic objectives
+                        </label>
+                        <p className="text-xs text-muted-foreground">
+                          Check this if your team hasn't finalized 2026 goals yet. You can still have a valuable workshop focused on AI readiness and capability building.
+                        </p>
                       </div>
-                    ))}
+                    </div>
+
+                    {!strategicContext.stillDefiningObjectives && (
+                      <>
+                        {[0, 1, 2].map((index) => (
+                          <div key={index} className="space-y-2">
+                            <Label>Strategic Goal #{index + 1} {index === 0 && '*'}</Label>
+                            <Input
+                              value={strategicContext.strategicGoals2026[index] || ''}
+                              onChange={(e) => handleStrategicGoalChange(index, e.target.value)}
+                              placeholder={`e.g., ${
+                                index === 0
+                                  ? 'Achieve 40% revenue growth'
+                                  : index === 1
+                                  ? 'Launch in 3 new markets'
+                                  : 'Improve customer retention to 95%'
+                              }`}
+                            />
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </CardContent>
                 </Card>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label>Competitive Landscape *</Label>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">Used in The Provocation segment to create urgency</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <Textarea
-                    value={strategicContext.competitiveLandscape}
-                    onChange={(e) => updateStrategicContextData({ competitiveLandscape: e.target.value })}
-                    placeholder="Who's ahead on AI in your space? What threats do you see? e.g., 'Three AI-native startups launched in our category this year. Traditional competitors are forming AI partnerships.'"
-                    rows={4}
-                  />
-                </div>
+                {!strategicContext.stillDefiningObjectives && (
+                  <>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label>Competitive Landscape *</Label>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">Used in The Provocation segment to create urgency</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <Textarea
+                        value={strategicContext.competitiveLandscape}
+                        onChange={(e) => updateStrategicContextData({ competitiveLandscape: e.target.value })}
+                        placeholder="Who's ahead on AI in your space? What threats do you see? e.g., 'Three AI-native startups launched in our category this year. Traditional competitors are forming AI partnerships.'"
+                        rows={4}
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Label>Risk Tolerance</Label>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="max-w-xs">Helps calibrate governance discussions in The Rewrite</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-muted-foreground">Conservative</span>
-                    <input
-                      type="range"
-                      min="1"
-                      max="5"
-                      value={strategicContext.riskTolerance}
-                      onChange={(e) => updateStrategicContextData({ riskTolerance: parseInt(e.target.value) })}
-                      className="flex-1"
-                    />
-                    <span className="text-sm text-muted-foreground">Aggressive</span>
-                    <div className="w-12 text-center font-semibold">{strategicContext.riskTolerance}/5</div>
-                  </div>
-                </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Label>Risk Tolerance</Label>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">Helps calibrate governance discussions in The Rewrite</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm text-muted-foreground">Conservative</span>
+                        <input
+                          type="range"
+                          min="1"
+                          max="5"
+                          value={strategicContext.riskTolerance}
+                          onChange={(e) => updateStrategicContextData({ riskTolerance: parseInt(e.target.value) })}
+                          className="flex-1"
+                        />
+                        <span className="text-sm text-muted-foreground">Aggressive</span>
+                        <div className="w-12 text-center font-semibold">{strategicContext.riskTolerance}/5</div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 

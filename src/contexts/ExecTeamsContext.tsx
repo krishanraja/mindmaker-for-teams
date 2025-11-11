@@ -40,6 +40,7 @@ export interface StrategicContextData {
   strategicGoals2026: string[];
   competitiveLandscape: string;
   riskTolerance: number; // 1-5
+  stillDefiningObjectives?: boolean;
 }
 
 export interface PilotExpectationsData {
@@ -138,6 +139,7 @@ function reducer(state: ExecTeamsState, action: Action): ExecTeamsState {
           strategicGoals2026: [],
           competitiveLandscape: '',
           riskTolerance: 3,
+          stillDefiningObjectives: false,
           ...state.strategicContextData, 
           ...action.payload 
         } as StrategicContextData,
