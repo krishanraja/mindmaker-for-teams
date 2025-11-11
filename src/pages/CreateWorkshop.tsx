@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/hooks/use-toast';
-import { Calendar, Clock, Trash2, ChevronDown, X } from 'lucide-react';
+import { Calendar, Clock, Trash2, ChevronDown } from 'lucide-react';
 import { format, parse, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Command, CommandGroup, CommandItem } from '@/components/ui/command';
@@ -154,14 +154,6 @@ export const CreateWorkshop: React.FC = () => {
     await loadWorkshops();
   };
 
-  const handleIntakeDeleteClick = (e: React.MouseEvent, intakeId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.nativeEvent.stopImmediatePropagation();
-    setIntakeToDelete(intakeId);
-    setIntakeDeleteDialogOpen(true);
-    setIntakeDropdownOpen(false); // Close dropdown immediately
-  };
 
   const handleIntakeDeleteConfirm = async () => {
     if (!intakeToDelete) return;
@@ -268,43 +260,42 @@ export const CreateWorkshop: React.FC = () => {
                         <CommandItem
                           key={intake.id}
                           value={intake.id}
-                          onSelect={(currentValue) => {
-                            // Only select if not clicking delete button
-                            if (currentValue === intake.id) {
-                              setFormData({ ...formData, intake_id: intake.id });
-                              setIntakeDropdownOpen(false);
-                            }
+                          onSelect={() => {
+                            setFormData({ ...formData, intake_id: intake.id });
+                            setIntakeDropdownOpen(false);
                           }}
-                          className="flex items-center justify-between cursor-pointer hover:bg-accent"
+                          className="cursor-pointer hover:bg-accent"
                         >
-                          <span 
-                            className="flex-1 cursor-pointer"
-                            onClick={() => {
-                              setFormData({ ...formData, intake_id: intake.id });
-                              setIntakeDropdownOpen(false);
-                            }}
-                          >
-                            {intake.company_name} - {intake.organizer_name}
-                          </span>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            type="button"
-                            className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive z-10 relative"
-                            onClick={(e) => handleIntakeDeleteClick(e, intake.id)}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
+                          {intake.company_name} - {intake.organizer_name}
                         </CommandItem>
                       ))}
                     </CommandGroup>
                   </Command>
                 </PopoverContent>
               </Popover>
+              
+              {formData.intake_id && (
+                <div className="mt-2 p-3 border rounded-md bg-accent/20 flex items-center justify-between">
+                  <div className="text-sm">
+                    <span className="font-medium">Selected: </span>
+                    {intakes.find(i => i.id === formData.intake_id)?.company_name} - {intakes.find(i => i.id === formData.intake_id)?.organizer_name}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => {
+                      const intake = intakes.find(i => i.id === formData.intake_id);
+                      if (intake) {
+                        setIntakeToDelete(intake.id);
+                        setIntakeDeleteDialogOpen(true);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div>
