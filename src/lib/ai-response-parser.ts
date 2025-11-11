@@ -1,3 +1,8 @@
+export interface DiscussionPrompt {
+  question: string;
+  options: string[];
+}
+
 export interface SimulationSection {
   type: 'current_state' | 'ai_transformation' | 'discussion';
   title: string;
@@ -7,7 +12,7 @@ export interface SimulationSection {
     cost_impact?: string;
     quality_improvement?: string;
   };
-  prompts?: string[];
+  prompts?: (string | DiscussionPrompt)[];
 }
 
 export interface ParsedSimulation {
@@ -65,10 +70,14 @@ export function extractGuardrailsFromSimulation(simulation: ParsedSimulation) {
   const discussionSection = simulation.sections.find(s => s.type === 'discussion');
   if (!discussionSection?.prompts) return null;
 
+  const promptTexts = discussionSection.prompts.map(p => 
+    typeof p === 'string' ? p : p.question
+  );
+
   return {
     riskIdentified: 'Implementation risks identified in discussion guide',
-    humanCheckpoint: discussionSection.prompts.slice(0, 2).join('\n'),
-    validationRequired: discussionSection.prompts[2] || 'Quality review process needed',
+    humanCheckpoint: promptTexts.slice(0, 2).join('\n'),
+    validationRequired: promptTexts[2] || 'Quality review process needed',
     redFlags: ['Output quality below threshold', 'Compliance concerns detected', 'Stakeholder feedback negative']
   };
 }

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Sparkles, MessageSquare } from 'lucide-react';
-import { SimulationSection } from '@/lib/ai-response-parser';
+import { Button } from '@/components/ui/button';
+import { BarChart, Sparkles, MessageSquare, Check } from 'lucide-react';
+import { SimulationSection, DiscussionPrompt } from '@/lib/ai-response-parser';
 
 interface StructuredSimulationDisplayProps {
   sections: SimulationSection[];
@@ -26,6 +27,15 @@ const getSectionColor = (type: string) => {
 };
 
 export const StructuredSimulationDisplay: React.FC<StructuredSimulationDisplayProps> = ({ sections }) => {
+  const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>({});
+
+  const handleOptionSelect = (promptIndex: number, optionIndex: number) => {
+    setSelectedOptions(prev => ({
+      ...prev,
+      [promptIndex]: optionIndex
+    }));
+  };
+
   return (
     <div className="space-y-6">
       {sections.map((section, index) => (
@@ -75,14 +85,49 @@ export const StructuredSimulationDisplay: React.FC<StructuredSimulationDisplayPr
               </div>
             )}
 
-            {/* Discussion Prompts - more prominent */}
+            {/* Discussion Prompts with Options */}
             {section.prompts && section.prompts.length > 0 && (
-              <div className="space-y-3 mt-2">
-                {section.prompts.map((prompt, i) => (
-                  <div key={i} className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950 rounded-lg border-l-4 border-orange-500">
-                    <p className="text-base font-semibold leading-relaxed">{prompt}</p>
-                  </div>
-                ))}
+              <div className="space-y-6 mt-2">
+                {section.prompts.map((prompt, i) => {
+                  const isStructured = typeof prompt !== 'string' && 'question' in prompt;
+                  const promptData = isStructured ? prompt as DiscussionPrompt : null;
+                  const promptText = isStructured ? promptData!.question : prompt as string;
+
+                  return (
+                    <div key={i} className="p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950 rounded-lg border-l-4 border-orange-500">
+                      <p className="text-base font-semibold leading-relaxed mb-4">{promptText}</p>
+                      
+                      {/* Interactive options if available */}
+                      {promptData && promptData.options && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+                          {promptData.options.map((option, optionIdx) => {
+                            const isSelected = selectedOptions[i] === optionIdx;
+                            return (
+                              <Button
+                                key={optionIdx}
+                                variant={isSelected ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => handleOptionSelect(i, optionIdx)}
+                                className="h-auto py-3 px-4 text-left justify-start whitespace-normal"
+                              >
+                                <div className="flex items-start gap-2 w-full">
+                                  <span className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5 ${
+                                    isSelected 
+                                      ? 'bg-primary border-primary' 
+                                      : 'border-muted-foreground'
+                                  }`}>
+                                    {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                                  </span>
+                                  <span className="flex-1 text-sm">{option}</span>
+                                </div>
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </CardContent>

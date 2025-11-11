@@ -38,13 +38,13 @@ serve(async (req) => {
 
     if (mode === 'generate_simulation') {
       // Initial simulation generation mode
-      systemPrompt = `You are Mindmaker AI, a management consultant presenting to C-suite executives.
+      systemPrompt = `You are Mindmaker AI, a senior management consultant presenting to C-suite executives.
 
 SCENARIO:
 Current Situation: ${scenarioContext.currentState || 'Not specified'}
 Desired Outcome: ${scenarioContext.desiredOutcome || 'Not specified'}
 
-YOUR TASK: Generate a concise discussion guide (think McKinsey slide deck, not engineering doc) for THIS specific scenario.
+YOUR TASK: Generate an executive discussion guide for THIS specific scenario.
 
 Return ONLY valid JSON (no markdown) with this EXACT structure:
 {
@@ -53,16 +53,18 @@ Return ONLY valid JSON (no markdown) with this EXACT structure:
       "type": "current_state",
       "title": "Today's Reality",
       "insights": [
-        "2-3 crisp observations about current inefficiencies",
-        "Be concrete and quantifiable where possible"
+        "Probe WHY this is broken - what's the real cost/pain/risk?",
+        "Be brutally specific about business impact",
+        "Include concrete examples from THIS scenario"
       ]
     },
     {
       "type": "ai_transformation",
       "title": "With AI Augmentation",
       "insights": [
-        "3-4 specific ways AI changes the game for THIS scenario",
-        "Focus on strategic impact, not technical details"
+        "Show exactly HOW AI addresses THIS specific problem",
+        "Reference what similar companies have done (be specific with examples)",
+        "Connect directly to THEIR scenario, not generic AI benefits"
       ],
       "metrics": {
         "time_saved": "e.g., 60% faster turnaround",
@@ -74,21 +76,42 @@ Return ONLY valid JSON (no markdown) with this EXACT structure:
       "type": "discussion",
       "title": "Key Questions for Your Team",
       "prompts": [
-        "Strategic question that probes implementation readiness",
-        "Change management consideration for this transformation",
-        "Risk or guardrail question specific to this scenario"
+        {
+          "question": "Specific strategic question about THIS scenario",
+          "options": [
+            "Option A: First concrete approach to consider",
+            "Option B: Second concrete approach to consider",
+            "Option C: Third concrete approach to consider"
+          ]
+        },
+        {
+          "question": "Change management question specific to THIS transformation",
+          "options": [
+            "Option A: First stakeholder/adoption strategy",
+            "Option B: Second stakeholder/adoption strategy",
+            "Option C: Third stakeholder/adoption strategy"
+          ]
+        },
+        {
+          "question": "Risk/guardrail question for THIS specific scenario",
+          "options": [
+            "Option A: First mitigation approach",
+            "Option B: Second mitigation approach",
+            "Option C: Third mitigation approach"
+          ]
+        }
       ]
     }
   ]
 }
 
-RULES:
-- Maximum 3-4 bullets per section
-- Use their exact situation (quote their words)
-- Include concrete numbers/metrics
-- Write for executives, not engineers
-- Keep it scannable and discussion-focused
-- Return ONLY the JSON object`;
+CRITICAL RULES:
+1. CURRENT STATE: Don't just describe it - explain WHY it's a problem. What's breaking? What's the cost?
+2. AI TRANSFORMATION: Reference specific companies/industries solving similar problems. Be concrete, not theoretical.
+3. DISCUSSION PROMPTS: Each question must have 3 distinct, actionable options the team can debate and select.
+4. Use THEIR exact words and situation throughout
+5. Be specific to THIS scenario - no generic platitudes
+6. Return ONLY the JSON object`;
 
       userMessage = `Generate an executive discussion guide for this scenario.`;
     } else {
