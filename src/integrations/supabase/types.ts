@@ -1589,72 +1589,90 @@ export type Database = {
       simulation_results: {
         Row: {
           after_snapshot: Json
+          ai_outputs: Json | null
           before_snapshot: Json
           cost_savings_usd: number | null
           created_at: string | null
           error_rate_after_pct: number | null
           error_rate_before_pct: number | null
+          guardrails: Json | null
           id: string
           is_selected: boolean | null
           org_changes_checklist: Json | null
           org_changes_required: Json | null
+          output_quality_ratings: Json | null
           people_involved_after: number | null
           people_involved_before: number | null
+          prompts_used: Json | null
           qualitative_changes: string | null
           quality_improvement_pct: number | null
           risks_introduced: string | null
           satisfaction_after: number | null
           satisfaction_before: number | null
+          scenario_context: Json | null
           simulation_id: string
           simulation_name: string
+          task_breakdown: Json | null
           time_savings_pct: number | null
           vote_count: number | null
           workshop_session_id: string | null
         }
         Insert: {
           after_snapshot?: Json
+          ai_outputs?: Json | null
           before_snapshot?: Json
           cost_savings_usd?: number | null
           created_at?: string | null
           error_rate_after_pct?: number | null
           error_rate_before_pct?: number | null
+          guardrails?: Json | null
           id?: string
           is_selected?: boolean | null
           org_changes_checklist?: Json | null
           org_changes_required?: Json | null
+          output_quality_ratings?: Json | null
           people_involved_after?: number | null
           people_involved_before?: number | null
+          prompts_used?: Json | null
           qualitative_changes?: string | null
           quality_improvement_pct?: number | null
           risks_introduced?: string | null
           satisfaction_after?: number | null
           satisfaction_before?: number | null
+          scenario_context?: Json | null
           simulation_id: string
           simulation_name: string
+          task_breakdown?: Json | null
           time_savings_pct?: number | null
           vote_count?: number | null
           workshop_session_id?: string | null
         }
         Update: {
           after_snapshot?: Json
+          ai_outputs?: Json | null
           before_snapshot?: Json
           cost_savings_usd?: number | null
           created_at?: string | null
           error_rate_after_pct?: number | null
           error_rate_before_pct?: number | null
+          guardrails?: Json | null
           id?: string
           is_selected?: boolean | null
           org_changes_checklist?: Json | null
           org_changes_required?: Json | null
+          output_quality_ratings?: Json | null
           people_involved_after?: number | null
           people_involved_before?: number | null
+          prompts_used?: Json | null
           qualitative_changes?: string | null
           quality_improvement_pct?: number | null
           risks_introduced?: string | null
           satisfaction_after?: number | null
           satisfaction_before?: number | null
+          scenario_context?: Json | null
           simulation_id?: string
           simulation_name?: string
+          task_breakdown?: Json | null
           time_savings_pct?: number | null
           vote_count?: number | null
           workshop_session_id?: string | null
