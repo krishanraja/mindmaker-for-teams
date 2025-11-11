@@ -226,7 +226,7 @@ export const OrganizerIntakeForm: React.FC = () => {
                     <ToggleGroupItem
                       key={industry}
                       value={industry}
-                      className="text-sm py-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                      className="text-sm py-3 border border-primary/30 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary"
                     >
                       {industry}
                     </ToggleGroupItem>
