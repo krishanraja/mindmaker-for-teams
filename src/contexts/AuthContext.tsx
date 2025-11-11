@@ -23,20 +23,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let mounted = true;
     
-    // Set up auth state listener
+    // Set up auth state listener - MUST BE SYNCHRONOUS
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) return;
         
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Check facilitator role SYNCHRONOUSLY (no setTimeout)
+        // Defer Supabase calls with setTimeout to prevent deadlock
         if (session?.user) {
-          const isFacilitatorRole = await checkFacilitatorRole(session.user.id);
-          if (mounted) {
-            setIsFacilitator(isFacilitatorRole);
-          }
+          setTimeout(() => {
+            checkFacilitatorRole(session.user.id).then((isFacilitatorRole) => {
+              if (mounted) {
+                setIsFacilitator(isFacilitatorRole);
+              }
+            });
+          }, 0);
         } else {
           setIsFacilitator(false);
         }
