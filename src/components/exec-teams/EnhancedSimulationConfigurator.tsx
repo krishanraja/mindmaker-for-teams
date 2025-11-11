@@ -126,7 +126,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
     setCognitiveBaseline,
   } = useExecTeams();
 
-  const [wizardStep, setWizardStep] = useState(1); // 1: AI Readiness, 2: Simulations, 3: Strategic Context, 4: Pilot Expectations, 5: Pre-Work Forms
+  const [wizardStep, setWizardStep] = useState(1); // 1: AI Readiness, 2: Simulations, 3: Strategic Context, 4: Pre-Work Forms
   const [loading, setLoading] = useState(false);
   const [cognitiveData, setCognitiveData] = useState<any>(null);
   const [qrCodesGenerated, setQrCodesGenerated] = useState(false);
@@ -281,15 +281,6 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
           return false;
         }
       }
-    } else if (wizardStep === 4) {
-      if (!pilotExpectations.pilotDescription?.trim()) {
-        toast.error('Please describe what pilot you hope to launch');
-        return false;
-      }
-      if (!pilotExpectations.pilotOwnerName?.trim() || !pilotExpectations.pilotOwnerRole?.trim()) {
-        toast.error('Please specify who will own the pilot');
-        return false;
-      }
     }
     return true;
   };
@@ -421,7 +412,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
 
   const renderProgressBar = () => (
     <div className="flex items-center justify-between mb-6">
-      {[1, 2, 3, 4, 5].map((step) => (
+      {[1, 2, 3, 4].map((step) => (
         <div key={step} className="flex items-center flex-1">
           <div
             className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
@@ -434,7 +425,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
           >
             {step < wizardStep ? <CheckCircle2 className="w-5 h-5" /> : step}
           </div>
-          {step < 5 && (
+          {step < 4 && (
             <div
               className={`h-1 flex-1 mx-2 transition-all ${
                 step < wizardStep ? 'bg-primary' : 'bg-muted'
@@ -453,7 +444,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
           <CardHeader>
             <CardTitle className="text-3xl">Configure Your Bootcamp Agenda</CardTitle>
             <CardDescription className="text-lg">
-              Step {wizardStep} of 5 • Comprehensive workshop preparation
+              Step {wizardStep} of 4 • Comprehensive workshop preparation
             </CardDescription>
           </CardHeader>
 
@@ -844,62 +835,8 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
               </div>
             )}
 
-            {/* STEP 4: Pilot Expectations */}
+            {/* STEP 4: Send Pre-Workshop Forms */}
             {wizardStep === 4 && (
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <CardTitle>Pilot Planning</CardTitle>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="max-w-xs">Pre-fills The Huddle pilot charter</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <CardDescription>Help us prepare a pilot charter tailored to your goals</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>What pilot are you hoping to launch? *</Label>
-                      <Textarea
-                        value={pilotExpectations.pilotDescription}
-                        onChange={(e) => updatePilotExpectationsData({ pilotDescription: e.target.value })}
-                        placeholder="Describe the AI pilot you envision. Example: 'An AI-powered board deck generator that cuts preparation time from 3 weeks to 3 days.'"
-                        rows={4}
-                      />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Pilot Owner Name *</Label>
-                        <Input
-                          value={pilotExpectations.pilotOwnerName}
-                          onChange={(e) => updatePilotExpectationsData({ pilotOwnerName: e.target.value })}
-                          placeholder="e.g., Sarah Johnson"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Pilot Owner Role *</Label>
-                        <Input
-                          value={pilotExpectations.pilotOwnerRole}
-                          onChange={(e) => updatePilotExpectationsData({ pilotOwnerRole: e.target.value })}
-                          placeholder="e.g., VP of Operations"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {/* STEP 5: Send Pre-Workshop Forms */}
-            {wizardStep === 5 && (
               <div className="space-y-6">
                 <CardTitle>Send Pre-Workshop Questionnaires</CardTitle>
                 <CardDescription>
@@ -967,7 +904,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                 Previous
               </Button>
 
-              {wizardStep < 5 ? (
+              {wizardStep < 4 ? (
                 <Button onClick={handleNext}>
                   Next Step
                   <ArrowRight className="w-4 h-4 ml-2" />
