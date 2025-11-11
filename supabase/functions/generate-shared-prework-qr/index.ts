@@ -32,10 +32,10 @@ serve(async (req) => {
 
     console.log('Registration URL:', registrationUrl);
 
-    // Generate QR code as data URL
-    const qrCodeDataUrl = await QRCode.toDataURL(registrationUrl, {
+    // Generate QR code as buffer (works in Deno/Node environments)
+    const qrCodeBuffer = await QRCode.toBuffer(registrationUrl, {
       errorCorrectionLevel: 'H',
-      type: 'image/png',
+      type: 'png',
       width: 512,
       margin: 2,
       color: {
@@ -44,15 +44,11 @@ serve(async (req) => {
       },
     });
 
-    // Convert data URL to buffer
-    const base64Data = qrCodeDataUrl.split(',')[1];
-    const buffer = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-
     // Upload to storage
     const fileName = `shared/${intakeId}.png`;
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('pre-workshop-qr')
-      .upload(fileName, buffer, {
+      .upload(fileName, qrCodeBuffer, {
         contentType: 'image/png',
         upsert: true,
       });
