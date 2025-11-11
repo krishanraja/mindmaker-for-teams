@@ -165,35 +165,22 @@ export const BootcampBookingSummary: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 border-primary">
+                <Card className="border-2 border-primary bg-gradient-to-br from-primary/5 to-primary/10">
                   <CardHeader className="text-center">
                     <CardTitle className="text-2xl">Reserve Your Half-Day Session</CardTitle>
                     <CardDescription>
                       We'll send your pre-read pack outline within 48 hours
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <iframe
-                        src={calendlyUrl}
-                        width="100%"
-                        height="100%"
-                        frameBorder="0"
-                        className="rounded-lg"
-                      />
-                    </div>
-                    <p className="text-center text-sm text-muted-foreground mt-4">
-                      Calendly booking widget will appear above. You can also{' '}
-                      <a
-                        href={calendlyUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                      >
-                        open in a new window
-                      </a>
-                      .
-                    </p>
+                  <CardContent className="flex justify-center py-8">
+                    <a
+                      href="https://calendly.com/krish-raja/mindmaker-meeting"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                    >
+                      Schedule Your Bootcamp Session
+                    </a>
                   </CardContent>
                 </Card>
               </>
