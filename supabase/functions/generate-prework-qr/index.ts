@@ -40,8 +40,9 @@ serve(async (req) => {
       // Create URL
       const directUrl = `${appUrl}/pre-workshop/${intakeId}/${participantHash}`;
 
-      // Generate QR code
+      // Generate QR code as data URL
       const qrCodeDataUrl = await QRCode.toDataURL(directUrl, {
+        errorCorrectionLevel: 'H',
         width: 512,
         margin: 2,
         color: {
@@ -50,7 +51,7 @@ serve(async (req) => {
         },
       });
 
-      // Convert data URL to blob
+      // Convert data URL to binary buffer
       const base64Data = qrCodeDataUrl.split(',')[1];
       const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
 

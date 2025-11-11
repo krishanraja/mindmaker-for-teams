@@ -131,9 +131,6 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
   const [cognitiveData, setCognitiveData] = useState<any>(null);
   const [qrCodesGenerated, setQrCodesGenerated] = useState(false);
   const [qrData, setQrData] = useState<any[]>([]);
-  const [sharedQRGenerated, setSharedQRGenerated] = useState(false);
-  const [sharedQRUrl, setSharedQRUrl] = useState('');
-  const [sharedDirectUrl, setSharedDirectUrl] = useState('');
 
   // Initialize AI readiness data
   const aiReadiness = state.aiReadinessData || {
@@ -283,27 +280,6 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
       }
     }
     return true;
-  };
-
-  const handleGenerateSharedQR = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-shared-prework-qr', {
-        body: { intakeId: state.intakeId }
-      });
-
-      if (error) throw error;
-
-      setSharedQRUrl(data.qrCodeUrl);
-      setSharedDirectUrl(data.directUrl);
-      setSharedQRGenerated(true);
-      toast.success('Registration QR code generated!');
-    } catch (error: any) {
-      console.error('Error generating shared QR:', error);
-      toast.error(error.message || 'Failed to generate QR code');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleNext = () => {
@@ -570,40 +546,6 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
               </div>
             )}
 
-            {/* Shared QR Code Generation - After Step 1 */}
-            {wizardStep === 1 && (
-              <div className="space-y-6 pt-6 border-t">
-                {!sharedQRGenerated ? (
-                  <Card className="border-2 border-primary/20">
-                    <CardHeader>
-                      <CardTitle>Next: Generate Participant Registration QR Code</CardTitle>
-                      <CardDescription>
-                        Once you've completed the AI readiness questions above, generate a QR code to share with all workshop participants for self-registration.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button
-                        onClick={handleGenerateSharedQR}
-                        disabled={loading}
-                        size="lg"
-                        className="w-full"
-                      >
-                        {loading ? 'Generating QR Code...' : 'Generate Registration QR Code'}
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <SharedQRDisplay
-                    qrCodeUrl={sharedQRUrl}
-                    directUrl={sharedDirectUrl}
-                    companyName={state.intakeData.companyName}
-                    organizerName={state.intakeData.organizerName}
-                  />
-                )}
-              </div>
-            )}
-
             {/* STEP 2: Simulation Selection & Snapshots */}
             {wizardStep === 2 && (
               <div className="space-y-6">
@@ -838,10 +780,10 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
             {/* STEP 4: Send Pre-Workshop Forms */}
             {wizardStep === 4 && (
               <div className="space-y-6">
-                <CardTitle>Send Pre-Workshop Questionnaires</CardTitle>
+                <CardTitle>Send Pre-Workshop Questionnaires (Optional)</CardTitle>
                 <CardDescription>
-                  Generate personalized QR codes and send enrichment forms to your team members.
-                  Their individual input will help tailor the bootcamp simulations.
+                  Optionally generate personalized QR codes and send enrichment forms to your team members.
+                  Their individual input will help tailor the bootcamp simulations. You can skip this and complete setup now.
                 </CardDescription>
                 
                 <Card className="border-2 border-accent">
@@ -870,9 +812,18 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                         This will generate unique QR codes and send personalized emails to all participants with a 3-minute questionnaire to collect their individual input on bottlenecks, AI concerns, and simulation experience.
                       </p>
                     </div>
-                    <Button onClick={handleGenerateQRCodes} disabled={loading} size="lg" className="w-full">
+                    <Button 
+                      onClick={handleGenerateQRCodes} 
+                      disabled={loading || state.intakeData.participants.length === 0}
+                      size="lg" 
+                      variant="outline"
+                      className="w-full"
+                    >
                       {loading ? 'Generating...' : 'Generate QR Codes & Send Forms'}
                     </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      Or skip this step and complete the bootcamp setup below
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -910,7 +861,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (
-                <Button onClick={handleSubmit} disabled={loading || !qrCodesGenerated} size="lg">
+                <Button onClick={handleSubmit} disabled={loading} size="lg">
                   {loading ? 'Creating Plan...' : 'Complete & Generate Bootcamp Plan'}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
