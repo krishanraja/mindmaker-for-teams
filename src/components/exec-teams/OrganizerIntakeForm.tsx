@@ -9,9 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Plus, Trash2, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Plus, Trash2, ArrowRight, ArrowLeft, AlertCircle, CalendarIcon, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const BOTTLENECK_OPTIONS = [
   'Competing priorities',
@@ -35,6 +38,7 @@ export const OrganizerIntakeForm: React.FC = () => {
   const { state, updateIntakeData, setCurrentStep, setIntakeId } = useExecTeams();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
 
   // Auto-populate first participant with organizer details when moving to step 2
   useEffect(() => {
@@ -48,6 +52,16 @@ export const OrganizerIntakeForm: React.FC = () => {
           }],
         });
       }
+    }
+  }, [step]);
+
+  // Convert string dates to Date objects when moving to step 3
+  useEffect(() => {
+    if (step === 3 && state.intakeData.preferredDates.length > 0) {
+      const dates = state.intakeData.preferredDates
+        .filter(d => d)
+        .map(d => new Date(d));
+      setSelectedDates(dates);
     }
   }, [step]);
 
@@ -77,21 +91,33 @@ export const OrganizerIntakeForm: React.FC = () => {
     updateIntakeData({ anticipatedBottlenecks: updated });
   };
 
-  const handleDateAdd = () => {
+  const handleDateSelect = (date: Date | undefined) => {
+    if (!date) return;
+    
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const isAlreadySelected = selectedDates.some(d => format(d, 'yyyy-MM-dd') === dateStr);
+    
+    let newDates: Date[];
+    if (isAlreadySelected) {
+      newDates = selectedDates.filter(d => format(d, 'yyyy-MM-dd') !== dateStr);
+    } else {
+      newDates = [...selectedDates, date];
+    }
+    
+    setSelectedDates(newDates);
     updateIntakeData({
-      preferredDates: [...state.intakeData.preferredDates, ''],
+      preferredDates: newDates.map(d => format(d, 'yyyy-MM-dd'))
     });
   };
 
-  const handleDateChange = (index: number, value: string) => {
-    const updated = [...state.intakeData.preferredDates];
-    updated[index] = value;
-    updateIntakeData({ preferredDates: updated });
-  };
-
-  const handleDateRemove = (index: number) => {
-    const updated = state.intakeData.preferredDates.filter((_, i) => i !== index);
-    updateIntakeData({ preferredDates: updated });
+  const handleRemoveDate = (dateToRemove: Date) => {
+    const newDates = selectedDates.filter(d => 
+      format(d, 'yyyy-MM-dd') !== format(dateToRemove, 'yyyy-MM-dd')
+    );
+    setSelectedDates(newDates);
+    updateIntakeData({
+      preferredDates: newDates.map(d => format(d, 'yyyy-MM-dd'))
+    });
   };
 
   const validateStep = () => {
@@ -355,37 +381,50 @@ export const OrganizerIntakeForm: React.FC = () => {
 
           {step === 3 && (
             <div className="space-y-6">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="text-lg">Preferred Session Dates</Label>
-                  <Button onClick={handleDateAdd} variant="outline" size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Date
-                  </Button>
-                </div>
+              <div className="space-y-4">
+                <Label className="text-lg">Preferred Session Dates</Label>
                 <p className="text-sm text-muted-foreground">
-                  Provide 3 preferred dates for the half-day session
+                  Select up to 3 preferred dates for the half-day session
                 </p>
 
-                <div className="space-y-3">
-                  {state.intakeData.preferredDates.map((date, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        type="date"
-                        value={date}
-                        onChange={(e) => handleDateChange(index, e.target.value)}
-                        className="flex-1"
-                      />
-                      <Button
-                        onClick={() => handleDateRemove(index)}
-                        variant="ghost"
-                        size="icon"
+                {selectedDates.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDates.sort((a, b) => a.getTime() - b.getTime()).map((date) => (
+                      <div
+                        key={format(date, 'yyyy-MM-dd')}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm"
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                        <CalendarIcon className="w-3 h-3" />
+                        {format(date, 'MMM dd, yyyy')}
+                        <button
+                          onClick={() => handleRemoveDate(date)}
+                          className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <Card className="p-4 w-fit mx-auto">
+                  <Calendar
+                    mode="multiple"
+                    selected={selectedDates}
+                    onSelect={(dates) => {
+                      if (dates && dates.length <= 3) {
+                        setSelectedDates(dates as Date[]);
+                        updateIntakeData({
+                          preferredDates: (dates as Date[]).map(d => format(d, 'yyyy-MM-dd'))
+                        });
+                      } else if (dates && dates.length > 3) {
+                        toast.error('You can select up to 3 dates');
+                      }
+                    }}
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                    className={cn("pointer-events-auto")}
+                  />
+                </Card>
               </div>
 
               <div className="space-y-2">
