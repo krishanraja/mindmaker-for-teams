@@ -40,9 +40,9 @@ export const ExecTeamsWelcome: React.FC = () => {
 
     const handleScroll = () => {
       const scrollLeft = carousel.scrollLeft;
-      const cardWidth = carousel.offsetWidth * 0.82;
+      const cardWidth = carousel.offsetWidth * 0.9; // 90vw
       const gap = 16;
-      const paddingLeft = carousel.offsetWidth * 0.09;
+      const paddingLeft = carousel.offsetWidth * 0.05; // 5vw
       const adjustedScroll = scrollLeft - paddingLeft + (carousel.offsetWidth - cardWidth) / 2;
       const newIndex = Math.round(adjustedScroll / (cardWidth + gap));
       setActiveCardIndex(Math.max(0, Math.min(3, newIndex)));
@@ -99,8 +99,8 @@ export const ExecTeamsWelcome: React.FC = () => {
               <Card className="mobile-carousel-item border border-border/50 bg-card/50">
                 <CardHeader className="card-header">
                   <div className="flex items-center gap-3">
-                    <div className="icon-wrapper p-2 rounded-lg bg-primary/10">
-                      <Brain className="w-6 h-6 text-primary" />
+                    <div className="icon-wrapper rounded-lg bg-primary/10">
+                      <Brain className="w-8 h-8 text-primary" />
                     </div>
                     <CardTitle className="card-title">Decision Simulations</CardTitle>
                   </div>
@@ -115,8 +115,8 @@ export const ExecTeamsWelcome: React.FC = () => {
               <Card className="mobile-carousel-item border border-border/50 bg-card/50">
                 <CardHeader className="card-header">
                   <div className="flex items-center gap-3">
-                    <div className="icon-wrapper p-2 rounded-lg bg-primary/10">
-                      <Target className="w-6 h-6 text-primary" />
+                    <div className="icon-wrapper rounded-lg bg-primary/10">
+                      <Target className="w-8 h-8 text-primary" />
                     </div>
                     <CardTitle className="card-title">Cognitive Baseline</CardTitle>
                   </div>
@@ -131,8 +131,8 @@ export const ExecTeamsWelcome: React.FC = () => {
               <Card className="mobile-carousel-item border border-border/50 bg-card/50">
                 <CardHeader className="card-header">
                   <div className="flex items-center gap-3">
-                    <div className="icon-wrapper p-2 rounded-lg bg-primary/10">
-                      <Users className="w-6 h-6 text-primary" />
+                    <div className="icon-wrapper rounded-lg bg-primary/10">
+                      <Users className="w-8 h-8 text-primary" />
                     </div>
                     <CardTitle className="card-title">Leadership Alignment</CardTitle>
                   </div>
@@ -147,8 +147,8 @@ export const ExecTeamsWelcome: React.FC = () => {
               <Card className="mobile-carousel-item border border-border/50 bg-card/50">
                 <CardHeader className="card-header">
                   <div className="flex items-center gap-3">
-                    <div className="icon-wrapper p-2 rounded-lg bg-primary/10">
-                      <Zap className="w-6 h-6 text-primary" />
+                    <div className="icon-wrapper rounded-lg bg-primary/10">
+                      <Zap className="w-8 h-8 text-primary" />
                     </div>
                     <CardTitle className="card-title">90-Day Pilot Charter</CardTitle>
                   </div>
