@@ -38,7 +38,7 @@ const SIMULATIONS = [
   {
     id: 'talent-retention',
     title: 'Talent Retention',
-    description: 'Design a retention plan after losing 3 key engineers',
+    description: 'Design a retention plan after losing key staff',
   },
   {
     id: 'pricing-strategy',
@@ -248,19 +248,24 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
         return false;
       }
     } else if (wizardStep === 2) {
-      if (state.selectedSimulations.length !== 2) {
-        toast.error('Please select exactly 2 simulations');
-        return false;
-      }
-      const snapshot1 = state.simulation1Snapshot;
-      const snapshot2 = state.simulation2Snapshot;
-      if (!snapshot1?.currentState || !snapshot1?.desiredOutcome || !snapshot1?.successCriteria) {
-        toast.error('Please complete all required fields for Simulation 1');
-        return false;
-      }
-      if (!snapshot2?.currentState || !snapshot2?.desiredOutcome || !snapshot2?.successCriteria) {
-        toast.error('Please complete all required fields for Simulation 2');
-        return false;
+      // Simulations are optional, but if selected, validate them
+      if (state.selectedSimulations.length > 0) {
+        const snapshot1 = state.simulation1Snapshot;
+        const snapshot2 = state.simulation2Snapshot;
+        
+        if (state.selectedSimulations.length >= 1) {
+          if (!snapshot1?.currentState || !snapshot1?.desiredOutcome || !snapshot1?.successCriteria) {
+            toast.error('Please complete all required fields for Simulation 1');
+            return false;
+          }
+        }
+        
+        if (state.selectedSimulations.length >= 2) {
+          if (!snapshot2?.currentState || !snapshot2?.desiredOutcome || !snapshot2?.successCriteria) {
+            toast.error('Please complete all required fields for Simulation 2');
+            return false;
+          }
+        }
       }
     } else if (wizardStep === 3) {
       const validGoals = strategicContext.strategicGoals2026.filter(g => g.trim() !== '');
@@ -611,19 +616,22 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <h3 className="text-xl font-semibold">Select Simulations</h3>
+                      <span className="text-xs px-2 py-1 rounded-full bg-accent/50 text-muted-foreground font-medium">
+                        Optional but Recommended
+                      </span>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
                             <HelpCircle className="w-4 h-4 text-muted-foreground" />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p className="max-w-xs">Choose 2 scenarios that mirror your actual business challenges</p>
+                            <p className="max-w-xs">Choose up to 2 scenarios that mirror your actual business challenges. This is optional but helps prepare workshop content.</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </div>
                     <span className="text-sm font-medium">
-                      {state.selectedSimulations.length} of 2 selected
+                      {state.selectedSimulations.length} selected (0-2 recommended)
                     </span>
                   </div>
 
@@ -659,7 +667,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                   </div>
                 </div>
 
-                {state.selectedSimulations.length === 2 && (
+                {state.selectedSimulations.length > 0 && (
                   <div className="space-y-6">
                     <div className="flex items-center gap-2 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
                       <AlertCircle className="w-5 h-5 text-yellow-600" />
