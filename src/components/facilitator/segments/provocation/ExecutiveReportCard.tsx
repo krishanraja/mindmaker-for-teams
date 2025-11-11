@@ -110,7 +110,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
   return (
     <div className="space-y-8">
       {/* Header with Company Context */}
-      <Card className="bg-gradient-to-br from-background to-primary/5 border border-border/60 shadow-lg">
+      <Card className="bg-card border shadow-sm">
         <CardHeader className="pb-6">
           <div className="flex justify-between items-start">
             <div className="space-y-4">
@@ -123,13 +123,13 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
-                <span className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium">
+                <span className="px-4 py-2 bg-muted border border-border rounded-md text-sm font-medium">
                   {contextData.company.industry}
                 </span>
-                <span className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium">
+                <span className="px-4 py-2 bg-muted border border-border rounded-md text-sm font-medium">
                   AI Experience: {contextData.preWorkshop.aiExperience}
                 </span>
-                <span className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium">
+                <span className="px-4 py-2 bg-muted border border-border rounded-md text-sm font-medium">
                   {workshop.participant_count || 0} Participants
                 </span>
               </div>
@@ -152,27 +152,27 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-card border border-border/60 rounded-xl p-6 shadow-sm">
-              <div className="text-sm uppercase tracking-wide text-muted-foreground mb-2 font-medium">
+            <div className="bg-card border border-border rounded-lg p-6 hover:border-primary/30 transition-colors">
+              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-semibold">
                 Bottlenecks Identified
               </div>
-              <div className="text-5xl font-semibold text-primary">
+              <div className="text-5xl font-bold text-foreground">
                 {contextData.workshop.bottlenecksIdentified}
               </div>
             </div>
-            <div className="bg-card border border-border/60 rounded-xl p-6 shadow-sm">
-              <div className="text-sm uppercase tracking-wide text-muted-foreground mb-2 font-medium">
+            <div className="bg-card border border-border rounded-lg p-6 hover:border-primary/30 transition-colors">
+              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-semibold">
                 Opportunities Prioritized
               </div>
-              <div className="text-5xl font-semibold text-primary">
+              <div className="text-5xl font-bold text-foreground">
                 {contextData.workshop.opportunitiesPrioritized}
               </div>
             </div>
-            <div className="bg-card border border-border/60 rounded-xl p-6 shadow-sm">
-              <div className="text-sm uppercase tracking-wide text-muted-foreground mb-2 font-medium">
+            <div className="bg-card border border-border rounded-lg p-6 hover:border-primary/30 transition-colors">
+              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-semibold">
                 Simulations Completed
               </div>
-              <div className="text-5xl font-semibold text-primary">
+              <div className="text-5xl font-bold text-foreground">
                 {contextData.workshop.simulationsRun}
               </div>
             </div>
@@ -203,7 +203,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {roiMetrics.map((metric: any, idx: number) => (
-              <Card key={idx} className="border border-border/60 shadow-md">
+              <Card key={idx} className="border shadow-sm">
                 <CardContent className="p-8">
                   <h4 className="text-xl font-semibold text-foreground mb-6">
                     {metric.name}
@@ -213,14 +213,14 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
                     {metric.timeSavings && (
                       <div className="flex items-center justify-between pb-5 border-b border-border">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
-                            <Clock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-primary" />
                           </div>
                           <span className="text-sm text-muted-foreground font-medium">
                             Time Saved
                           </span>
                         </div>
-                        <span className="text-3xl font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span className="text-3xl font-bold text-foreground">
                           {metric.timeSavings}%
                         </span>
                       </div>
@@ -229,14 +229,14 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
                     {metric.costSavings && (
                       <div className="flex items-center justify-between pb-5 border-b border-border">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
-                            <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
+                            <DollarSign className="w-5 h-5 text-primary" />
                           </div>
                           <span className="text-sm text-muted-foreground font-medium">
                             Cost Reduction
                           </span>
                         </div>
-                        <span className="text-3xl font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span className="text-3xl font-bold text-foreground">
                           ${(metric.costSavings / 1000).toFixed(0)}K
                         </span>
                       </div>
@@ -245,14 +245,14 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
                     {metric.qualityImprovement && (
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
-                            <Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                          <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
+                            <Target className="w-5 h-5 text-primary" />
                           </div>
                           <span className="text-sm text-muted-foreground font-medium">
                             Quality Gain
                           </span>
                         </div>
-                        <span className="text-3xl font-semibold text-emerald-600 dark:text-emerald-400">
+                        <span className="text-3xl font-bold text-foreground">
                           {metric.qualityImprovement}%
                         </span>
                       </div>

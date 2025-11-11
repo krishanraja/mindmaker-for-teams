@@ -49,7 +49,7 @@ export const Segment7Provocation: React.FC<Segment7ProvocationProps> = ({ worksh
           
           <CostFramingChart />
 
-          <div className="border border-border/40 bg-card rounded-2xl p-8 shadow-sm">
+          <div className="border border-border bg-card rounded-lg p-8 shadow-sm">
             <div className="text-center space-y-3">
               <p className="text-2xl md:text-3xl font-semibold text-foreground">
                 Every 90 days of delay = 15% advantage to AI-native competitors

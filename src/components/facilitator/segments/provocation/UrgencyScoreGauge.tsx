@@ -8,22 +8,16 @@ interface UrgencyScoreGaugeProps {
 
 export const UrgencyScoreGauge: React.FC<UrgencyScoreGaugeProps> = ({ score }) => {
   const getZone = (score: number) => {
-    if (score >= 70) return { zone: 'critical', color: 'rose', icon: AlertTriangle, label: 'Critical' };
-    if (score >= 40) return { zone: 'caution', color: 'amber', icon: TrendingUp, label: 'Caution' };
-    return { zone: 'safe', color: 'emerald', icon: CheckCircle2, label: 'Safe' };
+    if (score >= 70) return { zone: 'critical', icon: AlertTriangle, label: 'Critical' };
+    if (score >= 40) return { zone: 'caution', icon: TrendingUp, label: 'Caution' };
+    return { zone: 'safe', icon: CheckCircle2, label: 'Safe' };
   };
 
-  const { zone, color, icon: Icon, label } = getZone(score);
+  const { zone, icon: Icon, label } = getZone(score);
   const rotation = (score / 100) * 180 - 90;
 
-  const zoneColors = {
-    critical: { bg: 'bg-rose-50 dark:bg-rose-950/20', border: 'border-rose-200 dark:border-rose-800', text: 'text-rose-600 dark:text-rose-400' },
-    caution: { bg: 'bg-amber-50 dark:bg-amber-950/20', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-600 dark:text-amber-400' },
-    safe: { bg: 'bg-emerald-50 dark:bg-emerald-950/20', border: 'border-emerald-200 dark:border-emerald-800', text: 'text-emerald-600 dark:text-emerald-400' }
-  };
-
   return (
-    <Card className="border border-border/60 shadow-lg">
+    <Card className="border shadow-sm">
       <CardContent className="p-10">
         <div className="text-center mb-8">
           <h3 className="text-3xl font-semibold mb-3 text-foreground">Urgency Index</h3>
@@ -82,9 +76,9 @@ export const UrgencyScoreGauge: React.FC<UrgencyScoreGaugeProps> = ({ score }) =
         </div>
 
         {/* Zone indicator */}
-        <div className={`flex items-center justify-center gap-3 p-5 rounded-xl border ${zoneColors[zone].bg} ${zoneColors[zone].border}`}>
-          <Icon className={`h-6 w-6 ${zoneColors[zone].text}`} />
-          <div className={`text-xl font-semibold ${zoneColors[zone].text}`}>{label} Zone</div>
+        <div className="flex items-center justify-center gap-3 p-5 rounded-lg border bg-muted/30 border-border">
+          <Icon className="h-6 w-6 text-primary" />
+          <div className="text-xl font-semibold text-foreground">{label} Zone</div>
         </div>
       </CardContent>
     </Card>
