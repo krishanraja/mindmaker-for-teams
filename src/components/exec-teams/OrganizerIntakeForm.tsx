@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { SharedQRDisplay } from './SharedQRDisplay';
 
 const ROLE_OPTIONS = ['CEO', 'CTO', 'COO', 'CMO', 'CFO', 'VP', 'Director', 'Other'];
 
@@ -30,10 +31,12 @@ export const OrganizerIntakeForm: React.FC = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [qrGenerated, setQrGenerated] = useState(false);
+  const [qrData, setQrData] = useState<{ qrCodeUrl: string; directUrl: string } | null>(null);
 
-  // Auto-populate first participant with organizer details when moving to step 2
+  // Auto-populate first participant with organizer details when moving to step 3
   useEffect(() => {
-    if (step === 2 && state.intakeData.participants.length === 0) {
+    if (step === 3 && state.intakeData.participants.length === 0) {
       if (state.intakeData.organizerName && state.intakeData.organizerEmail) {
         updateIntakeData({
           participants: [{
@@ -46,9 +49,9 @@ export const OrganizerIntakeForm: React.FC = () => {
     }
   }, [step]);
 
-  // Convert string dates to Date objects when moving to step 3
+  // Convert string dates to Date objects when moving to step 2
   useEffect(() => {
-    if (step === 3 && state.intakeData.preferredDates.length > 0) {
+    if (step === 2 && state.intakeData.preferredDates.length > 0) {
       const dates = state.intakeData.preferredDates
         .filter(d => d)
         .map(d => new Date(d));
@@ -115,7 +118,7 @@ export const OrganizerIntakeForm: React.FC = () => {
         toast({ title: 'Please enter a valid email address', variant: 'destructive' });
         return false;
       }
-    } else if (step === 2) {
+    } else if (step === 3) {
       // Allow skipping participants - they can use QR code registration
       if (state.intakeData.participants.length > 0) {
         const invalidParticipants = state.intakeData.participants.filter(
@@ -140,13 +143,43 @@ export const OrganizerIntakeForm: React.FC = () => {
 
   const handleNext = () => {
     if (validateStep()) {
-      setStep(step + 1);
+      // If moving from step 2 to 3, submit the intake first
+      if (step === 2) {
+        handleSubmit();
+      } else {
+        setStep(step + 1);
+      }
+    }
+  };
+
+  const handleGenerateQR = async () => {
+    setLoading(true);
+    try {
+      // Generate registration QR code
+      const { data, error: qrError } = await supabase.functions.invoke('generate-shared-prework-qr', {
+        body: { 
+          intakeId: state.intakeId,
+        }
+      });
+
+      if (qrError) throw qrError;
+
+      setQrData({
+        qrCodeUrl: data.qrCodeUrl,
+        directUrl: data.directUrl,
+      });
+      setQrGenerated(true);
+      toast({ title: 'Registration QR code generated!' });
+    } catch (error: any) {
+      console.error('Error generating QR code:', error);
+      toast({ title: error.message || 'Failed to generate QR code', variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSubmit = async () => {
-    if (!validateStep()) return;
-
+    // This is called when moving from step 2 to step 3
     setLoading(true);
     try {
       const { data: intake, error } = await supabase
@@ -166,15 +199,19 @@ export const OrganizerIntakeForm: React.FC = () => {
       if (error) throw error;
 
       setIntakeId(intake.id);
-
-      toast({ title: 'Intake submitted successfully!' });
-      setCurrentStep(3);
+      setStep(3); // Move to participants step
+      toast({ title: 'Basic information saved!' });
     } catch (error: any) {
       console.error('Error submitting intake:', error);
-      toast({ title: error.message || 'Failed to submit intake', variant: 'destructive' });
+      toast({ title: error.message || 'Failed to save information', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleComplete = () => {
+    toast({ title: 'Intake completed successfully!' });
+    setCurrentStep(3);
   };
 
   return (
@@ -246,13 +283,74 @@ export const OrganizerIntakeForm: React.FC = () => {
 
           {step === 2 && (
             <div className="space-y-6">
+              <div className="space-y-4">
+                <Label className="text-lg">Preferred Session Dates</Label>
+                <p className="text-sm text-muted-foreground">
+                  Select up to 3 preferred dates for the half-day session
+                </p>
+
+                {selectedDates.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDates.sort((a, b) => a.getTime() - b.getTime()).map((date) => (
+                      <div
+                        key={format(date, 'yyyy-MM-dd')}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm"
+                      >
+                        <CalendarIcon className="w-3 h-3" />
+                        {format(date, 'MMM dd, yyyy')}
+                        <button
+                          onClick={() => handleRemoveDate(date)}
+                          className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <Card className="p-4 w-fit mx-auto">
+                  <Calendar
+                    mode="multiple"
+                    selected={selectedDates}
+                    onSelect={(dates) => {
+                      if (dates && dates.length <= 3) {
+                        setSelectedDates(dates as Date[]);
+                        updateIntakeData({
+                          preferredDates: (dates as Date[]).map(d => format(d, 'yyyy-MM-dd'))
+                        });
+                      } else if (dates && dates.length > 3) {
+                        toast({ title: 'You can select up to 3 dates', variant: 'destructive' });
+                      }
+                    }}
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                    className={cn("pointer-events-auto")}
+                  />
+                </Card>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="schedulingNotes">Scheduling Constraints (optional)</Label>
+                <Textarea
+                  id="schedulingNotes"
+                  value={state.intakeData.schedulingNotes}
+                  onChange={(e) => updateIntakeData({ schedulingNotes: e.target.value })}
+                  placeholder="Any specific timing preferences or constraints..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-6">
               <Label className="text-lg">Executive Participants</Label>
 
               <Alert className="border-primary/30 bg-primary/5">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Tip: Team Self-Registration Available</AlertTitle>
                 <AlertDescription>
-                  You can add a few key participants now, or skip this and use the QR code self-registration feature in the next step. Team members can register themselves with their own information!
+                  You can add a few key participants now, or use the QR code below to allow team members to self-register with their own information!
                 </AlertDescription>
               </Alert>
 
@@ -322,66 +420,34 @@ export const OrganizerIntakeForm: React.FC = () => {
                 <Plus className="w-4 h-4 mr-2" />
                 Add Participant
               </Button>
-            </div>
-          )}
 
-          {step === 3 && (
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <Label className="text-lg">Preferred Session Dates</Label>
-                <p className="text-sm text-muted-foreground">
-                  Select up to 3 preferred dates for the half-day session
-                </p>
-
-                {selectedDates.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedDates.sort((a, b) => a.getTime() - b.getTime()).map((date) => (
-                      <div
-                        key={format(date, 'yyyy-MM-dd')}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm"
-                      >
-                        <CalendarIcon className="w-3 h-3" />
-                        {format(date, 'MMM dd, yyyy')}
-                        <button
-                          onClick={() => handleRemoveDate(date)}
-                          className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
+              <div className="pt-6 border-t">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <Label className="text-lg">Team Self-Registration QR Code</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Share this QR code with your team for easy self-registration
+                    </p>
                   </div>
+                  <Button 
+                    onClick={handleGenerateQR} 
+                    disabled={loading || qrGenerated}
+                    variant={qrGenerated ? "outline" : "default"}
+                  >
+                    {qrGenerated ? 'QR Code Generated' : 'Generate QR Code'}
+                  </Button>
+                </div>
+
+                {qrGenerated && qrData && (
+                  <Card className="p-6 bg-accent/5">
+                    <SharedQRDisplay 
+                      qrCodeUrl={qrData.qrCodeUrl}
+                      directUrl={qrData.directUrl}
+                      companyName={state.intakeData.companyName}
+                      organizerName={state.intakeData.organizerName}
+                    />
+                  </Card>
                 )}
-
-                <Card className="p-4 w-fit mx-auto">
-                  <Calendar
-                    mode="multiple"
-                    selected={selectedDates}
-                    onSelect={(dates) => {
-                      if (dates && dates.length <= 3) {
-                        setSelectedDates(dates as Date[]);
-                        updateIntakeData({
-                          preferredDates: (dates as Date[]).map(d => format(d, 'yyyy-MM-dd'))
-                        });
-                      } else if (dates && dates.length > 3) {
-                        toast({ title: 'You can select up to 3 dates', variant: 'destructive' });
-                      }
-                    }}
-                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                    className={cn("pointer-events-auto")}
-                  />
-                </Card>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="schedulingNotes">Scheduling Constraints (optional)</Label>
-                <Textarea
-                  id="schedulingNotes"
-                  value={state.intakeData.schedulingNotes}
-                  onChange={(e) => updateIntakeData({ schedulingNotes: e.target.value })}
-                  placeholder="Any specific timing preferences or constraints..."
-                  rows={3}
-                />
               </div>
             </div>
           )}
@@ -397,13 +463,13 @@ export const OrganizerIntakeForm: React.FC = () => {
             </Button>
 
             {step < 3 ? (
-              <Button onClick={handleNext}>
-                Next
+              <Button onClick={handleNext} disabled={loading}>
+                {loading ? 'Saving...' : 'Next'}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleSubmit} disabled={loading}>
-                {loading ? 'Submitting...' : 'Submit & Send Pulses'}
+              <Button onClick={handleComplete}>
+                Complete Setup
               </Button>
             )}
           </div>
