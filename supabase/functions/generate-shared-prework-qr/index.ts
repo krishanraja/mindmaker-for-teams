@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
-import QRCode from "https://esm.sh/qrcode@1.5.3";
+import { encode as encodeQR } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -32,20 +32,18 @@ serve(async (req) => {
 
     console.log('Registration URL:', registrationUrl);
 
-    // Generate QR code as PNG buffer (works in Deno environment)
-    const qrCodeBuffer = await QRCode.toBuffer(registrationUrl, {
-      errorCorrectionLevel: 'H',
-      width: 512,
+    // Generate QR code as data URL using Deno-native library
+    const qrCodeBase64 = await encodeQR(registrationUrl, {
+      errorCorrectionLevel: "H",
+      size: 512,
       margin: 2,
-      color: {
-        dark: '#000000FF',
-        light: '#FFFFFFFF',
-      },
-      type: 'png'
     });
+    const qrCodeDataUrl = `data:image/png;base64,${qrCodeBase64}`;
+    console.log('QR code generated successfully');
 
-    // Convert to Uint8Array for upload
-    const binaryData = new Uint8Array(qrCodeBuffer);
+    // Convert data URL to binary buffer
+    const base64Data = qrCodeDataUrl.split(',')[1];
+    const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
 
     // Upload to storage
     const fileName = `shared/${intakeId}.png`;
