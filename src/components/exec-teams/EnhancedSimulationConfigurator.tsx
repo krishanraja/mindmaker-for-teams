@@ -237,10 +237,6 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
         toast.error('Please select at least one AI concern to address');
         return false;
       }
-      if (aiReadiness.currentBottlenecks.length === 0) {
-        toast.error('Please identify at least one current bottleneck');
-        return false;
-      }
       if (!aiReadiness.aiExperienceLevel || aiReadiness.aiExperienceLevel === 'none') {
         toast.error('Please select your AI experience level');
         return false;
@@ -266,17 +262,13 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
         }
       }
     } else if (wizardStep === 3) {
-      // Allow skipping if user indicates they're still defining objectives
-      if (!strategicContext.stillDefiningObjectives) {
-        const validGoals = strategicContext.strategicGoals2026.filter(g => g.trim() !== '');
-        if (validGoals.length === 0) {
-          toast.error('Please enter at least one strategic goal for 2026, or check "Still defining our strategic objectives"');
-          return false;
-        }
-        if (!strategicContext.competitiveLandscape?.trim()) {
-          toast.error('Please describe your competitive landscape, or check "Still defining our strategic objectives"');
-          return false;
-        }
+      if (aiReadiness.currentBottlenecks.length === 0) {
+        toast.error('Please identify at least one current bottleneck');
+        return false;
+      }
+      if (!strategicContext.competitiveLandscape?.trim()) {
+        toast.error('Please describe your competitive landscape');
+        return false;
       }
     }
     return true;
@@ -479,40 +471,6 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <CardTitle>Current Bottlenecks</CardTitle>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <HelpCircle className="w-4 h-4 text-muted-foreground" />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="max-w-xs">These will populate The Mirror segment bottleneck board</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <CardDescription>What slows your team down most? (Select all that apply)</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid md:grid-cols-2 gap-3">
-                      {BOTTLENECK_OPTIONS.map((bottleneck) => (
-                        <div key={bottleneck} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={bottleneck}
-                            checked={aiReadiness.currentBottlenecks.includes(bottleneck)}
-                            onCheckedChange={() => handleBottleneckToggle(bottleneck)}
-                          />
-                          <label htmlFor={bottleneck} className="text-sm font-medium leading-none cursor-pointer">
-                            {bottleneck}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -658,65 +616,35 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                 <Card>
                   <CardHeader>
                     <div className="flex items-center gap-2">
-                      <CardTitle>2026 Strategic Objectives</CardTitle>
-                      <span className="text-xs px-2 py-1 rounded-full bg-accent/50 text-muted-foreground font-medium">
-                        Optional but Recommended
-                      </span>
+                      <CardTitle>Anticipated Bottlenecks</CardTitle>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger>
                             <HelpCircle className="w-4 h-4 text-muted-foreground" />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p className="max-w-xs">These will frame The Rewrite segment discussions. If you don't have clear objectives yet, you can skip this section.</p>
+                            <p className="max-w-xs">These will populate The Mirror segment bottleneck board</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <CardDescription>What are your top 3 strategic priorities for 2026?</CardDescription>
+                    <CardDescription>What slows your team down most? (Select all that apply)</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-start space-x-2 p-4 bg-accent/10 border border-accent/20 rounded-lg">
-                      <Checkbox
-                        id="stillDefining"
-                        checked={strategicContext.stillDefiningObjectives}
-                        onCheckedChange={(checked) => 
-                          updateStrategicContextData({ stillDefiningObjectives: checked as boolean })
-                        }
-                      />
-                      <div className="grid gap-1.5 leading-none">
-                        <label
-                          htmlFor="stillDefining"
-                          className="text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          We're still defining our strategic objectives
-                        </label>
-                        <p className="text-xs text-muted-foreground">
-                          Check this if your team hasn't finalized 2026 goals yet. You can still have a valuable workshop focused on AI readiness and capability building.
-                        </p>
-                      </div>
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      {BOTTLENECK_OPTIONS.map((bottleneck) => (
+                        <div key={bottleneck} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={bottleneck}
+                            checked={aiReadiness.currentBottlenecks.includes(bottleneck)}
+                            onCheckedChange={() => handleBottleneckToggle(bottleneck)}
+                          />
+                          <label htmlFor={bottleneck} className="text-sm font-medium leading-none cursor-pointer">
+                            {bottleneck}
+                          </label>
+                        </div>
+                      ))}
                     </div>
-
-                    {!strategicContext.stillDefiningObjectives && (
-                      <>
-                        {[0, 1, 2].map((index) => (
-                          <div key={index} className="space-y-2">
-                            <Label>Strategic Goal #{index + 1} {index === 0 && '*'}</Label>
-                            <Input
-                              value={strategicContext.strategicGoals2026[index] || ''}
-                              onChange={(e) => handleStrategicGoalChange(index, e.target.value)}
-                              placeholder={`e.g., ${
-                                index === 0
-                                  ? 'Achieve 40% revenue growth'
-                                  : index === 1
-                                  ? 'Launch in 3 new markets'
-                                  : 'Improve customer retention to 95%'
-                              }`}
-                            />
-                          </div>
-                        ))}
-                      </>
-                    )}
                   </CardContent>
                 </Card>
 
