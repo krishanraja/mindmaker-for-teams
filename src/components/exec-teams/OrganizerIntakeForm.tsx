@@ -17,7 +17,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { SharedQRDisplay } from './SharedQRDisplay';
 
-const ROLE_OPTIONS = ['CEO', 'CTO', 'COO', 'CMO', 'CFO', 'VP', 'Director', 'Other'];
+const DEPARTMENT_OPTIONS = ['Revenue', 'Operations', 'Technology', 'Finance', 'Marketing', 'Product', 'Human Resources', 'Customer Success', 'Other'];
 
 const INDUSTRY_OPTIONS = ['Media', 'Telco', 'Finance', 'Healthcare', 'Retail & CPG', 'Education', 'Consulting', 'Other'];
 
@@ -388,18 +388,18 @@ export const OrganizerIntakeForm: React.FC = () => {
                       </div>
                       <div className="flex items-end gap-4">
                         <div className="flex-1 space-y-2">
-                          <Label>Role *</Label>
+                          <Label>Department *</Label>
                           <Select
                             value={participant.role}
                             onValueChange={(value) => handleParticipantChange(index, 'role', value)}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select role" />
+                              <SelectValue placeholder="Select department" />
                             </SelectTrigger>
-                            <SelectContent>
-                              {ROLE_OPTIONS.map((role) => (
-                                <SelectItem key={role} value={role}>
-                                  {role}
+                            <SelectContent className="bg-background z-50">
+                              {DEPARTMENT_OPTIONS.map((dept) => (
+                                <SelectItem key={dept} value={dept}>
+                                  {dept}
                                 </SelectItem>
                               ))}
                             </SelectContent>
