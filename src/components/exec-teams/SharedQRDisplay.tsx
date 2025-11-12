@@ -48,6 +48,8 @@ export const SharedQRDisplay: React.FC<SharedQRDisplayProps> = ({
     }
   };
 
+  const firstName = organizerName.split(' ')[0];
+  
   const emailTemplate = `Subject: Register for AI Leadership Bootcamp - ${companyName}
 
 Hi Team,
@@ -63,7 +65,7 @@ Please take 3 minutes to register and share your perspective:
 Your responses will help us tailor the workshop to address your specific concerns and goals about AI implementation.
 
 Thank you!
-${organizerName}`;
+${firstName}`;
 
   const handleCopyEmailTemplate = async () => {
     try {
