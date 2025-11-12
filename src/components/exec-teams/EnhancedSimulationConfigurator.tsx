@@ -272,10 +272,10 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
           toast.error('Please enter at least one strategic priority or check "still defining"');
           return false;
         }
-      }
-      if (!strategicContext.competitiveLandscape?.trim()) {
-        toast.error('Please describe your competitive landscape');
-        return false;
+        if (!strategicContext.competitiveLandscape?.trim()) {
+          toast.error('Please describe your competitive landscape');
+          return false;
+        }
       }
     }
     return true;
