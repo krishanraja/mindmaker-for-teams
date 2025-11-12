@@ -760,7 +760,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                 <CardTitle>Send Pre-Workshop Questionnaires (Optional)</CardTitle>
                 <CardDescription>
                   Optionally generate personalized QR codes and send enrichment forms to your team members.
-                  Their individual input will help tailor the bootcamp simulations. You can skip this and complete setup now.
+                  Their individual input will help tailor the bootcamp simulations.
                 </CardDescription>
                 
                 <Card className="border-2 border-accent">
