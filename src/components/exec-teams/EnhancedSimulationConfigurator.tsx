@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CognitiveBaselineRadar } from './CognitiveBaselineRadar';
 import { SharedQRDisplay } from './SharedQRDisplay';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const SIMULATIONS = [
   {
@@ -130,7 +131,8 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [cognitiveData, setCognitiveData] = useState<any>(null);
   const [qrCodesGenerated, setQrCodesGenerated] = useState(false);
-  const [qrData, setQrData] = useState<any[]>([]);
+  const [qrData, setQrData] = useState<any>(null);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // Initialize AI readiness data
   const aiReadiness = state.aiReadinessData || {
@@ -290,41 +292,20 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
   const handleGenerateQRCodes = async () => {
     setLoading(true);
     try {
-      // Call edge function to generate QR codes
-      const { data: qrResults, error: qrError } = await supabase.functions.invoke('generate-prework-qr', {
-        body: { 
-          intakeId: state.intakeId, 
-          bootcampPlanId: state.bootcampPlanId,
-          participants: state.intakeData.participants 
-        }
+      // Call edge function to generate SHARED QR code (one for all participants)
+      const { data: qrResults, error: qrError } = await supabase.functions.invoke('generate-shared-prework-qr', {
+        body: { intakeId: state.intakeId }
       });
 
       if (qrError) throw qrError;
       
-      setQrData(qrResults.results);
-
-      // Get workshop date from first preferred date
-      const workshopDate = state.intakeData.preferredDates[0] || new Date().toISOString();
-
-      // Send emails with QR codes and links
-      const { error: emailError } = await supabase.functions.invoke('send-prework-emails', {
-        body: {
-          intakeId: state.intakeId,
-          participants: state.intakeData.participants,
-          organizerName: state.intakeData.organizerName,
-          companyName: state.intakeData.companyName,
-          workshopDate,
-          qrData: qrResults.results
-        }
-      });
-
-      if (emailError) throw emailError;
-      
+      setQrData(qrResults); // Store { qrCodeUrl, directUrl }
       setQrCodesGenerated(true);
-      toast.success('QR codes generated and emails sent!');
+      setShowQRModal(true); // Open modal
+      toast.success('QR code generated! Share it with your participants.');
     } catch (error: any) {
-      console.error('Error generating QR codes:', error);
-      toast.error(error.message || 'Failed to generate QR codes');
+      console.error('Error generating QR code:', error);
+      toast.error(error.message || 'Failed to generate QR code');
     } finally {
       setLoading(false);
     }
@@ -805,7 +786,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                   <div className="space-y-4">
                     <div className="p-4 bg-accent/10 border border-accent/20 rounded-lg">
                       <p className="text-sm">
-                        This will generate unique QR codes and send personalized emails to all participants with a 3-minute questionnaire to collect their individual input on bottlenecks, AI concerns, and simulation experience.
+                        Generate a shared QR code that all participants can use to register and provide pre-workshop input. You'll receive a QR code and email template that you can send to your team via your own email client.
                       </p>
                     </div>
                     <Button 
@@ -815,7 +796,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                       variant="outline"
                       className="w-full"
                     >
-                      {loading ? 'Generating...' : 'Generate QR Codes & Send Forms'}
+                      {loading ? 'Generating...' : 'Generate Shared QR Code'}
                     </Button>
                     <p className="text-xs text-muted-foreground text-center">
                       Or skip this step and complete the bootcamp setup below
@@ -823,16 +804,23 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <Card className="bg-green-50 border-green-200">
+                    <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
                       <CardContent className="pt-6">
                         <div className="flex items-start gap-3">
-                          <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5" />
+                          <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                           <div>
-                            <h4 className="font-semibold text-green-900 mb-1">Forms Sent!</h4>
-                            <p className="text-sm text-green-800">
-                              QR codes generated and emails sent to all {state.intakeData.participants.length} participants.
-                              They can complete the form anytime before the workshop.
+                            <h4 className="font-semibold text-green-900 dark:text-green-100 mb-1">QR Code Generated!</h4>
+                            <p className="text-sm text-green-800 dark:text-green-200 mb-3">
+                              Your shared registration QR code is ready. Copy and send it to all participants via your own email.
                             </p>
+                            <Button 
+                              onClick={() => setShowQRModal(true)}
+                              variant="outline"
+                              size="sm"
+                              className="border-green-600 text-green-900 dark:text-green-100 hover:bg-green-100 dark:hover:bg-green-900"
+                            >
+                              View QR Code & Email Template
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
@@ -866,6 +854,20 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* QR Code Modal */}
+      {showQRModal && qrData && (
+        <Dialog open={showQRModal} onOpenChange={setShowQRModal}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <SharedQRDisplay
+              qrCodeUrl={qrData.qrCodeUrl}
+              directUrl={qrData.directUrl}
+              companyName={state.intakeData.companyName}
+              organizerName={state.intakeData.organizerName}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

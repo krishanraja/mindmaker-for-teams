@@ -48,23 +48,21 @@ export const SharedQRDisplay: React.FC<SharedQRDisplayProps> = ({
     }
   };
 
-  const emailTemplate = `Subject: Please register for our AI Leadership Bootcamp - ${companyName}
+  const emailTemplate = `Subject: Register for AI Leadership Bootcamp - ${companyName}
 
 Hi Team,
 
-We're preparing for our upcoming AI Leadership Bootcamp and need your input to make it as valuable as possible for our team.
+We're preparing for our upcoming AI Leadership Bootcamp and need your input to make it as valuable as possible.
 
-Please take 3 minutes to register and complete a brief questionnaire:
+Please take 3 minutes to register and share your perspective:
 
-📱 Scan this QR code on your mobile device:
-[Attach the QR code image]
+📱 Scan this QR code: [Attach the downloaded QR code image to this email]
 
-💻 Or click this link:
-${directUrl}
+💻 Or use this link: ${directUrl}
 
 Your responses will help us tailor the workshop to address your specific concerns and goals about AI implementation.
 
-Thanks!
+Thank you!
 ${organizerName}`;
 
   const handleCopyEmailTemplate = async () => {
@@ -79,9 +77,9 @@ ${organizerName}`;
   return (
     <Card className="border-2 border-primary/20">
       <CardHeader>
-        <CardTitle>Participant Registration QR Code</CardTitle>
+        <CardTitle>📱 Share This QR Code With Your Team</CardTitle>
         <CardDescription>
-          Share this QR code with all workshop participants. They'll register and provide pre-workshop input.
+          Copy the QR code and email template below, then send it to all workshop participants from your own email client. Participants will register and provide pre-workshop input via the link.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -151,15 +149,22 @@ ${organizerName}`;
 
         {/* Instructions */}
         <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-          <h4 className="text-sm font-semibold mb-2">How to use:</h4>
+          <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Manual Steps (Required):
+          </h4>
           <ol className="text-sm space-y-2 list-decimal list-inside text-muted-foreground">
-            <li>Download the QR code or copy the link above</li>
-            <li>Copy the email template and customize if needed</li>
-            <li>Send to all workshop participants</li>
-            <li>Participants scan the QR code or click the link</li>
-            <li>They'll register and provide their input (3 minutes)</li>
-            <li>You can proceed to configure simulations while they register</li>
+            <li><strong>Download the QR code</strong> using the button above</li>
+            <li><strong>Copy the email template</strong> and customize if needed</li>
+            <li><strong>Open your email client</strong> (Gmail, Outlook, etc.)</li>
+            <li><strong>Attach the QR code image</strong> to the email where indicated</li>
+            <li><strong>Send to all workshop participants</strong> from your own email</li>
+            <li>Participants will scan the QR code or click the link to register (takes 3 minutes)</li>
+            <li>All responses will be automatically linked to this workshop</li>
           </ol>
+          <p className="text-xs text-muted-foreground mt-3 italic">
+            Note: Emails cannot be sent automatically from this tool. You must send them manually.
+          </p>
         </div>
       </CardContent>
     </Card>
