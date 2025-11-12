@@ -266,6 +266,13 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
         toast.error('Please identify at least one current bottleneck');
         return false;
       }
+      if (!strategicContext.stillDefiningObjectives) {
+        const hasAtLeastOneGoal = strategicContext.strategicGoals2026.some(g => g.trim() !== '');
+        if (!hasAtLeastOneGoal) {
+          toast.error('Please enter at least one strategic priority or check "still defining"');
+          return false;
+        }
+      }
       if (!strategicContext.competitiveLandscape?.trim()) {
         toast.error('Please describe your competitive landscape');
         return false;
@@ -613,6 +620,67 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
             {/* STEP 3: Strategic Context */}
             {wizardStep === 3 && (
               <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <CardTitle>2026 Strategic Priorities</CardTitle>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="max-w-xs">These priorities will help shape the workshop content and provocation</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <CardDescription>What are your top 2-3 strategic priorities for 2026?</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="still-defining"
+                        checked={strategicContext.stillDefiningObjectives}
+                        onCheckedChange={(checked) => 
+                          updateStrategicContextData({ stillDefiningObjectives: checked as boolean })
+                        }
+                      />
+                      <label
+                        htmlFor="still-defining"
+                        className="text-sm font-medium leading-none cursor-pointer"
+                      >
+                        We're still defining our strategic objectives
+                      </label>
+                    </div>
+
+                    {!strategicContext.stillDefiningObjectives && (
+                      <div className="space-y-3">
+                        {[0, 1, 2].map((index) => (
+                          <div key={index} className="space-y-2">
+                            <Label htmlFor={`goal-${index}`}>
+                              Strategic Priority {index + 1} {index === 0 && '*'}
+                            </Label>
+                            <Input
+                              id={`goal-${index}`}
+                              value={strategicContext.strategicGoals2026[index] || ''}
+                              onChange={(e) => handleStrategicGoalChange(index, e.target.value)}
+                              placeholder={
+                                index === 0
+                                  ? "e.g., Scale revenue to $100M ARR"
+                                  : index === 1
+                                  ? "e.g., Launch in 3 new markets"
+                                  : "e.g., Improve operational efficiency by 30%"
+                              }
+                              maxLength={150}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
                 <Card>
                   <CardHeader>
                     <div className="flex items-center gap-2">

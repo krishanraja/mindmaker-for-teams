@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useExecTeams } from '@/contexts/ExecTeamsContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -165,7 +166,7 @@ export const BootcampBookingSummary: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 border-primary bg-gradient-to-br from-primary/5 to-primary/10">
+                <Card className="border-2">
                   <CardHeader className="text-center">
                     <CardTitle className="text-2xl">Reserve Your Half-Day Session</CardTitle>
                     <CardDescription>
@@ -173,14 +174,19 @@ export const BootcampBookingSummary: React.FC = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex justify-center py-8">
-                    <a
-                      href="https://calendly.com/krish-raja/mindmaker-meeting"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                    <Button
+                      asChild
+                      size="lg"
+                      className="text-lg px-8 py-6"
                     >
-                      Schedule Your Bootcamp Session
-                    </a>
+                      <a
+                        href="https://calendly.com/krish-raja/mindmaker-meeting"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Schedule Your Bootcamp Session
+                      </a>
+                    </Button>
                   </CardContent>
                 </Card>
               </>
