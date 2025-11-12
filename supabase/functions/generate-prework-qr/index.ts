@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { encode as encodeQR } from "https://deno.land/x/qrcode@v2.0.0/mod.ts";
+import QRCode from "npm:qrcode@1.5.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,14 +40,13 @@ serve(async (req) => {
       // Create URL
       const directUrl = `${appUrl}/pre-workshop/${intakeId}/${participantHash}`;
 
-      // Generate QR code as data URL using Deno-native library
+      // Generate QR code as data URL using npm:qrcode library
       console.log(`Generating QR code for: ${directUrl}`);
-      const qrCodeBase64 = await encodeQR(directUrl, {
+      const qrCodeDataUrl = await QRCode.toDataURL(directUrl, {
         errorCorrectionLevel: "H",
-        size: 512,
+        width: 512,
         margin: 2,
       });
-      const qrCodeDataUrl = `data:image/png;base64,${qrCodeBase64}`;
       console.log(`QR code generated successfully for ${participant.email}`);
 
       // Convert data URL to binary buffer

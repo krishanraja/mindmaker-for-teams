@@ -15,7 +15,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { SharedQRDisplay } from './SharedQRDisplay';
 
 const DEPARTMENT_OPTIONS = ['Revenue', 'Operations', 'Technology', 'Finance', 'Marketing', 'Product', 'Human Resources', 'Customer Success', 'Other'];
 
@@ -31,8 +30,6 @@ export const OrganizerIntakeForm: React.FC = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const [qrGenerated, setQrGenerated] = useState(false);
-  const [qrData, setQrData] = useState<{ qrCodeUrl: string; directUrl: string } | null>(null);
 
   // Auto-populate first participant with organizer details when moving to step 3
   useEffect(() => {
@@ -149,41 +146,6 @@ export const OrganizerIntakeForm: React.FC = () => {
       } else {
         setStep(step + 1);
       }
-    }
-  };
-
-  const handleGenerateQR = async () => {
-    if (!state.intakeId) {
-      toast({ 
-        title: 'Please save your information first', 
-        description: 'Click "Next" to save before generating QR code',
-        variant: 'destructive' 
-      });
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      // Generate registration QR code
-      const { data, error: qrError } = await supabase.functions.invoke('generate-shared-prework-qr', {
-        body: { 
-          intakeId: state.intakeId,
-        }
-      });
-
-      if (qrError) throw qrError;
-
-      setQrData({
-        qrCodeUrl: data.qrCodeUrl,
-        directUrl: data.directUrl,
-      });
-      setQrGenerated(true);
-      toast({ title: 'Registration QR code generated!' });
-    } catch (error: any) {
-      console.error('Error generating QR code:', error);
-      toast({ title: error.message || 'Failed to generate QR code', variant: 'destructive' });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -429,35 +391,6 @@ export const OrganizerIntakeForm: React.FC = () => {
                 <Plus className="w-4 h-4 mr-2" />
                 Add Participant
               </Button>
-
-              <div className="pt-6 border-t">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <Label className="text-lg">Team Self-Registration QR Code</Label>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Share this QR code with your team for easy self-registration
-                    </p>
-                  </div>
-                  <Button 
-                    onClick={handleGenerateQR} 
-                    disabled={loading || qrGenerated}
-                    variant={qrGenerated ? "outline" : "default"}
-                  >
-                    {qrGenerated ? 'QR Code Generated' : 'Generate QR Code'}
-                  </Button>
-                </div>
-
-                {qrGenerated && qrData && (
-                  <Card className="p-6 bg-accent/5">
-                    <SharedQRDisplay 
-                      qrCodeUrl={qrData.qrCodeUrl}
-                      directUrl={qrData.directUrl}
-                      companyName={state.intakeData.companyName}
-                      organizerName={state.intakeData.organizerName}
-                    />
-                  </Card>
-                )}
-              </div>
             </div>
           )}
 
