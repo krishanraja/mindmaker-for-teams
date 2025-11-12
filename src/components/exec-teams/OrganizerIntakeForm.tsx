@@ -16,15 +16,6 @@ import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
-const BOTTLENECK_OPTIONS = [
-  'Competing priorities',
-  'Leadership alignment',
-  'Resource constraints',
-  'Change fatigue',
-  'Technical debt',
-  'Market uncertainty',
-];
-
 const ROLE_OPTIONS = ['CEO', 'CTO', 'COO', 'CMO', 'CFO', 'VP', 'Director', 'Other'];
 
 const INDUSTRY_OPTIONS = ['Media', 'Telco', 'Finance', 'Healthcare', 'Retail & CPG', 'Education', 'Consulting', 'Other'];
@@ -81,14 +72,6 @@ export const OrganizerIntakeForm: React.FC = () => {
     const updated = [...state.intakeData.participants];
     updated[index] = { ...updated[index], [field]: value };
     updateIntakeData({ participants: updated });
-  };
-
-  const handleBottleneckToggle = (bottleneck: string) => {
-    const current = state.intakeData.anticipatedBottlenecks;
-    const updated = current.includes(bottleneck)
-      ? current.filter(b => b !== bottleneck)
-      : [...current, bottleneck];
-    updateIntakeData({ anticipatedBottlenecks: updated });
   };
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -171,8 +154,6 @@ export const OrganizerIntakeForm: React.FC = () => {
         .insert([{
           company_name: state.intakeData.companyName,
           industry: state.intakeData.industry,
-          strategic_objectives_2026: state.intakeData.strategicObjectives,
-          anticipated_bottlenecks: state.intakeData.anticipatedBottlenecks as any,
           participants: state.intakeData.participants as any,
           preferred_dates: state.intakeData.preferredDates as any,
           scheduling_notes: state.intakeData.schedulingNotes,
@@ -260,41 +241,6 @@ export const OrganizerIntakeForm: React.FC = () => {
                 </ToggleGroup>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="objectives">2026 Strategic Objectives</Label>
-                <Textarea
-                  id="objectives"
-                  value={state.intakeData.strategicObjectives}
-                  onChange={(e) => updateIntakeData({ strategicObjectives: e.target.value })}
-                  placeholder="What are your top 2-3 strategic priorities for 2026?"
-                  maxLength={200}
-                  rows={3}
-                />
-                <p className="text-xs text-muted-foreground">
-                  {state.intakeData.strategicObjectives.length}/200 characters
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <Label>Anticipated Bottlenecks (select all that apply)</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  {BOTTLENECK_OPTIONS.map((bottleneck) => (
-                    <div key={bottleneck} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={bottleneck}
-                        checked={state.intakeData.anticipatedBottlenecks.includes(bottleneck)}
-                        onCheckedChange={() => handleBottleneckToggle(bottleneck)}
-                      />
-                      <label
-                        htmlFor={bottleneck}
-                        className="text-sm font-medium leading-none cursor-pointer"
-                      >
-                        {bottleneck}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
 
