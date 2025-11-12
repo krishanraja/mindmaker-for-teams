@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Copy, Download, Mail, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 interface SharedQRDisplayProps {
   qrCodeUrl: string;
@@ -23,10 +23,10 @@ export const SharedQRDisplay: React.FC<SharedQRDisplayProps> = ({
     try {
       await navigator.clipboard.writeText(directUrl);
       setCopied(true);
-      toast.success('Link copied to clipboard!');
+      toast({ title: 'Link copied to clipboard!' });
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error('Failed to copy link');
+      toast({ title: 'Failed to copy link', variant: 'destructive' });
     }
   };
 
@@ -42,9 +42,9 @@ export const SharedQRDisplay: React.FC<SharedQRDisplayProps> = ({
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success('QR code downloaded!');
+      toast({ title: 'QR code downloaded!' });
     } catch (error) {
-      toast.error('Failed to download QR code');
+      toast({ title: 'Failed to download QR code', variant: 'destructive' });
     }
   };
 
@@ -70,9 +70,9 @@ ${organizerName}`;
   const handleCopyEmailTemplate = async () => {
     try {
       await navigator.clipboard.writeText(emailTemplate);
-      toast.success('Email template copied!');
+      toast({ title: 'Email template copied!' });
     } catch (error) {
-      toast.error('Failed to copy email template');
+      toast({ title: 'Failed to copy email template', variant: 'destructive' });
     }
   };
 

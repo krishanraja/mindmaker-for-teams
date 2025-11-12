@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { CheckCircle2 } from 'lucide-react';
 import logo from '@/assets/mindmaker-logo.png';
 
@@ -97,7 +97,7 @@ export const ExecutivePulse: React.FC = () => {
       setParticipantInfo(intake);
     } catch (error) {
       console.error('Error loading participant info:', error);
-      toast.error('Invalid pulse link');
+      toast({ title: 'Invalid pulse link', variant: 'destructive' });
     }
   };
 
@@ -177,7 +177,7 @@ export const ExecutivePulse: React.FC = () => {
 
     const unanswered = allQuestions.filter(q => !responses[q.id]);
     if (unanswered.length > 0) {
-      toast.error('Please answer all questions');
+      toast({ title: 'Please answer all questions', variant: 'destructive' });
       return;
     }
 
@@ -210,10 +210,10 @@ export const ExecutivePulse: React.FC = () => {
       });
 
       setSubmitted(true);
-      toast.success('Pulse submitted successfully!');
+      toast({ title: 'Pulse submitted successfully!' });
     } catch (error: any) {
       console.error('Error submitting pulse:', error);
-      toast.error(error.message || 'Failed to submit pulse');
+      toast({ title: error.message || 'Failed to submit pulse', variant: 'destructive' });
     } finally {
       setLoading(false);
     }

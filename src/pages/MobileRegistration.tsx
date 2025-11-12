@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, ArrowRight, ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 const AI_MYTHS_OPTIONS = [
   'AI will replace our team',
@@ -69,7 +69,7 @@ export const MobileRegistration: React.FC = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error loading intake:', error);
-      toast.error('Invalid registration link');
+      toast({ title: 'Invalid registration link', variant: 'destructive' });
       navigate('/');
     }
   };
@@ -84,33 +84,33 @@ export const MobileRegistration: React.FC = () => {
     switch (currentStep) {
       case 1:
         if (!formData.participantName.trim()) {
-          toast.error('Please enter your name');
+          toast({ title: 'Please enter your name', variant: 'destructive' });
           return false;
         }
         if (!formData.participantEmail.trim() || !formData.participantEmail.includes('@')) {
-          toast.error('Please enter a valid email');
+          toast({ title: 'Please enter a valid email', variant: 'destructive' });
           return false;
         }
         if (!formData.participantRole.trim()) {
-          toast.error('Please enter your role');
+          toast({ title: 'Please enter your role', variant: 'destructive' });
           return false;
         }
         break;
       case 2:
         if (formData.aiMythsConcerns.length === 0) {
-          toast.error('Please select at least one concern');
+          toast({ title: 'Please select at least one concern', variant: 'destructive' });
           return false;
         }
         break;
       case 3:
         if (formData.currentBottlenecks.length === 0) {
-          toast.error('Please select at least one bottleneck');
+          toast({ title: 'Please select at least one bottleneck', variant: 'destructive' });
           return false;
         }
         break;
       case 4:
         if (!formData.aiExperienceLevel) {
-          toast.error('Please select your AI experience level');
+          toast({ title: 'Please select your AI experience level', variant: 'destructive' });
           return false;
         }
         break;
@@ -174,10 +174,10 @@ export const MobileRegistration: React.FC = () => {
       if (insertError) throw insertError;
       
       setSubmitted(true);
-      toast.success('Registration complete!');
+      toast({ title: 'Registration complete!' });
     } catch (error: any) {
       console.error('Error submitting:', error);
-      toast.error(error.message || 'Failed to submit registration');
+      toast({ title: error.message || 'Failed to submit registration', variant: 'destructive' });
     } finally {
       setSubmitting(false);
     }

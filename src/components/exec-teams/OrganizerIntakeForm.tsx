@@ -12,7 +12,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Calendar } from '@/components/ui/calendar';
 import { Plus, Trash2, ArrowRight, ArrowLeft, AlertCircle, CalendarIcon, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -123,13 +123,13 @@ export const OrganizerIntakeForm: React.FC = () => {
   const validateStep = () => {
     if (step === 1) {
       if (!state.intakeData.companyName || !state.intakeData.organizerName || !state.intakeData.organizerEmail) {
-        toast.error('Please fill in all required fields');
+        toast({ title: 'Please fill in all required fields', variant: 'destructive' });
         return false;
       }
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(state.intakeData.organizerEmail)) {
-        toast.error('Please enter a valid email address');
+        toast({ title: 'Please enter a valid email address', variant: 'destructive' });
         return false;
       }
     } else if (step === 2) {
@@ -139,7 +139,7 @@ export const OrganizerIntakeForm: React.FC = () => {
           p => !p.name || !p.email || !p.role
         );
         if (invalidParticipants.length > 0) {
-          toast.error('Please complete all participant information or remove incomplete entries');
+          toast({ title: 'Please complete all participant information or remove incomplete entries', variant: 'destructive' });
           return false;
         }
       }
@@ -148,7 +148,7 @@ export const OrganizerIntakeForm: React.FC = () => {
         p => p.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)
       );
       if (invalidEmails.length > 0) {
-        toast.error('Please enter valid email addresses for all participants');
+        toast({ title: 'Please enter valid email addresses for all participants', variant: 'destructive' });
         return false;
       }
     }
@@ -186,11 +186,11 @@ export const OrganizerIntakeForm: React.FC = () => {
 
       setIntakeId(intake.id);
 
-      toast.success('Intake submitted successfully!');
+      toast({ title: 'Intake submitted successfully!' });
       setCurrentStep(3);
     } catch (error: any) {
       console.error('Error submitting intake:', error);
-      toast.error(error.message || 'Failed to submit intake');
+      toast({ title: error.message || 'Failed to submit intake', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -418,7 +418,7 @@ export const OrganizerIntakeForm: React.FC = () => {
                           preferredDates: (dates as Date[]).map(d => format(d, 'yyyy-MM-dd'))
                         });
                       } else if (dates && dates.length > 3) {
-                        toast.error('You can select up to 3 dates');
+                        toast({ title: 'You can select up to 3 dates', variant: 'destructive' });
                       }
                     }}
                     disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}

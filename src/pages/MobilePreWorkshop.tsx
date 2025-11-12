@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, ArrowRight, ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 export const MobilePreWorkshop: React.FC = () => {
   const { intakeId, participantHash } = useParams<{ intakeId: string; participantHash: string }>();
@@ -61,7 +61,7 @@ export const MobilePreWorkshop: React.FC = () => {
       const participantsList = (intake?.participants || []) as any[];
       const participant = participantsList.find((p: any) => p.email === email);
       if (!participant) {
-        toast.error('Invalid access link');
+        toast({ title: 'Invalid access link', variant: 'destructive' });
         navigate('/');
         return;
       }
@@ -93,7 +93,7 @@ export const MobilePreWorkshop: React.FC = () => {
       setLoading(false);
     } catch (error) {
       console.error('Validation error:', error);
-      toast.error('Invalid access link');
+      toast({ title: 'Invalid access link', variant: 'destructive' });
       navigate('/');
     }
   };
@@ -108,25 +108,25 @@ export const MobilePreWorkshop: React.FC = () => {
     switch (currentQuestion) {
       case 1:
         if (!responses.personal_bottleneck.trim()) {
-          toast.error('Please describe your current bottleneck');
+          toast({ title: 'Please describe your current bottleneck', variant: 'destructive' });
           return false;
         }
         break;
       case 2:
         if (!responses.strategic_goal_focus) {
-          toast.error('Please select a strategic goal');
+          toast({ title: 'Please select a strategic goal', variant: 'destructive' });
           return false;
         }
         break;
       case 3:
         if (!responses.ai_concern) {
-          toast.error('Please select an AI concern');
+          toast({ title: 'Please select an AI concern', variant: 'destructive' });
           return false;
         }
         break;
       case 4:
         if (!responses.ai_workflow_wish.trim()) {
-          toast.error('Please describe a workflow where AI could help');
+          toast({ title: 'Please describe a workflow where AI could help', variant: 'destructive' });
           return false;
         }
         break;
@@ -152,10 +152,10 @@ export const MobilePreWorkshop: React.FC = () => {
       if (error) throw error;
       
       setAlreadySubmitted(true);
-      toast.success('Thank you! Your input has been submitted.');
+      toast({ title: 'Thank you! Your input has been submitted.' });
     } catch (error: any) {
       console.error('Error submitting:', error);
-      toast.error(error.message || 'Failed to submit');
+      toast({ title: error.message || 'Failed to submit', variant: 'destructive' });
     } finally {
       setSubmitting(false);
     }
