@@ -32,20 +32,20 @@ serve(async (req) => {
 
     console.log('Registration URL:', registrationUrl);
 
-    // Generate QR code as data URL (works in Deno environment)
-    const qrCodeDataUrl = await QRCode.toDataURL(registrationUrl, {
+    // Generate QR code as PNG buffer (works in Deno environment)
+    const qrCodeBuffer = await QRCode.toBuffer(registrationUrl, {
       errorCorrectionLevel: 'H',
       width: 512,
       margin: 2,
       color: {
-        dark: '#000000',
-        light: '#FFFFFF',
+        dark: '#000000FF',
+        light: '#FFFFFFFF',
       },
+      type: 'png'
     });
 
-    // Convert data URL to binary buffer
-    const base64Data = qrCodeDataUrl.split(',')[1];
-    const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+    // Convert to Uint8Array for upload
+    const binaryData = new Uint8Array(qrCodeBuffer);
 
     // Upload to storage
     const fileName = `shared/${intakeId}.png`;

@@ -153,6 +153,15 @@ export const OrganizerIntakeForm: React.FC = () => {
   };
 
   const handleGenerateQR = async () => {
+    if (!state.intakeId) {
+      toast({ 
+        title: 'Please save your information first', 
+        description: 'Click "Next" to save before generating QR code',
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
     setLoading(true);
     try {
       // Generate registration QR code
