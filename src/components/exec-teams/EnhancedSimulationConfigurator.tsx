@@ -125,6 +125,7 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
     setCurrentStep,
     setBootcampPlanId,
     setCognitiveBaseline,
+    setJargonLevel,
   } = useExecTeams();
 
   const [wizardStep, setWizardStep] = useState(1); // 1: AI Readiness, 2: Simulations, 3: Strategic Context, 4: Pre-Work Forms
@@ -489,6 +490,46 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <Card className="bg-accent/5">
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-base">Content Complexity Level</CardTitle>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="max-w-xs">Adjusts the language complexity of all workshop materials and AI responses</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <CardDescription>
+                      {state.jargonLevel < 33 ? 'Plain English - No jargon or acronyms' :
+                       state.jargonLevel < 67 ? 'Balanced - Mix of plain and technical language' :
+                       'Expert - Full technical terminology'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={state.jargonLevel}
+                        onChange={(e) => setJargonLevel(Number(e.target.value))}
+                        className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Simple</span>
+                        <span>Balanced</span>
+                        <span>Expert</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
 

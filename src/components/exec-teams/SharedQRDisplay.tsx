@@ -124,11 +124,6 @@ ${firstName}`;
           </Button>
         </div>
 
-        {/* Direct Link Display */}
-        <div className="p-4 bg-muted rounded-lg">
-          <p className="text-xs text-muted-foreground mb-2">Direct Link:</p>
-          <p className="text-sm font-mono break-all">{directUrl}</p>
-        </div>
 
         {/* Email Template */}
         <div className="space-y-3">
