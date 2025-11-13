@@ -32,7 +32,7 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
     const channel = subscribeToItems();
     
     return () => {
-      supabase.removeChannel(channel);
+      channel.unsubscribe();
     };
   }, [workshopId]);
 

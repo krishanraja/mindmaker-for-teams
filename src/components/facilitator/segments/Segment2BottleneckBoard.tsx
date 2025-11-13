@@ -26,7 +26,7 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
     const channel = subscribeToSubmissions();
     
     return () => {
-      supabase.removeChannel(channel);
+      channel.unsubscribe();
     };
   }, [workshopId]);
 

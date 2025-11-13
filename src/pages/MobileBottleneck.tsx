@@ -51,7 +51,11 @@ export const MobileBottleneck: React.FC = () => {
             <p className="text-muted-foreground mb-4">
               Your bottleneck has been submitted and is now visible on the facilitator board.
             </p>
-            <Button onClick={() => setSubmitted(false)} variant="outline">
+            <Button onClick={() => {
+              setSubmitted(false);
+              setParticipantName('');
+              setBottleneckText('');
+            }} variant="outline">
               Submit Another
             </Button>
           </CardContent>
