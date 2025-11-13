@@ -26,8 +26,8 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Use actual deployed app URL
-    const appUrl = 'https://bkyuxvschuwngtcdhsyg.lovable.app';
+    // Use production app URL from environment variable
+    const appUrl = Deno.env.get('APP_URL') || 'https://mindmaker.fractionl.ai';
     const registrationUrl = `${appUrl}/mobile-registration/${intakeId}`;
 
     console.log('Registration URL:', registrationUrl);

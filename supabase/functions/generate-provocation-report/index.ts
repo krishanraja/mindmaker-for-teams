@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { workshop_session_id } = await req.json();
+    const { workshop_session_id, jargonLevel = 50 } = await req.json();
     
     if (!workshop_session_id) {
       throw new Error('workshop_session_id is required');
@@ -120,10 +120,18 @@ serve(async (req) => {
       }
     };
 
-    // Generate AI synthesis
+    // Generate AI synthesis with jargon level guidance
+    const getJargonGuidance = (level: number) => {
+      if (level < 33) return "Use only plain English. Avoid ALL acronyms, technical terms, and industry jargon. Explain concepts as if to someone with no business or tech background. Use simple, everyday language.";
+      if (level < 67) return "Balance plain English with industry terms. Define acronyms on first use. Keep language accessible to smart generalists.";
+      return "Use industry-standard terminology and acronyms freely. Assume expert audience familiar with business and AI concepts.";
+    };
+
     const systemPrompt = `You are a McKinsey-level strategy consultant specializing in AI transformation. 
 Synthesize workshop data into an executive summary that creates urgency while being data-driven and actionable.
-Be specific, use numbers, and make it feel personalized to this company.`;
+Be specific, use numbers, and make it feel personalized to this company.
+
+${getJargonGuidance(jargonLevel)}`;
 
     const userPrompt = `Analyze this AI readiness workshop for ${contextData.company.name}:
 
