@@ -177,30 +177,7 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
           <Badge variant="outline">Risk Assessment</Badge>
         </div>
 
-        {/* Technical Jargon Slider */}
-        <div className="border-t pt-4 mt-4">
-          <label className="text-sm font-semibold mb-3 block">Content Complexity Level</label>
-          <div className="space-y-2">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={jargonLevel}
-              onChange={(e) => setJargonLevel(Number(e.target.value))}
-              className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span className={jargonLevel < 33 ? 'font-bold text-primary' : ''}>Plain English</span>
-              <span className={jargonLevel >= 33 && jargonLevel < 67 ? 'font-bold text-primary' : ''}>Balanced</span>
-              <span className={jargonLevel >= 67 ? 'font-bold text-primary' : ''}>Technical</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              {jargonLevel < 33 && "AI will use simple, everyday language with no jargon"}
-              {jargonLevel >= 33 && jargonLevel < 67 && "AI will balance plain English with industry terms"}
-              {jargonLevel >= 67 && "AI will use industry-standard terminology freely"}
-            </p>
-          </div>
-        </div>
+        {/* Content Complexity controlled via context - set during session selection */}
       </Card>
 
       {currentPhase === 'setup' && (

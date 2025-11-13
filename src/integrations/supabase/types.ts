@@ -1224,6 +1224,181 @@ export type Database = {
           },
         ]
       }
+      partner_intakes: {
+        Row: {
+          consent: boolean
+          created_at: string | null
+          engagement_model: string | null
+          firm_name: string
+          id: string
+          objectives_json: Json
+          partner_type: string | null
+          pipeline_count: number
+          pipeline_names: string
+          region: string | null
+          resources_enablement_bandwidth: string | null
+          role: string | null
+          sectors_json: Json | null
+          updated_at: string | null
+          urgency_window: string
+        }
+        Insert: {
+          consent?: boolean
+          created_at?: string | null
+          engagement_model?: string | null
+          firm_name: string
+          id?: string
+          objectives_json?: Json
+          partner_type?: string | null
+          pipeline_count: number
+          pipeline_names: string
+          region?: string | null
+          resources_enablement_bandwidth?: string | null
+          role?: string | null
+          sectors_json?: Json | null
+          updated_at?: string | null
+          urgency_window: string
+        }
+        Update: {
+          consent?: boolean
+          created_at?: string | null
+          engagement_model?: string | null
+          firm_name?: string
+          id?: string
+          objectives_json?: Json
+          partner_type?: string | null
+          pipeline_count?: number
+          pipeline_names?: string
+          region?: string | null
+          resources_enablement_bandwidth?: string | null
+          role?: string | null
+          sectors_json?: Json | null
+          updated_at?: string | null
+          urgency_window?: string
+        }
+        Relationships: []
+      }
+      partner_plans: {
+        Row: {
+          created_at: string | null
+          diagnostic_count: number
+          exec_bootcamp_count: number
+          firm_name: string
+          id: string
+          intake_id: string
+          literacy_sprint_count: number
+          objectives_json: Json
+          pipeline_count: number
+          share_slug: string
+          total_companies: number
+          updated_at: string | null
+          urgency_window: string
+        }
+        Insert: {
+          created_at?: string | null
+          diagnostic_count?: number
+          exec_bootcamp_count?: number
+          firm_name: string
+          id?: string
+          intake_id: string
+          literacy_sprint_count?: number
+          objectives_json?: Json
+          pipeline_count: number
+          share_slug: string
+          total_companies?: number
+          updated_at?: string | null
+          urgency_window: string
+        }
+        Update: {
+          created_at?: string | null
+          diagnostic_count?: number
+          exec_bootcamp_count?: number
+          firm_name?: string
+          id?: string
+          intake_id?: string
+          literacy_sprint_count?: number
+          objectives_json?: Json
+          pipeline_count?: number
+          share_slug?: string
+          total_companies?: number
+          updated_at?: string | null
+          urgency_window?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_plans_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "partner_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_portfolio_items: {
+        Row: {
+          ai_posture: string
+          created_at: string | null
+          data_posture: string
+          decision_cadence: string
+          fit_score: number
+          id: string
+          intake_id: string
+          name: string
+          recommendation: string
+          risk_flags_json: Json | null
+          sector: string | null
+          sponsor_strength: string
+          stage: string | null
+          updated_at: string | null
+          value_pressure: string
+          willingness_60d: string
+        }
+        Insert: {
+          ai_posture: string
+          created_at?: string | null
+          data_posture: string
+          decision_cadence: string
+          fit_score: number
+          id?: string
+          intake_id: string
+          name: string
+          recommendation: string
+          risk_flags_json?: Json | null
+          sector?: string | null
+          sponsor_strength: string
+          stage?: string | null
+          updated_at?: string | null
+          value_pressure: string
+          willingness_60d: string
+        }
+        Update: {
+          ai_posture?: string
+          created_at?: string | null
+          data_posture?: string
+          decision_cadence?: string
+          fit_score?: number
+          id?: string
+          intake_id?: string
+          name?: string
+          recommendation?: string
+          risk_flags_json?: Json | null
+          sector?: string | null
+          sponsor_strength?: string
+          stage?: string | null
+          updated_at?: string | null
+          value_pressure?: string
+          willingness_60d?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_portfolio_items_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "partner_intakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pilot_charter: {
         Row: {
           calendar_events: Json | null
@@ -2304,6 +2479,17 @@ export type Database = {
           conversion_rate: number
           high_value_conversions: number
           total_sessions: number
+        }[]
+      }
+      get_intake_for_registration: {
+        Args: { intake_uuid: string }
+        Returns: {
+          company_name: string
+          created_at: string
+          id: string
+          organizer_name: string
+          session_name: string
+          workshop_date: string
         }[]
       }
       has_role: {

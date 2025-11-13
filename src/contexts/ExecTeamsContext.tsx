@@ -62,6 +62,7 @@ export interface ExecTeamsState {
   pilotExpectationsData?: PilotExpectationsData;
   bootcampPlanId?: string;
   cognitiveBaseline?: any;
+  jargonLevel: number; // 0-100: controls content complexity across entire tool
 }
 
 interface ExecTeamsContextType {
@@ -78,6 +79,7 @@ interface ExecTeamsContextType {
   updateSimulation2Snapshot: (data: Partial<SimulationSnapshot>) => void;
   setBootcampPlanId: (id: string) => void;
   setCognitiveBaseline: (data: any) => void;
+  setJargonLevel: (level: number) => void;
   resetExecTeams: () => void;
 }
 
@@ -94,6 +96,7 @@ type Action =
   | { type: 'UPDATE_SIMULATION_2'; payload: Partial<SimulationSnapshot> }
   | { type: 'SET_BOOTCAMP_PLAN_ID'; payload: string }
   | { type: 'SET_COGNITIVE_BASELINE'; payload: any }
+  | { type: 'SET_JARGON_LEVEL'; payload: number }
   | { type: 'RESET' };
 
 const initialIntakeData: ExecIntakeData = {
@@ -112,6 +115,7 @@ const initialState: ExecTeamsState = {
   currentStep: 1,
   intakeData: initialIntakeData,
   selectedSimulations: [],
+  jargonLevel: 50, // Default to balanced complexity
 };
 
 function reducer(state: ExecTeamsState, action: Action): ExecTeamsState {
@@ -185,6 +189,8 @@ function reducer(state: ExecTeamsState, action: Action): ExecTeamsState {
       return { ...state, bootcampPlanId: action.payload };
     case 'SET_COGNITIVE_BASELINE':
       return { ...state, cognitiveBaseline: action.payload };
+    case 'SET_JARGON_LEVEL':
+      return { ...state, jargonLevel: action.payload };
     case 'RESET':
       return initialState;
     default:
@@ -253,6 +259,10 @@ export function ExecTeamsProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_COGNITIVE_BASELINE', payload: data });
   }, []);
 
+  const setJargonLevel = useCallback((level: number) => {
+    dispatch({ type: 'SET_JARGON_LEVEL', payload: level });
+  }, []);
+
   const resetExecTeams = useCallback(() => {
     dispatch({ type: 'RESET' });
   }, []);
@@ -271,6 +281,7 @@ export function ExecTeamsProvider({ children }: { children: React.ReactNode }) {
     updateSimulation2Snapshot,
     setBootcampPlanId,
     setCognitiveBaseline,
+    setJargonLevel,
     resetExecTeams,
   }), [
     state,
@@ -286,6 +297,7 @@ export function ExecTeamsProvider({ children }: { children: React.ReactNode }) {
     updateSimulation2Snapshot,
     setBootcampPlanId,
     setCognitiveBaseline,
+    setJargonLevel,
     resetExecTeams,
   ]);
 

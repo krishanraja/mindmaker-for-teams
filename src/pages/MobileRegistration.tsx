@@ -57,15 +57,17 @@ export const MobileRegistration: React.FC = () => {
 
   const loadIntakeData = async () => {
     try {
+      // Use security definer function for public access
       const { data: intake, error } = await supabase
-        .from('exec_intakes')
-        .select('*')
-        .eq('id', intakeId)
-        .single();
+        .rpc('get_intake_for_registration', { intake_uuid: intakeId });
       
       if (error) throw error;
       
-      setIntakeData(intake);
+      if (!intake || intake.length === 0) {
+        throw new Error('Invalid registration link');
+      }
+      
+      setIntakeData(intake[0]);
       setLoading(false);
     } catch (error) {
       console.error('Error loading intake:', error);

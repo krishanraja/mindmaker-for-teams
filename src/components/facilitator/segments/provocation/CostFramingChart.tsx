@@ -87,13 +87,6 @@ export const CostFramingChart: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Bottom Formula */}
-        <div className="mt-8 p-6 bg-muted border border-border rounded-lg">
-          <p className="text-center text-2xl font-bold text-foreground">
-            Every 90 Days of Delay = 15% Advantage to AI-Native Competitors
-          </p>
-        </div>
       </CardContent>
     </Card>
   );
