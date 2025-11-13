@@ -407,7 +407,8 @@ html {
   scroll-snap-align: center;
   display: flex;
   flex-direction: column;
-  padding: 36px 32px; /* Fixed equal padding: 36px top/bottom, 32px left/right */
+  justify-content: center; /* Vertically center content */
+  padding: 24px 32px; /* Reduced top/bottom padding for better centering */
   border-radius: 0.5rem;
   border: 1px solid hsl(var(--border) / 0.5);
   background: hsl(var(--card) / 0.5);
