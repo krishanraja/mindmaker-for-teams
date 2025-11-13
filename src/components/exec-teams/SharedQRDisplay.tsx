@@ -90,7 +90,7 @@ ${firstName}`;
           <img 
             src={qrCodeUrl} 
             alt="Workshop Registration QR Code" 
-            className="w-64 h-64"
+            className="w-128 h-128"
           />
         </div>
 
