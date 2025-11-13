@@ -63,7 +63,13 @@ export const MobileEffortlessMap: React.FC = () => {
             <p className="text-muted-foreground mb-4">
               Your item has been mapped and is now visible on the facilitator board.
             </p>
-            <Button onClick={() => setSubmitted(false)} variant="outline">
+            <Button onClick={() => {
+              setSubmitted(false);
+              setParticipantName('');
+              setItemText('');
+              setSelectedLane('');
+              setSponsorName('');
+            }} variant="outline">
               Submit Another Item
             </Button>
           </CardContent>
