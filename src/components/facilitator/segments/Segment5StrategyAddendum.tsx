@@ -116,7 +116,7 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
           {activitySession && (
             <Card className="p-4 flex flex-col items-center">
               <h4 className="font-semibold mb-2">Table Collaboration QR</h4>
-              <QRCodeSVG value={activitySession.qr_code_url} size={200} />
+              <QRCodeSVG value={activitySession.qr_code_url} size={400} />
             </Card>
           )}
 

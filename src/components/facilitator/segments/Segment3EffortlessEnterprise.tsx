@@ -29,7 +29,11 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
 
   useEffect(() => {
     loadItems();
-    subscribeToItems();
+    const channel = subscribeToItems();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [workshopId]);
 
   const generateMapQR = async () => {
@@ -110,7 +114,7 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
 
   const subscribeToItems = () => {
     const channel = supabase
-      .channel('effortless-map-items')
+      .channel('effortless-map-items-realtime')
       .on(
         'postgres_changes',
         {
@@ -119,13 +123,14 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
           table: 'effortless_map_items',
           filter: `workshop_session_id=eq.${workshopId}`
         },
-        () => loadItems()
+        async (payload) => {
+          console.log('Real-time map item update:', payload);
+          await loadItems();
+        }
       )
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    
+    return channel;
   };
 
   const getItemsByLane = (laneId: string) => {
@@ -198,19 +203,13 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
             {activitySession && (
               <Card className="p-8 flex flex-col items-center bg-card border-2">
                 <h4 className="font-semibold text-lg mb-4">Map Items QR Code</h4>
-                <QRCodeSVG value={activitySession.qr_code_url} size={256} />
-                <p className="text-xs text-muted-foreground mt-4 text-center break-all max-w-xs">
-                  {activitySession.qr_code_url}
-                </p>
+                <QRCodeSVG value={activitySession.qr_code_url} size={512} />
               </Card>
             )}
             {votingSession && (
               <Card className="p-8 flex flex-col items-center bg-card border-2">
                 <h4 className="font-semibold text-lg mb-4">Dot Voting QR Code</h4>
-                <QRCodeSVG value={votingSession.qr_code_url} size={256} />
-                <p className="text-xs text-muted-foreground mt-4 text-center break-all max-w-xs">
-                  {votingSession.qr_code_url}
-                </p>
+                <QRCodeSVG value={votingSession.qr_code_url} size={512} />
               </Card>
             )}
           </div>

@@ -23,7 +23,11 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
 
   useEffect(() => {
     loadSubmissions();
-    subscribeToSubmissions();
+    const channel = subscribeToSubmissions();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [workshopId]);
 
   const generateQRCode = async () => {
@@ -65,25 +69,26 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
 
   const subscribeToSubmissions = () => {
     const channel = supabase
-      .channel('bottleneck-submissions')
+      .channel('bottleneck-submissions-realtime')
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'bottleneck_submissions',
           filter: `workshop_session_id=eq.${workshopId}`
         },
-        (payload) => {
-          setSubmissions(prev => [...prev, payload.new]);
-          toast({ title: `New submission from ${payload.new.participant_name}` });
+        async (payload) => {
+          console.log('Real-time bottleneck update:', payload);
+          if (payload.eventType === 'INSERT') {
+            toast({ title: `New submission from ${payload.new.participant_name}` });
+          }
+          await loadSubmissions();
         }
       )
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    
+    return channel;
   };
 
   const handleAICluster = async () => {
@@ -193,10 +198,7 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
           {activitySession && (
             <Card className="p-8 flex flex-col items-center bg-card border-2">
               <h3 className="font-semibold text-lg mb-4">Scan to Submit Bottlenecks</h3>
-              <QRCodeSVG value={activitySession.qr_code_url} size={256} />
-              <p className="text-xs text-muted-foreground mt-4 text-center break-all max-w-xs">
-                {activitySession.qr_code_url}
-              </p>
+              <QRCodeSVG value={activitySession.qr_code_url} size={512} />
             </Card>
           )}
 
