@@ -53,10 +53,12 @@ export const PreWorkResponsesModal: React.FC<PreWorkResponsesModalProps> = ({
   const getTopBottlenecks = () => {
     const bottlenecks: Record<string, number> = {};
     responses.forEach(r => {
-      const text = r.pre_work_responses?.personal_bottleneck;
-      if (text) {
-        bottlenecks[text] = (bottlenecks[text] || 0) + 1;
-      }
+      const bottleneckArray = r.pre_work_responses?.current_bottlenecks || [];
+      bottleneckArray.forEach((text: string) => {
+        if (text) {
+          bottlenecks[text] = (bottlenecks[text] || 0) + 1;
+        }
+      });
     });
     return Object.entries(bottlenecks)
       .sort(([, a], [, b]) => b - a)
@@ -66,10 +68,12 @@ export const PreWorkResponsesModal: React.FC<PreWorkResponsesModalProps> = ({
   const getTopConcerns = () => {
     const concerns: Record<string, number> = {};
     responses.forEach(r => {
-      const concern = r.pre_work_responses?.ai_concern;
-      if (concern) {
-        concerns[concern] = (concerns[concern] || 0) + 1;
-      }
+      const concernArray = r.pre_work_responses?.ai_myths_concerns || [];
+      concernArray.forEach((concern: string) => {
+        if (concern) {
+          concerns[concern] = (concerns[concern] || 0) + 1;
+        }
+      });
     });
     return Object.entries(concerns)
       .sort(([, a], [, b]) => b - a);
@@ -168,26 +172,35 @@ export const PreWorkResponsesModal: React.FC<PreWorkResponsesModalProps> = ({
                     <Card key={index}>
                       <CardHeader>
                         <CardTitle className="text-base">{response.participant_name}</CardTitle>
-                        <CardDescription>
-                          Submitted {new Date(response.submitted_at).toLocaleDateString()}
-                        </CardDescription>
+                        <CardDescription>{response.participant_email}</CardDescription>
                       </CardHeader>
-                      <CardContent className="space-y-3 text-sm">
+                      <CardContent className="space-y-4">
                         <div>
-                          <p className="font-medium text-xs text-muted-foreground mb-1">Personal Bottleneck:</p>
-                          <p>{response.pre_work_responses?.personal_bottleneck}</p>
+                          <h4 className="font-semibold text-sm mb-2">Current Bottlenecks</h4>
+                          <ul className="list-disc list-inside space-y-1">
+                            {(response.pre_work_responses?.current_bottlenecks || []).map((b: string, i: number) => (
+                              <li key={i} className="text-sm text-muted-foreground">{b}</li>
+                            ))}
+                          </ul>
                         </div>
+                        
                         <div>
-                          <p className="font-medium text-xs text-muted-foreground mb-1">Strategic Goal Focus:</p>
-                          <p>{response.pre_work_responses?.strategic_goal_focus}</p>
+                          <h4 className="font-semibold text-sm mb-2">AI Myths & Concerns</h4>
+                          <ul className="list-disc list-inside space-y-1">
+                            {(response.pre_work_responses?.ai_myths_concerns || []).map((c: string, i: number) => (
+                              <li key={i} className="text-sm text-muted-foreground">{c}</li>
+                            ))}
+                          </ul>
                         </div>
+
                         <div>
-                          <p className="font-medium text-xs text-muted-foreground mb-1">AI Concern:</p>
-                          <Badge variant="outline">{response.pre_work_responses?.ai_concern}</Badge>
+                          <h4 className="font-semibold text-sm mb-2">Department</h4>
+                          <Badge variant="outline">{response.pre_work_responses?.department || 'Not specified'}</Badge>
                         </div>
+
                         <div>
-                          <p className="font-medium text-xs text-muted-foreground mb-1">AI Workflow Wish:</p>
-                          <p>{response.pre_work_responses?.ai_workflow_wish}</p>
+                          <h4 className="font-semibold text-sm mb-2">AI Experience Level</h4>
+                          <Badge variant="outline">{response.pre_work_responses?.ai_experience_level || 'Not specified'}</Badge>
                         </div>
                       </CardContent>
                     </Card>

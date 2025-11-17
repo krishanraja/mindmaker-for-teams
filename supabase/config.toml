@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.simulation-ai-experiment]
 verify_jwt = false
+
+[functions.analyze-prework-myths]
+verify_jwt = false

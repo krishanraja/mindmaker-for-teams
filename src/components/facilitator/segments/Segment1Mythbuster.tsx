@@ -1,14 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Zap } from 'lucide-react';
+import { Zap, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Segment1MythbusterProps {
   workshopId: string;
   bootcampPlanData?: any;
 }
 
-export const Segment1Mythbuster: React.FC<Segment1MythbusterProps> = ({ bootcampPlanData }) => {
-  const myths = [
+export const Segment1Mythbuster: React.FC<Segment1MythbusterProps> = ({ workshopId, bootcampPlanData }) => {
+  const [aiMyths, setAiMyths] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadAIMyths();
+  }, [bootcampPlanData]);
+
+  const loadAIMyths = async () => {
+    if (!bootcampPlanData?.intake_id) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-prework-myths', {
+        body: { intake_id: bootcampPlanData.intake_id }
+      });
+
+      if (!error && data?.myths) {
+        setAiMyths(data.myths);
+      }
+    } catch (error) {
+      console.error('Error loading AI myths:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fallbackMyths = [
     {
       myth: 'AI will replace all jobs',
       reality: 'AI augments human work - the Doorman Theory shows AI handles routine tasks while humans focus on judgment and relationships'
@@ -41,12 +70,42 @@ export const Segment1Mythbuster: React.FC<Segment1MythbusterProps> = ({ bootcamp
             <strong>Objective:</strong> Debunk common AI misconceptions and establish a foundation of realistic expectations.
           </p>
 
-          {bootcampPlanData?.ai_myths_concerns && bootcampPlanData.ai_myths_concerns.length > 0 && (
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <span className="ml-2 text-muted-foreground">Analyzing pre-workshop responses...</span>
+            </div>
+          ) : aiMyths.length > 0 ? (
             <Card className="bg-primary/10 border-2 border-primary/30">
               <CardContent className="pt-4">
                 <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">From Customer Intake</span>
-                  Customer's AI Concerns & Myths
+                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">AI-Analyzed from Team Input</span>
+                  Team-Specific Myths & Concerns
+                </h4>
+                <div className="space-y-4">
+                  {aiMyths.map((item, idx) => (
+                    <Card key={idx} className="border-l-4 border-l-primary">
+                      <CardContent className="pt-4">
+                        <div className="font-semibold text-foreground mb-2">
+                          Myth: {item.myth}
+                        </div>
+                        <div className="text-muted-foreground">
+                          Reality: {item.reality}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {bootcampPlanData?.ai_myths_concerns && bootcampPlanData.ai_myths_concerns.length > 0 && (
+            <Card className="bg-accent/10 border-2 border-accent/30">
+              <CardContent className="pt-4">
+                <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                  <span className="px-2 py-1 bg-accent/20 text-accent-foreground text-xs rounded">From Organizer Intake</span>
+                  Additional Concerns to Address
                 </h4>
                 <ul className="space-y-2">
                   {bootcampPlanData.ai_myths_concerns.map((concern: string, idx: number) => (
@@ -61,9 +120,9 @@ export const Segment1Mythbuster: React.FC<Segment1MythbusterProps> = ({ bootcamp
           )}
           
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Key Talking Points:</h3>
-            {myths.map((item, idx) => (
-              <Card key={idx} className="border-l-4 border-l-primary">
+            <h3 className="font-semibold text-lg">General Talking Points:</h3>
+            {fallbackMyths.map((item, idx) => (
+              <Card key={idx} className="border-l-4 border-l-muted">
                 <CardContent className="pt-4">
                   <div className="font-semibold text-foreground mb-2">
                     Myth: {item.myth}
