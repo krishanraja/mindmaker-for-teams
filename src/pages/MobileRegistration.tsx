@@ -5,12 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, ArrowRight, ArrowLeft, Target, Zap, Calendar } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+
+const DEPARTMENT_OPTIONS = ['Revenue', 'Operations', 'Technology', 'Finance', 'Marketing', 'Product', 'Human Resources', 'Customer Success', 'Other'];
 
 const AI_MYTHS_OPTIONS = [
   'AI will replace our team',
@@ -94,7 +97,7 @@ export const MobileRegistration: React.FC = () => {
           return false;
         }
         if (!formData.participantRole.trim()) {
-          toast({ title: 'Please enter your role', variant: 'destructive' });
+          toast({ title: 'Please select your department', variant: 'destructive' });
           return false;
         }
         break;
@@ -356,13 +359,22 @@ export const MobileRegistration: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="role">Your Role *</Label>
-                <Input
-                  id="role"
+                <Label htmlFor="role">Department *</Label>
+                <Select
                   value={formData.participantRole}
-                  onChange={(e) => setFormData({ ...formData, participantRole: e.target.value })}
-                  placeholder="e.g., VP Product, CTO, Head of Operations"
-                />
+                  onValueChange={(value) => setFormData({ ...formData, participantRole: value })}
+                >
+                  <SelectTrigger id="role">
+                    <SelectValue placeholder="Select your department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEPARTMENT_OPTIONS.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
