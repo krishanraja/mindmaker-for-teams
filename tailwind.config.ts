@@ -123,6 +123,10 @@ export default {
         "collapsible-up": "collapsible-up 0.3s ease-out",
         "shimmer": "shimmer 8s ease-in-out infinite",
       },
+      animationDelay: {
+        '100': '100ms',
+        '200': '200ms',
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

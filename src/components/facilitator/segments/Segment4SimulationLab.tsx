@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles } from "lucide-react";
-import { SIMULATIONS, getSimulationById } from "@/lib/simulation-constants";
+import { Loader2, Sparkles, ChevronRight, Save, CheckCircle2 } from "lucide-react";
+import { SIMULATIONS, getSimulationById, getDisplayTitle } from "@/lib/simulation-constants";
 import { ContextCard } from "./simulation/ContextCard";
 import { SimulationInterface } from "./simulation/SimulationInterface";
 import { TaskBreakdownCanvas, Task } from "./simulation/TaskBreakdownCanvas";
@@ -140,11 +140,24 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
     return sim?.snapshot || null;
   }, [selectedSimulation, customerSimulations]);
 
-  const handleStartSimulation = () => {
-    if (!selectedSimulation) return;
-    const sim = customerSimulations.find(s => s.id === selectedSimulation);
-    setScenarioContext(sim?.snapshot || {});
+  const handleStartSimulation = (simId: string) => {
+    const sim = availableSimulations.find(s => s.id === simId);
+    const simInfo = getSimulationById(simId);
+    
+    setSelectedSimulation(simId);
+    setScenarioContext(sim?.snapshot || {
+      currentState: simInfo?.description || '',
+      desiredOutcome: `Analyze how AI could transform this ${simInfo?.title || 'workflow'}`,
+      constraints: 'Must be implementable within 90 days',
+      stakeholders: 'Executive team, operations, IT'
+    });
     setCurrentPhase('simulation');
+    
+    // Auto-trigger generation after a brief delay
+    setTimeout(() => {
+      const generateBtn = document.querySelector('[data-generate-simulation]') as HTMLButtonElement;
+      generateBtn?.click();
+    }, 300);
   };
 
   const handleSimulationGenerated = (simulation: ParsedSimulation) => {
@@ -194,45 +207,51 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
             <p className="text-sm text-muted-foreground mb-4">
               Select a business scenario to test with live AI. The team will see AI work in real-time.
             </p>
-            <div className="grid md:grid-cols-2 gap-3">
+            <div className="grid md:grid-cols-2 gap-4">
               {availableSimulations.map((sim) => {
                 const simInfo = getSimulationById(sim.id);
                 return (
-                  <Button
+                  <Card
                     key={sim.id}
-                    variant={selectedSimulation === sim.id ? "default" : "outline"}
-                    className="h-auto py-4 px-4 justify-start text-left"
-                    onClick={() => setSelectedSimulation(sim.id)}
+                    className="cursor-pointer transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] group relative overflow-hidden"
+                    onClick={() => handleStartSimulation(sim.id)}
                   >
-                    <div>
-                      <div className="font-semibold">{simInfo?.title || sim.id}</div>
-                      <div className="text-xs opacity-80 mt-1">{simInfo?.description}</div>
-                    </div>
-                  </Button>
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <CardContent className="p-5 relative">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-2 flex-1">
+                          <div className="font-semibold text-base group-hover:text-primary transition-colors">
+                            {getDisplayTitle(sim.id)}
+                          </div>
+                          <div className="text-sm text-muted-foreground line-clamp-2">
+                            {simInfo?.description}
+                          </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
+                      </div>
+                    </CardContent>
+                  </Card>
                 );
               })}
             </div>
           </div>
-
-          {selectedSimulation && (
-            <>
-              {selectedSnapshot && <ContextCard snapshot={selectedSnapshot} />}
-              
-              <Button 
-                onClick={handleStartSimulation}
-                size="lg"
-                className="w-full"
-              >
-                <Sparkles className="mr-2 h-5 w-5" />
-                Start Interactive AI Experiment
-              </Button>
-            </>
-          )}
         </Card>
       )}
 
       {currentPhase === 'simulation' && (
         <div className="space-y-6">
+          <div className="flex items-center gap-2 text-sm">
+            <Badge variant="outline" className="bg-muted">Setup</Badge>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <Badge variant="default">Generate</Badge>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <Badge variant="outline">Tasks</Badge>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <Badge variant="outline">Guardrails</Badge>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <Badge variant="outline">Save</Badge>
+          </div>
+
           {selectedSnapshot && <ContextCard snapshot={selectedSnapshot} />}
           
           <SimulationInterface
