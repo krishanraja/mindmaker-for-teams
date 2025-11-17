@@ -6,6 +6,17 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Map activity types to route paths
+function getRoutePathFromActivityType(activityType: string): string {
+  const routeMap: Record<string, string> = {
+    'bottleneck': 'bottleneck',
+    'effortless_map': 'effortless-map',
+    'dot_voting': 'voting',
+    'working_group': 'working-group',
+  };
+  return routeMap[activityType] || activityType;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -24,7 +35,8 @@ serve(async (req) => {
 
     // Generate activity URL using production APP_URL
     const appUrl = Deno.env.get('APP_URL') || 'https://teams.themindmaker.ai';
-    const activityUrl = `${appUrl}/mobile/${activity_type}/${workshop_session_id}`;
+    const routePath = getRoutePathFromActivityType(activity_type);
+    const activityUrl = `${appUrl}/mobile/${routePath}/${workshop_session_id}`;
 
     // Create activity session
     const { data, error } = await supabase
