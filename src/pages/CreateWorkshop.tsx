@@ -29,6 +29,7 @@ export const CreateWorkshop: React.FC = () => {
   const { user, signOut } = useAuth();
   const [intakes, setIntakes] = useState<any[]>([]);
   const [workshops, setWorkshops] = useState<any[]>([]);
+  const [workshopsLoading, setWorkshopsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState('09:00');
   const [preferredDates, setPreferredDates] = useState<Date[]>([]);
@@ -77,12 +78,14 @@ export const CreateWorkshop: React.FC = () => {
   };
 
   const loadWorkshops = async () => {
+    setWorkshopsLoading(true);
     const { data } = await supabase
       .from('workshop_sessions')
       .select('*, exec_intakes(company_name, organizer_name)')
       .order('workshop_date', { ascending: false });
 
     if (data) setWorkshops(data);
+    setWorkshopsLoading(false);
   };
 
   const loadPreferredDates = async (intakeId: string): Promise<Date[]> => {
@@ -110,14 +113,14 @@ export const CreateWorkshop: React.FC = () => {
     workshopDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
     // Get facilitator email - for now use facilitator_name as placeholder
-    const facilitatorEmail = `${formData.facilitator_name.toLowerCase().replace(/\s+/g, '.')}@mindmaker.com`;
+    const facilitatorEmail = `${formData.facilitator_name.toLowerCase().replace(/\s+/g, '.')}@themindmaker.ai`;
 
     // First, get the bootcamp_plan_id for this intake
     const { data: bootcampPlan } = await supabase
       .from('bootcamp_plans')
       .select('id')
       .eq('intake_id', formData.intake_id)
-      .single();
+      .maybeSingle();
 
     const { data, error } = await supabase
       .from('workshop_sessions')
@@ -134,7 +137,12 @@ export const CreateWorkshop: React.FC = () => {
       .single();
 
     if (error) {
-      toast({ title: 'Error creating workshop', variant: 'destructive' });
+      console.error('Error creating workshop:', error);
+      toast({ 
+        title: 'Error creating workshop', 
+        description: error.message || 'Please try again',
+        variant: 'destructive' 
+      });
       return;
     }
 
@@ -219,7 +227,18 @@ export const CreateWorkshop: React.FC = () => {
         </Card>
 
         {/* Saved Workshop Sessions - Dropdown Selector */}
-        {workshops && workshops.length > 0 && (
+        {workshopsLoading ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Saved Workshop Sessions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground p-4 border rounded-md">
+                Loading workshops...
+              </div>
+            </CardContent>
+          </Card>
+        ) : workshops && workshops.length > 0 ? (
           <Card>
             <CardHeader>
               <CardTitle>Saved Workshop Sessions</CardTitle>
@@ -273,7 +292,7 @@ export const CreateWorkshop: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-        )}
+        ) : null}
 
         {/* Create New Workshop */}
         <Card>
