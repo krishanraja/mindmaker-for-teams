@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,21 +13,59 @@ interface SimulationInterfaceProps {
   onSimulationGenerated: (simulation: ParsedSimulation) => void;
   generatedSimulation?: ParsedSimulation;
   jargonLevel?: number;
+  workshopId: string;
+  simulationId: string;
 }
 
 export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
   scenarioContext,
   onSimulationGenerated,
   generatedSimulation,
-  jargonLevel = 50
+  jargonLevel = 50,
+  workshopId,
+  simulationId,
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [followUpPrompt, setFollowUpPrompt] = useState('');
   const [isAsking, setIsAsking] = useState(false);
   const [followUpResponse, setFollowUpResponse] = useState('');
+  const [hasLoadedExisting, setHasLoadedExisting] = useState(false);
 
-  const handleGenerateSimulation = async () => {
+  // Load existing simulation result if available
+  useEffect(() => {
+    const loadExistingResult = async () => {
+      if (generatedSimulation || hasLoadedExisting) return;
+
+      const { data, error } = await supabase
+        .from('simulation_results')
+        .select('ai_outputs')
+        .eq('workshop_session_id', workshopId)
+        .eq('simulation_id', simulationId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (data && data.ai_outputs) {
+        const parsed: ParsedSimulation = {
+          sections: data.ai_outputs as any,
+        };
+        onSimulationGenerated(parsed);
+        setHasLoadedExisting(true);
+        toast.success('Loaded existing discussion prompts');
+      }
+    };
+
+    loadExistingResult();
+  }, [workshopId, simulationId, generatedSimulation, hasLoadedExisting, onSimulationGenerated]);
+
+  const handleGenerateSimulation = async (forceRegenerate = false) => {
+    if (!forceRegenerate && generatedSimulation && hasLoadedExisting) {
+      toast.error('Discussion prompts already loaded. Click "Regenerate" to create new ones.');
+      return;
+    }
+
     setIsGenerating(true);
+    setHasLoadedExisting(false);
 
     try {
       const { data, error } = await supabase.functions.invoke('simulation-ai-experiment', {
@@ -132,7 +170,7 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
           </div>
 
           <Button
-            onClick={handleGenerateSimulation}
+            onClick={() => handleGenerateSimulation(false)}
             disabled={isGenerating}
             size="lg"
             className="w-full relative overflow-hidden"
@@ -162,6 +200,21 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between mb-4 px-2">
+        <div className="text-sm text-muted-foreground">
+          {hasLoadedExisting && '✓ Loaded from previous session'}
+        </div>
+        <Button
+          onClick={() => handleGenerateSimulation(true)}
+          variant="outline"
+          size="sm"
+          disabled={isGenerating}
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
+          Regenerate Discussion Prompts
+        </Button>
+      </div>
+
       <StructuredSimulationDisplay sections={generatedSimulation.sections} />
 
       {/* Follow-up Questions */}

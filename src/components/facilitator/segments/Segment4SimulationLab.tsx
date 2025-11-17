@@ -259,6 +259,8 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
             onSimulationGenerated={handleSimulationGenerated}
             generatedSimulation={generatedSimulation || undefined}
             jargonLevel={jargonLevel}
+            workshopId={workshopId}
+            simulationId={selectedSimulation!}
           />
 
           <Button
