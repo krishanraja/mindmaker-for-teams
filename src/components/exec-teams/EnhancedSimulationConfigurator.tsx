@@ -292,21 +292,43 @@ export const EnhancedSimulationConfigurator: React.FC = () => {
 
   const handleGenerateQRCodes = async () => {
     setLoading(true);
+    
+    // Reset any previous error states
+    setQrCodesGenerated(false);
+    setQrData(null);
+    
     try {
       // Call edge function to generate SHARED QR code (one for all participants)
       const { data: qrResults, error: qrError } = await supabase.functions.invoke('generate-shared-prework-qr', {
         body: { intakeId: state.intakeId }
       });
 
-      if (qrError) throw qrError;
+      if (qrError) {
+        console.error('QR generation error:', qrError);
+        throw new Error(qrError.message || 'Failed to generate QR code');
+      }
+
+      if (!qrResults?.qrCodeUrl) {
+        throw new Error('No QR code URL returned from server');
+      }
       
       setQrData(qrResults); // Store { qrCodeUrl, directUrl }
       setQrCodesGenerated(true);
       setShowQRModal(true); // Open modal
       toast.success('QR code generated! Share it with your participants.');
     } catch (error: any) {
-      console.error('Error generating QR code:', error);
-      toast.error(error.message || 'Failed to generate QR code');
+      console.error('Error generating QR code:', {
+        error,
+        message: error.message,
+        intakeId: state.intakeId
+      });
+      
+      // Complete state reset on error
+      setQrCodesGenerated(false);
+      setQrData(null);
+      setShowQRModal(false);
+      
+      toast.error(error.message || 'Failed to generate QR code. Please try again.');
     } finally {
       setLoading(false);
     }
