@@ -22,9 +22,10 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Generate unique activity URL
+    // Generate unique activity URL using production APP_URL
+    const appUrl = Deno.env.get('APP_URL') || 'https://teams.themindmaker.ai';
     const activityId = crypto.randomUUID();
-    const activityUrl = `${supabaseUrl}/mobile/${activity_type}/${workshop_session_id}/${activityId}`;
+    const activityUrl = `${appUrl}/mobile/${activity_type}/${workshop_session_id}/${activityId}`;
 
     // Create activity session
     const { data, error } = await supabase

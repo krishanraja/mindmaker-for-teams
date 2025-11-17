@@ -37,48 +37,36 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
   }, [workshopId]);
 
   const generateMapQR = async () => {
-    const activityUrl = `${window.location.origin}/mobile/effortless-map/${workshopId}`;
-    
-    const { data, error } = await supabase
-      .from('activity_sessions')
-      .insert({
+    const { data, error } = await supabase.functions.invoke('generate-activity-qr', {
+      body: {
         workshop_session_id: workshopId,
         activity_type: 'effortless_map',
-        qr_code_url: activityUrl,
-        is_active: true,
-      })
-      .select()
-      .single();
+      },
+    });
 
     if (error) {
       toast({ title: 'Error generating QR code', variant: 'destructive' });
       return;
     }
 
-    setActivitySession(data);
+    setActivitySession(data.activity_session);
     toast({ title: 'QR Code generated! Participants can map items.' });
   };
 
   const generateVotingQR = async () => {
-    const votingUrl = `${window.location.origin}/mobile/voting/${workshopId}`;
-    
-    const { data, error } = await supabase
-      .from('activity_sessions')
-      .insert({
+    const { data, error } = await supabase.functions.invoke('generate-activity-qr', {
+      body: {
         workshop_session_id: workshopId,
         activity_type: 'dot_voting',
-        qr_code_url: votingUrl,
-        is_active: true,
-      })
-      .select()
-      .single();
+      },
+    });
 
     if (error) {
       toast({ title: 'Error generating voting QR', variant: 'destructive' });
       return;
     }
 
-    setVotingSession(data);
+    setVotingSession(data.activity_session);
     toast({ title: 'Voting session started!' });
     if (items.length > 0) {
       generateInsight();

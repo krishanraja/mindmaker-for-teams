@@ -31,25 +31,19 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
   }, [workshopId]);
 
   const generateQRCode = async () => {
-    const activityUrl = `${window.location.origin}/mobile/bottleneck/${workshopId}`;
-    
-    const { data, error } = await supabase
-      .from('activity_sessions')
-      .insert({
+    const { data, error } = await supabase.functions.invoke('generate-activity-qr', {
+      body: {
         workshop_session_id: workshopId,
         activity_type: 'bottleneck',
-        qr_code_url: activityUrl,
-        is_active: true,
-      })
-      .select()
-      .single();
+      },
+    });
 
     if (error) {
       toast({ title: 'Error generating QR code', variant: 'destructive' });
       return;
     }
 
-    setActivitySession(data);
+    setActivitySession(data.activity_session);
     toast({ title: 'QR Code generated! Participants can now submit.' });
   };
 
