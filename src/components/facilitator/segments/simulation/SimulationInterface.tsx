@@ -22,25 +22,12 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
   jargonLevel = 50
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [loadingStage, setLoadingStage] = useState('');
-  const [elapsedTime, setElapsedTime] = useState(0);
   const [followUpPrompt, setFollowUpPrompt] = useState('');
   const [isAsking, setIsAsking] = useState(false);
   const [followUpResponse, setFollowUpResponse] = useState('');
 
   const handleGenerateSimulation = async () => {
     setIsGenerating(true);
-    setElapsedTime(0);
-    setLoadingStage('Analyzing scenario...');
-
-    const timer = setInterval(() => {
-      setElapsedTime(prev => {
-        const next = prev + 1;
-        if (next === 2) setLoadingStage('Generating executive insights...');
-        if (next === 4) setLoadingStage('Almost there...');
-        return next;
-      });
-    }, 1000);
 
     try {
       const { data, error } = await supabase.functions.invoke('simulation-ai-experiment', {
@@ -60,9 +47,7 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
       console.error('Error generating simulation:', error);
       toast.error('Failed to generate simulation');
     } finally {
-      clearInterval(timer);
       setIsGenerating(false);
-      setLoadingStage('');
     }
   };
 
@@ -150,15 +135,18 @@ export const SimulationInterface: React.FC<SimulationInterfaceProps> = ({
             onClick={handleGenerateSimulation}
             disabled={isGenerating}
             size="lg"
-            className="w-full"
+            className="w-full relative overflow-hidden"
+            data-generate-simulation
           >
             {isGenerating ? (
-              <div className="flex flex-col items-center gap-1 py-1">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>{loadingStage}</span>
-                </div>
-                <span className="text-xs opacity-70">{elapsedTime}s</span>
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>MindMaker AI is analyzing your scenario</span>
+                <span className="inline-flex gap-1 ml-1">
+                  <span className="animate-pulse">●</span>
+                  <span className="animate-pulse" style={{ animationDelay: '100ms' }}>●</span>
+                  <span className="animate-pulse" style={{ animationDelay: '200ms' }}>●</span>
+                </span>
               </div>
             ) : (
               <>

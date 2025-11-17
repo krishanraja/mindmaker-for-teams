@@ -50,3 +50,14 @@ export const SIMULATIONS: Simulation[] = [
 export const getSimulationById = (id: string): Simulation | undefined => {
   return SIMULATIONS.find(sim => sim.id === id);
 };
+
+export const getDisplayTitle = (simId: string): string => {
+  const simInfo = getSimulationById(simId);
+  if (simInfo?.title) return simInfo.title;
+  
+  // Defensive fallback: format the ID nicely
+  return simId
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
