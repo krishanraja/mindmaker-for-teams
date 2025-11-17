@@ -54,8 +54,15 @@ serve(async (req) => {
       });
 
     if (uploadError) {
-      console.error('Upload error:', uploadError);
-      throw uploadError;
+      console.error('Storage upload failed:', {
+        error: uploadError,
+        fileName,
+        bucketId: 'pre-workshop-qr',
+        errorType: uploadError.name,
+        errorMessage: uploadError.message
+      });
+      
+      throw new Error(`Failed to upload QR code: ${uploadError.message || 'Storage error'}`);
     }
 
     console.log('QR code uploaded:', uploadData);

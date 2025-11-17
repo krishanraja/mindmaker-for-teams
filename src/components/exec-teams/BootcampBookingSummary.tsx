@@ -166,27 +166,47 @@ export const BootcampBookingSummary: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-2xl">Reserve Your Half-Day Session</CardTitle>
-                    <CardDescription>
-                      We'll send your pre-read pack outline within 48 hours
+                <Card className="border-2 bg-gradient-to-br from-primary/5 to-accent/10">
+                  <CardHeader className="text-center space-y-4">
+                    <div className="flex justify-center">
+                      <div className="p-4 rounded-full bg-primary/10">
+                        <CheckCircle2 className="w-10 h-10 text-primary" />
+                      </div>
+                    </div>
+                    <CardTitle className="text-3xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                      🎉 You're All Set!
+                    </CardTitle>
+                    <CardDescription className="text-lg text-foreground/80 max-w-2xl mx-auto">
+                      Thanks for setting up your AI Leadership Bootcamp! Your prep pack and calendar invite will arrive within 48 hours.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="flex justify-center py-8">
-                    <Button
-                      asChild
-                      size="lg"
-                      className="text-lg px-8 py-6"
-                    >
-                      <a
-                        href="https://calendly.com/krish-raja/mindmaker-meeting"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                  <CardContent className="space-y-6 pt-4">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                      <Button
+                        asChild
+                        size="lg"
+                        className="text-lg px-8 py-6 w-full sm:w-auto"
                       >
-                        Schedule Your Bootcamp Session
-                      </a>
-                    </Button>
+                        <a
+                          href="https://calendly.com/krish-raja/mindmaker-meeting"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Book Pre-Bootcamp Call
+                        </a>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="text-lg px-8 py-6 w-full sm:w-auto"
+                        onClick={() => window.close()}
+                      >
+                        Close Window
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground text-center">
+                      Want to discuss the finer details? Book a quick call to align on your strategic priorities.
+                    </p>
                   </CardContent>
                 </Card>
               </>

@@ -53,7 +53,7 @@ export const ExecTeamsWelcome: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-start justify-start p-3 md:p-8 lg:p-12 bg-gradient-to-br from-background via-background to-accent/5">
+    <div className="min-h-screen flex items-start justify-center p-3 md:p-8 lg:p-12 bg-gradient-to-br from-background via-background to-accent/5">
       <div className="w-full max-w-5xl relative">
         <div className="border-2 border-border/50 shadow-2xl rounded-lg bg-card text-card-foreground">
           <div className="space-y-1 pb-4 md:pb-8 text-left p-4 md:p-6">
