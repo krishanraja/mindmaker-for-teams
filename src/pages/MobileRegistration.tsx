@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, ArrowRight, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, ArrowRight, ArrowLeft, Target, Zap, Calendar } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const AI_MYTHS_OPTIONS = [
@@ -215,24 +215,61 @@ export const MobileRegistration: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-accent/5">
         <Card className="w-full max-w-2xl border-2">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-              <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400" />
+          <CardHeader className="text-center space-y-4">
+            <div className="mx-auto mb-2 w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+              <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />
             </div>
-            <CardTitle className="text-2xl">Registration Complete!</CardTitle>
-            <CardDescription className="text-lg">
-              Thank you, {formData.participantName}
+            <CardTitle className="text-3xl">🎉 You're All Set!</CardTitle>
+            <CardDescription className="text-lg font-medium text-foreground">
+              Thank you, {formData.participantName}!
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-muted-foreground">
-              You've successfully registered for the {intakeData.company_name} AI Leadership Bootcamp.
+          <CardContent className="space-y-6">
+            <p className="text-center text-muted-foreground">
+              We're analyzing your responses along with your team's to create a custom bootcamp agenda for {intakeData.company_name}.
             </p>
-            <p className="text-muted-foreground">
-              Your responses will help us tailor the workshop to your team's needs.
-            </p>
-            <div className="pt-4 border-t">
-              <p className="text-sm font-medium">We'll see you at the workshop!</p>
+            
+            <div className="space-y-4 pt-4 border-t">
+              <h4 className="font-semibold text-center">What happens next:</h4>
+              
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/5">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Calendar className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Prep pack arriving within 48 hours</p>
+                    <p className="text-xs text-muted-foreground">Calendar invite with all the details</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/5">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Target className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Tailored agenda based on your input</p>
+                    <p className="text-xs text-muted-foreground">Custom scenarios for your team's challenges</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-accent/5">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Zap className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Hands-on AI simulations</p>
+                    <p className="text-xs text-muted-foreground">Walk away with a 90-day pilot charter</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="pt-4 border-t text-center">
+              <p className="font-semibold text-foreground mb-4">See you at the bootcamp! 🚀</p>
+              <p className="text-xs text-muted-foreground">
+                Questions? Reach out to {intakeData.organizer_name}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -246,10 +283,38 @@ export const MobileRegistration: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-accent/5">
       <Card className="w-full max-w-2xl border-2">
-        <CardHeader>
-          <CardTitle className="text-2xl">Workshop Registration</CardTitle>
-          <CardDescription>{intakeData.company_name} AI Leadership Bootcamp</CardDescription>
-          <div className="pt-4">
+        <CardHeader className="space-y-4">
+          <div>
+            <CardTitle className="text-2xl mb-2">You're Invited! 🎯</CardTitle>
+            <CardDescription className="text-base">
+              <span className="font-semibold text-foreground">{intakeData.company_name}</span> is bringing you an exclusive AI Leadership Bootcamp
+            </CardDescription>
+          </div>
+          
+          {currentStep === 1 && (
+            <div className="pt-2 pb-2 space-y-3 text-sm border-t border-b">
+              <p className="text-muted-foreground">In this hands-on 4-hour session, you'll:</p>
+              <ul className="space-y-2 text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>Run real-world AI decision simulations</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>Identify your team's cognitive blind spots</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>Leave with a 90-day AI pilot charter — no vendor pitches</span>
+                </li>
+              </ul>
+              <p className="text-foreground font-medium pt-2">
+                Your input helps us tailor the experience. This takes 3 minutes. Let's get started! 👇
+              </p>
+            </div>
+          )}
+          
+          <div className="pt-2">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-muted-foreground">Step {currentStep} of {totalSteps}</span>
               <span className="font-medium">{Math.round(progress)}%</span>
@@ -263,9 +328,9 @@ export const MobileRegistration: React.FC = () => {
           {currentStep === 1 && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-2">Tell us about yourself</h3>
+                <h3 className="text-lg font-semibold mb-2">First, let's get to know you</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  We'll use this information to personalize your workshop experience.
+                  We'll use this to personalize your workshop experience.
                 </p>
               </div>
               
@@ -306,15 +371,15 @@ export const MobileRegistration: React.FC = () => {
           {currentStep === 2 && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-2">What are your AI concerns?</h3>
+                <h3 className="text-lg font-semibold mb-2">What AI concerns keep you up at night?</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Select all that resonate with you. We'll address these in the workshop.
+                  Select all that resonate. We'll address these head-on in the workshop.
                 </p>
               </div>
               
               <div className="space-y-3">
                 {AI_MYTHS_OPTIONS.map((myth) => (
-                  <div key={myth} className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer" onClick={() => toggleMythConcern(myth)}>
+                  <div key={myth} className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors" onClick={() => toggleMythConcern(myth)}>
                     <Checkbox
                       checked={formData.aiMythsConcerns.includes(myth)}
                       onCheckedChange={() => toggleMythConcern(myth)}
@@ -332,15 +397,15 @@ export const MobileRegistration: React.FC = () => {
           {currentStep === 3 && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-2">What are your team's bottlenecks?</h3>
+                <h3 className="text-lg font-semibold mb-2">What's slowing your team down right now?</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Select all that apply to your current situation.
+                  Your answers help us create relevant simulations for the bootcamp.
                 </p>
               </div>
               
               <div className="space-y-3">
                 {BOTTLENECK_OPTIONS.map((bottleneck) => (
-                  <div key={bottleneck} className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer" onClick={() => toggleBottleneck(bottleneck)}>
+                  <div key={bottleneck} className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors" onClick={() => toggleBottleneck(bottleneck)}>
                     <Checkbox
                       checked={formData.currentBottlenecks.includes(bottleneck)}
                       onCheckedChange={() => toggleBottleneck(bottleneck)}
@@ -358,9 +423,9 @@ export const MobileRegistration: React.FC = () => {
           {currentStep === 4 && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-2">What's your AI experience level?</h3>
+                <h3 className="text-lg font-semibold mb-2">Where is your team on the AI journey?</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  This helps us calibrate the workshop content.
+                  This helps us calibrate the workshop content to your starting point.
                 </p>
               </div>
               
@@ -368,17 +433,17 @@ export const MobileRegistration: React.FC = () => {
                 value={formData.aiExperienceLevel}
                 onValueChange={(value: any) => setFormData({ ...formData, aiExperienceLevel: value })}
               >
-                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer">
+                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
                   <RadioGroupItem value="none" id="exp-none" />
                   <div className="flex-1">
                     <Label htmlFor="exp-none" className="cursor-pointer font-medium">
                       No AI Experience
                     </Label>
-                    <p className="text-sm text-muted-foreground">Haven't used AI tools professionally</p>
+                    <p className="text-sm text-muted-foreground">Haven't used AI tools professionally yet</p>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer">
+                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
                   <RadioGroupItem value="experimenting" id="exp-experimenting" />
                   <div className="flex-1">
                     <Label htmlFor="exp-experimenting" className="cursor-pointer font-medium">
@@ -388,7 +453,7 @@ export const MobileRegistration: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer">
+                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
                   <RadioGroupItem value="deploying" id="exp-deploying" />
                   <div className="flex-1">
                     <Label htmlFor="exp-deploying" className="cursor-pointer font-medium">
@@ -398,7 +463,7 @@ export const MobileRegistration: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer">
+                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
                   <RadioGroupItem value="scaled" id="exp-scaled" />
                   <div className="flex-1">
                     <Label htmlFor="exp-scaled" className="cursor-pointer font-medium">
