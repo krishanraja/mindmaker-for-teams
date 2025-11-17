@@ -83,7 +83,7 @@ export const CreateWorkshop: React.FC = () => {
     
     const { data, error } = await supabase
       .from('workshop_sessions')
-      .select('*, exec_intakes(company_name, organizer_name)')
+      .select('*, exec_intakes!workshop_sessions_intake_id_fkey(company_name, organizer_name)')
       .order('workshop_date', { ascending: false });
 
     console.log('[CP1] Workshop query result:', { data, error, count: data?.length });
