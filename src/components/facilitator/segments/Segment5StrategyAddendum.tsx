@@ -20,9 +20,13 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
     data_governance_changes: '',
     pilot_kpis: '',
   });
+  const [votingResults, setVotingResults] = useState<any[]>([]);
+  const [simulationResults, setSimulationResults] = useState<any[]>([]);
+  const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     loadAddendum();
+    loadWorkshopData();
   }, [workshopId]);
 
   // Pre-populate with customer data if available
@@ -70,6 +74,46 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
         pilot_kpis: data.pilot_kpis || '',
       });
     }
+  };
+
+  const loadWorkshopData = async () => {
+    setLoadingData(true);
+    
+    // Fetch top voted items from Segment 3
+    const { data: votes } = await supabase
+      .from('voting_results')
+      .select('item_id, item_type, dots_allocated')
+      .eq('workshop_session_id', workshopId);
+    
+    // Aggregate votes by item
+    if (votes) {
+      const voteMap = new Map();
+      votes.forEach(vote => {
+        const key = `${vote.item_type}_${vote.item_id}`;
+        const existing = voteMap.get(key) || { item_type: vote.item_type, item_id: vote.item_id, total_dots: 0 };
+        existing.total_dots += vote.dots_allocated;
+        voteMap.set(key, existing);
+      });
+      
+      const sortedVotes = Array.from(voteMap.values())
+        .sort((a, b) => b.total_dots - a.total_dots)
+        .slice(0, 5);
+      
+      setVotingResults(sortedVotes);
+    }
+    
+    // Fetch simulation results from Segment 4
+    const { data: simulations } = await supabase
+      .from('simulation_results')
+      .select('*')
+      .eq('workshop_session_id', workshopId)
+      .order('created_at', { ascending: false });
+    
+    if (simulations) {
+      setSimulationResults(simulations);
+    }
+    
+    setLoadingData(false);
   };
 
   const handleSave = async () => {
@@ -158,7 +202,24 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
                 (Auto-populated from Segment 3 Effortless Enterprise Map)
               </p>
               <Card className="p-4 bg-muted">
-                <p className="text-sm">Top voted items will appear here from Segment 3...</p>
+                {loadingData ? (
+                  <p className="text-sm text-muted-foreground">Loading voting results...</p>
+                ) : votingResults.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold mb-2">Top AI Leverage Points (by votes):</p>
+                    {votingResults.map((item, idx) => (
+                      <div key={item.item_id} className="flex items-center gap-2 text-sm">
+                        <span className="font-semibold text-primary">#{idx + 1}</span>
+                        <span>{item.item_type}: {item.item_id}</span>
+                        <span className="ml-auto text-muted-foreground">{item.total_dots} dots</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No voting results yet. Participants will vote in Segment 3.
+                  </p>
+                )}
               </Card>
             </div>
 
@@ -168,7 +229,42 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
                 (Auto-populated from Segment 4 Simulation Results)
               </p>
               <Card className="p-4 bg-muted">
-                <p className="text-sm">Simulation deltas will appear here from Segment 4...</p>
+                {loadingData ? (
+                  <p className="text-sm text-muted-foreground">Loading simulation results...</p>
+                ) : simulationResults.length > 0 ? (
+                  <div className="space-y-4">
+                    {simulationResults.map(sim => (
+                      <div key={sim.id} className="border-l-2 border-primary pl-4">
+                        <p className="font-semibold text-sm">{sim.simulation_name}</p>
+                        <div className="grid grid-cols-2 gap-2 mt-2 text-xs text-muted-foreground">
+                          {sim.time_savings_pct && (
+                            <div>Time Savings: {sim.time_savings_pct}%</div>
+                          )}
+                          {sim.quality_improvement_pct && (
+                            <div>Quality Improvement: {sim.quality_improvement_pct}%</div>
+                          )}
+                          {sim.cost_savings_usd && (
+                            <div>Cost Savings: ${sim.cost_savings_usd.toLocaleString()}</div>
+                          )}
+                        </div>
+                        {sim.org_changes_required && sim.org_changes_required.length > 0 && (
+                          <div className="mt-2 text-xs">
+                            <p className="font-medium">Org Changes:</p>
+                            <ul className="list-disc list-inside ml-2">
+                              {sim.org_changes_required.map((change: string, idx: number) => (
+                                <li key={idx}>{change}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No simulation results yet. Run simulations in Segment 4.
+                  </p>
+                )}
               </Card>
             </div>
 
