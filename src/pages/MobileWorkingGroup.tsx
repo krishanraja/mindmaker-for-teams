@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Users, Send } from 'lucide-react';
+import { useWorkshopParticipants } from '@/hooks/useWorkshopParticipants';
 
 const CATEGORIES = [
   { id: 'targets_at_risk', name: 'Targets at Risk' },
@@ -18,6 +19,7 @@ const CATEGORIES = [
 
 export const MobileWorkingGroup: React.FC = () => {
   const { workshopId } = useParams<{ workshopId: string }>();
+  const { participants, loading: loadingParticipants } = useWorkshopParticipants(workshopId);
   const [participantName, setParticipantName] = useState('');
   const [tableNumber, setTableNumber] = useState('');
   const [category, setCategory] = useState('');
@@ -94,11 +96,18 @@ export const MobileWorkingGroup: React.FC = () => {
 
             <div>
               <Label>Your Name *</Label>
-              <Input
-                value={participantName}
-                onChange={(e) => setParticipantName(e.target.value)}
-                placeholder="John Doe"
-              />
+              <Select value={participantName} onValueChange={setParticipantName}>
+                <SelectTrigger>
+                  <SelectValue placeholder={loadingParticipants ? "Loading..." : "Select your name"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {participants.map((p) => (
+                    <SelectItem key={p.email} value={p.name}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>

@@ -3,14 +3,16 @@ import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { ThumbsUp, Send } from 'lucide-react';
+import { useWorkshopParticipants } from '@/hooks/useWorkshopParticipants';
 
 export const MobileDotVoting: React.FC = () => {
   const { workshopId } = useParams<{ workshopId: string }>();
+  const { participants, loading: loadingParticipants } = useWorkshopParticipants(workshopId);
   const [participantName, setParticipantName] = useState('');
   const [items, setItems] = useState<any[]>([]);
   const [votes, setVotes] = useState<{ [key: string]: number }>({});
@@ -112,11 +114,18 @@ export const MobileDotVoting: React.FC = () => {
 
             <div>
               <Label>Your Name</Label>
-              <Input
-                value={participantName}
-                onChange={(e) => setParticipantName(e.target.value)}
-                placeholder="John Doe"
-              />
+              <Select value={participantName} onValueChange={setParticipantName}>
+                <SelectTrigger>
+                  <SelectValue placeholder={loadingParticipants ? "Loading..." : "Select your name"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {participants.map((p) => (
+                    <SelectItem key={p.email} value={p.name}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>

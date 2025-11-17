@@ -3,12 +3,12 @@ import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Clock, Send } from 'lucide-react';
+import { useWorkshopParticipants } from '@/hooks/useWorkshopParticipants';
 
 const LANES = [
   { id: 'customers', name: 'Customers', description: 'Customer-facing processes' },
@@ -19,10 +19,10 @@ const LANES = [
 
 export const MobileEffortlessMap: React.FC = () => {
   const { workshopId } = useParams<{ workshopId: string }>();
+  const { participants, loading: loadingParticipants } = useWorkshopParticipants(workshopId);
   const [participantName, setParticipantName] = useState('');
   const [itemText, setItemText] = useState('');
   const [selectedLane, setSelectedLane] = useState('');
-  const [sponsorName, setSponsorName] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async () => {
@@ -38,7 +38,7 @@ export const MobileEffortlessMap: React.FC = () => {
         participant_name: participantName,
         item_text: itemText,
         lane: selectedLane,
-        sponsor_name: sponsorName || null,
+        sponsor_name: null,
         vote_count: 0,
       });
 
@@ -68,7 +68,6 @@ export const MobileEffortlessMap: React.FC = () => {
               setParticipantName('');
               setItemText('');
               setSelectedLane('');
-              setSponsorName('');
             }} variant="outline">
               Submit Another Item
             </Button>
@@ -95,11 +94,18 @@ export const MobileEffortlessMap: React.FC = () => {
 
             <div>
               <Label>Your Name *</Label>
-              <Input
-                value={participantName}
-                onChange={(e) => setParticipantName(e.target.value)}
-                placeholder="John Doe"
-              />
+              <Select value={participantName} onValueChange={setParticipantName}>
+                <SelectTrigger>
+                  <SelectValue placeholder={loadingParticipants ? "Loading participants..." : "Select your name"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {participants.map((p) => (
+                    <SelectItem key={p.email} value={p.name}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
@@ -121,23 +127,16 @@ export const MobileEffortlessMap: React.FC = () => {
                 <SelectContent>
                   {LANES.map((lane) => (
                     <SelectItem key={lane.id} value={lane.id}>
-                      <div>
-                        <div className="font-medium">{lane.name}</div>
-                        <div className="text-xs text-muted-foreground">{lane.description}</div>
-                      </div>
+                      {lane.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div>
-              <Label>Executive Sponsor (Optional)</Label>
-              <Input
-                value={sponsorName}
-                onChange={(e) => setSponsorName(e.target.value)}
-                placeholder="Executive who could champion this"
-              />
+              {selectedLane && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {LANES.find(l => l.id === selectedLane)?.description}
+                </p>
+              )}
             </div>
 
             <Button onClick={handleSubmit} className="w-full" size="lg">
