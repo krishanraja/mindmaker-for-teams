@@ -34,7 +34,7 @@ export const FacilitatorDashboard: React.FC = () => {
 
     const { data, error } = await supabase
       .from('workshop_sessions')
-      .select('*, exec_intakes(*)')
+      .select('*, exec_intakes!workshop_sessions_intake_id_fkey(*)')
       .eq('id', workshopId)
       .single();
 

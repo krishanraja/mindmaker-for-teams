@@ -26,16 +26,26 @@ export const PreWorkProgressCard: React.FC<PreWorkProgressCardProps> = ({
 
   const loadProgress = async () => {
     try {
-      // Get intake participants
+      // Get intake participants including organizer
       const { data: intake } = await supabase
         .from('exec_intakes')
-        .select('participants')
+        .select('participants, organizer_name, organizer_email')
         .eq('id', intakeId)
         .single();
 
-      if (!intake?.participants) return;
+      if (!intake) return;
 
-      const participantsList = intake.participants as any[];
+      const participantsList = intake.participants as any[] || [];
+      
+      // Add organizer as first participant
+      const allParticipants = [
+        { 
+          name: intake.organizer_name, 
+          email: intake.organizer_email, 
+          role: 'Organizer' 
+        },
+        ...participantsList
+      ];
 
       // Get submitted pre-work
       const { data: submissions } = await supabase
@@ -45,7 +55,7 @@ export const PreWorkProgressCard: React.FC<PreWorkProgressCardProps> = ({
 
       const submittedEmails = new Set(submissions?.map(s => s.participant_email) || []);
       
-      const participantsWithStatus = participantsList.map((p: any) => ({
+      const participantsWithStatus = allParticipants.map((p: any) => ({
         ...p,
         completed: submittedEmails.has(p.email),
       }));
