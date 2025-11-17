@@ -9,7 +9,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Calendar, Clock, Trash2, LogOut } from 'lucide-react';
+import { Calendar, Clock, Trash2, LogOut, Check } from 'lucide-react';
 import { format, parse, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -79,12 +79,27 @@ export const CreateWorkshop: React.FC = () => {
 
   const loadWorkshops = async () => {
     setWorkshopsLoading(true);
-    const { data } = await supabase
+    console.log('[CP1] Loading workshops...');
+    
+    const { data, error } = await supabase
       .from('workshop_sessions')
       .select('*, exec_intakes(company_name, organizer_name)')
       .order('workshop_date', { ascending: false });
 
-    if (data) setWorkshops(data);
+    console.log('[CP1] Workshop query result:', { data, error, count: data?.length });
+    
+    if (error) {
+      console.error('[CP1] Error loading workshops:', error);
+      toast({ 
+        title: 'Error loading workshops', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+      setWorkshops([]);
+    } else {
+      setWorkshops(data || []);
+    }
+    
     setWorkshopsLoading(false);
   };
 
@@ -227,72 +242,71 @@ export const CreateWorkshop: React.FC = () => {
         </Card>
 
         {/* Saved Workshop Sessions - Dropdown Selector */}
-        {workshopsLoading ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Saved Workshop Sessions</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Card>
+          <CardHeader>
+            <CardTitle>Saved Workshop Sessions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {workshopsLoading ? (
               <div className="text-sm text-muted-foreground p-4 border rounded-md">
                 Loading workshops...
               </div>
-            </CardContent>
-          </Card>
-        ) : workshops && workshops.length > 0 ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Saved Workshop Sessions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Select Workshop Session</Label>
-                <Select value={selectedWorkshopId} onValueChange={setSelectedWorkshopId}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose a workshop..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {workshops.map((workshop) => (
-                      <SelectItem key={workshop.id} value={workshop.id}>
-                        <span className="block truncate">
-                          {workshop.exec_intakes?.company_name || 'No intake linked'} - {format(new Date(workshop.workshop_date), 'PP')} - {workshop.facilitator_name}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                {selectedWorkshopId && (
-                  <div className="mt-2 p-3 border rounded-md bg-accent/20 flex items-center justify-between">
-                    <div className="text-sm">
-                      <span className="font-medium">Selected: </span>
-                      {workshops.find(w => w.id === selectedWorkshopId)?.exec_intakes?.company_name || 'No intake linked'} - 
-                      {workshops.find(w => w.id === selectedWorkshopId)?.facilitator_name}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => navigate(`/facilitator/${selectedWorkshopId}`)}
-                      >
-                        Open
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => {
-                          setWorkshopToDelete(selectedWorkshopId);
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                )}
+            ) : workshops.length === 0 ? (
+              <div className="text-sm text-muted-foreground p-4 border rounded-md">
+                No workshops found. Create your first workshop above.
               </div>
-            </CardContent>
-          </Card>
-        ) : null}
+            ) : (
+              <>
+                <div>
+                  <Label>Select Workshop Session</Label>
+                  <Select value={selectedWorkshopId} onValueChange={setSelectedWorkshopId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Choose a workshop..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {workshops.map((workshop) => (
+                        <SelectItem key={workshop.id} value={workshop.id}>
+                          <span className="block truncate">
+                            {workshop.exec_intakes?.company_name || 'No intake linked'} - {format(new Date(workshop.workshop_date), 'PP')} - {workshop.facilitator_name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {selectedWorkshopId && (
+                    <div className="mt-2 p-3 border rounded-md bg-accent/20 flex items-center justify-between">
+                      <div className="text-sm">
+                        <span className="font-medium">Selected: </span>
+                        {workshops.find(w => w.id === selectedWorkshopId)?.exec_intakes?.company_name || 'No intake linked'} - 
+                        {workshops.find(w => w.id === selectedWorkshopId)?.facilitator_name}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => navigate(`/facilitator/${selectedWorkshopId}`)}
+                        >
+                          Open
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => {
+                            setWorkshopToDelete(selectedWorkshopId);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Create New Workshop */}
         <Card>
@@ -390,14 +404,31 @@ export const CreateWorkshop: React.FC = () => {
                     onSelect={setSelectedDate}
                     initialFocus
                     className="p-3 pointer-events-auto"
+                    components={{
+                      DayContent: ({ date }) => {
+                        const isSelected = selectedDate && isSameDay(date, selectedDate);
+                        const isPreferred = preferredDates.some(d => isSameDay(d, date));
+                        
+                        return (
+                          <div className="relative w-full h-full flex items-center justify-center">
+                            <span className={cn(
+                              isPreferred && "font-bold text-primary"
+                            )}>
+                              {date.getDate()}
+                            </span>
+                            {isSelected && (
+                              <Check className="h-3 w-3 absolute bottom-0 right-0 text-primary" />
+                            )}
+                          </div>
+                        );
+                      }
+                    }}
                     modifiers={{
                       preferred: preferredDates,
                     }}
                     modifiersStyles={{
                       preferred: {
                         backgroundColor: 'hsl(var(--primary) / 0.15)',
-                        color: 'hsl(var(--primary))',
-                        fontWeight: 'bold',
                         border: '2px solid hsl(var(--primary))',
                       },
                     }}

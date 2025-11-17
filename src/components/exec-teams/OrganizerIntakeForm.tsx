@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 const DEPARTMENT_OPTIONS = ['Revenue', 'Operations', 'Technology', 'Finance', 'Marketing', 'Product', 'Human Resources', 'Customer Success', 'Other'];
 
@@ -27,6 +28,7 @@ const AUTHORIZED_ORGANIZERS = [
 
 export const OrganizerIntakeForm: React.FC = () => {
   const { state, updateIntakeData, setCurrentStep, setIntakeId } = useExecTeams();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
@@ -396,9 +398,14 @@ export const OrganizerIntakeForm: React.FC = () => {
 
           <div className="flex justify-between pt-6">
             <Button
-              onClick={() => setStep(step - 1)}
+              onClick={() => {
+                if (step === 1) {
+                  navigate('/');
+                } else {
+                  setStep(step - 1);
+                }
+              }}
               variant="outline"
-              disabled={step === 1}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Previous
