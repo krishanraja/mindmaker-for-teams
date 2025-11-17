@@ -21,8 +21,8 @@ const DEPARTMENT_OPTIONS = ['Revenue', 'Operations', 'Technology', 'Finance', 'M
 const INDUSTRY_OPTIONS = ['Media', 'Telco', 'Finance', 'Healthcare', 'Retail & CPG', 'Education', 'Consulting', 'Other'];
 
 const AUTHORIZED_ORGANIZERS = [
-  { email: 'krish@fractionl.ai', name: 'Krish Munot' },
-  { email: 'demo@fractionl.ai', name: 'Demo User' },
+  { email: 'krish@themindmaker.ai', name: 'Krish Munot' },
+  { email: 'demo@themindmaker.ai', name: 'Demo User' },
 ];
 
 export const OrganizerIntakeForm: React.FC = () => {

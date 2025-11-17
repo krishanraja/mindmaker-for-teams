@@ -33,7 +33,7 @@ serve(async (req) => {
     }
 
     // Build comprehensive assessment prompt using Mindmaker methodology
-    const systemPrompt = `You are an expert AI literacy consultant from Fractionl.ai, creator of the Mindmaker methodology: ASSESS → ABSORB → APPLY → ACCELERATE.
+    const systemPrompt = `You are an expert AI literacy consultant from The Mindmaker, creator of the Mindmaker methodology: ASSESS → ABSORB → APPLY → ACCELERATE.
 
 Your mission: Transform enterprise teams from AI-confused to AI-enabled, focusing on revenue impact and measurable business outcomes.
 

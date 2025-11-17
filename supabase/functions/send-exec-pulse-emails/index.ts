@@ -31,7 +31,7 @@ const handler = async (req: Request): Promise<Response> => {
       const pulseUrl = `${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '')}/exec-pulse/${intakeId}/${emailHash}`;
 
       await resend.emails.send({
-        from: "Fractionl.ai <onboarding@resend.dev>",
+        from: "The Mindmaker <onboarding@resend.dev>",
         to: [participant.email],
         subject: `Your input needed: ${companyName} AI Leadership Bootcamp prep`,
         html: `
@@ -48,7 +48,7 @@ const handler = async (req: Request): Promise<Response> => {
           </ul>
           <p>Your responses will help shape the bootcamp agenda to focus on what matters most to your leadership team.</p>
           <p>We'll see you at the session!</p>
-          <p>Best regards,<br>The Fractionl.ai Team</p>
+          <p>Best regards,<br>The Mindmaker Team</p>
         `,
       });
 
