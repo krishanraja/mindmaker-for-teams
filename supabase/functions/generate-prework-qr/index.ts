@@ -27,7 +27,7 @@ serve(async (req) => {
     const { intakeId, participants } = await req.json() as GenerateQRRequest;
 
     // Use production app URL from environment variable
-    const appUrl = Deno.env.get('APP_URL') || 'https://mindmaker.fractionl.ai';
+    const appUrl = Deno.env.get('APP_URL') || 'https://teams.themindmaker.ai';
 
     const results = [];
 

@@ -64,7 +64,7 @@ const handler = async (req: Request): Promise<Response> => {
     const tierBgColor = qualificationTier === 'Hot' ? '#fee2e2' : qualificationTier === 'Warm' ? '#fef3c7' : '#f3f4f6';
     
     const emailResponse = await resend.emails.send({
-      from: "AI Assessment <assessments@fractionl.ai>",
+      from: "AI Assessment <assessments@themindmaker.ai>",
       to: ["krish@themindmaker.ai"],
       subject: `${tierEmoji} ${qualificationTier.toUpperCase()} LEAD - ${assessmentData.businessName} (${assessmentData.aiInsights?.category || 'Assessment Complete'})`,
       html: `

@@ -76,7 +76,7 @@ serve(async (req) => {
     const dataCollected = Object.keys({ ...currentData, ...extractedData }).length
 
     if (!currentData.businessName && !extractedData.businessName) {
-      response = "Hi! I'm Alex from Fractionl.ai. Let's quickly discover your AI potential.\n\nWhat's your company name?"
+      response = "Hi! I'm Alex from The Mindmaker. Let's quickly discover your AI potential.\n\nWhat's your company name?"
     } else if (!currentData.industry && !extractedData.industry) {
       response = `Thanks! What industry is ${extractedData.businessName || currentData.businessName} in?`
     } else if (!currentData.employeeCount && !extractedData.employeeCount) {

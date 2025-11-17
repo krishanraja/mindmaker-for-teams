@@ -107,7 +107,7 @@ serve(async (req) => {
 
       try {
         const emailResponse = await resend.emails.send({
-          from: "Fractionl.ai <onboarding@resend.dev>",
+          from: "The Mindmaker <onboarding@resend.dev>",
           to: [participant.email],
           subject: `3-min prep: ${companyName} AI Bootcamp on ${new Date(workshopDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
           html: emailHtml,

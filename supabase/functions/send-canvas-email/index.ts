@@ -48,7 +48,7 @@ const handler = async (req: Request): Promise<Response> => {
     const avgAnxiety = Object.values(mindmakerData.anxietyLevels).reduce((a, b) => a + b, 0) / 5;
     
     const baseEmailData = {
-      from: "AI Mindmaker <mindmaker@fractionl.ai>",
+      from: "AI Mindmaker <mindmaker@themindmaker.ai>",
       subject: `${businessName} - AI Workshop for Teams`,
       html: `
         <h2>New AI Mindmaker Download</h2>
