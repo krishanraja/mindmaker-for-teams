@@ -254,7 +254,7 @@ export const CreateWorkshop: React.FC = () => {
                     {workshops.map((workshop) => (
                       <SelectItem key={workshop.id} value={workshop.id}>
                         <span className="block truncate">
-                          {workshop.exec_intakes?.company_name || 'Unknown Company'} - {format(new Date(workshop.workshop_date), 'PP')} - {workshop.facilitator_name}
+                          {workshop.exec_intakes?.company_name || 'No intake linked'} - {format(new Date(workshop.workshop_date), 'PP')} - {workshop.facilitator_name}
                         </span>
                       </SelectItem>
                     ))}
@@ -265,7 +265,7 @@ export const CreateWorkshop: React.FC = () => {
                   <div className="mt-2 p-3 border rounded-md bg-accent/20 flex items-center justify-between">
                     <div className="text-sm">
                       <span className="font-medium">Selected: </span>
-                      {workshops.find(w => w.id === selectedWorkshopId)?.exec_intakes?.company_name} - 
+                      {workshops.find(w => w.id === selectedWorkshopId)?.exec_intakes?.company_name || 'No intake linked'} - 
                       {workshops.find(w => w.id === selectedWorkshopId)?.facilitator_name}
                     </div>
                     <div className="flex items-center gap-2">

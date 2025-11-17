@@ -2421,7 +2421,7 @@ export type Database = {
             foreignKeyName: "workshop_sessions_bootcamp_plan_id_fkey"
             columns: ["bootcamp_plan_id"]
             isOneToOne: false
-            referencedRelation: "exec_intakes"
+            referencedRelation: "bootcamp_plans"
             referencedColumns: ["id"]
           },
           {
