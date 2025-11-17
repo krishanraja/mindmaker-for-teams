@@ -40,25 +40,19 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
   }, [bootcampPlanData]);
 
   const generateWorkingGroupQR = async () => {
-    const activityUrl = `${window.location.origin}/mobile/working-group/${workshopId}`;
-    
-    const { data, error } = await supabase
-      .from('activity_sessions')
-      .insert({
+    const { data, error } = await supabase.functions.invoke('generate-activity-qr', {
+      body: { 
         workshop_session_id: workshopId,
-        activity_type: 'working_group',
-        qr_code_url: activityUrl,
-        is_active: true,
-      })
-      .select()
-      .single();
+        activity_type: 'working_group'
+      }
+    });
 
-    if (error) {
+    if (error || !data?.activity_session) {
       toast({ title: 'Error generating QR code', variant: 'destructive' });
       return;
     }
 
-    setActivitySession(data);
+    setActivitySession(data.activity_session);
     toast({ title: 'Working group QR codes generated!' });
   };
 
