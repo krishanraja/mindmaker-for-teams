@@ -359,22 +359,22 @@ export const MobileRegistration: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="role">Department *</Label>
-                <Select
-                  value={formData.participantRole}
-                  onValueChange={(value) => setFormData({ ...formData, participantRole: value })}
-                >
-                  <SelectTrigger id="role">
-                    <SelectValue placeholder="Select your department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DEPARTMENT_OPTIONS.map((dept) => (
-                      <SelectItem key={dept} value={dept}>
-                        {dept}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+          <Label htmlFor="role">Department *</Label>
+          <Select
+            value={formData.participantRole}
+            onValueChange={(value) => setFormData({ ...formData, participantRole: value })}
+          >
+            <SelectTrigger id="role" className="bg-background">
+              <SelectValue placeholder="Select your department" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              {DEPARTMENT_OPTIONS.map((dept) => (
+                <SelectItem key={dept} value={dept}>
+                  {dept}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
               </div>
             </div>
           )}
@@ -444,46 +444,47 @@ export const MobileRegistration: React.FC = () => {
               <RadioGroup
                 value={formData.aiExperienceLevel}
                 onValueChange={(value: any) => setFormData({ ...formData, aiExperienceLevel: value })}
+                className="space-y-3"
               >
-                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
+                <label htmlFor="exp-none" className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
                   <RadioGroupItem value="none" id="exp-none" />
                   <div className="flex-1">
-                    <Label htmlFor="exp-none" className="cursor-pointer font-medium">
+                    <div className="font-medium">
                       No AI Experience
-                    </Label>
+                    </div>
                     <p className="text-sm text-muted-foreground">Haven't used AI tools professionally yet</p>
                   </div>
-                </div>
+                </label>
 
-                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
+                <label htmlFor="exp-experimenting" className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
                   <RadioGroupItem value="experimenting" id="exp-experimenting" />
                   <div className="flex-1">
-                    <Label htmlFor="exp-experimenting" className="cursor-pointer font-medium">
+                    <div className="font-medium">
                       Experimenting
-                    </Label>
+                    </div>
                     <p className="text-sm text-muted-foreground">Using ChatGPT or similar tools occasionally</p>
                   </div>
-                </div>
+                </label>
 
-                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
+                <label htmlFor="exp-deploying" className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
                   <RadioGroupItem value="deploying" id="exp-deploying" />
                   <div className="flex-1">
-                    <Label htmlFor="exp-deploying" className="cursor-pointer font-medium">
+                    <div className="font-medium">
                       Deploying
-                    </Label>
+                    </div>
                     <p className="text-sm text-muted-foreground">Actively implementing AI in specific workflows</p>
                   </div>
-                </div>
+                </label>
 
-                <div className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
+                <label htmlFor="exp-scaled" className="flex items-start space-x-3 border rounded-lg p-4 hover:bg-accent/5 cursor-pointer transition-colors">
                   <RadioGroupItem value="scaled" id="exp-scaled" />
                   <div className="flex-1">
-                    <Label htmlFor="exp-scaled" className="cursor-pointer font-medium">
+                    <div className="font-medium">
                       Scaled Usage
-                    </Label>
+                    </div>
                     <p className="text-sm text-muted-foreground">AI integrated across multiple teams/processes</p>
                   </div>
-                </div>
+                </label>
               </RadioGroup>
             </div>
           )}
