@@ -12,10 +12,10 @@ serve(async (req) => {
 
   try {
     const { segment, data } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    if (!OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY not configured');
     }
 
     let systemPrompt = '';
@@ -23,37 +23,38 @@ serve(async (req) => {
 
     switch (segment) {
       case 'bottleneck':
-        systemPrompt = 'You are an expert facilitator analyzing organizational bottlenecks. Provide concise, actionable insights.';
+        systemPrompt = 'You are an expert facilitator analyzing organizational bottlenecks. Provide concise, actionable insights. NEVER fabricate statistics or specific examples not present in the data.';
         userPrompt = `Analyze these bottleneck submissions and provide a 2-3 sentence summary of the key themes and their impact:\n\n${JSON.stringify(data)}`;
         break;
       
       case 'effortless_map':
-        systemPrompt = 'You are an AI transformation strategist. Identify patterns and opportunities.';
+        systemPrompt = 'You are an AI transformation strategist. Identify patterns and opportunities. NEVER fabricate statistics or specific examples not present in the data.';
         userPrompt = `Analyze these friction points and provide a 2-3 sentence insight about which areas have the highest AI-augmentation potential:\n\n${JSON.stringify(data)}`;
         break;
       
       case 'simulation':
-        systemPrompt = 'You are a risk assessment expert. Evaluate AI implementation scenarios.';
+        systemPrompt = 'You are a risk assessment expert. Evaluate AI implementation scenarios. NEVER fabricate statistics or specific examples not present in the data.';
         userPrompt = `Review these simulation results and provide a 2-3 sentence assessment of key risks and mitigation strategies:\n\n${JSON.stringify(data)}`;
         break;
       
       default:
-        systemPrompt = 'You are a helpful workshop facilitator providing insights.';
+        systemPrompt = 'You are a helpful workshop facilitator providing insights. NEVER fabricate statistics or specific examples not present in the data.';
         userPrompt = `Provide a concise 2-3 sentence insight about this workshop data:\n\n${JSON.stringify(data)}`;
     }
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
+        max_tokens: 150,
       }),
     });
 

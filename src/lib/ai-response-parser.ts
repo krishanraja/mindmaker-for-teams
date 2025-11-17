@@ -12,6 +12,7 @@ export interface SimulationSection {
     cost_impact?: string;
     quality_improvement?: string;
   };
+  impact_description?: string;
   prompts?: (string | DiscussionPrompt)[];
 }
 
@@ -81,3 +82,52 @@ export function extractGuardrailsFromSimulation(simulation: ParsedSimulation) {
     redFlags: ['Output quality below threshold', 'Compliance concerns detected', 'Stakeholder feedback negative']
   };
 }
+
+// Sanitize insights to detect and flag potential fabricated statistics
+const sanitizeInsights = (insights: string[]): string[] => {
+  const fabricationPatterns = [
+    /\d+%\s+(increase|decrease|reduction|improvement|growth|loss|faster|slower|higher|lower)/gi,
+    /\$[\d,]+\s*(million|thousand|k|m|annually|per year|savings|revenue|loss|cost)/gi,
+    /\d+x\s+(faster|slower|more|less|better|worse)/gi,
+    /save\s+\$[\d,]+/gi,
+    /reduce.*\d+%/gi,
+    /improve.*\d+%/gi,
+  ];
+  
+  return insights.map(insight => {
+    // Check for suspicious numeric claims
+    const hasFabrication = fabricationPatterns.some(pattern => pattern.test(insight));
+    if (hasFabrication) {
+      console.warn('⚠️ POTENTIAL FABRICATED STATISTIC DETECTED:', insight);
+      // Flag it in development
+      if (import.meta.env.DEV) {
+        console.error('AI generated fabricated metric - this should not happen!');
+      }
+    }
+    return insight;
+  });
+};
+
+export const parseAIResponse = (content: string): string[] => {
+  try {
+    // Try to parse as JSON array first
+    const parsed = JSON.parse(content);
+    let insights: string[];
+    
+    if (Array.isArray(parsed)) {
+      insights = parsed;
+    } else if (parsed.insights && Array.isArray(parsed.insights)) {
+      // If it's an object with insights property
+      insights = parsed.insights;
+    } else {
+      // If it's a single insight
+      insights = [content];
+    }
+    
+    // Sanitize to detect fabrications
+    return sanitizeInsights(insights);
+  } catch {
+    // If not valid JSON, treat as plain text
+    return sanitizeInsights([content]);
+  }
+};

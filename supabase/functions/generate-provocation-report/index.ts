@@ -20,7 +20,7 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')!;
     
     const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -127,10 +127,13 @@ serve(async (req) => {
       return "Use industry-standard terminology and acronyms freely. Assume expert audience familiar with business and AI concepts.";
     };
 
-    const systemPrompt = `You are a McKinsey-level strategy consultant specializing in AI transformation. 
-Synthesize workshop data into an executive summary that creates urgency while being data-driven and actionable.
-Be specific, use numbers, and make it feel personalized to this company.
+    const systemPrompt = `You are a strategic consultant synthesizing workshop data into an executive summary.
+    
+CRITICAL: Base your analysis ONLY on the data provided. NEVER fabricate statistics, metrics, percentages, dollar amounts, or specific examples.
+If specific numbers aren't in the data, describe impact qualitatively (e.g., "significant potential" not "25% improvement").
+Use conditional language: "could lead to", "may enable", "potential for".
 
+Create a compelling narrative that connects pre-workshop data with live session insights.
 ${getJargonGuidance(jargonLevel)}`;
 
     const userPrompt = `Analyze this AI readiness workshop for ${contextData.company.name}:
@@ -153,26 +156,26 @@ Their AI myths/concerns: ${JSON.stringify(contextData.preWorkshop.aiMyths)}
 Simulation ROI: ${JSON.stringify(contextData.results.roiMetrics)}
 
 Generate (with strict character limits):
-1. Executive summary (150-200 words) - company snapshot, workshop ROI narrative
-2. Strengths: EXACTLY 3 bullet points, each under 60 characters
-3. Gaps: EXACTLY 3 bullet points, each under 60 characters  
+1. Executive summary (150-200 words) - company snapshot, workshop narrative (qualitative only, no fabricated metrics)
+2. Strengths: EXACTLY 3 bullet points, each under 60 characters (no made-up stats)
+3. Gaps: EXACTLY 3 bullet points, each under 60 characters (no made-up stats)
 4. Urgency verdict (2-3 sentences) that answers: "If an AI-native startup launched tomorrow with your data, would they beat you?"
 
-CRITICAL: Keep Strengths and Gaps concise (max 60 chars each). Be specific and impactful.`;
+CRITICAL: Keep Strengths and Gaps concise (max 60 chars each). Be specific but never invent numbers or percentages.`;
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${openaiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
+        max_tokens: 500,
       }),
     });
 
