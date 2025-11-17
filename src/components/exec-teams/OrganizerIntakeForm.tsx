@@ -400,7 +400,7 @@ export const OrganizerIntakeForm: React.FC = () => {
             <Button
               onClick={() => {
                 if (step === 1) {
-                  navigate('/');
+                  setCurrentStep(1); // Go back to welcome screen
                 } else {
                   setStep(step - 1);
                 }
