@@ -53,6 +53,14 @@ SCENARIO:
 Current Situation: ${scenarioContext.currentState || 'Not specified'}
 Desired Outcome: ${scenarioContext.desiredOutcome || 'Not specified'}
 
+CRITICAL ANTI-FABRICATION RULES:
+- NEVER invent statistics, percentages, dollar amounts, or specific timeframes
+- ONLY reference data explicitly provided in the scenario context
+- If no specific metrics exist, use qualitative language ("significant", "substantial", "notable")
+- When discussing business impact, use conditional language: "could result in", "may lead to", "potential for"
+- DO NOT create specific numeric examples unless they come from the provided scenario
+- Focus on describing the nature of the opportunity, not inventing measurable outcomes
+
 YOUR TASK: Generate an executive discussion guide for THIS specific scenario in plain, actionable language.
 
 Return ONLY valid JSON (no markdown) with this EXACT structure:
@@ -62,9 +70,9 @@ Return ONLY valid JSON (no markdown) with this EXACT structure:
       "type": "current_state",
       "title": "Today's Reality",
       "insights": [
-        "Probe WHY this is broken - what's the real cost/pain/risk?",
-        "Be brutally specific about business impact",
-        "Include concrete examples from THIS scenario"
+        "Probe WHY this is broken - what's the real cost/pain/risk? (qualitative only)",
+        "Be brutally specific about business impact (no fabricated numbers)",
+        "Include concrete examples from THIS scenario (no made-up statistics)"
       ]
     },
     {
@@ -72,14 +80,10 @@ Return ONLY valid JSON (no markdown) with this EXACT structure:
       "title": "With AI Augmentation",
       "insights": [
         "Show exactly HOW AI addresses THIS specific problem",
-        "Reference what similar companies have done (be specific with examples)",
+        "Reference what similar companies have done (general examples only, no specific metrics unless provided)",
         "Connect directly to THEIR scenario, not generic AI benefits"
       ],
-      "metrics": {
-        "time_saved": "e.g., 60% faster turnaround",
-        "cost_impact": "e.g., $200K annual savings",
-        "quality_improvement": "e.g., 40% fewer errors"
-      }
+      "impact_description": "Qualitative description of potential impact without specific numbers"
     },
     {
       "type": "discussion",
@@ -129,13 +133,16 @@ CRITICAL RULES:
 
 ${getJargonGuidance(jargonLevel)}
 
+CRITICAL: Base all advice ONLY on the scenario data provided. NEVER fabricate statistics, metrics, or specific examples.
+Use qualitative language when quantitative data isn't available.
+
 SCENARIO CONTEXT:
 Current Situation: ${scenarioContext.currentState || 'Not specified'}
 Key Stakeholders: ${scenarioContext.stakeholders || 'Not specified'}
 Desired Outcome: ${scenarioContext.desiredOutcome || 'Not specified'}
 Constraints: ${scenarioContext.constraints || 'Not specified'}
 
-The team has a specific question about implementing AI for this scenario. Provide practical, specific guidance that acknowledges limitations and real-world implementation considerations. Keep your response concise and boardroom-ready.`;
+The team has a specific question about implementing AI for this scenario. Provide practical, specific guidance that acknowledges limitations and real-world implementation considerations. Keep your response concise and boardroom-ready. No made-up metrics.`;
 
       userMessage = userPrompt;
     }
