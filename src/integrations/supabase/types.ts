@@ -2487,9 +2487,8 @@ export type Database = {
           company_name: string
           created_at: string
           id: string
+          industry: string
           organizer_name: string
-          session_name: string
-          workshop_date: string
         }[]
       }
       has_role: {
