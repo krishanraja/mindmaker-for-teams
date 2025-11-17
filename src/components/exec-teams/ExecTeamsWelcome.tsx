@@ -76,10 +76,20 @@ export const ExecTeamsWelcome: React.FC = () => {
             </div>
             
             <div>
-              <h2 className="text-xl md:text-5xl font-bold mb-2 md:mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left min-h-[50px] md:min-h-[140px] whitespace-pre-line leading-tight">
-                {displayedText}
-                {!isTypingComplete && <span className="typewriter-cursor" />}
-              </h2>
+              <div className="relative">
+                {/* Invisible full text to reserve space and prevent layout shift */}
+                <h2 
+                  className="text-xl md:text-5xl font-bold mb-2 md:mb-6 text-left whitespace-pre-line leading-tight invisible"
+                  aria-hidden="true"
+                >
+                  {FULL_TEXT}
+                </h2>
+                {/* Visible typing text positioned absolutely */}
+                <h2 className="absolute inset-0 text-xl md:text-5xl font-bold mb-2 md:mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left whitespace-pre-line leading-tight">
+                  {displayedText}
+                  {!isTypingComplete && <span className="typewriter-cursor" />}
+                </h2>
+              </div>
               <CardDescription className="text-base md:text-2xl text-foreground/80 font-medium text-left">
                 From Hype to Strategy in 4 Hours
               </CardDescription>
