@@ -85,7 +85,7 @@ export const ExecTeamsWelcome: React.FC = () => {
                   {FULL_TEXT}
                 </h2>
                 {/* Visible typing text positioned absolutely */}
-                <h2 className="absolute inset-0 text-xl md:text-5xl font-bold mb-2 md:mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left whitespace-pre-line leading-tight">
+                <h2 className="absolute top-0 left-0 right-0 text-xl md:text-5xl font-bold mb-2 md:mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent text-left whitespace-pre-line leading-tight">
                   {displayedText}
                   {!isTypingComplete && <span className="typewriter-cursor" />}
                 </h2>
