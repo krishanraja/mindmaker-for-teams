@@ -344,6 +344,60 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_workshop_sessions: {
+        Row: {
+          bootcamp_plan_id: string | null
+          cognitive_baseline_data: Json | null
+          completed_at: string | null
+          created_at: string | null
+          current_segment: number | null
+          facilitator_email: string | null
+          facilitator_name: string | null
+          id: string | null
+          intake_id: string | null
+          participant_count: number | null
+          segment_timers: Json | null
+          status: string | null
+          updated_at: string | null
+          workshop_date: string | null
+          workshop_metadata: Json | null
+        }
+        Insert: {
+          bootcamp_plan_id?: string | null
+          cognitive_baseline_data?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_segment?: number | null
+          facilitator_email?: string | null
+          facilitator_name?: string | null
+          id?: string | null
+          intake_id?: string | null
+          participant_count?: number | null
+          segment_timers?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          workshop_date?: string | null
+          workshop_metadata?: Json | null
+        }
+        Update: {
+          bootcamp_plan_id?: string | null
+          cognitive_baseline_data?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_segment?: number | null
+          facilitator_email?: string | null
+          facilitator_name?: string | null
+          id?: string | null
+          intake_id?: string | null
+          participant_count?: number | null
+          segment_timers?: Json | null
+          status?: string | null
+          updated_at?: string | null
+          workshop_date?: string | null
+          workshop_metadata?: Json | null
+        }
+        Relationships: []
+      }
       booking_requests: {
         Row: {
           company_name: string | null
@@ -2367,7 +2421,7 @@ export type Database = {
             foreignKeyName: "workshop_sessions_bootcamp_plan_id_fkey"
             columns: ["bootcamp_plan_id"]
             isOneToOne: false
-            referencedRelation: "bootcamp_plans"
+            referencedRelation: "exec_intakes"
             referencedColumns: ["id"]
           },
           {
