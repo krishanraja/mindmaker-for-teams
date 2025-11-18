@@ -98,53 +98,75 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
       phase: 'Discovery (Segment 1-2)',
       icon: <Search className="w-6 h-6 text-primary" />,
       insights: [
-        `Actually identified ${discoveryData.actualBottlenecks} bottleneck${discoveryData.actualBottlenecks !== 1 ? 's' : ''}${
-          preWorkData.anticipatedBottlenecks > 0
-            ? ` (${Math.abs(percentageChange)}% ${percentageChange >= 0 ? 'more' : 'fewer'} than anticipated)`
-            : preWorkData.anticipatedBottlenecks === 0 && discoveryData.actualBottlenecks > 0
-            ? ' (team anticipated none)'
-            : ''
-        }`,
-        `Top clusters: ${discoveryData.topClusters.join(', ')}`,
-        ...(discoveryData.mythsBusted.length > 0 ? [`Myths busted: ${discoveryData.mythsBusted[0]}`] : [])
+        discoveryData.actualBottlenecks > 0
+          ? `Actually identified ${discoveryData.actualBottlenecks} bottleneck${discoveryData.actualBottlenecks !== 1 ? 's' : ''}${
+              preWorkData.anticipatedBottlenecks > 0
+                ? ` (${Math.abs(percentageChange)}% ${percentageChange >= 0 ? 'more' : 'fewer'} than anticipated)`
+                : preWorkData.anticipatedBottlenecks === 0 && discoveryData.actualBottlenecks > 0
+                ? ' (team anticipated none)'
+                : ''
+            }`
+          : 'Team explored organizational friction points and bottlenecks',
+        discoveryData.topClusters.length > 0 ? `Top clusters: ${discoveryData.topClusters.join(', ')}` : 'Discussed patterns in operational constraints',
+        ...(discoveryData.mythsBusted.length > 0 ? [`Myths busted: ${discoveryData.mythsBusted[0]}`] : ['Calibrated team expectations on AI capabilities'])
       ]
     },
     {
       phase: 'Experimentation (Segment 3-4)',
       icon: <Beaker className="w-6 h-6 text-primary" />,
       insights: [
-        `Ran ${experimentData.simulationsRun} live simulations with real scenarios`,
-        `Average time savings: ${experimentData.avgTimeSavings}%`,
-        `Average quality rating: ${experimentData.avgQualityRating}/10`,
-        ...(experimentData.keyFindings.length > 0 ? [experimentData.keyFindings[0]] : [])
+        experimentData.simulationsRun > 0 
+          ? `Ran ${experimentData.simulationsRun} live simulation${experimentData.simulationsRun !== 1 ? 's' : ''} with real scenarios`
+          : 'Prepared simulation frameworks for AI-augmented workflows',
+        experimentData.avgTimeSavings > 0 
+          ? `Average time savings: ${experimentData.avgTimeSavings}%`
+          : 'Explored potential efficiency gains from AI integration',
+        experimentData.avgQualityRating > 0 
+          ? `Average quality rating: ${experimentData.avgQualityRating}/10`
+          : 'Assessed quality considerations for AI outputs',
+        ...(experimentData.keyFindings.length > 0 ? [experimentData.keyFindings[0]] : ['Team identified high-impact automation opportunities'])
       ]
     },
     {
       phase: 'Risk Mitigation (Segment 4)',
       icon: <Shield className="w-6 h-6 text-primary" />,
       insights: [
-        `Designed ${riskData.guardrailsCount} guardrail framework${riskData.guardrailsCount !== 1 ? 's' : ''}`,
+        riskData.guardrailsCount > 0 
+          ? `Designed ${riskData.guardrailsCount} guardrail framework${riskData.guardrailsCount !== 1 ? 's' : ''}`
+          : 'Discussed guardrail requirements for safe AI deployment',
         `Risk tolerance: ${riskData.riskTolerance}/100 (${riskData.riskLabel})`,
-        `Red flags identified: ${riskData.redFlagsCount}`,
-        riskData.topGuardrail
+        riskData.redFlagsCount > 0 
+          ? `Red flags identified: ${riskData.redFlagsCount}`
+          : 'Reviewed potential implementation risks',
+        riskData.topGuardrail || 'Established safety principles for pilot phase'
       ]
     },
     {
       phase: 'Task Breakdown (Segment 4)',
       icon: <Wrench className="w-6 h-6 text-primary" />,
       insights: [
-        `Analyzed ${taskData.totalTasks} task${taskData.totalTasks !== 1 ? 's' : ''} across simulations`,
-        `AI-capable: ${taskData.aiCapable} (${taskData.aiCapablePct}%)`,
-        `Human-only: ${taskData.humanOnly} (${taskData.humanOnlyPct}%)`,
-        taskData.topAutomation
+        taskData.totalTasks > 0 
+          ? `Analyzed ${taskData.totalTasks} task${taskData.totalTasks !== 1 ? 's' : ''} across simulations`
+          : 'Reviewed task decomposition approach for pilot workflows',
+        taskData.aiCapable > 0 
+          ? `AI-capable: ${taskData.aiCapable} (${taskData.aiCapablePct}%)`
+          : 'Identified automation opportunities within pilot scope',
+        taskData.humanOnly > 0 
+          ? `Human-only: ${taskData.humanOnly} (${taskData.humanOnlyPct}%)`
+          : 'Clarified human-in-the-loop requirements',
+        taskData.topAutomation || 'Prioritized quick-win automation targets'
       ]
     },
     {
       phase: 'Strategic Planning (Segment 5-6)',
       icon: <Target className="w-6 h-6 text-primary" />,
       insights: [
-        `Prioritized ${strategyData.topOpportunities} AI opportunit${strategyData.topOpportunities !== 1 ? 'ies' : 'y'}`,
-        `Working group contributed ${strategyData.workingGroupInputs} strategic insight${strategyData.workingGroupInputs !== 1 ? 's' : ''}`,
+        strategyData.topOpportunities > 0 
+          ? `Prioritized ${strategyData.topOpportunities} AI opportunit${strategyData.topOpportunities !== 1 ? 'ies' : 'y'}`
+          : 'Identified strategic AI opportunities during workshop discussion',
+        strategyData.workingGroupInputs > 0
+          ? `Working group contributed ${strategyData.workingGroupInputs} strategic insight${strategyData.workingGroupInputs !== 1 ? 's' : ''}`
+          : 'Team discussed strategic implications and pilot approach',
         `Team consensus: ${strategyData.consensusArea}`,
         'Next step: Executive sponsor to approve pilot scope'
       ]
