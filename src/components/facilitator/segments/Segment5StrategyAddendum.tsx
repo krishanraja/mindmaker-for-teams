@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,6 +18,7 @@ interface Segment5StrategyAddendumProps {
 }
 
 export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> = ({ workshopId, bootcampPlanData }) => {
+  const dataLoaded = useRef(false);
   const [activitySession, setActivitySession] = useState<any>(null);
   const [addendum, setAddendum] = useState({
     targets_at_risk: '',
@@ -43,7 +44,8 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
   }, [votingResults, simulationResults, loadingData]);
 
   useEffect(() => {
-    if (bootcampPlanData && addendum.targets_at_risk === '') {
+    // Only pre-populate if database data hasn't been loaded yet
+    if (bootcampPlanData && !dataLoaded.current && addendum.targets_at_risk === '') {
       const initialTargets = bootcampPlanData.strategic_goals_2026?.join('\n• ') || '';
       const competitiveLandscape = bootcampPlanData.competitive_landscape || '';
       
@@ -78,6 +80,7 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
         data_governance_changes: data.data_governance_changes || '',
         pilot_kpis: data.pilot_kpis || '',
       });
+      dataLoaded.current = true;
     }
   };
 

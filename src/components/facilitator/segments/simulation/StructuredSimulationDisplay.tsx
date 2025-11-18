@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BarChart, Sparkles, MessageSquare, Check } from 'lucide-react';
 import { SimulationSection, DiscussionPrompt } from '@/lib/ai-response-parser';
+import { supabase } from '@/integrations/supabase/client';
 
 interface StructuredSimulationDisplayProps {
   sections: SimulationSection[];
+  simulationResultId?: string;
+  initialSelections?: Record<number, number | string>;
 }
 
 const getSectionIcon = (type: string) => {
@@ -21,9 +24,28 @@ const getSectionColor = (type: string) => {
   return 'text-primary';
 };
 
-export const StructuredSimulationDisplay: React.FC<StructuredSimulationDisplayProps> = ({ sections }) => {
-  const [selectedOptions, setSelectedOptions] = useState<Record<number, number | string>>({});
+export const StructuredSimulationDisplay: React.FC<StructuredSimulationDisplayProps> = ({ 
+  sections,
+  simulationResultId,
+  initialSelections 
+}) => {
+  const [selectedOptions, setSelectedOptions] = useState<Record<number, number | string>>(initialSelections || {});
   const [customInputs, setCustomInputs] = useState<Record<number, string>>({});
+
+  // Autosave selections
+  useEffect(() => {
+    if (!simulationResultId || Object.keys(selectedOptions).length === 0) return;
+    
+    const saveSelections = async () => {
+      await supabase
+        .from('simulation_results')
+        .update({ selected_discussion_options: selectedOptions })
+        .eq('id', simulationResultId);
+    };
+    
+    const timer = setTimeout(saveSelections, 500);
+    return () => clearTimeout(timer);
+  }, [selectedOptions, simulationResultId]);
 
   const handleOptionSelect = (promptIndex: number, optionIndex: number) => {
     setSelectedOptions(prev => ({

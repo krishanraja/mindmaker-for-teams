@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,6 +23,8 @@ interface GuardrailDesignerProps {
   initialGuardrail?: Guardrail;
   scenarioContext?: any;
   simulationResults?: any;
+  workshopId?: string;
+  simulationId?: string;
 }
 
 export const GuardrailDesigner = ({ 
@@ -30,7 +32,9 @@ export const GuardrailDesigner = ({
   onGuardrailsComplete,
   initialGuardrail,
   scenarioContext,
-  simulationResults
+  simulationResults,
+  workshopId,
+  simulationId
 }: GuardrailDesignerProps) => {
   const [guardrail, setGuardrail] = useState<Guardrail>(initialGuardrail || {
     riskIdentified: "",
@@ -41,6 +45,22 @@ export const GuardrailDesigner = ({
   const [newRedFlag, setNewRedFlag] = useState("");
   const [riskTolerance, setRiskTolerance] = useState(50);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Autosave guardrail changes
+  useEffect(() => {
+    if (!workshopId || !simulationId || !guardrail.riskIdentified) return;
+    
+    const saveGuardrails = async () => {
+      await supabase
+        .from('simulation_results')
+        .update({ guardrails: guardrail as any })
+        .eq('workshop_session_id', workshopId)
+        .eq('id', simulationId);
+    };
+    
+    const timer = setTimeout(saveGuardrails, 1000);
+    return () => clearTimeout(timer);
+  }, [guardrail, workshopId, simulationId]);
 
   const getRiskLabel = (value: number) => {
     if (value < 34) return 'Conservative (Maximum Oversight)';

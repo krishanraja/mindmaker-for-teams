@@ -80,6 +80,12 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
       return;
     }
 
+    console.log('[DEBUG] Loaded simulation results:', data);
+    if (data && data.length > 0) {
+      console.log('[DEBUG] First result task_breakdown:', data[0]?.task_breakdown);
+      console.log('[DEBUG] First result quality_improvement_pct:', data[0]?.quality_improvement_pct);
+    }
+
     setResults(data || []);
   };
 
