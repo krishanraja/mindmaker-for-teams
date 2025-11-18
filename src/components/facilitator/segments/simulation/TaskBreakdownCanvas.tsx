@@ -32,12 +32,38 @@ export const TaskBreakdownCanvas = ({
   onBreakdownComplete,
   initialTasks = [],
   scenarioContext,
-  simulationResults
+  simulationResults,
+  workshopId,
+  simulationId
 }: TaskBreakdownCanvasProps) => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [newTaskDesc, setNewTaskDesc] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [automationPreference, setAutomationPreference] = useState(50); // Default: balanced
+  
+  // CRITICAL: Autosave task breakdown changes
+  useEffect(() => {
+    if (!workshopId || !simulationId || tasks.length === 0) return;
+    
+    const saveTasks = async () => {
+      try {
+        const { error } = await supabase
+          .from('simulation_results')
+          .update({ task_breakdown: tasks as any })
+          .eq('workshop_session_id', workshopId)
+          .eq('simulation_id', simulationId);
+        
+        if (error) {
+          console.error('[TaskBreakdown] Autosave error:', error);
+        }
+      } catch (err) {
+        console.error('[TaskBreakdown] Autosave exception:', err);
+      }
+    };
+    
+    const timer = setTimeout(saveTasks, 1000);
+    return () => clearTimeout(timer);
+  }, [tasks, workshopId, simulationId]);
   
   const getPreferenceLabel = (value: number) => {
     if (value < 34) return 'Conservative (More Human Oversight)';

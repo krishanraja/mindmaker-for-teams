@@ -186,13 +186,8 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
     toast({ title: 'Strategy addendum saved!' });
   };
 
-  // Autosave callback
+  // Autosave callback - ALWAYS save, even if empty (deletion is valid)
   const saveAddendum = useCallback(async () => {
-    // Only autosave if there's content
-    if (!addendum.targets_at_risk && !addendum.data_governance_changes && !addendum.pilot_kpis) {
-      return;
-    }
-
     const { error } = await supabase.from('strategy_addendum').upsert({
       workshop_session_id: workshopId,
       targets_at_risk: addendum.targets_at_risk,
@@ -201,7 +196,7 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
     });
 
     if (error) {
-      console.error('Autosave error:', error);
+      console.error('[StrategyAddendum] Autosave error:', error);
       throw error;
     }
   }, [workshopId, addendum]);
