@@ -10,7 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { getSimulationDisplayName } from '@/lib/simulation-constants';
-import { useAutosave } from '@/hooks/useAutosave';
+import { useEnhancedAutosave } from '@/hooks/useEnhancedAutosave';
+import { useSaveQueue } from '@/hooks/useSaveQueue';
 import { AIGenerateButton } from '@/components/ui/ai-generate-button';
 
 interface Segment5StrategyAddendumProps {
@@ -174,17 +175,8 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
   };
 
   const handleSave = async () => {
-    const { error } = await supabase.from('strategy_addendum').upsert({
-      workshop_session_id: workshopId,
-      targets_at_risk: addendum.targets_at_risk,
-      data_governance_changes: addendum.data_governance_changes,
-      pilot_kpis: addendum.pilot_kpis,
-    });
-    if (error) {
-      toast({ title: 'Error saving strategy addendum', variant: 'destructive' });
-      return;
-    }
-    toast({ title: 'Strategy addendum saved!' });
+    await flushAll(); // Force immediate save of all queued changes
+    toast({ title: 'Strategy addendum saved!', description: 'All changes have been saved immediately' });
   };
 
   // Autosave callback - ALWAYS save, even if empty (deletion is valid)
@@ -202,12 +194,21 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
     }
   }, [workshopId, addendum]);
 
-  // Enable autosave with 1 second debounce
-  const { isSaving, lastSaved } = useAutosave({
+  // Enable autosave with 2 second debounce (strategic thinking needs more time)
+  const { isSaving, lastSaved } = useEnhancedAutosave({
     data: addendum,
     saveFunction: saveAddendum,
-    debounceMs: 1000,
+    debounceMs: 2000,
     enabled: true,
+    componentName: 'StrategyAddendum',
+  });
+
+  const { flushAll } = useSaveQueue();
+
+  console.log('[StrategyAddendum] Current state:', { 
+    addendum, 
+    isSaving, 
+    lastSaved: lastSaved?.toISOString() 
   });
 
   const getRankIcon = (index: number) => {

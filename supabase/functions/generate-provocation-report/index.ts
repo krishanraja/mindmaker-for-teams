@@ -66,7 +66,10 @@ serve(async (req) => {
       prework: preworkSubmissions.data?.length,
       workingInputs: workingInputs.data?.length,
       votingResults: votingResults.data?.length,
-      huddleSynthesis: huddleSynthesis.data ? 'present' : 'absent'
+      huddleSynthesis: huddleSynthesis.data ? 'present' : 'absent',
+      mapItems: mapItems.data?.length,
+      strategy: strategy.data ? 'present' : 'absent',
+      charter: charter.data ? 'present' : 'absent'
     });
 
     // Calculate urgency score
@@ -367,13 +370,6 @@ Return ONLY valid JSON with this exact structure (no markdown, no code blocks):
     "surprisingFindings": "What unexpected insights emerged from simulations?",
     "momentsOfClarity": "Key breakthroughs during the workshop"
   },
-  "participantHighlights": [
-    {
-      "quote": "Actual quote or paraphrased insight from working group",
-      "attribution": "Role or name (if available)",
-      "context": "When/why this was said"
-    }
-  ],
   "urgencyVerdict": "100-150 words answering: If an AI-native competitor launched tomorrow with access to this company's data and processes, what would happen? Use workshop data to make this concrete."
 }`;
 

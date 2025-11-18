@@ -59,6 +59,8 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
       .eq('workshop_session_id', workshopId)
       .order('created_at', { ascending: true });
 
+    console.log('[BottleneckBoard] Loaded submissions:', data?.length || 0);
+    
     if (data) {
       setSubmissions(data);
       const clustered = data.filter(s => s.cluster_id);
@@ -145,6 +147,7 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
       return;
     }
 
+    console.log('[BottleneckBoard] Generating synthesis with', submissions.length, 'submissions');
     setLoadingSynthesis(true);
     toast({ title: 'AI is generating synthesis...', description: 'This may take a moment' });
 
@@ -155,6 +158,7 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
     setLoadingSynthesis(false);
 
     if (error) {
+      console.error('[BottleneckBoard] Synthesis error:', error);
       toast({ title: 'Error generating synthesis', description: error.message, variant: 'destructive' });
       return;
     }
