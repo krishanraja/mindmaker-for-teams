@@ -127,7 +127,19 @@ export default {
         '100': '100ms',
         '200': '200ms',
       },
+      backgroundSize: {
+        '200%': '200%',
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    function({ addUtilities }: any) {
+      addUtilities({
+        '.animation-delay-200': {
+          'animation-delay': '200ms',
+        },
+      });
+    },
+  ],
 } satisfies Config;

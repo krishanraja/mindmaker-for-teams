@@ -30,6 +30,7 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [jargonLevel, setJargonLevel] = useState(33); // Default to plain English
+  const [promptIterations, setPromptIterations] = useState<any[]>([]);
 
   const customerSimulations = useMemo(() => {
     if (!bootcampPlanData) return [];
@@ -99,12 +100,15 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
         ? Math.round(((taskBreakdown.filter(t => t.category === 'ai-capable').length + taskBreakdown.filter(t => t.category === 'ai-human').length * 0.5) / taskBreakdown.length) * 100)
         : 0;
 
+      console.log('[DEBUG] Saving simulation with prompts:', promptIterations.length);
+
       const { error } = await supabase.from("simulation_results").insert([{
         workshop_session_id: workshopId,
         simulation_id: selectedSimulation,
         simulation_name: getSimulationById(selectedSimulation)?.title || selectedSimulation,
         scenario_context: scenarioContext as any,
         ai_outputs: generatedSimulation.sections as any,
+        prompts_used: promptIterations as any,
         task_breakdown: taskBreakdown as any,
         guardrails: guardrails as any,
         before_snapshot: {},
@@ -289,6 +293,8 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
           </Card>
 
           <TaskBreakdownCanvas
+            workshopId={workshopId}
+            simulationId={selectedSimulation!}
             initialTasks={taskBreakdown}
             onBreakdownComplete={(breakdown) => {
               setTaskBreakdown(breakdown.tasks);
@@ -313,6 +319,8 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
           </Card>
 
           <GuardrailDesigner
+            workshopId={workshopId}
+            simulationId={selectedSimulation!}
             aiOutputQuality={7}
             initialGuardrail={guardrails || undefined}
             scenarioContext={scenarioContext}
