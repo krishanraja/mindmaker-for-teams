@@ -1,139 +1,176 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, AlertCircle, Lightbulb, Calendar } from 'lucide-react';
+import { Target, AlertCircle, Zap, Calendar } from 'lucide-react';
 
 interface StrategicAlignmentGridProps {
   strategicGoals?: string;
-  bottleneckClusters: string[];
+  derivedGoalsFromWorkshop?: string[];
   aiLeveragePoints?: any[];
+  derivedLeveragePoints?: any[];
   pilotMilestones?: {
     d10?: string;
     d30?: string;
     d60?: string;
     d90?: string;
   };
+  realisticNextSteps?: string[];
+  bottleneckClusters: string[];
 }
 
 export const StrategicAlignmentGrid: React.FC<StrategicAlignmentGridProps> = ({
   strategicGoals,
-  bottleneckClusters,
+  derivedGoalsFromWorkshop = [],
   aiLeveragePoints = [],
-  pilotMilestones = {}
+  derivedLeveragePoints = [],
+  pilotMilestones = {},
+  realisticNextSteps = [],
+  bottleneckClusters
 }) => {
   return (
-    <Card className="border border-border/60 shadow-lg">
-      <CardHeader className="pb-6">
+    <Card className="border shadow-sm">
+      <CardHeader className="pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Target className="h-6 w-6 text-primary" />
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Target className="w-6 h-6 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-2xl">Strategic Alignment Dashboard</CardTitle>
-            <p className="text-muted-foreground mt-1">How your pilot connects to strategic goals</p>
+            <CardTitle className="text-xl">Strategic Alignment Dashboard</CardTitle>
+            <p className="text-sm text-muted-foreground">How AI opportunities connect to strategic goals</p>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-6">
-        <div className="grid md:grid-cols-4 gap-8">
+      <CardContent>
+        <div className="grid md:grid-cols-4 gap-6">
           {/* Column 1: Strategic Goals */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 mb-4">
-              <Target className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">2026 Strategic Goals</h3>
-            </div>
-            <div className="space-y-2">
-              {strategicGoals ? (
-                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg text-sm">
-                  {strategicGoals}
+            <h4 className="font-semibold text-foreground flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary" />
+              2026 Strategic Goals
+            </h4>
+            {strategicGoals ? (
+              <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg text-sm text-foreground">
+                {strategicGoals}
+              </div>
+            ) : derivedGoalsFromWorkshop.length > 0 ? (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground italic mb-2">
+                  Derived from workshop activities:
                 </div>
-              ) : (
-                <div className="text-sm text-muted-foreground italic">No strategic goals specified</div>
-              )}
-            </div>
+                {derivedGoalsFromWorkshop.map((goal, idx) => (
+                  <div key={idx} className="p-2 bg-primary/5 border border-primary/10 rounded text-sm text-foreground">
+                    {goal}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground italic">
+                No strategic goals captured
+              </div>
+            )}
           </div>
 
-          {/* Column 2: Bottlenecks */}
+          {/* Column 2: Key Bottlenecks */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 mb-4">
-              <AlertCircle className="h-5 w-5 text-destructive" />
-              <h3 className="font-semibold">Key Bottlenecks</h3>
-            </div>
+            <h4 className="font-semibold text-foreground flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-destructive" />
+              Key Bottlenecks
+            </h4>
             <div className="space-y-2">
               {bottleneckClusters.length > 0 ? (
-                bottleneckClusters.slice(0, 5).map((cluster, idx) => (
+                bottleneckClusters.slice(0, 4).map((cluster, idx) => (
                   <Badge key={idx} variant="outline" className="w-full justify-start py-2 px-3 text-sm">
                     {cluster}
                   </Badge>
                 ))
               ) : (
-                <div className="text-sm text-muted-foreground italic">No bottlenecks clustered yet</div>
+                <div className="text-sm text-muted-foreground italic">
+                  No bottlenecks clustered yet
+                </div>
               )}
             </div>
           </div>
 
           {/* Column 3: AI Leverage Points */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 mb-4">
-              <Lightbulb className="h-5 w-5 text-warning" />
-              <h3 className="font-semibold">AI Leverage Points</h3>
-            </div>
-            <div className="space-y-2">
-              {aiLeveragePoints.length > 0 ? (
-                aiLeveragePoints.slice(0, 5).map((point: any, idx) => (
-                  <div key={idx} className="p-3 bg-warning/5 border border-warning/20 rounded-lg text-sm">
-                    {point.description || point.title || 'Leverage point identified'}
+            <h4 className="font-semibold text-foreground flex items-center gap-2">
+              <Zap className="w-5 h-5 text-primary" />
+              AI Leverage Points
+            </h4>
+            {aiLeveragePoints.length > 0 ? (
+              <div className="space-y-2">
+                {aiLeveragePoints.slice(0, 4).map((point, idx) => (
+                  <div key={idx} className="p-2 bg-accent/10 border border-accent/30 rounded text-sm text-foreground">
+                    {typeof point === 'string' ? point : point.description || point.title}
                   </div>
-                ))
-              ) : (
-                <div className="text-sm text-muted-foreground italic">Define in Strategy Addendum</div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : derivedLeveragePoints.length > 0 ? (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground italic mb-2">
+                  High-impact opportunities from simulations:
+                </div>
+                {derivedLeveragePoints.map((point, idx) => (
+                  <div key={idx} className="p-2 bg-accent/10 border border-accent/20 rounded text-sm">
+                    <div className="font-medium text-foreground">{point.scenario}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {point.timeSavings} • {point.qualityRating}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground italic">
+                Complete simulations to identify leverage points
+              </div>
+            )}
           </div>
 
-          {/* Column 4: Pilot Milestones */}
+          {/* Column 4: 90-Day Milestones */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="h-5 w-5 text-success" />
-              <h3 className="font-semibold">90-Day Milestones</h3>
-            </div>
-            <div className="space-y-3">
-              {pilotMilestones.d10 && (
-                <div className="space-y-1">
-                  <div className="text-xs font-semibold text-muted-foreground">Day 10</div>
-                  <div className="text-sm p-2 bg-success/5 border border-success/20 rounded">
-                    {pilotMilestones.d10}
+            <h4 className="font-semibold text-foreground flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              90-Day Milestones
+            </h4>
+            {(pilotMilestones.d10 || pilotMilestones.d30 || pilotMilestones.d60 || pilotMilestones.d90) ? (
+              <div className="space-y-2">
+                {pilotMilestones.d10 && (
+                  <div className="p-2 bg-primary/5 border border-primary/20 rounded text-sm">
+                    <span className="font-semibold text-primary">D10:</span> {pilotMilestones.d10}
                   </div>
-                </div>
-              )}
-              {pilotMilestones.d30 && (
-                <div className="space-y-1">
-                  <div className="text-xs font-semibold text-muted-foreground">Day 30</div>
-                  <div className="text-sm p-2 bg-success/5 border border-success/20 rounded">
-                    {pilotMilestones.d30}
+                )}
+                {pilotMilestones.d30 && (
+                  <div className="p-2 bg-primary/5 border border-primary/20 rounded text-sm">
+                    <span className="font-semibold text-primary">D30:</span> {pilotMilestones.d30}
                   </div>
-                </div>
-              )}
-              {pilotMilestones.d60 && (
-                <div className="space-y-1">
-                  <div className="text-xs font-semibold text-muted-foreground">Day 60</div>
-                  <div className="text-sm p-2 bg-success/5 border border-success/20 rounded">
-                    {pilotMilestones.d60}
+                )}
+                {pilotMilestones.d60 && (
+                  <div className="p-2 bg-primary/5 border border-primary/20 rounded text-sm">
+                    <span className="font-semibold text-primary">D60:</span> {pilotMilestones.d60}
                   </div>
-                </div>
-              )}
-              {pilotMilestones.d90 && (
-                <div className="space-y-1">
-                  <div className="text-xs font-semibold text-muted-foreground">Day 90</div>
-                  <div className="text-sm p-2 bg-success/5 border border-success/20 rounded">
-                    {pilotMilestones.d90}
+                )}
+                {pilotMilestones.d90 && (
+                  <div className="p-2 bg-primary/5 border border-primary/20 rounded text-sm">
+                    <span className="font-semibold text-primary">D90:</span> {pilotMilestones.d90}
                   </div>
+                )}
+              </div>
+            ) : realisticNextSteps.length > 0 ? (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground italic mb-2">
+                  Recommended next steps:
                 </div>
-              )}
-              {!pilotMilestones.d10 && !pilotMilestones.d30 && (
-                <div className="text-sm text-muted-foreground italic">Define in Pilot Charter</div>
-              )}
-            </div>
+                {realisticNextSteps.map((step, idx) => (
+                  <div key={idx} className="p-2 bg-primary/5 border border-primary/10 rounded text-sm text-foreground">
+                    {step}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground italic">
+                Complete pilot charter to define milestones
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

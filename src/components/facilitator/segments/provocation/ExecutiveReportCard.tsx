@@ -180,10 +180,25 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       avgQualityRating: contextData.simulations?.avgQualityRating || 0,
       keyFindings: aiSynthesis?.journeyInsights?.surprisingFindings ? [aiSynthesis.journeyInsights.surprisingFindings] : []
     },
-    strategyData: {
-      pilotOwner: charter?.pilot_owner,
-      budget: charter?.pilot_budget,
-      topOpportunities: contextData.workshop.opportunitiesPrioritized || 0
+    riskData: contextData.enrichedData?.riskData || {
+      guardrailsCount: 0,
+      riskTolerance: 50,
+      riskLabel: 'Balanced',
+      redFlagsCount: 0,
+      topGuardrail: 'Guardrails to be designed'
+    },
+    taskData: contextData.enrichedData?.taskData || {
+      totalTasks: 0,
+      aiCapable: 0,
+      aiCapablePct: 0,
+      humanOnly: 0,
+      humanOnlyPct: 0,
+      topAutomation: 'Task analysis to be completed'
+    },
+    strategyData: contextData.enrichedData?.strategyData || {
+      topOpportunities: contextData.workshop.opportunitiesPrioritized || 0,
+      workingGroupInputs: 0,
+      consensusArea: 'Strategic alignment'
     }
   };
 
@@ -287,17 +302,20 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       )}
 
       {/* Strategic Alignment Grid */}
-      <StrategicAlignmentGrid
-        strategicGoals={contextData.company.strategicGoals}
-        bottleneckClusters={bottleneckClusters}
-        aiLeveragePoints={strategy?.ai_leverage_points}
-        pilotMilestones={{
-          d10: charter?.milestone_d10,
-          d30: charter?.milestone_d30,
-          d60: charter?.milestone_d60,
-          d90: charter?.milestone_d90,
-        }}
-      />
+            <StrategicAlignmentGrid
+              strategicGoals={contextData.company.strategicGoals}
+              derivedGoalsFromWorkshop={contextData.enrichedData?.derivedGoalsFromWorkshop}
+              bottleneckClusters={bottleneckClusters}
+              aiLeveragePoints={strategy?.ai_leverage_points}
+              derivedLeveragePoints={contextData.enrichedData?.derivedLeveragePoints}
+              pilotMilestones={{
+                d10: charter?.milestone_d10,
+                d30: charter?.milestone_d30,
+                d60: charter?.milestone_d60,
+                d90: charter?.milestone_d90,
+              }}
+              realisticNextSteps={contextData.enrichedData?.realisticNextSteps}
+            />
 
       {/* The Numbers That Matter - ROI Metrics */}
       {roiMetrics.length > 0 && (
