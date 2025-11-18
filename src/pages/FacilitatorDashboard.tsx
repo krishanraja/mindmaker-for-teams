@@ -221,7 +221,7 @@ export const FacilitatorDashboard: React.FC = () => {
           )}
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-background via-background to-muted/10">
+        <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-background via-background to-muted/10">
           {renderSegment()}
         </main>
 

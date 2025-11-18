@@ -118,7 +118,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
   if (loading) {
     return (
       <Card className="border border-border/60 shadow-md">
-        <CardContent className="p-16">
+        <CardContent className="p-6">
           <div className="flex flex-col items-center justify-center text-center space-y-6">
             {/* Custom spinner */}
             <div className="relative w-16 h-16">

@@ -4,7 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, ChevronRight, Save, CheckCircle2 } from "lucide-react";
+import { Loader2, Sparkles, ChevronRight, Save, CheckCircle2, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { SIMULATIONS, getSimulationById, getDisplayTitle } from "@/lib/simulation-constants";
 import { ContextCard } from "./simulation/ContextCard";
 import { SimulationInterface } from "./simulation/SimulationInterface";
@@ -31,6 +41,7 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
   const [loading, setLoading] = useState(false);
   const [jargonLevel, setJargonLevel] = useState(33); // Default to plain English
   const [promptIterations, setPromptIterations] = useState<any[]>([]);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const customerSimulations = useMemo(() => {
     if (!bootcampPlanData) return [];
@@ -88,6 +99,21 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
     }
 
     setResults(data || []);
+  };
+
+  const handleDeleteExperiment = async (resultId: string) => {
+    const { error } = await supabase
+      .from('simulation_results')
+      .delete()
+      .eq('id', resultId);
+    
+    if (error) {
+      toast({ title: "Failed to delete experiment", variant: "destructive" });
+    } else {
+      setResults(prev => prev.filter(r => r.id !== resultId));
+      toast({ title: "Experiment deleted" });
+    }
+    setDeleteConfirm(null);
   };
 
   const handleSaveSimulation = async () => {
@@ -372,15 +398,25 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
             {results.map((result) => (
               <Card key={result.id} className="p-4 bg-muted/30">
                 <div className="flex items-start justify-between mb-3">
-                  <div>
+                  <div className="flex-1">
                     <h4 className="font-semibold">{result.simulation_name}</h4>
                     <p className="text-xs text-muted-foreground">
                       {new Date(result.created_at).toLocaleDateString()}
                     </p>
                   </div>
-                  <Badge variant="outline">
-                    {result.prompts_used?.length || 0} prompts
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">
+                      {result.prompts_used?.length || 0} prompts
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeleteConfirm(result.id)}
+                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
@@ -405,6 +441,26 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
           </div>
         </Card>
       )}
+
+      <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Experiment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this simulation experiment. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConfirm && handleDeleteExperiment(deleteConfirm)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

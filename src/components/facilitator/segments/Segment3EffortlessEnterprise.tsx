@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, QrCode, Sparkles } from 'lucide-react';
+import { Clock, QrCode } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { AIInsightCard } from '../AIInsightCard';
+import { AIGenerateButton } from '@/components/ui/ai-generate-button';
 
 interface Segment3EffortlessEnterpriseProps {
   workshopId: string;
@@ -176,10 +177,9 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
               Start Dot Voting
             </Button>
             {items.length > 0 && (
-              <Button onClick={generateInsight} disabled={loadingInsight} variant="outline" size="lg" className="gap-2">
-                <Sparkles className="h-5 w-5" />
+              <AIGenerateButton onClick={generateInsight} disabled={loadingInsight} size="lg">
                 Generate AI Insight
-              </Button>
+              </AIGenerateButton>
             )}
           </div>
 
