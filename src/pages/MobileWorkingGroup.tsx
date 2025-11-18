@@ -12,9 +12,24 @@ import { Users, Send } from 'lucide-react';
 import { useWorkshopParticipants } from '@/hooks/useWorkshopParticipants';
 
 const CATEGORIES = [
-  { id: 'targets_at_risk', name: 'Targets at Risk' },
-  { id: 'data_governance', name: 'Data & Governance Changes' },
-  { id: 'pilot_kpis', name: '90-Day Pilot & KPI' },
+  { 
+    id: 'targets_at_risk', 
+    name: 'Strategic Targets at Risk',
+    prompt: 'Which 2026 goals are threatened by competitive AI adoption?',
+    example: 'e.g., "Revenue growth target at risk if competitors automate pricing faster"'
+  },
+  { 
+    id: 'data_governance', 
+    name: 'Data & Governance Changes',
+    prompt: 'What data policies need updating to enable AI pilots?',
+    example: 'e.g., "Need clearer guidelines on customer data usage for AI training"'
+  },
+  { 
+    id: 'pilot_kpis', 
+    name: '90-Day Pilot Success Metrics',
+    prompt: 'How will we measure pilot success in the first 90 days?',
+    example: 'e.g., "Reduce approval time by 30% or process 2x more contracts"'
+  },
 ];
 
 export const MobileWorkingGroup: React.FC = () => {
@@ -125,25 +140,30 @@ export const MobileWorkingGroup: React.FC = () => {
               <Label>Category *</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map(cat => (
+                  {CATEGORIES.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {category && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  {CATEGORIES.find(c => c.id === category)?.prompt}
+                </p>
+              )}
             </div>
 
             <div>
-              <Label>Your Input *</Label>
+              <Label>Your Contribution *</Label>
               <Textarea
-                rows={4}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Describe your contribution to the strategy addendum..."
+                placeholder={category ? CATEGORIES.find(c => c.id === category)?.example : "Select a category first..."}
+                rows={6}
               />
             </div>
 

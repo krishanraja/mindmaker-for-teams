@@ -61,3 +61,24 @@ export const getDisplayTitle = (simId: string): string => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
+
+export const getSimulationDisplayName = (simId: string, scenarioContext?: any): string => {
+  // First check if it's a predefined simulation
+  const predefined = getSimulationById(simId);
+  if (predefined) return predefined.title;
+  
+  // For custom simulations, extract from scenario context
+  if (scenarioContext?.currentState) {
+    // Create display name from current state (first sentence)
+    const firstSentence = scenarioContext.currentState.split('.')[0];
+    return firstSentence.length > 60 
+      ? firstSentence.substring(0, 57) + '...'
+      : firstSentence;
+  }
+  
+  // Fallback: humanize the ID
+  return simId
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
