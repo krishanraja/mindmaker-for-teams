@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
-import { Shield, AlertTriangle, CheckCircle2, Plus, X, Sparkles, Loader2 } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Plus, X, Loader2 } from "lucide-react";
+import { AIGenerateButton } from "@/components/ui/ai-generate-button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -171,24 +172,20 @@ export const GuardrailDesigner = ({
           </p>
         </div>
         
-        <Button
+        <AIGenerateButton
           onClick={handleGenerateWithAI}
           disabled={isGenerating}
-          variant="outline"
           className="w-full"
         >
           {isGenerating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating...
+              Generating Guardrails...
             </>
           ) : (
-            <>
-              <Sparkles className="mr-2 h-4 w-4" />
-              Generate with AI
-            </>
+            "Generate Guardrails with AI"
           )}
-        </Button>
+        </AIGenerateButton>
       </div>
 
       <div className="space-y-4">

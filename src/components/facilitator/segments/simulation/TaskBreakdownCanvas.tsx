@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Bot, Users, User, Trash2, Plus, Sparkles, Loader2 } from "lucide-react";
+import { Bot, Users, User, Trash2, Plus, Loader2 } from "lucide-react";
+import { AIGenerateButton } from "@/components/ui/ai-generate-button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -152,24 +153,20 @@ export const TaskBreakdownCanvas = ({
             </div>
           </div>
           
-          <Button
+          <AIGenerateButton
             onClick={handleGenerateWithAI}
             disabled={isGenerating}
-            variant="outline"
             className="w-full"
           >
             {isGenerating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
+                Generating Task Breakdown...
               </>
             ) : (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Generate with AI
-              </>
+              "Generate Task Breakdown with AI"
             )}
-          </Button>
+          </AIGenerateButton>
         </div>
       </div>
 
