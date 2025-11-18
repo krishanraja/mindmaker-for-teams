@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Target } from 'lucide-react';
+import { Target, Check, Clock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useAutosave } from '@/hooks/useAutosave';
 
 interface Segment6PilotCharterProps {
   workshopId: string;
@@ -86,14 +88,58 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
     toast({ title: 'Pilot charter saved successfully!' });
   };
 
+  // Autosave callback
+  const saveCharter = useCallback(async () => {
+    // Only autosave if there's meaningful content
+    if (!charter.pilot_owner && !charter.executive_sponsor && !charter.milestone_d10) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from('pilot_charter')
+      .upsert({
+        workshop_session_id: workshopId,
+        ...charter,
+        pilot_budget: charter.pilot_budget ? parseFloat(charter.pilot_budget) : null,
+      });
+
+    if (error) {
+      console.error('Autosave error:', error);
+      throw error;
+    }
+  }, [workshopId, charter]);
+
+  // Enable autosave with 1 second debounce
+  const { isSaving, lastSaved } = useAutosave({
+    data: charter,
+    saveFunction: saveCharter,
+    debounceMs: 1000,
+    enabled: true,
+  });
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Target className="h-6 w-6 text-primary" />
-            Segment 6: The Huddle - 90-Day Pilot Charter (30 minutes)
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-6 w-6 text-primary" />
+              Segment 6: The Huddle - 90-Day Pilot Charter (30 minutes)
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              {isSaving ? (
+                <Badge variant="secondary" className="gap-1">
+                  <Clock className="h-3 w-3 animate-pulse" />
+                  Saving...
+                </Badge>
+              ) : lastSaved ? (
+                <Badge variant="outline" className="gap-1">
+                  <Check className="h-3 w-3" />
+                  Saved
+                </Badge>
+              ) : null}
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
@@ -247,8 +293,8 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
             </div>
           </div>
 
-          <Button onClick={handleSave} className="w-full" size="lg">
-            Save Pilot Charter
+          <Button onClick={handleSave} className="w-full" size="lg" variant="outline">
+            Manual Save Override
           </Button>
         </CardContent>
       </Card>
