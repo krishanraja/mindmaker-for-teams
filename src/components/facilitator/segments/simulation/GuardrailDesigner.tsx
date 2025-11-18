@@ -5,7 +5,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Shield, AlertTriangle, CheckCircle2, Plus, X } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Shield, AlertTriangle, CheckCircle2, Plus, X, Sparkles, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 export interface Guardrail {
   riskIdentified: string;
@@ -18,12 +21,16 @@ interface GuardrailDesignerProps {
   aiOutputQuality: number;
   onGuardrailsComplete: (guardrails: Guardrail) => void;
   initialGuardrail?: Guardrail;
+  scenarioContext?: any;
+  simulationResults?: any;
 }
 
 export const GuardrailDesigner = ({ 
   aiOutputQuality,
   onGuardrailsComplete,
-  initialGuardrail
+  initialGuardrail,
+  scenarioContext,
+  simulationResults
 }: GuardrailDesignerProps) => {
   const [guardrail, setGuardrail] = useState<Guardrail>(initialGuardrail || {
     riskIdentified: "",
@@ -32,6 +39,14 @@ export const GuardrailDesigner = ({
     redFlags: [],
   });
   const [newRedFlag, setNewRedFlag] = useState("");
+  const [riskTolerance, setRiskTolerance] = useState(50);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const getRiskLabel = (value: number) => {
+    if (value < 34) return 'Conservative (Maximum Oversight)';
+    if (value < 67) return 'Balanced';
+    return 'Aggressive (Trust AI Performance)';
+  };
 
   const addRedFlag = () => {
     if (!newRedFlag.trim()) return;
@@ -47,6 +62,39 @@ export const GuardrailDesigner = ({
       ...guardrail,
       redFlags: guardrail.redFlags.filter((_, i) => i !== index),
     });
+  };
+
+  const handleGenerateWithAI = async () => {
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-guardrails', {
+        body: {
+          scenario_context: scenarioContext,
+          simulation_results: simulationResults,
+          ai_output_quality: aiOutputQuality,
+          risk_tolerance: riskTolerance,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.guardrail) {
+        setGuardrail(data.guardrail);
+        toast({ 
+          title: 'AI generated guardrails!', 
+          description: `Created ${data.guardrail.redFlags?.length || 0} red flags based on ${getRiskLabel(riskTolerance).toLowerCase()} approach` 
+        });
+      }
+    } catch (error: any) {
+      console.error('Error generating guardrails:', error);
+      toast({ 
+        title: 'Error generating guardrails', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleComplete = () => {
@@ -74,9 +122,54 @@ export const GuardrailDesigner = ({
         </div>
       )}
 
-      <p className="text-sm text-muted-foreground mb-6">
+      <p className="text-sm text-muted-foreground mb-4">
         Based on what you observed, design safeguards to ensure AI is used responsibly
       </p>
+
+      <div className="space-y-4 mb-6 p-4 bg-muted/50 rounded-lg border">
+        <div className="space-y-2">
+          <Label className="flex justify-between">
+            <span>Risk Tolerance</span>
+            <span className="text-sm font-medium">{getRiskLabel(riskTolerance)}</span>
+          </Label>
+          <Slider
+            value={[riskTolerance]}
+            onValueChange={(value) => setRiskTolerance(value[0])}
+            min={0}
+            max={100}
+            step={1}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Conservative</span>
+            <span>Aggressive</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {riskTolerance < 34 && "Maximum human oversight, comprehensive validation required"}
+            {riskTolerance >= 34 && riskTolerance < 67 && "Balanced approach based on observed AI performance"}
+            {riskTolerance >= 67 && "Trust AI capabilities, lighter oversight where appropriate"}
+          </p>
+        </div>
+        
+        <Button
+          onClick={handleGenerateWithAI}
+          disabled={isGenerating}
+          variant="outline"
+          className="w-full"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Generate with AI
+            </>
+          )}
+        </Button>
+      </div>
 
       <div className="space-y-4">
         <div>

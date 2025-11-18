@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.generate-task-breakdown]
 verify_jwt = false
+
+[functions.generate-guardrails]
+verify_jwt = false

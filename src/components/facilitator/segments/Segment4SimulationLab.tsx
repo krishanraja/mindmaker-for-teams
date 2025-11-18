@@ -309,6 +309,8 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
           <GuardrailDesigner
             aiOutputQuality={7}
             initialGuardrail={guardrails || undefined}
+            scenarioContext={scenarioContext}
+            simulationResults={generatedSimulation}
             onGuardrailsComplete={(guardrailData) => {
               setGuardrails(guardrailData);
               handleSaveSimulation();
