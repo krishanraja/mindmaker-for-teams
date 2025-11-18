@@ -11,6 +11,7 @@ import { toast } from '@/hooks/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { getSimulationDisplayName } from '@/lib/simulation-constants';
 import { useAutosave } from '@/hooks/useAutosave';
+import { AIGenerateButton } from '@/components/ui/ai-generate-button';
 
 interface Segment5StrategyAddendumProps {
   workshopId: string;
@@ -323,10 +324,9 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
             </p>
           </div>
           
-          <Button
+          <AIGenerateButton
             onClick={handleGenerateWithAI}
             disabled={isGenerating}
-            variant="outline"
             className="w-full"
           >
             {isGenerating ? (
@@ -335,12 +335,9 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
                 Generating...
               </>
             ) : (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Generate Strategy Insights
-              </>
+              'Generate Strategy Insights'
             )}
-          </Button>
+          </AIGenerateButton>
         </div>
 
         <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border">

@@ -12,8 +12,8 @@ interface Segment7ProvocationProps {
 
 export const Segment7Provocation: React.FC<Segment7ProvocationProps> = ({ workshopId }) => {
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-6">
+    <div className="min-h-screen bg-background py-4">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 space-y-6">
         
         {/* CEO HEADER */}
         <div className="text-center mb-8">
