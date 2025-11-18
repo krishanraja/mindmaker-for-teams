@@ -288,6 +288,12 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
               setTaskBreakdown(breakdown.tasks);
               setCurrentPhase('guardrails');
             }}
+            scenarioContext={{
+              ...scenarioContext,
+              simulationId: selectedSimulation,
+              title: getSimulationById(selectedSimulation || '')?.title
+            }}
+            simulationResults={generatedSimulation}
           />
         </div>
       )}
