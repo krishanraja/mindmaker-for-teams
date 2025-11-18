@@ -9,6 +9,9 @@ import { UrgencyScoreGauge } from './UrgencyScoreGauge';
 import { StrategicAlignmentGrid } from './StrategicAlignmentGrid';
 import { PilotCharterCard } from './PilotCharterCard';
 import { AISynthesisSection } from './AISynthesisSection';
+import { WorkshopJourneyMap } from './WorkshopJourneyMap';
+import { ParticipantHighlights } from './ParticipantHighlights';
+import { MythsVsReality } from './MythsVsReality';
 
 interface ExecutiveReportCardProps {
   workshopId: string;
@@ -18,7 +21,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
   const [reportData, setReportData] = useState<any>(null);
-  const [aiSynthesis, setAiSynthesis] = useState<string>('');
+  const [aiSynthesis, setAiSynthesis] = useState<any>(null);
   const [hasLoadedExisting, setHasLoadedExisting] = useState(false);
   const { toast } = useToast();
 
@@ -33,7 +36,18 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
 
     if (data && !error) {
       setReportData(data.report_data);
-      setAiSynthesis(data.ai_synthesis || '');
+      
+      // Parse AI synthesis if it's a string
+      try {
+        const synthesis = typeof data.ai_synthesis === 'string' 
+          ? JSON.parse(data.ai_synthesis) 
+          : data.ai_synthesis;
+        setAiSynthesis(synthesis);
+      } catch (e) {
+        console.error('Error parsing AI synthesis:', e);
+        setAiSynthesis(null);
+      }
+      
       setHasLoadedExisting(true);
       return true;
     }
@@ -61,15 +75,15 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
 
       if (error) throw error;
 
-      if (data?.reportData) {
+      if (data?.reportData && data?.aiSynthesis) {
         setReportData(data.reportData);
-        setAiSynthesis(data.aiSynthesis || '');
+        setAiSynthesis(data.aiSynthesis);
 
         // Save to database
         await supabase.from('provocation_reports').insert({
           workshop_session_id: workshopId,
           report_data: data.reportData,
-          ai_synthesis: data.aiSynthesis || '',
+          ai_synthesis: JSON.stringify(data.aiSynthesis),
         });
 
         setHasLoadedExisting(true);
@@ -93,7 +107,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
     setRegenerating(false);
     toast({
       title: 'Report Regenerated',
-      description: 'AI synthesis has been updated with latest data',
+      description: 'AI synthesis has been updated with latest workshop data',
     });
   };
 
@@ -117,7 +131,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
                 Generating Executive Report
               </p>
               <p className="text-sm text-muted-foreground">
-                Analyzing workshop data with AI
+                Analyzing comprehensive workshop data with AI
               </p>
             </div>
           </div>
