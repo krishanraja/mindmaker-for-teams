@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.generate-guardrails]
 verify_jwt = false
+
+[functions.generate-strategy-insights]
+verify_jwt = false

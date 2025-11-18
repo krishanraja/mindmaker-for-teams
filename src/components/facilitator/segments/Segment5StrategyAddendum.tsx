@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { FileText, QrCode, Target, TrendingUp, AlertTriangle, Award, Medal, Trophy, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { FileText, QrCode, Target, TrendingUp, AlertTriangle, Award, Medal, Trophy, ArrowUp, ArrowDown, Minus, Sparkles, Loader2, Gauge } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
@@ -25,11 +26,20 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
   const [votingResults, setVotingResults] = useState<any[]>([]);
   const [simulationResults, setSimulationResults] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [riskTolerance, setRiskTolerance] = useState(50);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [readinessScore, setReadinessScore] = useState(0);
 
   useEffect(() => {
     loadAddendum();
     loadWorkshopData();
   }, [workshopId]);
+
+  useEffect(() => {
+    if (!loadingData) {
+      calculateReadinessScore();
+    }
+  }, [votingResults, simulationResults, loadingData]);
 
   useEffect(() => {
     if (bootcampPlanData && addendum.targets_at_risk === '') {
@@ -92,6 +102,72 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
     setLoadingData(false);
   };
 
+  const calculateReadinessScore = () => {
+    let score = 0;
+    
+    // Strategic alignment (20 points)
+    if (votingResults.length > 0) score += 20;
+    
+    // AI performance confidence (30 points)
+    const avgQuality = simulationResults.reduce((sum, s) => sum + (s.quality_improvement_pct || 0), 0) / (simulationResults.length || 1);
+    score += Math.min(30, (avgQuality / 100) * 30);
+    
+    // Guardrails designed (20 points)
+    const guardrailsCount = simulationResults.filter(s => s.guardrails).length;
+    score += (guardrailsCount / Math.max(simulationResults.length, 1)) * 20;
+    
+    // Task breakdown completeness (15 points)
+    const taskBreakdownCount = simulationResults.filter(s => s.task_breakdown).length;
+    score += (taskBreakdownCount / Math.max(simulationResults.length, 1)) * 15;
+    
+    // Team engagement (15 points)
+    if (votingResults.length >= 3) score += 15;
+    else score += votingResults.length * 5;
+    
+    setReadinessScore(Math.round(score));
+  };
+
+  const getRiskLabel = (value: number) => {
+    if (value < 34) return 'Conservative (Maximum Oversight)';
+    if (value < 67) return 'Balanced';
+    return 'Aggressive (Trust AI Performance)';
+  };
+
+  const handleGenerateWithAI = async () => {
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-strategy-insights', {
+        body: {
+          workshop_session_id: workshopId,
+          risk_tolerance: riskTolerance,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        setAddendum({
+          targets_at_risk: data.targets_at_risk || '',
+          data_governance_changes: data.data_governance_changes || '',
+          pilot_kpis: data.pilot_kpis || '',
+        });
+        toast({ 
+          title: 'Strategy insights generated!', 
+          description: `Created based on ${getRiskLabel(riskTolerance).toLowerCase()} approach` 
+        });
+      }
+    } catch (error: any) {
+      console.error('Error generating strategy insights:', error);
+      toast({ 
+        title: 'Error generating strategy insights', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleSave = async () => {
     const { error } = await supabase.from('strategy_addendum').upsert({
       workshop_session_id: workshopId,
@@ -148,6 +224,98 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
         </div>
       </CardHeader>
       <CardContent className="space-y-8">
+        {/* Pilot Readiness Score */}
+        <div className="p-6 bg-muted/30 rounded-lg border-2 border-border">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Gauge className="h-8 w-8 text-primary" />
+              <div>
+                <h3 className="text-lg font-semibold">Pilot Readiness Score</h3>
+                <p className="text-sm text-muted-foreground">Based on workshop data quality</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className={`text-4xl font-bold ${
+                readinessScore >= 80 ? 'text-success' : 
+                readinessScore >= 60 ? 'text-warning' : 
+                'text-error'
+              }`}>
+                {readinessScore}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {readinessScore >= 80 ? 'Strong' : readinessScore >= 60 ? 'Moderate' : 'Needs Work'}
+              </div>
+            </div>
+          </div>
+          <div className="w-full bg-secondary rounded-full h-3">
+            <div 
+              className={`h-3 rounded-full transition-all duration-500 ${
+                readinessScore >= 80 ? 'bg-success' : 
+                readinessScore >= 60 ? 'bg-warning' : 
+                'bg-error'
+              }`}
+              style={{ width: `${readinessScore}%` }}
+            />
+          </div>
+          <div className="mt-3 grid grid-cols-5 gap-2 text-xs text-muted-foreground">
+            <div>Strategic Alignment</div>
+            <div>AI Performance</div>
+            <div>Guardrails</div>
+            <div>Task Breakdown</div>
+            <div>Team Engagement</div>
+          </div>
+        </div>
+
+        {/* AI-Assisted Strategy Generation */}
+        <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold">AI-Assisted Strategy Generation</h3>
+          </div>
+          <div className="space-y-2">
+            <Label className="flex justify-between">
+              <span>Risk Tolerance</span>
+              <span className="text-sm font-medium">{getRiskLabel(riskTolerance)}</span>
+            </Label>
+            <Slider
+              value={[riskTolerance]}
+              onValueChange={(value) => setRiskTolerance(value[0])}
+              min={0}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Conservative</span>
+              <span>Aggressive</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {riskTolerance < 34 && "Maximum human oversight, extensive validation required"}
+              {riskTolerance >= 34 && riskTolerance < 67 && "Balanced approach based on observed AI performance"}
+              {riskTolerance >= 67 && "Trust AI capabilities, streamlined oversight where appropriate"}
+            </p>
+          </div>
+          
+          <Button
+            onClick={handleGenerateWithAI}
+            disabled={isGenerating}
+            variant="outline"
+            className="w-full"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate Strategy Insights
+              </>
+            )}
+          </Button>
+        </div>
+
         <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border">
           <div>
             <h3 className="font-semibold">Collect Working Group Inputs</h3>
