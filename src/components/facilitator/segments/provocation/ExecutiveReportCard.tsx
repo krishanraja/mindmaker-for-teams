@@ -291,10 +291,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         <AISynthesisSection synthesis={aiSynthesis} urgencyScore={urgencyScore} />
       )}
 
-      {/* Participant Highlights */}
-      {aiSynthesis?.participantHighlights && (
-        <ParticipantHighlights highlights={aiSynthesis.participantHighlights} />
-      )}
+      {/* Participant Highlights - REMOVED: Cannot fabricate quotes in front of participants */}
 
       {/* Myths vs Reality */}
       {mythsVsRealityData.length > 0 && (
