@@ -44,7 +44,9 @@ serve(async (req) => {
       charter,
       workingInputs,
       preworkSubmissions,
-      execPulses
+      execPulses,
+      votingResults,
+      huddleSynthesis
     ] = await Promise.all([
       supabase.from('bottleneck_submissions').select('*').eq('workshop_session_id', workshop_session_id),
       supabase.from('effortless_map_items').select('*').eq('workshop_session_id', workshop_session_id).order('vote_count', { ascending: false }),
@@ -53,14 +55,18 @@ serve(async (req) => {
       supabase.from('pilot_charter').select('*').eq('workshop_session_id', workshop_session_id).maybeSingle(),
       supabase.from('working_group_inputs').select('*').eq('workshop_session_id', workshop_session_id),
       supabase.from('pre_workshop_inputs').select('*').eq('intake_id', workshop.intake_id),
-      supabase.from('exec_pulses').select('*').eq('intake_id', workshop.intake_id)
+      supabase.from('exec_pulses').select('*').eq('intake_id', workshop.intake_id),
+      supabase.from('voting_results').select('*').eq('workshop_session_id', workshop_session_id),
+      supabase.from('huddle_synthesis').select('*').eq('workshop_session_id', workshop_session_id).maybeSingle()
     ]);
 
     console.log('Data fetched:', {
       bottlenecks: bottlenecks.data?.length,
       simulations: simulations.data?.length,
       prework: preworkSubmissions.data?.length,
-      workingInputs: workingInputs.data?.length
+      workingInputs: workingInputs.data?.length,
+      votingResults: votingResults.data?.length,
+      huddleSynthesis: huddleSynthesis.data ? 'present' : 'absent'
     });
 
     // Calculate urgency score
@@ -288,6 +294,19 @@ serve(async (req) => {
           humanOnly: humanOnlyTasks.length,
           humanOnlyPct: allTasksData.length > 0 ? Math.round((humanOnlyTasks.length / allTasksData.length) * 100) : 0,
           topAutomation: topAutomationTask?.description || 'Task automation opportunities identified'
+        },
+        votingData: {
+          totalVotes: votingResults.data?.length || 0,
+          topVotedItems: votingResults.data?.slice(0, 5) || []
+        },
+        huddleInsights: huddleSynthesis.data ? {
+          summary: huddleSynthesis.data.synthesis_text,
+          themes: huddleSynthesis.data.key_themes || [],
+          actions: huddleSynthesis.data.priority_actions || []
+        } : null,
+        discussionDepth: {
+          totalPrompts: simulations.data?.reduce((sum, sim) => sum + (sim.prompts_used?.length || 0), 0) || 0,
+          selections: simulations.data?.reduce((sum, sim) => sum + Object.keys(sim.selected_discussion_options || {}).length, 0) || 0
         },
         strategyData: {
           topOpportunities: topOpportunities.length,
