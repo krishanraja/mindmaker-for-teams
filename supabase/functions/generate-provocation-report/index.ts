@@ -157,8 +157,7 @@ serve(async (req) => {
     // Extract task breakdown analysis from all simulations
     const allTasksData = simulations.data?.flatMap(sim => {
       if (!sim.task_breakdown) return [];
-      const tb = sim.task_breakdown as any;
-      return tb.tasks || [];
+      return Array.isArray(sim.task_breakdown) ? sim.task_breakdown : [];
     }) || [];
     
     const aiCapableTasks = allTasksData.filter(t => 
@@ -194,7 +193,7 @@ serve(async (req) => {
       .map(sim => ({
         scenario: sim.simulation_name,
         timeSavings: `${sim.time_savings_pct}% time savings`,
-        qualityRating: `${(sim.output_quality_ratings as any)?.overall || 'N/A'}/10 quality`,
+        qualityRating: sim.quality_improvement_pct ? `${Math.round(sim.quality_improvement_pct / 10)}/10 quality` : 'N/A',
         recommendation: 'High potential for pilot'
       })) || [];
 

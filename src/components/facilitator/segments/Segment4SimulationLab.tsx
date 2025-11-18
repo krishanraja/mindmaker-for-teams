@@ -372,8 +372,8 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
                   <div>
                     <p className="text-muted-foreground text-xs">AI Quality</p>
                     <p className="text-lg font-bold">
-                      {result.output_quality_ratings?.length > 0 
-                        ? Math.round(result.output_quality_ratings.reduce((a: number, b: number) => a + b, 0) / result.output_quality_ratings.length)
+                      {result.quality_improvement_pct 
+                        ? Math.round(result.quality_improvement_pct / 10)
                         : 0}/10
                     </p>
                   </div>
@@ -383,7 +383,7 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
                   </div>
                   <div>
                     <p className="text-muted-foreground text-xs">Tasks</p>
-                    <p className="text-lg font-bold">{result.task_breakdown?.tasks?.length || 0}</p>
+                    <p className="text-lg font-bold">{Array.isArray(result.task_breakdown) ? result.task_breakdown.length : 0}</p>
                   </div>
                 </div>
               </Card>

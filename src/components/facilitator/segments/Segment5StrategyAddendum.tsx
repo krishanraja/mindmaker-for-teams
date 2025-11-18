@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { FileText, QrCode, Target, TrendingUp, AlertTriangle, Award, Medal, Trophy, ArrowUp, ArrowDown, Minus, Sparkles, Loader2, Gauge } from 'lucide-react';
+import { FileText, QrCode, Target, TrendingUp, AlertTriangle, Award, Medal, Trophy, ArrowUp, ArrowDown, Minus, Sparkles, Loader2, Gauge, Check, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { getSimulationDisplayName } from '@/lib/simulation-constants';
+import { useAutosave } from '@/hooks/useAutosave';
 
 interface Segment5StrategyAddendumProps {
   workshopId: string;
@@ -181,6 +182,34 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
     }
     toast({ title: 'Strategy addendum saved!' });
   };
+
+  // Autosave callback
+  const saveAddendum = useCallback(async () => {
+    // Only autosave if there's content
+    if (!addendum.targets_at_risk && !addendum.data_governance_changes && !addendum.pilot_kpis) {
+      return;
+    }
+
+    const { error } = await supabase.from('strategy_addendum').upsert({
+      workshop_session_id: workshopId,
+      targets_at_risk: addendum.targets_at_risk,
+      data_governance_changes: addendum.data_governance_changes,
+      pilot_kpis: addendum.pilot_kpis,
+    });
+
+    if (error) {
+      console.error('Autosave error:', error);
+      throw error;
+    }
+  }, [workshopId, addendum]);
+
+  // Enable autosave with 1 second debounce
+  const { isSaving, lastSaved } = useAutosave({
+    data: addendum,
+    saveFunction: saveAddendum,
+    debounceMs: 1000,
+    enabled: true,
+  });
 
   const getRankIcon = (index: number) => {
     if (index === 0) return <Trophy className="h-5 w-5 text-yellow-500" />;
@@ -365,14 +394,38 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
           )}
         </div>
 
-        <div><Label>Strategic Targets at Risk</Label>
-          <Textarea value={addendum.targets_at_risk} onChange={(e) => setAddendum({ ...addendum, targets_at_risk: e.target.value })} rows={4} /></div>
-        <div><Label>Data & Governance Changes</Label>
-          <Textarea value={addendum.data_governance_changes} onChange={(e) => setAddendum({ ...addendum, data_governance_changes: e.target.value })} rows={4} /></div>
-        <div><Label>90-Day Pilot Metrics</Label>
-          <Textarea value={addendum.pilot_kpis} onChange={(e) => setAddendum({ ...addendum, pilot_kpis: e.target.value })} rows={4} /></div>
+        <div className="space-y-4 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              <h2 className="text-xl font-semibold">Key Questions for Your Team</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              {isSaving ? (
+                <Badge variant="secondary" className="gap-1">
+                  <Clock className="h-3 w-3 animate-pulse" />
+                  Saving...
+                </Badge>
+              ) : lastSaved ? (
+                <Badge variant="outline" className="gap-1">
+                  <Check className="h-3 w-3" />
+                  Saved
+                </Badge>
+              ) : null}
+            </div>
+          </div>
 
-        <Button onClick={handleSave} size="lg" className="w-full">Save Strategy Addendum</Button>
+          <div><Label>Strategic Targets at Risk</Label>
+            <Textarea value={addendum.targets_at_risk} onChange={(e) => setAddendum({ ...addendum, targets_at_risk: e.target.value })} rows={4} /></div>
+          <div><Label>Data & Governance Changes</Label>
+            <Textarea value={addendum.data_governance_changes} onChange={(e) => setAddendum({ ...addendum, data_governance_changes: e.target.value })} rows={4} /></div>
+          <div><Label>90-Day Pilot Metrics</Label>
+            <Textarea value={addendum.pilot_kpis} onChange={(e) => setAddendum({ ...addendum, pilot_kpis: e.target.value })} rows={4} /></div>
+
+          <Button onClick={handleSave} size="lg" className="w-full" variant="outline">
+            Manual Save Override
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
