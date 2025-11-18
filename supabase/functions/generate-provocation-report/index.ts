@@ -347,39 +347,60 @@ Base everything on the data above. Show the progression from pre-work assumption
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error('AI Gateway Error:', errorText);
-      throw new Error(`AI generation failed: ${aiResponse.status}`);
+      console.error('Lovable AI error:', errorText);
+      throw new Error(`AI synthesis failed: ${aiResponse.status} ${errorText}`);
     }
 
     const aiData = await aiResponse.json();
-    const aiSynthesis = aiData.choices[0].message.content;
+    const aiContent = aiData.choices[0].message.content;
+    
+    console.log('AI response received, parsing...');
 
-    // Return comprehensive report data
+    let synthesis;
+    try {
+      // Extract JSON from potential markdown code blocks
+      const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+      synthesis = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(aiContent);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Raw AI content:', aiContent);
+      throw new Error('Failed to parse AI synthesis JSON');
+    }
+
+    // Build response data
+    const reportData = {
+      urgencyScore,
+      roiMetrics: simulationDetails,
+      contextData,
+      workshop,
+      charter: charter?.data,
+      strategy: strategy?.data,
+      bottlenecks: bottlenecks.data,
+      simulations: contextData.simulations,
+      workingInputs: workingInputs.data,
+      preworkSubmissions: preworkSubmissions.data
+    };
+
+    console.log('Report generated successfully');
+
     return new Response(
       JSON.stringify({
-        success: true,
-        reportData: {
-          workshop,
-          bottlenecks: bottlenecks.data,
-          mapItems: mapItems.data,
-          simulations: simulations.data,
-          strategy: strategy.data,
-          charter: charter.data,
-          workingInputs: workingInputs.data,
-          urgencyScore,
-          roiMetrics,
-          contextData
-        },
-        aiSynthesis,
+        reportData,
+        aiSynthesis: synthesis
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
     );
 
-  } catch (error) {
-    console.error('Error generating provocation report:', error);
+  } catch (error: any) {
+    console.error('Error in generate-provocation-report:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
     );
   }
 });

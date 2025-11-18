@@ -162,6 +162,37 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
     )
   );
 
+  // Prepare data for journey map
+  const journeyData = {
+    preWorkData: {
+      anticipatedBottlenecks: contextData.preWorkshop.anticipatedBottlenecks?.length || 0,
+      primaryConcerns: contextData.preWorkshop.aiMyths?.slice(0, 2) || [],
+      experienceLevel: contextData.preWorkshop.aiExperience || 'experimenting'
+    },
+    discoveryData: {
+      actualBottlenecks: contextData.workshop.bottlenecksIdentified || 0,
+      topClusters: contextData.workshop.bottleneckClusters?.slice(0, 2) || [],
+      mythsBusted: aiSynthesis?.journeyInsights?.mythsBusted ? [aiSynthesis.journeyInsights.mythsBusted] : []
+    },
+    experimentData: {
+      simulationsRun: contextData.workshop.simulationsRun || 0,
+      avgTimeSavings: contextData.simulations?.avgTimeSavings || 0,
+      avgQualityRating: contextData.simulations?.avgQualityRating || 0,
+      keyFindings: aiSynthesis?.journeyInsights?.surprisingFindings ? [aiSynthesis.journeyInsights.surprisingFindings] : []
+    },
+    strategyData: {
+      pilotOwner: charter?.pilot_owner,
+      budget: charter?.pilot_budget,
+      topOpportunities: contextData.workshop.opportunitiesPrioritized || 0
+    }
+  };
+
+  // Prepare myths vs reality data
+  const mythsVsRealityData = contextData.preWorkshop.aiMyths?.slice(0, 3).map((myth: string, idx: number) => ({
+    myth,
+    reality: aiSynthesis?.strengths?.[idx]?.title || 'Team validated AI capabilities through hands-on experimentation'
+  })) || [];
+
   return (
     <div className="space-y-8">
       {/* Status indicator and regenerate button */}
@@ -205,20 +236,6 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
                 </span>
               </div>
             </div>
-            <Button
-              onClick={handleRegenerate}
-              disabled={regenerating}
-              variant="outline"
-              size="sm"
-              className="gap-2"
-            >
-              {regenerating ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              Regenerate
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -251,7 +268,25 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         </CardContent>
       </Card>
 
-      {/* Strategic Alignment Grid - Moved to top */}
+      {/* Workshop Journey Map */}
+      <WorkshopJourneyMap {...journeyData} />
+
+      {/* AI Synthesis Section */}
+      {aiSynthesis && (
+        <AISynthesisSection synthesis={aiSynthesis} urgencyScore={urgencyScore} />
+      )}
+
+      {/* Participant Highlights */}
+      {aiSynthesis?.participantHighlights && (
+        <ParticipantHighlights highlights={aiSynthesis.participantHighlights} />
+      )}
+
+      {/* Myths vs Reality */}
+      {mythsVsRealityData.length > 0 && (
+        <MythsVsReality items={mythsVsRealityData} />
+      )}
+
+      {/* Strategic Alignment Grid */}
       <StrategicAlignmentGrid
         strategicGoals={contextData.company.strategicGoals}
         bottleneckClusters={bottleneckClusters}
@@ -264,14 +299,10 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         }}
       />
 
-      {/* AI Synthesis Section */}
-      {aiSynthesis && (
-        <AISynthesisSection synthesis={aiSynthesis} urgencyScore={urgencyScore} />
-      )}
-
       {/* The Numbers That Matter - ROI Metrics */}
       {roiMetrics.length > 0 && (
         <div className="space-y-6">
+          <h3 className="text-2xl font-bold text-foreground">Simulation Performance</h3>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {roiMetrics.map((metric: any, idx: number) => (
               <Card key={idx} className="border shadow-sm">

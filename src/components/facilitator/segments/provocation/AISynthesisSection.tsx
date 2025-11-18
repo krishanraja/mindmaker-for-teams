@@ -1,184 +1,259 @@
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, AlertTriangle, Clock, Target, Sparkles } from 'lucide-react';
-import { parseAIContent } from '@/lib/text-formatting';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, AlertTriangle, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
+import { EvidenceCard, EvidenceItem } from './EvidenceCard';
+
+interface StrengthOrGap {
+  title: string;
+  evidence: string;
+  impact?: string;
+  recommendation?: string;
+}
+
+interface JourneyInsights {
+  mythsBusted?: string;
+  surprisingFindings?: string;
+  momentsOfClarity?: string;
+}
 
 interface AISynthesisSectionProps {
-  synthesis: string;
+  synthesis: {
+    executiveSummary: string;
+    strengths: StrengthOrGap[];
+    gaps: StrengthOrGap[];
+    journeyInsights?: JourneyInsights;
+    urgencyVerdict: string;
+  };
   urgencyScore: number;
 }
 
-export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({ synthesis, urgencyScore }) => {
-  // Parse sections from AI synthesis
-  const parseSection = (label: string): string => {
-    const regex = new RegExp(`${label}:?\\s*([\\s\\S]*?)(?=\\n\\n[A-Z]|$)`, 'i');
-    const match = synthesis.match(regex);
-    return match ? match[1].trim() : '';
+const ExpandableCard: React.FC<{
+  item: StrengthOrGap;
+  type: 'strength' | 'gap';
+}> = ({ item, type }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const isStrength = type === 'strength';
+  const Icon = isStrength ? CheckCircle : AlertTriangle;
+  const colorClass = isStrength ? 'text-green-600' : 'text-amber-600';
+  const bgClass = isStrength ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800' : 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800';
+
+  // Extract metrics from evidence (look for percentages, numbers, dollar amounts)
+  const extractMetrics = (text: string) => {
+    const metrics: { [key: string]: string } = {};
+    
+    const percentMatch = text.match(/(\d+)%/);
+    if (percentMatch) metrics['Impact'] = `${percentMatch[1]}%`;
+    
+    const ratingMatch = text.match(/(\d+\.?\d*)\/10/);
+    if (ratingMatch) metrics['Rating'] = `${ratingMatch[1]}/10`;
+    
+    const dollarMatch = text.match(/\$(\d+[KkMm]?)/);
+    if (dollarMatch) metrics['Value'] = `$${dollarMatch[1]}`;
+    
+    return Object.keys(metrics).length > 0 ? metrics : undefined;
   };
 
-  const executiveSummary = parseSection('Executive Summary');
-  const strengths = parseSection('Strengths');
-  const gaps = parseSection('Gaps');
-  const theWindow = parseSection('The Window');
-  const verdict = parseSection('The Verdict');
+  const metrics = extractMetrics(item.evidence);
 
-  const renderContent = (text: string) => {
-    const blocks = parseAIContent(text);
-    return blocks.map((block, idx) => (
-      block.type === 'list' ? (
-        <ul key={idx} className="space-y-2 pl-6 my-4">
-          {block.items.map((item, i) => (
-            <li key={i} className="text-base leading-relaxed text-foreground/90 relative before:content-['•'] before:absolute before:-left-4 before:text-primary before:font-bold">
-              {item}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p key={idx} className="text-base leading-relaxed text-foreground/90 mb-4">
-          {block.content}
-        </p>
-      )
-    ));
-  };
+  return (
+    <Card className={`border-2 transition-all ${isExpanded ? bgClass : 'bg-card'}`}>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3 flex-1">
+            <Icon className={`w-6 h-6 ${colorClass} flex-shrink-0 mt-1`} />
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-foreground leading-tight">{item.title}</h4>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex-shrink-0"
+          >
+            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
+        </div>
+      </CardHeader>
+
+      {isExpanded && (
+        <CardContent className="pt-0 space-y-4">
+          <EvidenceCard>
+            <EvidenceItem
+              type={isStrength ? 'simulation' : 'metric'}
+              label="Workshop Evidence"
+              metrics={metrics}
+              quote={item.evidence}
+            />
+          </EvidenceCard>
+
+          {item.impact && (
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <div className="flex items-start gap-2">
+                <TrendingUp className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <div className="text-xs uppercase tracking-wide text-primary font-semibold mb-1">
+                    Strategic Impact
+                  </div>
+                  <p className="text-sm text-foreground">{item.impact}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {item.recommendation && (
+            <div className="bg-muted/50 border border-border rounded-lg p-4">
+              <div className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-2">
+                Recommended Action
+              </div>
+              <p className="text-sm text-foreground">{item.recommendation}</p>
+            </div>
+          )}
+        </CardContent>
+      )}
+    </Card>
+  );
+};
+
+export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({
+  synthesis,
+  urgencyScore
+}) => {
+  const [expandedSection, setExpandedSection] = useState<'strengths' | 'gaps' | null>(null);
 
   const getUrgencyColor = (score: number) => {
-    if (score >= 70) return { border: 'border-destructive/30', bg: 'from-destructive/10', text: 'text-destructive' };
-    if (score >= 40) return { border: 'border-amber-500/30', bg: 'from-amber-500/10', text: 'text-amber-500' };
-    return { border: 'border-emerald-500/30', bg: 'from-emerald-500/10', text: 'text-emerald-500' };
+    if (score >= 80) return { border: 'border-red-500', bg: 'bg-red-50 dark:bg-red-950/20', text: 'text-red-700 dark:text-red-400' };
+    if (score >= 60) return { border: 'border-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/20', text: 'text-amber-700 dark:text-amber-400' };
+    return { border: 'border-green-500', bg: 'bg-green-50 dark:bg-green-950/20', text: 'text-green-700 dark:text-green-400' };
+  };
+
+  const urgencyColors = getUrgencyColor(urgencyScore);
+
+  const toggleSection = (section: 'strengths' | 'gaps') => {
+    setExpandedSection(expandedSection === section ? null : section);
   };
 
   return (
     <div className="space-y-8">
-      {/* Executive Summary - Full Width */}
-      {executiveSummary && (
-        <Card className="border border-border/60 shadow-lg">
-          <CardContent className="p-10">
-            <div className="flex justify-between items-start mb-6">
-              <h3 className="text-3xl font-semibold text-foreground">
-                Executive Summary
-              </h3>
-              <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 flex items-center gap-2 px-3 py-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
-                AI-Generated
-              </Badge>
+      {/* Executive Summary */}
+      <Card className="border shadow-sm bg-gradient-to-br from-primary/5 to-background">
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-primary" />
             </div>
-            <div className="space-y-4">
-              {renderContent(executiveSummary)}
-            </div>
+            Executive Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-base text-foreground leading-relaxed whitespace-pre-line">
+            {synthesis.executiveSummary}
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Journey Insights */}
+      {synthesis.journeyInsights && (
+        <Card className="border shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-xl">Workshop Journey Insights</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {synthesis.journeyInsights.mythsBusted && (
+              <div>
+                <h4 className="font-semibold text-foreground mb-2">Myths Busted</h4>
+                <p className="text-sm text-muted-foreground">{synthesis.journeyInsights.mythsBusted}</p>
+              </div>
+            )}
+            {synthesis.journeyInsights.surprisingFindings && (
+              <div>
+                <h4 className="font-semibold text-foreground mb-2">Surprising Findings</h4>
+                <p className="text-sm text-muted-foreground">{synthesis.journeyInsights.surprisingFindings}</p>
+              </div>
+            )}
+            {synthesis.journeyInsights.momentsOfClarity && (
+              <div>
+                <h4 className="font-semibold text-foreground mb-2">Moments of Clarity</h4>
+                <p className="text-sm text-muted-foreground">{synthesis.journeyInsights.momentsOfClarity}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
 
-      {/* Strengths & Gaps - Icon-Based Cards */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Strengths */}
-        {strengths && (
-          <Card className="bg-card border border-border shadow-sm">
-            <CardContent className="p-8">
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-muted border border-border flex items-center justify-center mb-4">
-                  <CheckCircle2 className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-2xl font-semibold text-foreground">
-                  Strengths Identified
-                </h3>
-              </div>
-              <ul className="space-y-3">
-                {(() => {
-                  const content = renderContent(strengths);
-                  const firstBlock = content[0];
-                  if (firstBlock && typeof firstBlock === 'object' && 'type' in firstBlock && firstBlock.type === 'list' && 'items' in firstBlock) {
-                    return (firstBlock.items as string[]).slice(0, 3).map((item: string, idx: number) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span className="text-primary mt-1 flex-shrink-0">•</span>
-                        <span className="text-sm leading-relaxed">
-                          {item.length > 60 ? item.slice(0, 60) + '...' : item}
-                        </span>
-                      </li>
-                    ));
-                  }
-                  return <li className="text-sm">{strengths.slice(0, 180)}...</li>;
-                })()}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
+      {/* Strengths */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <CheckCircle className="w-7 h-7 text-green-600" />
+            Strengths Identified ({synthesis.strengths.length})
+          </h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => toggleSection('strengths')}
+          >
+            {expandedSection === 'strengths' ? 'Collapse All' : 'Expand All'}
+          </Button>
+        </div>
 
-        {/* Gaps */}
-        {gaps && (
-          <Card className="bg-card border border-border shadow-sm">
-            <CardContent className="p-8">
-              <div className="flex flex-col items-center text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-muted border border-border flex items-center justify-center mb-4">
-                  <AlertTriangle className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-2xl font-semibold text-foreground">
-                  Critical Gaps
-                </h3>
-              </div>
-              <ul className="space-y-3">
-                {(() => {
-                  const content = renderContent(gaps);
-                  const firstBlock = content[0];
-                  if (firstBlock && typeof firstBlock === 'object' && 'type' in firstBlock && firstBlock.type === 'list' && 'items' in firstBlock) {
-                    return (firstBlock.items as string[]).slice(0, 3).map((item: string, idx: number) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span className="text-primary mt-1 flex-shrink-0">•</span>
-                        <span className="text-sm leading-relaxed">
-                          {item.length > 60 ? item.slice(0, 60) + '...' : item}
-                        </span>
-                      </li>
-                    ));
-                  }
-                  return <li className="text-sm">{gaps.slice(0, 180)}...</li>;
-                })()}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
+        <div className="grid gap-4">
+          {synthesis.strengths.map((strength, idx) => (
+            <ExpandableCard
+              key={idx}
+              item={strength}
+              type="strength"
+            />
+          ))}
+        </div>
       </div>
 
-      {/* The Window */}
-      {theWindow && (
-        <Card className={`border ${getUrgencyColor(urgencyScore).border} bg-gradient-to-br ${getUrgencyColor(urgencyScore).bg} to-background shadow-md`}>
-          <CardContent className="p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <Clock className={`h-6 w-6 ${getUrgencyColor(urgencyScore).text}`} />
-              <h3 className="text-2xl font-semibold text-foreground">The Window</h3>
-              <Badge variant={urgencyScore >= 70 ? 'destructive' : 'default'} className="ml-auto">
-                Urgency: {urgencyScore}/100
-              </Badge>
-            </div>
-            <div className="space-y-4">
-              {renderContent(theWindow)}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Gaps */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <AlertTriangle className="w-7 h-7 text-amber-600" />
+            Critical Gaps ({synthesis.gaps.length})
+          </h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => toggleSection('gaps')}
+          >
+            {expandedSection === 'gaps' ? 'Collapse All' : 'Expand All'}
+          </Button>
+        </div>
 
-      {/* The Verdict */}
-      {verdict && (
-        <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-accent/5 to-background shadow-xl">
-          <CardContent className="p-10">
-            <h3 className="text-3xl font-bold text-center text-foreground mb-6">The Verdict</h3>
-            <div className="text-center space-y-4 text-lg">
-              {renderContent(verdict)}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        <div className="grid gap-4">
+          {synthesis.gaps.map((gap, idx) => (
+            <ExpandableCard
+              key={idx}
+              item={gap}
+              type="gap"
+            />
+          ))}
+        </div>
+      </div>
 
-      {/* Fallback if no sections parsed */}
-      {!executiveSummary && !strengths && !gaps && !theWindow && !verdict && (
-        <Card className="border border-border/60 shadow-md">
-          <CardContent className="p-8">
-            <div className="space-y-4">
-              {renderContent(synthesis)}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Urgency Verdict */}
+      <Card className={`border-2 ${urgencyColors.border} ${urgencyColors.bg}`}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl">The Verdict: Urgency Assessment</CardTitle>
+            <Badge variant="secondary" className={`text-lg px-4 py-1 ${urgencyColors.text}`}>
+              {urgencyScore}/100
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-base text-foreground leading-relaxed whitespace-pre-line">
+            {synthesis.urgencyVerdict}
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
