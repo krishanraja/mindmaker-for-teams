@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,8 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
   const [loadingInsight, setLoadingInsight] = useState(false);
   const [synthesis, setSynthesis] = useState<any>(null);
   const [loadingSynthesis, setLoadingSynthesis] = useState(false);
+  const [hasGeneratedSynthesis, setHasGeneratedSynthesis] = useState(false);
+  const synthesisRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadSubmissions();
@@ -34,6 +36,14 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
       channel.unsubscribe();
     };
   }, [workshopId]);
+
+  // Auto-generate synthesis when threshold reached
+  useEffect(() => {
+    if (submissions.length >= 5 && !hasGeneratedSynthesis && !loadingSynthesis && !synthesis) {
+      console.log('[BottleneckBoard] Auto-generating synthesis for', submissions.length, 'submissions');
+      handleGenerateSynthesis();
+    }
+  }, [submissions.length, hasGeneratedSynthesis, loadingSynthesis, synthesis]);
 
   const generateQRCode = async () => {
     const { data, error } = await supabase.functions.invoke('generate-activity-qr', {
@@ -159,14 +169,19 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
 
     if (error) {
       console.error('[BottleneckBoard] Synthesis error:', error);
-      toast({ title: 'Error generating synthesis', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error generating synthesis', variant: 'destructive' });
       return;
     }
 
-    if (data?.synthesis) {
-      setSynthesis(data.synthesis);
-      toast({ title: 'Synthesis generated!', description: `Analyzed ${data.bottleneckCount} bottlenecks` });
-    }
+    console.log('[BottleneckBoard] Synthesis generated successfully');
+    setHasGeneratedSynthesis(true);
+    toast({ title: 'Synthesis generated!' });
+    await loadSynthesis();
+    
+    // Scroll to synthesis section
+    setTimeout(() => {
+      synthesisRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const getClusters = () => {
@@ -248,7 +263,7 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
           )}
 
           {/* AI Synthesis Section */}
-          <Card className="border-2 border-indigo-500/30 bg-gradient-to-br from-indigo-500/5 to-background">
+          <Card ref={synthesisRef} className="border-2 border-indigo-500/30 bg-gradient-to-br from-indigo-500/5 to-background">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl flex items-center gap-2">

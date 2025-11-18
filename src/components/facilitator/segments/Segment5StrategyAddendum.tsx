@@ -21,6 +21,7 @@ interface Segment5StrategyAddendumProps {
 
 export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> = ({ workshopId, bootcampPlanData }) => {
   const dataLoaded = useRef(false);
+  const strategyInsightsRef = useRef<HTMLDivElement>(null);
   const [activitySession, setActivitySession] = useState<any>(null);
   const [addendum, setAddendum] = useState({
     targets_at_risk: '',
@@ -161,6 +162,11 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
           title: 'Strategy insights generated!', 
           description: `Created based on ${getRiskLabel(riskTolerance).toLowerCase()} approach` 
         });
+        
+        // Scroll to strategy insights section
+        setTimeout(() => {
+          strategyInsightsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
       }
     } catch (error: any) {
       console.error('Error generating strategy insights:', error);
@@ -390,7 +396,7 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
           )}
         </div>
 
-        <div className="space-y-4 mt-6">
+        <div ref={strategyInsightsRef} className="space-y-4 mt-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Target className="h-5 w-5 text-primary" />

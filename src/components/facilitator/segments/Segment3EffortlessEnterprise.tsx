@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +27,7 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
   const [votingSession, setVotingSession] = useState<any>(null);
   const [aiInsight, setAiInsight] = useState<string>('');
   const [loadingInsight, setLoadingInsight] = useState(false);
+  const insightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadItems();
@@ -88,6 +89,11 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
     setLoadingInsight(false);
     if (!error && data?.insight) {
       setAiInsight(data.insight);
+      
+      // Scroll to insight section
+      setTimeout(() => {
+        insightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   };
 
@@ -184,7 +190,9 @@ export const Segment3EffortlessEnterprise: React.FC<Segment3EffortlessEnterprise
           </div>
 
           {(aiInsight || loadingInsight) && (
-            <AIInsightCard insight={aiInsight} loading={loadingInsight} />
+            <div ref={insightRef}>
+              <AIInsightCard insight={aiInsight} loading={loadingInsight} />
+            </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
