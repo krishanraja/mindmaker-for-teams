@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Bot, Users, User, Trash2, Plus, Sparkles } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Bot, Users, User, Trash2, Plus, Sparkles, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -33,6 +34,13 @@ export const TaskBreakdownCanvas = ({
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [newTaskDesc, setNewTaskDesc] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [automationPreference, setAutomationPreference] = useState(50); // Default: balanced
+  
+  const getPreferenceLabel = (value: number) => {
+    if (value < 34) return 'Conservative (More Human Oversight)';
+    if (value < 67) return 'Balanced';
+    return 'Aggressive (More AI Automation)';
+  };
 
   const addTask = (category: TaskCategory) => {
     if (!newTaskDesc.trim()) return;
@@ -80,6 +88,8 @@ export const TaskBreakdownCanvas = ({
         body: {
           scenario_context: scenarioContext,
           simulation_results: simulationResults,
+          automation_preference: automationPreference,
+          simulation_id: scenarioContext?.simulationId,
         },
       });
 
@@ -117,14 +127,46 @@ export const TaskBreakdownCanvas = ({
               Break down the process into discrete tasks, then classify each based on what you observed from AI
             </p>
           </div>
+        </div>
+        
+        {/* AI Generation with Slider */}
+        <div className="space-y-4 mb-4">
+          <div className="space-y-2">
+            <Label className="flex justify-between">
+              <span>Automation Approach</span>
+              <span className="text-sm font-medium">{getPreferenceLabel(automationPreference)}</span>
+            </Label>
+            <Slider
+              value={[automationPreference]}
+              onValueChange={(value) => setAutomationPreference(value[0])}
+              min={0}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Conservative</span>
+              <span>Aggressive</span>
+            </div>
+          </div>
+          
           <Button
             onClick={handleGenerateWithAI}
             disabled={isGenerating}
             variant="outline"
-            size="sm"
+            className="w-full"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
-            {isGenerating ? 'Generating...' : 'Generate with AI'}
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate with AI
+              </>
+            )}
           </Button>
         </div>
       </div>
