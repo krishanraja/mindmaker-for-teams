@@ -19,11 +19,42 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
   const [regenerating, setRegenerating] = useState(false);
   const [reportData, setReportData] = useState<any>(null);
   const [aiSynthesis, setAiSynthesis] = useState<string>('');
+  const [hasLoadedExisting, setHasLoadedExisting] = useState(false);
   const { toast } = useToast();
 
-  const fetchReport = async () => {
+  const loadExistingReport = async () => {
+    const { data, error } = await supabase
+      .from('provocation_reports')
+      .select('*')
+      .eq('workshop_session_id', workshopId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (data && !error) {
+      setReportData(data.report_data);
+      setAiSynthesis(data.ai_synthesis || '');
+      setHasLoadedExisting(true);
+      return true;
+    }
+    return false;
+  };
+
+  const fetchReport = async (forceRegenerate = false) => {
     try {
       setLoading(true);
+
+      // Check for existing report first
+      if (!forceRegenerate) {
+        const hasExisting = await loadExistingReport();
+        if (hasExisting) {
+          toast({ title: 'Loaded existing provocation report' });
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Generate new report
       const { data, error } = await supabase.functions.invoke('generate-provocation-report', {
         body: { workshop_session_id: workshopId }
       });
@@ -33,6 +64,15 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       if (data?.reportData) {
         setReportData(data.reportData);
         setAiSynthesis(data.aiSynthesis || '');
+
+        // Save to database
+        await supabase.from('provocation_reports').insert({
+          workshop_session_id: workshopId,
+          report_data: data.reportData,
+          ai_synthesis: data.aiSynthesis || '',
+        });
+
+        setHasLoadedExisting(true);
       }
     } catch (error: any) {
       console.error('Error fetching report:', error);
@@ -48,7 +88,8 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
 
   const handleRegenerate = async () => {
     setRegenerating(true);
-    await fetchReport();
+    setHasLoadedExisting(false);
+    await fetchReport(true);
     setRegenerating(false);
     toast({
       title: 'Report Regenerated',
@@ -57,7 +98,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
   };
 
   useEffect(() => {
-    fetchReport();
+    fetchReport(false);
   }, [workshopId]);
 
   if (loading) {
@@ -90,7 +131,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       <Card className="border-2 border-dashed">
         <CardContent className="p-8 text-center">
           <p className="text-muted-foreground">Unable to load report data</p>
-          <Button onClick={fetchReport} className="mt-4">
+          <Button onClick={() => fetchReport(false)} className="mt-4">
             Retry
           </Button>
         </CardContent>
@@ -109,6 +150,22 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
 
   return (
     <div className="space-y-8">
+      {/* Status indicator and regenerate button */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-muted-foreground">
+          {hasLoadedExisting && '✓ Loaded from previous session'}
+        </div>
+        <Button
+          onClick={() => handleRegenerate()}
+          variant="outline"
+          size="sm"
+          disabled={regenerating}
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${regenerating ? 'animate-spin' : ''}`} />
+          Regenerate Report
+        </Button>
+      </div>
+
       {/* Header with Company Context */}
       <Card className="bg-card border shadow-sm">
         <CardHeader className="pb-6">

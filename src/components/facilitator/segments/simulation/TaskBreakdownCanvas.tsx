@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Bot, Users, User, Trash2, Plus } from "lucide-react";
+import { Bot, Users, User, Trash2, Plus, Sparkles } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 type TaskCategory = 'ai-capable' | 'ai-human' | 'human-only';
 
@@ -18,14 +20,19 @@ export interface Task {
 interface TaskBreakdownCanvasProps {
   onBreakdownComplete: (breakdown: { tasks: Task[]; automationPct: number }) => void;
   initialTasks?: Task[];
+  scenarioContext?: any;
+  simulationResults?: any;
 }
 
 export const TaskBreakdownCanvas = ({ 
   onBreakdownComplete,
-  initialTasks = []
+  initialTasks = [],
+  scenarioContext,
+  simulationResults
 }: TaskBreakdownCanvasProps) => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [newTaskDesc, setNewTaskDesc] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const addTask = (category: TaskCategory) => {
     if (!newTaskDesc.trim()) return;
@@ -66,13 +73,60 @@ export const TaskBreakdownCanvas = ({
     onBreakdownComplete({ tasks, automationPct });
   };
 
+  const handleGenerateWithAI = async () => {
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-task-breakdown', {
+        body: {
+          scenario_context: scenarioContext,
+          simulation_results: simulationResults,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.tasks) {
+        const generatedTasks: Task[] = data.tasks.map((t: any) => ({
+          id: `task-${Date.now()}-${Math.random()}`,
+          description: t.description,
+          category: t.category as TaskCategory,
+        }));
+        
+        setTasks(generatedTasks);
+        toast({ title: 'AI generated task breakdown!', description: `Added ${generatedTasks.length} tasks` });
+      }
+    } catch (error: any) {
+      console.error('Error generating tasks:', error);
+      toast({ 
+        title: 'Error generating tasks', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <Card className="p-6">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Task Decomposition</h3>
-        <p className="text-sm text-muted-foreground">
-          Break down the process into discrete tasks, then classify each based on what you observed from AI
-        </p>
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h3 className="text-lg font-semibold">Task Decomposition</h3>
+            <p className="text-sm text-muted-foreground">
+              Break down the process into discrete tasks, then classify each based on what you observed from AI
+            </p>
+          </div>
+          <Button
+            onClick={handleGenerateWithAI}
+            disabled={isGenerating}
+            variant="outline"
+            size="sm"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            {isGenerating ? 'Generating...' : 'Generate with AI'}
+          </Button>
+        </div>
       </div>
 
       <div className="mb-6 space-y-2">
