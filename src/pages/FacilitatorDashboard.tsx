@@ -10,20 +10,24 @@ import { Segment5StrategyAddendum } from '@/components/facilitator/segments/Segm
 import { Segment6PilotCharter } from '@/components/facilitator/segments/Segment6PilotCharter';
 import { Segment7Provocation } from '@/components/facilitator/segments/Segment7Provocation';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, AlertTriangle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { PreWorkProgressCard } from '@/components/exec-teams/PreWorkProgressCard';
 import { PreWorkResponsesModal } from '@/components/facilitator/PreWorkResponsesModal';
+import { useSaveQueue } from '@/hooks/useSaveQueue';
+import { SaveStatusIndicator } from '@/components/ui/save-status-indicator';
 
 export const FacilitatorDashboard: React.FC = () => {
   const { workshopId } = useParams<{ workshopId: string }>();
   const navigate = useNavigate();
+  const { flushAll, getStatus } = useSaveQueue();
   const [workshop, setWorkshop] = useState<any>(null);
   const [bootcampPlan, setBootcampPlan] = useState<any>(null);
   const [currentSegment, setCurrentSegment] = useState(1);
   const [loading, setLoading] = useState(true);
   const [showResponsesModal, setShowResponsesModal] = useState(false);
   const [skippedSegments, setSkippedSegments] = useState<number[]>([]);
+  const [navigationBlocked, setNavigationBlocked] = useState(false);
 
   useEffect(() => {
     loadWorkshop();
@@ -62,6 +66,32 @@ export const FacilitatorDashboard: React.FC = () => {
 
   const handleSegmentChange = async (segment: number) => {
     if (skippedSegments.includes(segment)) return;
+    
+    // CRITICAL: Block navigation and flush all pending saves
+    const status = getStatus();
+    if (status.pending > 0 || status.processing) {
+      setNavigationBlocked(true);
+      toast({ 
+        title: 'Saving changes...', 
+        description: `Please wait while ${status.pending} changes are saved` 
+      });
+      
+      try {
+        await flushAll();
+        toast({ title: 'All changes saved!' });
+      } catch (error) {
+        toast({ 
+          title: 'Some changes failed to save', 
+          description: 'Please try again',
+          variant: 'destructive' 
+        });
+        setNavigationBlocked(false);
+        return;
+      }
+      
+      setNavigationBlocked(false);
+    }
+    
     setCurrentSegment(segment);
     await supabase
       .from('workshop_sessions')
@@ -156,6 +186,7 @@ export const FacilitatorDashboard: React.FC = () => {
                   <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
                   Facilitator: {workshop?.facilitator_name}
                 </span>
+                <SaveStatusIndicator />
                 {bootcampPlan?.ai_experience_level && (
                   <span className="px-2 py-1 bg-muted rounded text-xs">
                     AI Experience: {bootcampPlan.ai_experience_level}

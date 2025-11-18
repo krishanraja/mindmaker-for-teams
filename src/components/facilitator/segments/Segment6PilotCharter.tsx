@@ -88,13 +88,8 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
     toast({ title: 'Pilot charter saved successfully!' });
   };
 
-  // Autosave callback
+  // Autosave callback - ALWAYS save, even if empty (deletion is valid)
   const saveCharter = useCallback(async () => {
-    // Only autosave if there's meaningful content
-    if (!charter.pilot_owner && !charter.executive_sponsor && !charter.milestone_d10) {
-      return;
-    }
-
     const { error } = await supabase
       .from('pilot_charter')
       .upsert({
@@ -104,7 +99,7 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
       });
 
     if (error) {
-      console.error('Autosave error:', error);
+      console.error('[PilotCharter] Autosave error:', error);
       throw error;
     }
   }, [workshopId, charter]);

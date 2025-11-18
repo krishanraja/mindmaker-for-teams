@@ -47,16 +47,24 @@ export const GuardrailDesigner = ({
   const [riskTolerance, setRiskTolerance] = useState(50);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Autosave guardrail changes
+  // CRITICAL: Autosave guardrail changes - FIXED to use simulation_id column
   useEffect(() => {
-    if (!workshopId || !simulationId || !guardrail.riskIdentified) return;
+    if (!workshopId || !simulationId) return;
     
     const saveGuardrails = async () => {
-      await supabase
-        .from('simulation_results')
-        .update({ guardrails: guardrail as any })
-        .eq('workshop_session_id', workshopId)
-        .eq('id', simulationId);
+      try {
+        const { error } = await supabase
+          .from('simulation_results')
+          .update({ guardrails: guardrail as any })
+          .eq('workshop_session_id', workshopId)
+          .eq('simulation_id', simulationId); // FIXED: Use simulation_id column (string), not id (UUID)
+        
+        if (error) {
+          console.error('[Guardrails] Autosave error:', error);
+        }
+      } catch (err) {
+        console.error('[Guardrails] Autosave exception:', err);
+      }
     };
     
     const timer = setTimeout(saveGuardrails, 1000);
