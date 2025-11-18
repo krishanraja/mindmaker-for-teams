@@ -50,10 +50,25 @@ interface WorkshopJourneyMapProps {
     avgQualityRating: number;
     keyFindings: string[];
   };
+  riskData: {
+    guardrailsCount: number;
+    riskTolerance: number;
+    riskLabel: string;
+    redFlagsCount: number;
+    topGuardrail: string;
+  };
+  taskData: {
+    totalTasks: number;
+    aiCapable: number;
+    aiCapablePct: number;
+    humanOnly: number;
+    humanOnlyPct: number;
+    topAutomation: string;
+  };
   strategyData: {
-    pilotOwner?: string;
-    budget?: number;
     topOpportunities: number;
+    workingGroupInputs: number;
+    consensusArea: string;
   };
 }
 
@@ -61,8 +76,14 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
   preWorkData,
   discoveryData,
   experimentData,
+  riskData,
+  taskData,
   strategyData
 }) => {
+  const percentageChange = preWorkData.anticipatedBottlenecks > 0
+    ? Math.round((discoveryData.actualBottlenecks - preWorkData.anticipatedBottlenecks) / preWorkData.anticipatedBottlenecks * 100)
+    : discoveryData.actualBottlenecks > 0 ? 100 : 0;
+
   const stages = [
     {
       phase: 'Pre-Workshop',
@@ -77,7 +98,13 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
       phase: 'Discovery (Segment 1-2)',
       icon: <Search className="w-6 h-6 text-primary" />,
       insights: [
-        `Actually identified ${discoveryData.actualBottlenecks} bottlenecks (${Math.round((discoveryData.actualBottlenecks - preWorkData.anticipatedBottlenecks) / preWorkData.anticipatedBottlenecks * 100)}% more)`,
+        `Actually identified ${discoveryData.actualBottlenecks} bottleneck${discoveryData.actualBottlenecks !== 1 ? 's' : ''}${
+          preWorkData.anticipatedBottlenecks > 0
+            ? ` (${Math.abs(percentageChange)}% ${percentageChange >= 0 ? 'more' : 'fewer'} than anticipated)`
+            : preWorkData.anticipatedBottlenecks === 0 && discoveryData.actualBottlenecks > 0
+            ? ' (team anticipated none)'
+            : ''
+        }`,
         `Top clusters: ${discoveryData.topClusters.join(', ')}`,
         ...(discoveryData.mythsBusted.length > 0 ? [`Myths busted: ${discoveryData.mythsBusted[0]}`] : [])
       ]
@@ -96,27 +123,30 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
       phase: 'Risk Mitigation (Segment 4)',
       icon: <Shield className="w-6 h-6 text-primary" />,
       insights: [
-        'Designed guardrails with clear human checkpoints',
-        'Identified red flags and validation requirements',
-        'Established risk tolerance frameworks'
+        `Designed ${riskData.guardrailsCount} guardrail framework${riskData.guardrailsCount !== 1 ? 's' : ''}`,
+        `Risk tolerance: ${riskData.riskTolerance}/100 (${riskData.riskLabel})`,
+        `Red flags identified: ${riskData.redFlagsCount}`,
+        riskData.topGuardrail
       ]
     },
     {
       phase: 'Task Breakdown (Segment 4)',
       icon: <Wrench className="w-6 h-6 text-primary" />,
       insights: [
-        'Analyzed AI vs human capabilities',
-        'Mapped automation opportunities',
-        'Defined human oversight requirements'
+        `Analyzed ${taskData.totalTasks} task${taskData.totalTasks !== 1 ? 's' : ''} across simulations`,
+        `AI-capable: ${taskData.aiCapable} (${taskData.aiCapablePct}%)`,
+        `Human-only: ${taskData.humanOnly} (${taskData.humanOnlyPct}%)`,
+        taskData.topAutomation
       ]
     },
     {
       phase: 'Strategic Planning (Segment 5-6)',
       icon: <Target className="w-6 h-6 text-primary" />,
       insights: [
-        `Prioritized ${strategyData.topOpportunities} AI opportunities`,
-        `Pilot owner: ${strategyData.pilotOwner || 'TBD - requires executive decision'}`,
-        strategyData.budget ? `Budget allocated: $${strategyData.budget.toLocaleString()}` : 'Budget pending executive approval'
+        `Prioritized ${strategyData.topOpportunities} AI opportunit${strategyData.topOpportunities !== 1 ? 'ies' : 'y'}`,
+        `Working group contributed ${strategyData.workingGroupInputs} strategic insight${strategyData.workingGroupInputs !== 1 ? 's' : ''}`,
+        `Team consensus: ${strategyData.consensusArea}`,
+        'Next step: Executive sponsor to approve pilot scope'
       ]
     }
   ];

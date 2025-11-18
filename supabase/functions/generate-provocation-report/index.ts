@@ -97,6 +97,13 @@ serve(async (req) => {
 
     const urgencyScore = calculateUrgencyScore();
 
+    const getRiskLabel = (tolerance: number): string => {
+      if (tolerance >= 75) return 'High';
+      if (tolerance >= 50) return 'Balanced';
+      if (tolerance >= 25) return 'Conservative';
+      return 'Risk-averse';
+    };
+
     // Extract rich simulation data
     const simulationDetails = simulations.data?.map(sim => ({
       name: sim.simulation_name,
@@ -126,10 +133,83 @@ serve(async (req) => {
       sim.guardrails ? [sim.guardrails] : []
     );
 
+    // Extract top opportunities for derived goals
+    const topOpportunities = mapItems.data?.filter(item => item.lane === 'opportunity')
+      .sort((a, b) => (b.vote_count || 0) - (a.vote_count || 0)) || [];
+    
+    const topBottleneckCluster = [...new Set(bottlenecks.data?.map(b => b.cluster_name).filter(Boolean))][0];
+
+    // Extract guardrails analysis from all simulations
+    const allGuardrailsData = simulations.data?.flatMap(sim => {
+      if (!sim.guardrails) return [];
+      const g = sim.guardrails as any;
+      return [{
+        riskIdentified: g.riskIdentified || g.risk_identified || '',
+        humanCheckpoint: g.humanCheckpoint || g.human_checkpoint || '',
+        redFlags: g.redFlags || g.red_flags || []
+      }];
+    }) || [];
+    
+    const guardrailsCount = allGuardrailsData.length;
+    const redFlagsCount = allGuardrailsData.reduce((count, g) => count + (g.redFlags?.length || 0), 0);
+    const topGuardrail = allGuardrailsData[0]?.humanCheckpoint || 'Human oversight frameworks to be designed';
+
+    // Extract task breakdown analysis from all simulations
+    const allTasksData = simulations.data?.flatMap(sim => {
+      if (!sim.task_breakdown) return [];
+      const tb = sim.task_breakdown as any;
+      return tb.tasks || [];
+    }) || [];
+    
+    const aiCapableTasks = allTasksData.filter(t => 
+      t.category === 'ai-only' || t.category === 'ai-human'
+    );
+    const humanOnlyTasks = allTasksData.filter(t => t.category === 'human-only');
+    const topAutomationTask = aiCapableTasks
+      .sort((a, b) => (b.automationPotential || 0) - (a.automationPotential || 0))[0];
+
+    // Extract working group consensus
+    const workingGroupInputsCategorized = workingInputs.data?.reduce((acc, input) => {
+      acc[input.input_category] = (acc[input.input_category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>) || {};
+    
+    const consensusCategory = Object.entries(workingGroupInputsCategorized)
+      .sort(([,a], [,b]) => b - a)[0]?.[0] || 'Strategic alignment';
+
     // Build comprehensive context
     const bootcamp = workshop.bootcamp_plans;
     const intake = workshop.exec_intakes;
     
+    // Derive strategic goals from workshop if none exist
+    const derivedGoals = !intake?.strategic_objectives_2026 ? [
+      topOpportunities[0]?.item_text ? `Priority 1: ${topOpportunities[0].item_text}` : null,
+      topBottleneckCluster ? `Address bottleneck: ${topBottleneckCluster}` : null,
+      simulations.data?.[0] ? `Pilot AI for ${simulations.data[0].simulation_name}` : null
+    ].filter(Boolean) : [];
+
+    // Derive AI leverage points from simulation performance
+    const derivedLeveragePoints = simulations.data
+      ?.filter(sim => (sim.time_savings_pct || 0) > 30)
+      .map(sim => ({
+        scenario: sim.simulation_name,
+        timeSavings: `${sim.time_savings_pct}% time savings`,
+        qualityRating: `${(sim.output_quality_ratings as any)?.overall || 'N/A'}/10 quality`,
+        recommendation: 'High potential for pilot'
+      })) || [];
+
+    // Generate realistic next steps based on workshop state
+    const realisticNextSteps = [
+      charter.data?.pilot_owner 
+        ? `D10: ${charter.data.pilot_owner} to define pilot scope` 
+        : 'D10: Leadership to nominate pilot owner',
+      'D30: Secure executive sponsor commitment and budget',
+      topOpportunities[0] 
+        ? `D60: Deploy pilot for ${topOpportunities[0].item_text}` 
+        : 'D60: Deploy pilot for top opportunity',
+      'D90: Present results and decide scale/kill/pivot'
+    ];
+
     const contextData = {
       company: {
         name: intake?.company_name || 'Company',
@@ -193,6 +273,31 @@ serve(async (req) => {
           d60: charter?.data?.milestone_d60,
           d90: charter?.data?.milestone_d90
         }
+      },
+      enrichedData: {
+        riskData: {
+          guardrailsCount,
+          riskTolerance: bootcamp?.risk_tolerance || 50,
+          riskLabel: getRiskLabel(bootcamp?.risk_tolerance || 50),
+          redFlagsCount,
+          topGuardrail
+        },
+        taskData: {
+          totalTasks: allTasksData.length,
+          aiCapable: aiCapableTasks.length,
+          aiCapablePct: allTasksData.length > 0 ? Math.round((aiCapableTasks.length / allTasksData.length) * 100) : 0,
+          humanOnly: humanOnlyTasks.length,
+          humanOnlyPct: allTasksData.length > 0 ? Math.round((humanOnlyTasks.length / allTasksData.length) * 100) : 0,
+          topAutomation: topAutomationTask?.description || 'Task automation opportunities identified'
+        },
+        strategyData: {
+          topOpportunities: topOpportunities.length,
+          workingGroupInputs: workingInputs.data?.length || 0,
+          consensusArea: consensusCategory
+        },
+        derivedGoalsFromWorkshop: derivedGoals,
+        derivedLeveragePoints,
+        realisticNextSteps
       }
     };
 
