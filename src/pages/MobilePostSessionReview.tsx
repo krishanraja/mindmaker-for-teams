@@ -3,16 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle2, Star, Heart } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useWorkshopParticipants } from '@/hooks/useWorkshopParticipants';
 
 export const MobilePostSessionReview: React.FC = () => {
   const { workshopId } = useParams<{ workshopId: string }>();
   const navigate = useNavigate();
+  const { participants, loading: participantsLoading } = useWorkshopParticipants(workshopId);
   
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -26,6 +28,15 @@ export const MobilePostSessionReview: React.FC = () => {
     sessionEnjoyment: [5],
     optionalFeedback: ''
   });
+
+  const handleParticipantSelect = (participantName: string) => {
+    const participant = participants.find(p => p.name === participantName);
+    setFormData(prev => ({
+      ...prev,
+      participantName: participantName,
+      participantEmail: participant?.email || ''
+    }));
+  };
 
   useEffect(() => {
     loadWorkshopData();
@@ -83,7 +94,7 @@ export const MobilePostSessionReview: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (loading || participantsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
         <div className="text-center">
@@ -126,28 +137,30 @@ export const MobilePostSessionReview: React.FC = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name Field */}
+              {/* Participant Selection */}
               <div className="space-y-2">
-                <Label htmlFor="name">Your Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.participantName}
-                  onChange={(e) => setFormData({ ...formData, participantName: e.target.value })}
-                  placeholder="Enter your name"
-                  required
-                />
-              </div>
-
-              {/* Email Field (Optional) */}
-              <div className="space-y-2">
-                <Label htmlFor="email">Your Email (optional)</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.participantEmail}
-                  onChange={(e) => setFormData({ ...formData, participantEmail: e.target.value })}
-                  placeholder="your.email@example.com"
-                />
+                <Label htmlFor="participant" className="text-base font-medium">
+                  Select Your Name *
+                </Label>
+                <Select 
+                  value={formData.participantName} 
+                  onValueChange={handleParticipantSelect}
+                >
+                  <SelectTrigger className="text-base h-12 bg-background">
+                    <SelectValue placeholder="Choose your name from the list" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background">
+                    {participants.map((participant) => (
+                      <SelectItem 
+                        key={participant.email} 
+                        value={participant.name}
+                        className="text-base py-3"
+                      >
+                        {participant.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* AI Leadership Confidence Slider */}
