@@ -96,7 +96,7 @@ serve(async (req) => {
       return goals.slice(0, 5);
     };
     
-    // 2. Build AI Leverage Points from simulation data
+    // 2. Build AI Leverage Points from simulation data - STRATEGIC BUSINESS INSIGHTS
     const deriveAILeveragePoints = (): string[] => {
       const points: string[] = [];
       
@@ -104,30 +104,67 @@ serve(async (req) => {
         return ['To be determined based on simulation results'];
       }
       
-      // Group by simulation type
-      const typeMap = new Map<string, { timeSavings: number[], qualityGains: number[] }>();
+      // Group simulations by business impact area
+      const customerFacing = simulations.data.filter(s => 
+        s.simulation_name.toLowerCase().includes('customer') || 
+        s.simulation_name.toLowerCase().includes('client') ||
+        s.simulation_name.toLowerCase().includes('support')
+      );
       
-      simulations.data.forEach(sim => {
-        if (!typeMap.has(sim.simulation_name)) {
-          typeMap.set(sim.simulation_name, { timeSavings: [], qualityGains: [] });
+      const operations = simulations.data.filter(s => 
+        s.simulation_name.toLowerCase().includes('workflow') || 
+        s.simulation_name.toLowerCase().includes('process') ||
+        s.simulation_name.toLowerCase().includes('approval')
+      );
+      
+      const strategy = simulations.data.filter(s => 
+        s.simulation_name.toLowerCase().includes('gtm') || 
+        s.simulation_name.toLowerCase().includes('strategy') ||
+        s.simulation_name.toLowerCase().includes('planning')
+      );
+      
+      // Generate strategic insights (not data echoes)
+      if (customerFacing.length > 0) {
+        const avgTimeSaved = Math.round(customerFacing.reduce((sum, s) => sum + (s.time_savings_pct || 0), 0) / customerFacing.length);
+        if (avgTimeSaved >= 30) {
+          points.push(`Customer-facing teams could respond ${avgTimeSaved}% faster to market opportunities`);
+        } else {
+          points.push(`Customer response workflows show ${avgTimeSaved}% efficiency potential with AI assistance`);
         }
-        const group = typeMap.get(sim.simulation_name)!;
-        if (sim.time_savings_pct) group.timeSavings.push(sim.time_savings_pct);
-        if (sim.quality_improvement_pct) group.qualityGains.push(sim.quality_improvement_pct);
-      });
+      }
       
-      // Generate leverage points
-      typeMap.forEach((metrics, simName) => {
-        if (metrics.timeSavings.length > 0) {
-          const avgTime = Math.round(metrics.timeSavings.reduce((a, b) => a + b, 0) / metrics.timeSavings.length);
-          points.push(`${simName}: ${avgTime}% median time savings`);
+      if (operations.length > 0) {
+        const avgTimeSaved = Math.round(operations.reduce((sum, s) => sum + (s.time_savings_pct || 0), 0) / operations.length);
+        if (avgTimeSaved >= 40) {
+          points.push(`Operational bottlenecks could accelerate ${avgTimeSaved}%, freeing team capacity for strategic work`);
+        } else {
+          points.push(`Internal workflows show ${avgTimeSaved}% automation potential in approval cycles`);
         }
-      });
+      }
       
-      // Add qualitative insights
+      if (strategy.length > 0) {
+        const avgTimeSaved = Math.round(strategy.reduce((sum, s) => sum + (s.time_savings_pct || 0), 0) / strategy.length);
+        if (avgTimeSaved >= 35) {
+          points.push(`Strategic planning cycles could compress by ${avgTimeSaved}%, enabling faster market pivots`);
+        } else {
+          points.push(`Strategy development shows ${avgTimeSaved}% efficiency gains through AI-assisted analysis`);
+        }
+      }
+      
+      // Identify cross-functional high-value scenarios
       const highValueSims = simulations.data.filter(s => (s.time_savings_pct || 0) >= 40);
-      if (highValueSims.length > 0) {
-        points.push(`${highValueSims.length} high-value use cases identified (40%+ efficiency gain)`);
+      if (highValueSims.length >= 3) {
+        points.push(`${highValueSims.length} customer-critical workflows identified with 40%+ efficiency gains`);
+      } else if (highValueSims.length > 0) {
+        const topScenario = highValueSims[0];
+        const impact = Math.round(topScenario.time_savings_pct || 0);
+        points.push(`Highest-impact scenario: ${impact}% efficiency gain in ${topScenario.simulation_name.toLowerCase()}`);
+      }
+      
+      // Quality improvements as business value
+      const avgQuality = simulations.data.reduce((sum, s) => sum + (s.quality_improvement_pct || 0), 0) / simulations.data.length;
+      if (avgQuality >= 15) {
+        points.push(`Output quality improvements averaging ${Math.round(avgQuality)}% could reduce rework and escalations`);
       }
       
       return points.slice(0, 5);
@@ -236,7 +273,7 @@ serve(async (req) => {
       workshop: {
         company: workshop.exec_intakes?.company_name || 'Organization',
         industry: workshop.exec_intakes?.industry || 'Not specified',
-        participant_count: workshop.participant_count || 0,
+        participant_count: Array.isArray(workshop.exec_intakes?.participants) ? workshop.exec_intakes.participants.length : 0,
         planned_duration: workshop.planned_duration_hours || 4,
         segments_completed: workshop.segments_completed || []
       },
@@ -289,10 +326,19 @@ CRITICAL RULES:
    - Bottleneck cluster themes (e.g., "Streamline approval workflows" from "Approval Process Inefficiencies")
    - Simulation focus areas
    - Pilot charter milestones
-3. **AI Leverage Points**: Extract from simulation results:
-   - Group by scenario type
-   - Calculate median gains per type
-   - Format: "GTM scenarios: 50% median time savings"
+3. **AI Leverage Points - STRATEGIC BUSINESS INSIGHTS ONLY**:
+   ❌ BAD (Data Echo): "gtm-pivot: 45% median time savings"
+   ❌ BAD (Technical): "simulation-name shows 42% efficiency"
+   ✅ GOOD: "GTM strategy adjustments could compress by 45%, accelerating sales cycles"
+   ✅ GOOD: "Customer response time could improve 42% through AI-assisted competitive intelligence"
+   
+   RULES FOR AI LEVERAGE POINTS:
+   - Translate technical metrics into executive-level business value
+   - Focus on strategic outcomes: faster market response, reduced costs, freed capacity
+   - Never echo simulation names or raw percentages without business context
+   - Use action verbs: "could accelerate", "would enable", "reduces friction in"
+   - Connect to customer impact, revenue, or competitive advantage
+
 4. **Surprises**: Identify contradictions, unexpected patterns, or anomalies:
    - Identical quality scores across diverse scenarios (suspicious)
    - High variance in time savings (context-dependent)
@@ -300,14 +346,17 @@ CRITICAL RULES:
    - Charter milestones that don't address identified bottlenecks
 5. **Evidence Threshold**: Only say "To be determined" when data is TRULY missing (e.g., no bottlenecks AND no simulations AND no charter). If raw data exists, SYNTHESIZE IT.
 6. **Tone**: Professional, data-driven, actionable. This is for executives who need clear next steps.
-7. **Length Constraints**: 
-   - Executive summary: max 3 sentences (under 300 chars)
-   - Strengths: 3-5 bullets, max 18 words each
-   - Gaps: 3-5 bullets, max 18 words each
-   - Strategic goals: max 5 items, max 60 chars each
-   - AI leverage points: max 5 items, max 80 chars each
-   - Simulation highlights: max 3 items, max 100 chars each
-   - Surprises: max 3 items, max 120 chars each
+7. **Length Constraints - WRITE COMPLETE THOUGHTS**:
+   - Executive summary: 2-3 complete sentences, naturally under 280 characters
+   - Urgency reasoning: 1-2 complete sentences, naturally under 180 characters
+   - Strengths: 3-5 bullets, complete thoughts under 110 words each
+   - Gaps: 3-5 bullets, complete thoughts under 110 words each
+   - Strategic goals: max 5 items, naturally under 55 chars each
+   - AI leverage points: max 5 items, naturally under 75 chars each
+   - Simulation highlights: max 3 items, naturally under 90 chars each
+   - Surprises: max 3 items, naturally under 110 chars each
+   
+   CRITICAL: End all text with proper punctuation. Never truncate mid-sentence. If approaching limit, use a shorter but complete sentence.
 
 OUTPUT FORMAT: Valid JSON only (no markdown formatting).`;
 
@@ -453,27 +502,50 @@ Generate a report following the exact JSON schema provided in the tools.`;
 
     let reportData = JSON.parse(toolCall.function.arguments);
 
-    // Post-processing: Force truncation to ensure constraints
-    const truncate = (str: string, max: number) => str.length > max ? str.substring(0, max - 3) + '...' : str;
+    // Validation: Check for quality issues (but don't truncate)
+    const validateText = (text: string, fieldName: string): boolean => {
+      // Check if text ends mid-sentence (no punctuation in last 20 chars)
+      const lastChars = text.slice(-20);
+      const hasPunctuation = /[.!?]/.test(lastChars);
+      if (!hasPunctuation && text.length > 50) {
+        console.warn(`[generate-final-report] ${fieldName} may be truncated mid-sentence: "${text.slice(-30)}"`);
+        return false;
+      }
+      return true;
+    };
     
-    reportData.executive_summary = truncate(reportData.executive_summary, 300);
-    reportData.urgency.reasoning = truncate(reportData.urgency.reasoning, 200);
-    reportData.strengths = reportData.strengths.slice(0, 5).map((s: string) => truncate(s, 120));
-    reportData.gaps = reportData.gaps.slice(0, 5).map((s: string) => truncate(s, 120));
+    // Validate key text fields
+    validateText(reportData.executive_summary, 'executive_summary');
+    validateText(reportData.urgency?.reasoning || '', 'urgency.reasoning');
+    
+    // Validate AI leverage points don't contain raw simulation names
+    if (reportData.appendix?.alignment?.ai_leverage_points) {
+      const hasDataEcho = reportData.appendix.alignment.ai_leverage_points.some((point: string) => {
+        const lower = point.toLowerCase();
+        return lower.includes('median') || lower.includes('simulation') || /^\w+-\w+:/.test(point);
+      });
+      if (hasDataEcho) {
+        console.warn('[generate-final-report] AI leverage points contain data echoes instead of strategic insights');
+      }
+    }
+    
+    // Enforce array length limits (but don't truncate strings)
+    reportData.strengths = reportData.strengths?.slice(0, 5) || [];
+    reportData.gaps = reportData.gaps?.slice(0, 5) || [];
     
     if (reportData.appendix?.alignment) {
-      reportData.appendix.alignment.strategic_goals = reportData.appendix.alignment.strategic_goals.slice(0, 5).map((s: string) => truncate(s, 60));
-      reportData.appendix.alignment.bottlenecks = reportData.appendix.alignment.bottlenecks.slice(0, 5).map((s: string) => truncate(s, 80));
-      reportData.appendix.alignment.ai_leverage_points = reportData.appendix.alignment.ai_leverage_points.slice(0, 5).map((s: string) => truncate(s, 80));
+      reportData.appendix.alignment.strategic_goals = reportData.appendix.alignment.strategic_goals?.slice(0, 5) || [];
+      reportData.appendix.alignment.bottlenecks = reportData.appendix.alignment.bottlenecks?.slice(0, 5) || [];
+      reportData.appendix.alignment.ai_leverage_points = reportData.appendix.alignment.ai_leverage_points?.slice(0, 5) || [];
     }
     
     if (reportData.appendix?.simulations) {
-      reportData.appendix.simulations.highlights = reportData.appendix.simulations.highlights.slice(0, 3).map((s: string) => truncate(s, 100));
-      reportData.appendix.simulations.surprises = (reportData.appendix.simulations.surprises || []).slice(0, 3).map((s: string) => truncate(s, 120));
+      reportData.appendix.simulations.highlights = reportData.appendix.simulations.highlights?.slice(0, 3) || [];
+      reportData.appendix.simulations.surprises = reportData.appendix.simulations.surprises?.slice(0, 3) || [];
     }
     
     if (reportData.appendix?.journey) {
-      reportData.appendix.journey = reportData.appendix.journey.slice(0, 6).map((s: string) => truncate(s, 100));
+      reportData.appendix.journey = reportData.appendix.journey?.slice(0, 6) || [];
     }
 
     console.log('[generate-final-report] Report generated successfully');

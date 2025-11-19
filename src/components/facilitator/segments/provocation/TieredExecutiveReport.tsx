@@ -70,6 +70,8 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
   workshopId
 }) => {
   const [expandedEvidence, setExpandedEvidence] = useState(false);
+  const [expandedUrgency, setExpandedUrgency] = useState(false);
+  const [expandedSummary, setExpandedSummary] = useState(false);
   const [showQRDialog, setShowQRDialog] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [reviewStats, setReviewStats] = useState<any>(null);
@@ -176,7 +178,37 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                 <span className="text-2xl font-bold text-primary">{urgency.score}/100</span>
               </div>
               <Progress value={urgency.score} className="h-3" />
-              <p className="text-sm text-muted-foreground mt-2">{urgency.reasoning}</p>
+              <div className="mt-2">
+                {urgency.reasoning.length > 150 && !expandedUrgency ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      {urgency.reasoning.substring(0, 150)}...
+                    </p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setExpandedUrgency(true)}
+                      className="mt-1 h-auto p-0 text-primary hover:bg-transparent"
+                    >
+                      Read More <ChevronDown className="h-4 w-4 ml-1" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">{urgency.reasoning}</p>
+                    {urgency.reasoning.length > 150 && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setExpandedUrgency(false)}
+                        className="mt-1 h-auto p-0 text-primary hover:bg-transparent"
+                      >
+                        Show Less <ChevronUp className="h-4 w-4 ml-1" />
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -191,7 +223,37 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <p className="text-lg leading-relaxed">{executiveSummary}</p>
+          <div>
+            {executiveSummary.length > 200 && !expandedSummary ? (
+              <>
+                <p className="text-lg leading-relaxed">
+                  {executiveSummary.substring(0, 200)}...
+                </p>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setExpandedSummary(true)}
+                  className="mt-2 h-auto p-0 text-primary hover:bg-transparent"
+                >
+                  Read More <ChevronDown className="h-4 w-4 ml-1" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-lg leading-relaxed">{executiveSummary}</p>
+                {executiveSummary.length > 200 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setExpandedSummary(false)}
+                    className="mt-2 h-auto p-0 text-primary hover:bg-transparent"
+                  >
+                    Show Less <ChevronUp className="h-4 w-4 ml-1" />
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
