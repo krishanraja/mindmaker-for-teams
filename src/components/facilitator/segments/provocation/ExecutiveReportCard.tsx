@@ -195,10 +195,25 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       humanOnlyPct: 0,
       topAutomation: 'Task analysis to be completed'
     },
-    strategyData: contextData.enrichedData?.strategyData || {
+    strategyData: {
       topOpportunities: contextData.workshop.opportunitiesPrioritized || 0,
-      workingGroupInputs: 0,
-      consensusArea: 'Strategic alignment'
+      workingGroupInputs: contextData.strategy?.workingGroupInputs?.length || 0,
+      consensusArea: contextData.enrichedData?.strategyData?.consensusArea || 'Strategic alignment',
+      addendum: contextData.strategy ? {
+        targetsAtRisk: contextData.strategy.targetsAtRisk,
+        dataGovernance: contextData.strategy.dataGovernance,
+        pilotKPIs: contextData.strategy.pilotKPIs,
+      } : undefined,
+      charter: contextData.charter?.pilotOwner || contextData.charter?.executiveSponsor ? {
+        pilotOwner: contextData.charter.pilotOwner,
+        executiveSponsor: contextData.charter.executiveSponsor,
+        milestones: {
+          d90: contextData.charter.milestones?.d90
+        }
+      } : undefined,
+      huddleSynthesis: contextData.enrichedData?.huddleInsights?.actions?.length ? {
+        priorityActions: contextData.enrichedData.huddleInsights.actions
+      } : undefined
     }
   };
 

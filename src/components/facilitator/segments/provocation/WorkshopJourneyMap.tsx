@@ -69,8 +69,31 @@ interface WorkshopJourneyMapProps {
     topOpportunities: number;
     workingGroupInputs: number;
     consensusArea: string;
+    addendum?: {
+      targetsAtRisk?: string;
+      dataGovernance?: string;
+      pilotKPIs?: string;
+    };
+    charter?: {
+      pilotOwner?: string;
+      executiveSponsor?: string;
+      milestones?: {
+        d90?: string;
+      };
+    };
+    huddleSynthesis?: {
+      priorityActions?: string[];
+    };
   };
 }
+
+const extractKeyInsight = (text: string | undefined, maxLength: number = 120): string => {
+  if (!text) return '';
+  const firstSentence = text.split('.')[0];
+  return firstSentence.length > maxLength 
+    ? firstSentence.substring(0, maxLength) + '...'
+    : firstSentence;
+};
 
 export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
   preWorkData,
@@ -160,16 +183,53 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
     {
       phase: 'Strategic Planning (Segment 5-6)',
       icon: <Target className="w-6 h-6 text-primary" />,
-      insights: [
-        strategyData.topOpportunities > 0 
-          ? `Prioritized ${strategyData.topOpportunities} AI opportunit${strategyData.topOpportunities !== 1 ? 'ies' : 'y'}`
-          : 'Identified strategic AI opportunities during workshop discussion',
-        strategyData.workingGroupInputs > 0
-          ? `Working group contributed ${strategyData.workingGroupInputs} strategic insight${strategyData.workingGroupInputs !== 1 ? 's' : ''}`
-          : 'Team discussed strategic implications and pilot approach',
-        `Team consensus: ${strategyData.consensusArea}`,
-        'Next step: Executive sponsor to approve pilot scope'
-      ]
+      insights: (() => {
+        const insights: string[] = [];
+        
+        // Strategy Addendum insights (highest priority)
+        if (strategyData.addendum?.targetsAtRisk) {
+          insights.push(`Strategic Risk: ${extractKeyInsight(strategyData.addendum.targetsAtRisk, 120)}`);
+        }
+        if (strategyData.addendum?.dataGovernance) {
+          insights.push(`Data Governance: ${extractKeyInsight(strategyData.addendum.dataGovernance, 120)}`);
+        }
+        if (strategyData.addendum?.pilotKPIs) {
+          insights.push(`Pilot KPIs: ${extractKeyInsight(strategyData.addendum.pilotKPIs, 120)}`);
+        }
+        
+        // Huddle Synthesis insights (if available and no addendum)
+        if (!strategyData.addendum && strategyData.huddleSynthesis?.priorityActions?.length) {
+          insights.push(`Priority: ${strategyData.huddleSynthesis.priorityActions[0]}`);
+        }
+        
+        // Pilot Charter insights
+        if (strategyData.charter?.pilotOwner) {
+          const charterParts = [strategyData.charter.pilotOwner];
+          if (strategyData.charter.executiveSponsor) {
+            charterParts.push(`sponsored by ${strategyData.charter.executiveSponsor}`);
+          }
+          if (strategyData.charter.milestones?.d90) {
+            charterParts.push('leading 90-day pilot');
+          }
+          insights.push(`Charter: ${charterParts.join(', ')}`);
+        } else if (insights.length > 0) {
+          insights.push('Next step: Finalize pilot owner and executive sponsor');
+        }
+        
+        // Fallback if no rich data at all
+        if (insights.length === 0) {
+          return [
+            strategyData.topOpportunities > 0 
+              ? `Prioritized ${strategyData.topOpportunities} AI opportunit${strategyData.topOpportunities !== 1 ? 'ies' : 'y'}`
+              : 'Identified strategic AI opportunities during workshop discussion',
+            'Team discussed strategic implications and pilot approach',
+            `Consensus: ${strategyData.consensusArea}`,
+            'Next step: Document strategic targets and pilot charter'
+          ];
+        }
+        
+        return insights.slice(0, 4); // Max 4 bullets
+      })()
     }
   ];
 
