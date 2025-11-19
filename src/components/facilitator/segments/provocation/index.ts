@@ -6,5 +6,6 @@ export { ExecutiveReportCard } from './ExecutiveReportCard';
 export { PilotCharterCard } from './PilotCharterCard';
 export { SectionHeader } from './SectionHeader';
 export { StrategicAlignmentGrid } from './StrategicAlignmentGrid';
+export { TieredExecutiveReport } from './TieredExecutiveReport';
 export { UrgencyScoreGauge } from './UrgencyScoreGauge';
 export { WhyNowSlide } from './WhyNowSlide';
