@@ -158,8 +158,16 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
           data_governance_changes: data.data_governance_changes || '',
           pilot_kpis: data.pilot_kpis || '',
         });
+        
+        // CRITICAL: Force immediate save after AI generation
+        try {
+          await forceSave();
+        } catch (saveError) {
+          console.error('[Strategy] Failed to save after AI generation:', saveError);
+        }
+        
         toast({ 
-          title: 'Strategy insights generated!', 
+          title: 'Strategy insights generated and saved!', 
           description: `Created based on ${getRiskLabel(riskTolerance).toLowerCase()} approach` 
         });
         
@@ -181,8 +189,22 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
   };
 
   const handleSave = async () => {
-    await flushAll(); // Force immediate save of all queued changes
-    toast({ title: 'Strategy addendum saved!', description: 'All changes have been saved immediately' });
+    try {
+      // CRITICAL: Force immediate save first, then flush any other pending saves
+      await forceSave();
+      await flushAll();
+      toast({ 
+        title: 'All changes saved!', 
+        description: 'Strategy addendum saved immediately' 
+      });
+    } catch (error) {
+      console.error('Error saving:', error);
+      toast({ 
+        title: 'Save failed', 
+        description: 'Could not save changes. Please try again.', 
+        variant: 'destructive' 
+      });
+    }
   };
 
   // Autosave callback - ALWAYS save, even if empty (deletion is valid)
@@ -201,7 +223,7 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
   }, [workshopId, addendum]);
 
   // Enable autosave with 2 second debounce (strategic thinking needs more time)
-  const { isSaving, lastSaved } = useEnhancedAutosave({
+  const { isSaving, lastSaved, forceSave } = useEnhancedAutosave({
     data: addendum,
     saveFunction: saveAddendum,
     debounceMs: 2000,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { AIGenerateButton } from "@/components/ui/ai-generate-button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useEnhancedAutosave } from "@/hooks/useEnhancedAutosave";
 
 type TaskCategory = 'ai-capable' | 'ai-human' | 'human-only';
 
@@ -41,29 +42,30 @@ export const TaskBreakdownCanvas = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [automationPreference, setAutomationPreference] = useState(50); // Default: balanced
   
-  // CRITICAL: Autosave task breakdown changes
-  useEffect(() => {
-    if (!workshopId || !simulationId || tasks.length === 0) return;
+  // Save function for autosave hook
+  const saveTaskBreakdown = useCallback(async (currentTasks: Task[]) => {
+    if (!workshopId || !simulationId || currentTasks.length === 0) return;
     
-    const saveTasks = async () => {
-      try {
-        const { error } = await supabase
-          .from('simulation_results')
-          .update({ task_breakdown: tasks as any })
-          .eq('workshop_session_id', workshopId)
-          .eq('simulation_id', simulationId);
-        
-        if (error) {
-          console.error('[TaskBreakdown] Autosave error:', error);
-        }
-      } catch (err) {
-        console.error('[TaskBreakdown] Autosave exception:', err);
-      }
-    };
+    const { error } = await supabase
+      .from('simulation_results')
+      .update({ task_breakdown: currentTasks as any })
+      .eq('workshop_session_id', workshopId)
+      .eq('simulation_id', simulationId);
     
-    const timer = setTimeout(saveTasks, 1000);
-    return () => clearTimeout(timer);
-  }, [tasks, workshopId, simulationId]);
+    if (error) {
+      console.error('[TaskBreakdown] Save error:', error);
+      throw error;
+    }
+  }, [workshopId, simulationId]);
+
+  // CRITICAL: Enhanced autosave with force save capability
+  const { forceSave } = useEnhancedAutosave({
+    data: tasks,
+    saveFunction: saveTaskBreakdown,
+    debounceMs: 1000,
+    enabled: !!(workshopId && simulationId),
+    componentName: 'Task Breakdown',
+  });
   
   const getPreferenceLabel = (value: number) => {
     if (value < 34) return 'Conservative (More Human Oversight)';
@@ -132,7 +134,18 @@ export const TaskBreakdownCanvas = ({
         }));
         
         setTasks(generatedTasks);
-        toast({ title: 'AI generated task breakdown!', description: `Added ${generatedTasks.length} tasks` });
+        
+        // CRITICAL: Force immediate save after AI generation
+        try {
+          await forceSave();
+        } catch (saveError) {
+          console.error('[TaskBreakdown] Failed to save after AI generation:', saveError);
+        }
+        
+        toast({ 
+          title: 'AI generated task breakdown and saved!', 
+          description: `Added ${generatedTasks.length} tasks` 
+        });
       }
     } catch (error: any) {
       console.error('Error generating tasks:', error);
