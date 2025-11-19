@@ -196,7 +196,7 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
           report={report}
           companyName={workshop?.exec_intakes?.company_name || 'Organization'}
           workshopDate={workshop?.workshop_date || new Date().toISOString()}
-          participantCount={workshop?.participant_count || 0}
+          participantCount={Array.isArray(workshop?.exec_intakes?.participants) ? workshop.exec_intakes.participants.length : 0}
           workshopId={workshopId}
         />
     </div>

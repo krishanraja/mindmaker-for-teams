@@ -217,9 +217,9 @@ export const FacilitatorDashboard: React.FC = () => {
                     {workshop.exec_intakes.industry}
                   </span>
                 )}
-                {workshop?.participant_count > 0 && (
+                {Array.isArray(workshop?.exec_intakes?.participants) && workshop.exec_intakes.participants.length > 0 && (
                   <span className="px-2 py-1 bg-muted rounded text-xs">
-                    {workshop.participant_count} participants
+                    {workshop.exec_intakes.participants.length} participants
                   </span>
                 )}
               </div>
