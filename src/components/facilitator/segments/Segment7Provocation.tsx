@@ -23,9 +23,11 @@ export const Segment7Provocation: React.FC<Segment7ProvocationProps> = ({ worksh
         </div>
 
         {/* MAIN REPORT CARD - AI Generated using workshop data */}
-        <ErrorBoundary onReset={() => window.location.reload()}>
-          <ExecutiveReportCard workshopId={workshopId} />
-        </ErrorBoundary>
+      <ErrorBoundary onReset={() => {
+        console.log('[Segment7] Error boundary reset - component will remount');
+      }}>
+        <ExecutiveReportCard workshopId={workshopId} />
+      </ErrorBoundary>
 
         {/* Benchmark Comparison */}
         <div className="space-y-3">
