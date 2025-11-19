@@ -106,7 +106,7 @@ serve(async (req) => {
       return Math.min(total, 100);
     };
 
-    const urgencyScore = calculateUrgencyScore();
+    const urgencyScore = Math.round(calculateUrgencyScore());
 
     // Extract strategic goals from strategy addendum if intake doesn't have them
     const extractedStrategicGoals = strategy?.data?.targets_at_risk 
@@ -125,19 +125,46 @@ serve(async (req) => {
       return 'Risk-averse';
     };
 
-    // Extract rich simulation data
+    // Extract rich simulation data with rounded metrics
     const simulationDetails = simulations.data?.map(sim => ({
       name: sim.simulation_name,
-      timeSavings: sim.time_savings_pct,
-      costSavings: sim.cost_savings_usd,
-      qualityImprovement: sim.quality_improvement_pct,
-      qualityRating: sim.quality_rating,
+      timeSavings: Math.round(sim.time_savings_pct || 0),
+      costSavings: sim.cost_savings_usd ? Math.round(sim.cost_savings_usd) : null,
+      qualityImprovement: Math.round(sim.quality_improvement_pct || 0),
+      qualityRating: Math.round((sim.quality_rating || 0) * 10) / 10, // 1 decimal for quality
       taskBreakdown: sim.task_breakdown,
       guardrails: sim.guardrails,
       discussionPrompts: sim.discussion_prompts,
       beforeSnapshot: sim.before_snapshot,
       afterSnapshot: sim.after_snapshot
     })) || [];
+
+    // Aggregate simulation metrics (kill the duplicates)
+    const simulationMetrics = {
+      count: simulationDetails.length,
+      medianTimeSavings: simulationDetails.length > 0 
+        ? Math.round(
+            simulationDetails
+              .map(s => s.timeSavings)
+              .sort((a, b) => a - b)[Math.floor(simulationDetails.length / 2)]
+          )
+        : 0,
+      medianQuality: simulationDetails.length > 0
+        ? Math.round(
+            simulationDetails
+              .map(s => s.qualityRating)
+              .sort((a, b) => a - b)[Math.floor(simulationDetails.length / 2)] * 10
+          ) / 10
+        : 0,
+      highlights: [
+        // Best result
+        ...simulationDetails.sort((a, b) => (b.timeSavings || 0) - (a.timeSavings || 0)).slice(0, 1),
+        // Typical result (median performer)
+        simulationDetails[Math.floor(simulationDetails.length / 2)],
+        // Edge case (lowest performer or quality concern)
+        simulationDetails.find(s => s.qualityRating < 6) || simulationDetails[simulationDetails.length - 1]
+      ].filter(Boolean).slice(0, 3) // Max 3 highlights
+    };
 
     // Extract task breakdown insights
     const allTasks = simulationDetails.flatMap(sim => 
@@ -341,48 +368,42 @@ serve(async (req) => {
       return "Use industry-standard terminology and acronyms freely. Assume expert audience familiar with business and AI concepts.";
     };
 
-    const systemPrompt = `You are a world-class McKinsey consultant synthesizing an AI readiness workshop for executive leadership.
-
-CONTEXT: This team completed a comprehensive 3-hour hands-on workshop where they:
-1. Pre-work: Shared anticipated bottlenecks, AI concerns, and strategic context
-2. Discovery: Identified actual bottlenecks through collaborative exercises
-3. Experimentation: Ran live AI simulations on real scenarios
-4. Risk Mitigation: Designed guardrails and safety frameworks
-5. Task Breakdown: Analyzed human vs AI capabilities
-6. Strategic Planning: Developed pilot charters and working group recommendations
-
-YOUR ROLE: Create an executive-ready synthesis that:
-- Shows the JOURNEY (what changed from pre-work assumptions to hands-on reality)
-- Uses SPECIFIC DATA from the workshop (quote actual metrics, reference real scenarios tested, name participants when relevant)
-- Balances INSIGHT with EVIDENCE (every claim must have supporting workshop data)
-- Maintains EXECUTIVE TONE (clear, decisive, actionable, no fluff)
-- NEVER fabricates statistics - if specific numbers aren't in the data, describe impact qualitatively
+    const systemPrompt = `You are synthesizing an AI readiness workshop for executives. Return ONLY valid JSON.
 
 ${getJargonGuidance(jargonLevel)}
 
-Return ONLY valid JSON with this exact structure (no markdown, no code blocks):
+IRON RULES:
+- Executive Summary: 110-140 words HARD CAP. Count every word.
+- Strengths: EXACTLY 3 items, each ≤18 words
+- Gaps: EXACTLY 3 items, each ≤18 words
+- Evidence MUST reference specific metrics from workshop (e.g., "42% time saved", "37/57 tasks AI-capable")
+- NEVER invent data not present in input
+- Focus on ONE priority 90-day pilot only
+- If segment has no data, omit that section completely
+- ALL percentages must be integers (42, not 42.3333...)
+
+ANTI-FABRICATION RULES:
+1. NEVER invent statistics not in the data
+2. Reference SPECIFIC workshop outputs: actual bottlenecks, actual simulation names
+3. Every quantified claim must be traceable to provided data
+4. If data missing, say "not measured" - don't guess
+5. Avoid vague phrases like "significant improvements" - be specific
+
+Return this exact JSON structure:
 {
-  "executiveSummary": "200-250 word narrative showing the workshop journey from pre-work to final insights",
+  "executiveSummary": "<110-140 words>",
   "strengths": [
-    {
-      "title": "Clear, specific strength (no character limits)",
-      "evidence": "Concrete data from workshop proving this strength (quote metrics, scenarios, participant insights)",
-      "impact": "Why this matters strategically for 2026 goals"
-    }
+    {"title": "<max 12 words>", "evidence": "<max 18 words with metric>", "impact": "<max 15 words>"}
   ],
   "gaps": [
-    {
-      "title": "Specific gap identified (no character limits)",
-      "evidence": "Workshop data showing this gap exists",
-      "recommendation": "Concrete next step with timeline"
-    }
+    {"title": "<max 12 words>", "evidence": "<max 18 words with metric>", "recommendation": "<max 15 words>"}
   ],
   "journeyInsights": {
-    "mythsBusted": "What pre-work assumptions were challenged during hands-on experimentation?",
-    "surprisingFindings": "What unexpected insights emerged from simulations?",
-    "momentsOfClarity": "Key breakthroughs during the workshop"
+    "mythsBusted": "<max 80 words>",
+    "surprisingFindings": "<max 80 words>",
+    "momentsOfClarity": "<max 80 words>"
   },
-  "urgencyVerdict": "100-150 words answering: If an AI-native competitor launched tomorrow with access to this company's data and processes, what would happen? Use workshop data to make this concrete."
+  "urgencyVerdict": "<100-120 words>"
 }`;
 
     const userPrompt = `Analyze this AI readiness workshop for ${contextData.company.name}:
@@ -390,72 +411,25 @@ Return ONLY valid JSON with this exact structure (no markdown, no code blocks):
 === COMPANY CONTEXT ===
 Industry: ${contextData.company.industry}
 AI Experience: ${contextData.preWorkshop.aiExperience}
-Strategic Goals 2026: ${contextData.company.strategicGoals}
-Competitive Context: ${contextData.company.competitiveLandscape}
+    const userPrompt = `Workshop Data Summary:
+Company: ${contextData.company.name} | ${contextData.company.industry}
+2026 Goals: ${contextData.company.strategicGoals.slice(0, 200)}...
 
-=== PRE-WORKSHOP STATE ===
-Anticipated Bottlenecks: ${JSON.stringify(contextData.preWorkshop.anticipatedBottlenecks)}
-AI Myths/Concerns: ${JSON.stringify(contextData.preWorkshop.aiMyths)}
-Risk Tolerance: ${contextData.preWorkshop.riskTolerance}/100
-Pilot Expectations: ${JSON.stringify(contextData.preWorkshop.pilotExpectations)}
+Bottlenecks Identified: ${contextData.workshop.bottlenecksIdentified}
+Top Clusters: ${contextData.workshop.bottleneckClusters.slice(0, 2).join(', ')}
 
-Pre-work Submissions (${contextData.preWorkshop.preworkResponses.length} participants):
-${contextData.preWorkshop.preworkResponses.map(pw => `- ${pw.participant}: ${JSON.stringify(pw.responses)}`).join('\n')}
+Simulations: ${simulationMetrics.count} run
+- Median time savings: ${simulationMetrics.medianTimeSavings}%
+- Median quality: ${simulationMetrics.medianQuality}/10
+- Best result: ${simulationMetrics.highlights[0]?.name} (${simulationMetrics.highlights[0]?.timeSavings}% saved)
 
-=== PHASE 1: DISCOVERY ===
-Bottlenecks Identified: ${contextData.workshop.bottlenecksIdentified} (vs ${contextData.preWorkshop.anticipatedBottlenecks.length} anticipated)
-Clusters Emerged: ${contextData.workshop.bottleneckClusters.join(', ')}
-Top Issues: ${contextData.workshop.topBottlenecks.join('; ')}
+Tasks Analyzed: ${allTasksData.length}
+- AI-capable: ${aiCapableTasks.length} (${allTasksData.length > 0 ? Math.round((aiCapableTasks.length / allTasksData.length) * 100) : 0}%)
 
-=== PHASE 2: EXPERIMENTATION ===
-Simulations Run: ${contextData.workshop.simulationsRun}
-Scenarios Tested: ${contextData.simulations.details.map(s => s.name).join(', ')}
+Pilot Status: ${charter?.data?.pilot_owner || 'No owner assigned'}
+Risk Tolerance: ${bootcamp?.risk_tolerance || 50}% (${getRiskLabel(bootcamp?.risk_tolerance || 50)})
 
-Simulation Results:
-${contextData.simulations.details.map(s => `
-- ${s.name}:
-  Time Savings: ${s.timeSavings}%
-  Quality Rating: ${s.qualityRating}/10
-  Cost Impact: $${s.costSavings}
-  Key Tasks: ${JSON.stringify(s.taskBreakdown?.slice(0, 3))}
-  Guardrails: ${JSON.stringify(s.guardrails)}
-`).join('\n')}
-
-Average Performance:
-- Time Savings: ${contextData.simulations.avgTimeSavings}%
-- Quality Rating: ${contextData.simulations.avgQualityRating}/10
-
-=== PHASE 3: RISK MITIGATION ===
-Guardrails Designed: ${allGuardrails.length}
-Risk Frameworks: ${JSON.stringify(allGuardrails)}
-
-=== PHASE 4: TASK BREAKDOWN ===
-Tasks Analyzed: ${allTasks.length}
-AI-Capable Tasks: ${allTasks.filter((t: any) => t.category === 'ai-human' || t.category === 'ai-only').length}
-Human-Only Tasks: ${allTasks.filter((t: any) => t.category === 'human-only').length}
-
-=== PHASE 5: STRATEGIC PLANNING ===
-Opportunities Prioritized: ${contextData.workshop.opportunitiesPrioritized}
-Top Opportunities:
-${contextData.workshop.topOpportunities.map(o => `- ${o.text} (${o.votes} votes, ${o.lane} lane)`).join('\n')}
-
-Working Group Strategic Inputs (${contextData.strategy.workingGroupInputs.length}):
-${contextData.strategy.workingGroupInputs.map(w => `- [${w.category}] ${w.text} - ${w.participant}`).join('\n')}
-
-Pilot Charter:
-- Owner: ${contextData.charter.pilotOwner || 'TBD'}
-- Sponsor: ${contextData.charter.executiveSponsor || 'TBD'}
-- Budget: $${contextData.charter.pilotBudget || 'TBD'}
-- Milestones: ${JSON.stringify(contextData.charter.milestones)}
-
-Strategy Addendum:
-- Targets at Risk: ${contextData.strategy.targetsAtRisk}
-- Data/Governance: ${contextData.strategy.dataGovernance}
-- Pilot KPIs: ${contextData.strategy.pilotKPIs}
-
-=== YOUR ANALYSIS ===
-Generate the JSON structure with 4-5 strengths, 4-5 gaps, journey insights, participant highlights, and urgency verdict.
-Base everything on the data above. Show the progression from pre-work assumptions to workshop reality.`;
+Generate synthesis using ONLY this data. Follow word limits EXACTLY.`;
 
     console.log('Calling Lovable AI for synthesis...');
 
@@ -500,8 +474,10 @@ Base everything on the data above. Show the progression from pre-work assumption
 
     // Build response data
     const reportData = {
-      urgencyScore,
-      roiMetrics: simulationDetails,
+      urgencyScore: Math.round(urgencyScore), // Enforce rounding
+      urgencyLabel: urgencyScore >= 70 ? 'High' : urgencyScore >= 40 ? 'Moderate' : 'Low',
+      simulationMetrics, // NEW: Aggregate simulation data
+      roiMetrics: simulationDetails, // Keep for backwards compatibility
       contextData,
       workshop,
       charter: charter?.data,
