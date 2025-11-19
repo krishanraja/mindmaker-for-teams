@@ -210,12 +210,14 @@ async function callLovableAI(options: AICallOptions): Promise<string> {
   return data.choices[0].message.content;
 }
 
+// Track if providers have been verified (module-level variable)
+let providersVerified = false;
+
 export async function callWithFallback(options: AICallOptions): Promise<AICallResult> {
-  // Verify providers once
-  static let verified = false;
-  if (!verified) {
+  // Verify providers once on first call
+  if (!providersVerified) {
     await verifyBothProviders(options.openAIKey, options.lovableKey);
-    verified = true;
+    providersVerified = true;
   }
 
   const timeoutPromise = new Promise<never>((_, reject) => 
