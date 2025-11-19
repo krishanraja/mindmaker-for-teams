@@ -187,104 +187,45 @@ Focus on practical next steps and real-world considerations.`;
           stream: true
         }),
       });
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestPayload),
-    });
 
-    console.log('🔍 CP0 Diagnostic - OpenAI Response Status:', {
-      ok: response.ok,
-      status: response.status,
-      statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries())
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('🚨 CP0 Diagnostic - OpenAI API Error:', {
+      console.log('🔍 CP0 Diagnostic - OpenAI Response Status:', {
+        ok: response.ok,
         status: response.status,
         statusText: response.statusText,
-        errorBody: errorText,
-        errorBodyLength: errorText.length
+        headers: Object.fromEntries(response.headers.entries())
       });
-      
-      // Try to parse error as JSON for better diagnostics
-      try {
-        const errorJson = JSON.parse(errorText);
-        console.error('🚨 CP0 Diagnostic - Parsed Error:', errorJson);
-      } catch {
-        console.error('🚨 CP0 Diagnostic - Raw Error Text:', errorText);
-      }
-      
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ 
-          error: 'Rate limit exceeded. Please wait a moment and try again.' 
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('🚨 CP0 Diagnostic - OpenAI API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorBody: errorText,
+          errorBodyLength: errorText.length
         });
-      }
-      
-      if (response.status === 401) {
-        return new Response(JSON.stringify({ 
-          error: 'OpenAI API key is invalid or not configured.' 
-        }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+
+        if (response.status === 429) {
+          return new Response(JSON.stringify({
+            error: 'Rate limit exceeded. Please wait a moment and try again.'
+          }), {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        if (response.status === 401) {
+          return new Response(JSON.stringify({
+            error: 'OpenAI API key is invalid or not configured.'
+          }), {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        throw new Error(`OpenAI API returned ${response.status}: ${errorText}`);
       }
 
-      throw new Error(`OpenAI API returned ${response.status}: ${errorText}`);
-    }
-
-    if (mode === 'generate_simulation') {
-      // Non-streaming for initial generation (need full JSON)
-      const data = await response.json();
-      
-      console.log('🔍 CP0 Diagnostic - OpenAI Response Structure:', {
-        hasChoices: !!data.choices,
-        choicesLength: data.choices?.length || 0,
-        hasFirstChoice: !!data.choices?.[0],
-        hasMessage: !!data.choices?.[0]?.message,
-        hasContent: !!data.choices?.[0]?.message?.content,
-        contentType: typeof data.choices?.[0]?.message?.content,
-        contentLength: data.choices?.[0]?.message?.content?.length || 0,
-        fullResponseKeys: Object.keys(data),
-        usage: data.usage,
-        model: data.model,
-        error: data.error
-      });
-      
-      // Validate response structure
-      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        console.error('🚨 CP0 Diagnostic - Invalid Response Structure:', JSON.stringify(data, null, 2));
-        throw new Error('OpenAI returned invalid response structure');
-      }
-      
-      const content = data.choices[0].message.content;
-      
-      if (!content || content.trim() === '') {
-        console.error('🚨 CP0 Diagnostic - Empty Content:', {
-          content,
-          fullMessage: data.choices[0].message,
-          fullData: JSON.stringify(data, null, 2)
-        });
-        throw new Error('OpenAI returned empty content');
-      }
-      
-      console.log('✅ CP0 Diagnostic - Valid Content Received:', {
-        contentLength: content.length,
-        contentPreview: content.substring(0, 200),
-        contentSuffix: content.substring(content.length - 100)
-      });
-      
-      return new Response(JSON.stringify({ content }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    } else {
-      // Stream the response for iterative prompts
+      // Stream the response
       return new Response(response.body, {
         headers: {
           ...corsHeaders,
