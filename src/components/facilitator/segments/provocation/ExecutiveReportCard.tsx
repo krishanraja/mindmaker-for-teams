@@ -331,7 +331,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         </Card>
         <Card className="text-center p-6 bg-gradient-to-br from-orange-500/10 to-red-500/10 border-2 border-orange-500/30">
           <div className="text-6xl font-black text-orange-600 tabular-nums">
-            {urgencyScore}
+            {Math.round(urgencyScore)}
           </div>
           <div className="text-xs uppercase tracking-widest text-orange-600 font-bold mt-2">
             Urgency
@@ -390,70 +390,70 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
               realisticNextSteps={contextData.enrichedData?.realisticNextSteps}
             />
 
-      {/* The Numbers That Matter - ROI Metrics */}
-      {roiMetrics.length > 0 && (
+      {/* Simulation Performance - Aggregated View */}
+      {reportData.simulationMetrics?.count > 0 && (
         <div className="space-y-6">
           <h3 className="text-2xl font-bold text-foreground">Simulation Performance</h3>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {roiMetrics.map((metric: any, idx: number) => (
-              <Card key={idx} className="border shadow-sm">
-                <CardContent className="p-8">
-                  <h4 className="text-xl font-semibold text-foreground mb-6">
-                    {metric.name}
-                  </h4>
-                  
-                  <div className="space-y-5">
-                    {metric.timeSavings && (
-                      <div className="flex items-center justify-between pb-5 border-b border-border">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
-                            <Clock className="w-5 h-5 text-primary" />
-                          </div>
-                          <span className="text-sm text-muted-foreground font-medium">
-                            Time Saved
-                          </span>
-                        </div>
-                        <span className="text-3xl font-bold text-foreground">
-                          {metric.timeSavings}%
-                        </span>
-                      </div>
-                    )}
-                    
-                    {metric.costSavings && (
-                      <div className="flex items-center justify-between pb-5 border-b border-border">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
-                            <DollarSign className="w-5 h-5 text-primary" />
-                          </div>
-                          <span className="text-sm text-muted-foreground font-medium">
-                            Cost Reduction
-                          </span>
-                        </div>
-                        <span className="text-3xl font-bold text-foreground">
-                          ${(metric.costSavings / 1000).toFixed(0)}K
-                        </span>
-                      </div>
-                    )}
-                    
-                    {metric.qualityImprovement && (
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center">
-                            <Target className="w-5 h-5 text-primary" />
-                          </div>
-                          <span className="text-sm text-muted-foreground font-medium">
-                            Quality Gain
-                          </span>
-                        </div>
-                        <span className="text-3xl font-bold text-foreground">
-                          {metric.qualityImprovement}%
-                        </span>
-                      </div>
-                    )}
+          
+          {/* Aggregate Summary Card */}
+          <Card className="bg-primary/5 border-2 border-primary/20">
+            <CardContent className="p-8">
+              <div className="grid grid-cols-3 gap-8 text-center">
+                <div>
+                  <div className="text-5xl font-black text-primary tabular-nums">
+                    {reportData.simulationMetrics.count}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <div className="text-sm text-muted-foreground font-medium mt-2">
+                    Simulations Run
+                  </div>
+                </div>
+                <div>
+                  <div className="text-5xl font-black text-primary tabular-nums">
+                    {reportData.simulationMetrics.medianTimeSavings}%
+                  </div>
+                  <div className="text-sm text-muted-foreground font-medium mt-2">
+                    Median Time Saved
+                  </div>
+                </div>
+                <div>
+                  <div className="text-5xl font-black text-primary tabular-nums">
+                    {reportData.simulationMetrics.medianQuality}/10
+                  </div>
+                  <div className="text-sm text-muted-foreground font-medium mt-2">
+                    Median Quality Rating
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Highlight Cards (Max 3) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {reportData.simulationMetrics.highlights.map((sim: any, idx: number) => {
+              const labels = ['Best Result', 'Typical Result', 'Edge Case'];
+              return (
+                <Card key={idx} className="border shadow-sm">
+                  <CardHeader className="pb-3">
+                    <Badge variant={idx === 0 ? 'default' : 'outline'} className="w-fit">
+                      {labels[idx]}
+                    </Badge>
+                    <CardTitle className="text-lg mt-2">{sim.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Time Saved</span>
+                        <span className="text-2xl font-bold text-foreground">{sim.timeSavings}%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Quality</span>
+                        <span className="text-2xl font-bold text-foreground">{sim.qualityRating}/10</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       )}
