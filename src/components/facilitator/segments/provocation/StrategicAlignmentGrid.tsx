@@ -48,9 +48,11 @@ export const StrategicAlignmentGrid: React.FC<StrategicAlignmentGridProps> = ({
               <Target className="w-5 h-5 text-primary" />
               2026 Strategic Goals
             </h4>
-            {strategicGoals ? (
-              <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg text-sm text-foreground">
-                {strategicGoals}
+            {strategicGoals && strategicGoals !== 'Not specified' ? (
+              <div className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-lg">
+                <p className="text-sm font-semibold text-foreground leading-relaxed">
+                  {strategicGoals}
+                </p>
               </div>
             ) : derivedGoalsFromWorkshop.length > 0 ? (
               <div className="space-y-2">

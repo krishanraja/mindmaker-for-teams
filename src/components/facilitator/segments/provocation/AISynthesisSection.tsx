@@ -138,18 +138,16 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({
 
   return (
     <div className="space-y-8">
-      {/* Executive Summary */}
-      <Card className="border shadow-sm bg-gradient-to-br from-primary/5 to-background">
-        <CardHeader>
-          <CardTitle className="text-2xl flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-primary" />
-            </div>
+      {/* Executive Summary - Condensed */}
+      <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-primary/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
             Executive Summary
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-base text-foreground leading-relaxed whitespace-pre-line">
+          <p className="text-sm leading-relaxed text-foreground line-clamp-4">
             {synthesis.executiveSummary}
           </p>
         </CardContent>
@@ -184,74 +182,67 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({
         </Card>
       )}
 
-      {/* Strengths */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
-            <CheckCircle className="w-7 h-7 text-green-600" />
-            Strengths Identified ({synthesis.strengths.length})
+      {/* Strengths & Gaps - Compact Grid */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {/* Strengths */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            Strengths ({synthesis.strengths.length})
           </h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => toggleSection('strengths')}
-          >
-            {expandedSection === 'strengths' ? 'Collapse All' : 'Expand All'}
-          </Button>
-        </div>
-
-        <div className="grid gap-4">
-          {synthesis.strengths.map((strength, idx) => (
-            <ExpandableCard
-              key={idx}
-              item={strength}
-              type="strength"
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Gaps */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
-            <AlertTriangle className="w-7 h-7 text-amber-600" />
-            Critical Gaps ({synthesis.gaps.length})
-          </h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => toggleSection('gaps')}
-          >
-            {expandedSection === 'gaps' ? 'Collapse All' : 'Expand All'}
-          </Button>
-        </div>
-
-        <div className="grid gap-4">
-          {synthesis.gaps.map((gap, idx) => (
-            <ExpandableCard
-              key={idx}
-              item={gap}
-              type="gap"
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Urgency Verdict */}
-      <Card className={`border-2 ${urgencyColors.border} ${urgencyColors.bg}`}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl">The Verdict: Urgency Assessment</CardTitle>
-            <Badge variant="secondary" className={`text-lg px-4 py-1 ${urgencyColors.text}`}>
-              {urgencyScore}/100
-            </Badge>
+          <div className="space-y-2">
+            {synthesis.strengths.slice(0, 3).map((strength, idx) => (
+              <Card key={idx} className="p-3 bg-green-50/50 dark:bg-green-950/10 border-green-200/50">
+                <h4 className="font-semibold text-sm mb-1 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  {strength.title}
+                </h4>
+                <p className="text-xs text-muted-foreground line-clamp-2">{strength.evidence}</p>
+              </Card>
+            ))}
           </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-base text-foreground leading-relaxed whitespace-pre-line">
-            {synthesis.urgencyVerdict}
-          </p>
+        </div>
+
+        {/* Gaps */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-600" />
+            Gaps ({synthesis.gaps.length})
+          </h3>
+          <div className="space-y-2">
+            {synthesis.gaps.slice(0, 3).map((gap, idx) => (
+              <Card key={idx} className="p-3 bg-amber-50/50 dark:bg-amber-950/10 border-amber-200/50">
+                <h4 className="font-semibold text-sm mb-1 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                  {gap.title}
+                </h4>
+                <p className="text-xs text-muted-foreground line-clamp-2">{gap.evidence}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Urgency Verdict - Compact */}
+      <Card className={`border-2 ${urgencyColors.border}`}>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-6">
+            <div className={`text-5xl font-black ${urgencyColors.text} tabular-nums`}>
+              {urgencyScore}
+              <span className="text-2xl text-muted-foreground">/100</span>
+            </div>
+            <div className="flex-1">
+              <Badge 
+                variant="outline" 
+                className="px-3 py-1 text-base font-semibold mb-2"
+              >
+                {urgencyScore >= 80 ? 'Critical' : urgencyScore >= 60 ? 'High' : urgencyScore >= 40 ? 'Moderate' : 'Low'} Urgency
+              </Badge>
+              <p className="text-xs text-muted-foreground line-clamp-2">
+                {synthesis.urgencyVerdict}
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

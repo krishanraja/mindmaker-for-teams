@@ -94,17 +94,29 @@ serve(async (req) => {
         'no_experience': 15,
         'experimenting': 12,
         'some_pilots': 8,
-        'scaling': 4
+        'production_use': 5
       };
-      const readiness = readinessMap[bootcamp?.ai_experience_level || 'experimenting'] || 12;
+      const aiReadiness = readinessMap[bootcamp?.ai_experience_level || 'no_experience'] || 12;
       
-      // Market velocity (0-10 points)
-      const marketVelocity = 8; // Default moderate-high
+      // Participation signal (0-10 points) - high engagement = higher urgency
+      const participationRate = preworkSubmissions.data?.length || 0;
+      const participationSignal = Math.min((participationRate / 10) * 10, 10);
       
-      return Math.round(timelinePressure + competitiveThreat + bottleneckSeverity + readiness + marketVelocity);
+      const total = timelinePressure + competitiveThreat + bottleneckSeverity + aiReadiness + participationSignal;
+      return Math.min(total, 100);
     };
 
     const urgencyScore = calculateUrgencyScore();
+
+    // Extract strategic goals from strategy addendum if intake doesn't have them
+    const extractedStrategicGoals = strategy?.data?.targets_at_risk 
+      ? strategy.data.targets_at_risk.match(/'([^']+)'/g)?.map(g => g.replace(/'/g, '')) || []
+      : [];
+    
+    const strategicGoalsText = workshop.exec_intakes?.strategic_objectives_2026 || 
+                               (extractedStrategicGoals.length > 0 
+                                 ? extractedStrategicGoals.join(', ')
+                                 : 'Not specified');
 
     const getRiskLabel = (tolerance: number): string => {
       if (tolerance >= 75) return 'High';
@@ -222,7 +234,7 @@ serve(async (req) => {
       company: {
         name: intake?.company_name || 'Company',
         industry: intake?.industry || 'Unknown',
-        strategicGoals: intake?.strategic_objectives_2026 || 'Not specified',
+        strategicGoals: strategicGoalsText,
         competitiveLandscape: bootcamp?.competitive_landscape || 'Not specified'
       },
       preWorkshop: {
