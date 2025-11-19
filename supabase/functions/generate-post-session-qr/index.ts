@@ -35,12 +35,10 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Use app_url from request body (passed from frontend) or fallback to env/default
-    // This ensures QR code points to the correct domain where the app is actually deployed
-    const appUrl = body.app_url || Deno.env.get('APP_URL') || 'https://teams.themindmaker.ai';
+    // Hardcode production URL like other QR codes in the app
+    const appUrl = 'https://teams.themindmaker.ai';
     const feedbackUrl = `${appUrl}/mobile/post-session-review/${workshop_session_id}`;
 
-    console.log('[generate-post-session-qr] Using app URL:', appUrl);
     console.log('[generate-post-session-qr] Generated feedback URL:', feedbackUrl);
 
     // Fetch existing review stats with defensive error handling
