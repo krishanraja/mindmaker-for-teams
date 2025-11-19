@@ -12,11 +12,18 @@ serve(async (req) => {
   }
 
   try {
-    const { workshop_session_id } = await req.json();
+    const body = await req.json();
+    console.log('[generate-post-session-qr] Request body:', JSON.stringify(body));
+    
+    // Handle both parameter names for compatibility
+    const workshop_session_id = body.workshop_session_id || body.workshopId;
 
     if (!workshop_session_id) {
+      console.error('[generate-post-session-qr] Missing workshop_session_id in body:', body);
       throw new Error('workshop_session_id is required');
     }
+    
+    console.log('[generate-post-session-qr] Processing for workshop:', workshop_session_id);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -28,14 +35,22 @@ serve(async (req) => {
 
     console.log('[generate-post-session-qr] Generated feedback URL:', feedbackUrl);
 
-    // Fetch existing review stats
-    const { data: reviews, error: reviewsError } = await supabase
-      .from('post_session_reviews')
-      .select('ai_leadership_confidence, session_enjoyment')
-      .eq('workshop_session_id', workshop_session_id);
+    // Fetch existing review stats with defensive error handling
+    let reviews = [];
+    try {
+      const { data, error: reviewsError } = await supabase
+        .from('post_session_reviews')
+        .select('ai_leadership_confidence, session_enjoyment')
+        .eq('workshop_session_id', workshop_session_id);
 
-    if (reviewsError) {
-      console.error('[generate-post-session-qr] Error fetching reviews:', reviewsError);
+      if (reviewsError) {
+        console.error('[generate-post-session-qr] Error fetching reviews:', reviewsError);
+      } else {
+        reviews = data || [];
+      }
+    } catch (dbError) {
+      console.error('[generate-post-session-qr] Database query failed:', dbError);
+      // Continue execution with empty reviews
     }
 
     const avgConfidence = reviews && reviews.length > 0
