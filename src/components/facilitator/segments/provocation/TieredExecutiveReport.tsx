@@ -75,6 +75,18 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
   const [reviewStats, setReviewStats] = useState<any>(null);
   const [loadingQR, setLoadingQR] = useState(false);
 
+  // Safe access with fallbacks
+  const urgency = report.urgency || { score: 50, label: 'Moderate', reasoning: 'Assessment in progress' };
+  const executiveSummary = report.executive_summary || 'Analysis is being generated based on workshop data.';
+  const strengths = report.strengths || [];
+  const gaps = report.gaps || [];
+  const pilotCharter = report.pilot_charter || { exists: false };
+  const appendix = report.appendix || { 
+    alignment: { strategic_goals: [], bottlenecks: [], ai_leverage_points: [] },
+    simulations: { count: 0, median_time_saved: null, median_quality_gain: null, highlights: [], surprises: [] },
+    journey: []
+  };
+
   const getUrgencyColor = (label: string) => {
     switch (label) {
       case 'High': return 'destructive';
@@ -125,9 +137,9 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                 AI Leadership Workshop • {new Date(workshopDate).toLocaleDateString()} • {participantCount} Participants
               </CardDescription>
             </div>
-            <Badge variant={getUrgencyColor(report.urgency.label)} className="flex items-center gap-2 px-4 py-2">
-              {getUrgencyIcon(report.urgency.label)}
-              <span className="font-semibold">{report.urgency.label} Urgency</span>
+            <Badge variant={getUrgencyColor(urgency.label)} className="flex items-center gap-2 px-4 py-2">
+              {getUrgencyIcon(urgency.label)}
+              <span className="font-semibold">{urgency.label} Urgency</span>
             </Badge>
           </div>
         </CardHeader>
@@ -136,10 +148,10 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Urgency Score</span>
-                <span className="text-2xl font-bold text-primary">{report.urgency.score}/100</span>
+                <span className="text-2xl font-bold text-primary">{urgency.score}/100</span>
               </div>
-              <Progress value={report.urgency.score} className="h-3" />
-              <p className="text-sm text-muted-foreground mt-2">{report.urgency.reasoning}</p>
+              <Progress value={urgency.score} className="h-3" />
+              <p className="text-sm text-muted-foreground mt-2">{urgency.reasoning}</p>
             </div>
           </div>
         </CardContent>
@@ -154,7 +166,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <p className="text-lg leading-relaxed">{report.executive_summary}</p>
+          <p className="text-lg leading-relaxed">{executiveSummary}</p>
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
@@ -163,7 +175,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                 Key Strengths
               </h4>
               <ul className="space-y-2">
-                {(report.strengths || []).map((strength, idx) => (
+                {strengths.map((strength, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">✓</span>
                     <span className="text-sm">{strength}</span>
@@ -178,7 +190,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                 Priority Gaps
               </h4>
               <ul className="space-y-2">
-                {(report.gaps || []).map((gap, idx) => (
+                {gaps.map((gap, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="text-orange-600 mt-0.5">△</span>
                     <span className="text-sm">{gap}</span>
@@ -189,7 +201,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
           </div>
 
           {/* Pilot Charter */}
-          {report.pilot_charter?.exists && (
+          {pilotCharter.exists && (
             <Card className="bg-muted/30 border-primary/20">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -199,22 +211,22 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  {report.pilot_charter.owner && (
+                  {pilotCharter.owner && (
                     <div>
-                      <span className="font-medium">Pilot Owner:</span> {report.pilot_charter.owner}
+                      <span className="font-medium">Pilot Owner:</span> {pilotCharter.owner}
                     </div>
                   )}
-                  {report.pilot_charter.sponsor && (
+                  {pilotCharter.sponsor && (
                     <div>
-                      <span className="font-medium">Executive Sponsor:</span> {report.pilot_charter.sponsor}
+                      <span className="font-medium">Executive Sponsor:</span> {pilotCharter.sponsor}
                     </div>
                   )}
                 </div>
-                {report.pilot_charter.first_milestone && (
-                  <p className="text-sm"><span className="font-medium">First Milestone:</span> {report.pilot_charter.first_milestone}</p>
+                {pilotCharter.first_milestone && (
+                  <p className="text-sm"><span className="font-medium">First Milestone:</span> {pilotCharter.first_milestone}</p>
                 )}
-                {report.pilot_charter.d90_goal && (
-                  <p className="text-sm"><span className="font-medium">90-Day Goal:</span> {report.pilot_charter.d90_goal}</p>
+                {pilotCharter.d90_goal && (
+                  <p className="text-sm"><span className="font-medium">90-Day Goal:</span> {pilotCharter.d90_goal}</p>
                 )}
               </CardContent>
             </Card>
@@ -252,7 +264,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {(report.appendix?.alignment?.strategic_goals || []).map((goal, idx) => (
+                    {appendix.alignment.strategic_goals.map((goal, idx) => (
                       <div key={idx} className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                         <p className="text-sm">{goal}</p>
@@ -269,7 +281,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {(report.appendix?.alignment?.bottlenecks || []).map((bottleneck, idx) => (
+                    {appendix.alignment.bottlenecks.map((bottleneck, idx) => (
                       <div key={idx} className="flex items-start gap-2">
                         <span className="text-orange-500 text-sm mt-0.5">●</span>
                         <p className="text-sm">{bottleneck}</p>
@@ -286,7 +298,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    {(report.appendix?.alignment?.ai_leverage_points || []).map((point, idx) => (
+                    {appendix.alignment.ai_leverage_points.map((point, idx) => (
                       <div key={idx} className="flex items-start gap-2">
                         <Zap className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <p className="text-sm">{point}</p>
@@ -303,26 +315,26 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
               <div className="grid md:grid-cols-3 gap-4 mb-4">
                 <Card>
                   <CardContent className="pt-6 text-center">
-                    <div className="text-3xl font-bold text-primary">{report.appendix?.simulations?.count || 0}</div>
+                    <div className="text-3xl font-bold text-primary">{appendix.simulations.count}</div>
                     <p className="text-sm text-muted-foreground mt-1">Simulations Run</p>
                   </CardContent>
                 </Card>
 
-                {report.appendix?.simulations?.median_time_saved !== null && (
+                {appendix.simulations.median_time_saved !== null && (
                   <Card>
                     <CardContent className="pt-6 text-center">
-                      <div className="text-3xl font-bold text-green-600">{report.appendix.simulations.median_time_saved}%</div>
-                      <Progress value={report.appendix.simulations.median_time_saved} className="mt-2" />
+                      <div className="text-3xl font-bold text-green-600">{appendix.simulations.median_time_saved}%</div>
+                      <Progress value={appendix.simulations.median_time_saved} className="mt-2" />
                       <p className="text-sm text-muted-foreground mt-1">Median Time Saved</p>
                     </CardContent>
                   </Card>
                 )}
 
-                {report.appendix?.simulations?.median_quality_gain !== null && (
+                {appendix.simulations.median_quality_gain !== null && (
                   <Card>
                     <CardContent className="pt-6 text-center">
-                      <div className="text-3xl font-bold text-blue-600">{report.appendix.simulations.median_quality_gain}%</div>
-                      <Progress value={report.appendix.simulations.median_quality_gain} className="mt-2" />
+                      <div className="text-3xl font-bold text-blue-600">{appendix.simulations.median_quality_gain}%</div>
+                      <Progress value={appendix.simulations.median_quality_gain} className="mt-2" />
                       <p className="text-sm text-muted-foreground mt-1">Quality Improvement</p>
                     </CardContent>
                   </Card>
@@ -335,21 +347,21 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                   Key Insights
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {(report.appendix?.simulations?.highlights || []).map((highlight, idx) => (
+                  {appendix.simulations.highlights.map((highlight, idx) => (
                     <Badge key={idx} variant="secondary">{highlight}</Badge>
                   ))}
                 </div>
               </div>
 
               {/* Surprises Section */}
-              {report.appendix?.simulations?.surprises && report.appendix.simulations.surprises.length > 0 && (
+              {appendix.simulations.surprises && appendix.simulations.surprises.length > 0 && (
                 <div className="mt-4 pt-4 border-t">
                   <h4 className="font-semibold flex items-center gap-2 text-amber-600 mb-2">
                     <AlertCircle className="h-4 w-4" />
                     Surprises & Anomalies
                   </h4>
                   <ul className="space-y-2">
-                    {report.appendix.simulations.surprises.map((surprise, idx) => (
+                    {appendix.simulations.surprises.map((surprise, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-sm">
                         <span className="text-amber-600 text-lg">⚠️</span>
                         <span className="italic">{surprise}</span>
@@ -361,11 +373,11 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
             </div>
 
             {/* Workshop Journey */}
-            {report.appendix?.journey && report.appendix.journey.length > 0 && (
+            {appendix.journey.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold mb-3">Workshop Journey</h3>
                 <div className="space-y-2">
-                  {report.appendix.journey.map((step, idx) => (
+                  {appendix.journey.map((step, idx) => (
                     <div key={idx} className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                         <span className="text-sm font-medium text-primary">{idx + 1}</span>
