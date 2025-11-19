@@ -422,6 +422,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       {showStrategicAlignment && (
         <StrategicAlignmentGrid
           strategicGoals={contextData.company.strategicGoals}
+          strategicGoalsArray={reportData.strategicGoalsArray}
           derivedGoalsFromWorkshop={contextData.enrichedData?.derivedGoalsFromWorkshop}
           bottleneckClusters={bottleneckClusters}
           aiLeveragePoints={strategy?.ai_leverage_points}
