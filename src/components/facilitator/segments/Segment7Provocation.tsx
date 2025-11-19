@@ -5,6 +5,7 @@ import { BenchmarkComparisonChart } from './provocation/BenchmarkComparisonChart
 import { CostFramingChart } from './provocation/CostFramingChart';
 import { ExecutiveReportCard } from './provocation/ExecutiveReportCard';
 import { SectionHeader } from './provocation/SectionHeader';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 interface Segment7ProvocationProps {
   workshopId: string;
@@ -22,7 +23,9 @@ export const Segment7Provocation: React.FC<Segment7ProvocationProps> = ({ worksh
         </div>
 
         {/* MAIN REPORT CARD - AI Generated using workshop data */}
-        <ExecutiveReportCard workshopId={workshopId} />
+        <ErrorBoundary onReset={() => window.location.reload()}>
+          <ExecutiveReportCard workshopId={workshopId} />
+        </ErrorBoundary>
 
         {/* Benchmark Comparison */}
         <div className="space-y-3">
