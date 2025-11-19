@@ -75,6 +75,14 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
   const [reviewStats, setReviewStats] = useState<any>(null);
   const [loadingQR, setLoadingQR] = useState(false);
 
+  // Debug logging for workshopId
+  React.useEffect(() => {
+    console.log('[TieredExecutiveReport] Component mounted with workshopId:', workshopId);
+    console.log('[TieredExecutiveReport] WorkshopId type:', typeof workshopId);
+    console.log('[TieredExecutiveReport] WorkshopId is undefined?', workshopId === undefined);
+    console.log('[TieredExecutiveReport] WorkshopId is null?', workshopId === null);
+  }, [workshopId]);
+
   // Safe access with fallbacks
   const urgency = report.urgency || { score: 50, label: 'Moderate', reasoning: 'Assessment in progress' };
   const executiveSummary = report.executive_summary || 'Analysis is being generated based on workshop data.';
@@ -107,9 +115,11 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
 
   const handleShowFeedbackQR = async () => {
     if (!workshopId) {
+      console.error('[TieredExecutiveReport] handleShowFeedbackQR called with undefined/null workshopId');
+      console.error('[TieredExecutiveReport] All props received:', { report, companyName, workshopDate, participantCount, workshopId });
       toast({
         title: 'Error',
-        description: 'Workshop ID is missing',
+        description: 'Workshop ID is missing - unable to generate QR code',
         variant: 'destructive'
       });
       return;

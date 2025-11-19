@@ -133,8 +133,28 @@ export const FacilitatorDashboard: React.FC = () => {
   }
 
   const renderSegment = () => {
+    // Critical: Ensure workshopId exists before rendering anything
+    if (!workshopId) {
+      return (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <AlertTriangle className="h-12 w-12 mx-auto text-destructive" />
+            <h3 className="text-xl font-semibold text-destructive">
+              Workshop ID Missing
+            </h3>
+            <p className="text-muted-foreground">
+              Unable to load workshop data. Please check the URL and try again.
+            </p>
+            <Button onClick={() => navigate('/facilitator')} variant="outline">
+              Return to Login
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     const baseProps = {
-      workshopId: workshopId!,
+      workshopId: workshopId,
       bootcampPlanData: bootcampPlan,
     };
 
