@@ -244,7 +244,7 @@ serve(async (req) => {
     const intake = workshop.exec_intakes;
     
     // Derive strategic goals from workshop if none exist
-    const derivedGoals = !intake?.strategic_objectives_2026 ? [
+    const derivedGoalsFromWorkshop = !intake?.strategic_objectives_2026 ? [
       topOpportunities[0]?.item_text ? `Priority 1: ${topOpportunities[0].item_text}` : null,
       topBottleneckCluster ? `Address bottleneck: ${topBottleneckCluster}` : null,
       simulations.data?.[0] ? `Pilot AI for ${simulations.data[0].simulation_name}` : null
@@ -370,7 +370,7 @@ serve(async (req) => {
           workingGroupInputs: workingInputs.data?.length || 0,
           consensusArea: consensusCategory
         },
-        derivedGoalsFromWorkshop: derivedGoals,
+        derivedGoalsFromWorkshop: derivedGoalsFromWorkshop,
         derivedLeveragePoints,
         realisticNextSteps
       }
