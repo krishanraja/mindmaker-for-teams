@@ -48,11 +48,15 @@ serve(async (req) => {
 
     if (mode === 'generate_simulation') {
       // Initial simulation generation mode - use fallback system
-      systemPrompt = WORKSHOP_FOUNDATION_PROMPT + `
+      const jargonGuidance = getJargonGuidance(jargonLevel);
+      const currentState = scenarioContext.currentState || 'Not specified';
+      const desiredOutcome = scenarioContext.desiredOutcome || 'Not specified';
+      
+      systemPrompt = WORKSHOP_FOUNDATION_PROMPT + '\n\n## Current Segment: Simulation Lab\n\n' + jargonGuidance + '\n\nSCENARIO:\nCurrent Situation: ' + currentState + '\nDesired Outcome: ' + desiredOutcome + '\n\nCRITICAL ANTI-FABRICATION RULES:\n- NEVER invent statistics, percentages, dollar amounts, or specific timeframes\n- ONLY reference data explicitly provided in the scenario context\n- If no specific metrics exist, use qualitative language ("significant", "substantial", "notable")\n- When discussing business impact, use conditional language: "could result in", "may lead to", "potential for"\n- DO NOT create specific numeric examples unless they come from the provided scenario\n- Focus on describing the nature of the opportunity, not inventing measurable outcomes\n\nYOUR TASK: Generate an executive discussion guide for THIS specific scenario in plain, actionable language.\n\nReturn ONLY valid JSON (no markdown) with this EXACT structure:\n{\n  "sections": [\n    {\n      "type": "current_state",\n      "title": "Today\'s Reality",\n      "insights": [\n        "Probe WHY this is broken - what\'s the real cost/pain/risk? (qualitative only)",\n        "Be brutally specific about business impact (no fabricated numbers)",\n        "Include concrete examples from THIS scenario (no made-up statistics)"\n      ]\n    },\n    {\n      "type": "ai_transformation",\n      "title": "With AI Augmentation",\n      "insights": [\n        "Show exactly HOW AI addresses THIS specific problem",\n        "Reference what similar companies have done (general examples only, no specific metrics unless provided)",\n        "Connect directly to THEIR scenario, not generic AI benefits"\n      ],\n      "impact_description": "Qualitative description of potential impact without specific numbers"\n    },\n    {\n      "type": "discussion",\n      "title": "Key Questions for Your Team",\n      "prompts": [\n        {\n          "question": "Specific strategic question about THIS scenario",\n          "ideas": [\n            "Idea 1: First concrete approach you could try",\n            "Idea 2: Second concrete approach you could try",\n            "Idea 3: Third concrete approach you could try"\n          ]\n        },\n        {\n          "question": "Change management question specific to THIS transformation",\n          "ideas": [\n            "Idea 1: First stakeholder/adoption strategy",\n            "Idea 2: Second stakeholder/adoption strategy",\n            "Idea 3: Third stakeholder/adoption strategy"\n          ]\n        },\n        {\n          "question": "Risk/guardrail question for THIS specific scenario",\n          "ideas": [\n            "Idea 1: First mitigation approach",\n            "Idea 2: Second mitigation approach",\n            "Idea 3: Third mitigation approach"\n          ]\n        }\n      ]\n    }\n  ]\n}\n\nCRITICAL RULES:\n1. CURRENT STATE: Don\'t just describe it - explain WHY it\'s a problem. What\'s breaking? What\'s the cost?\n2. AI TRANSFORMATION: Reference specific companies/industries solving similar problems. Be concrete, not theoretical.\n3. DISCUSSION PROMPTS: Frame as "ideas to consider" not rigid options. Each question must have 3 distinct, actionable ideas the team can discuss. Use the word "ideas" not "options".\n4. Use THEIR exact words and situation throughout\n5. Be specific to THIS scenario - no generic platitudes or jargon\n6. Return ONLY the JSON object';
 
-## Current Segment: Simulation Lab
-
-${getJargonGuidance(jargonLevel)}
+      userMessage = scenarioContext?.currentState 
+        ? 'Generate a simulation discussion guide for: ' + scenarioContext.currentState + '. Desired outcome: ' + (scenarioContext.desiredOutcome || 'improved efficiency and effectiveness') + '.'
+        : 'Generate a general AI transformation scenario discussion guide.';
 
 SCENARIO:
 Current Situation: ${scenarioContext.currentState || 'Not specified'}
@@ -146,22 +150,14 @@ CRITICAL RULES:
         temperature: 0.7
       });
 
-      console.log(`🎯 Simulation Generation: ${result.provider} (${result.latencyMs}ms)`);
+      console.log('🎯 Simulation Generation: ' + result.provider + ' (' + result.latencyMs + 'ms)');
 
       return new Response(JSON.stringify({ content: result.content }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     } else {
       // Iterative mode - streaming (keep OpenAI only for now)
-      systemPrompt = WORKSHOP_FOUNDATION_PROMPT + `
-
-## Current Segment: Simulation Lab - Iterative Discussion
-
-You are facilitating a follow-up discussion about an AI transformation scenario.
-The executive team is exploring ideas, asking clarifying questions, or refining their approach.
-
-Respond in a conversational, supportive tone. Keep answers concise (2-3 sentences).
-Focus on practical next steps and real-world considerations.`;
+      systemPrompt = WORKSHOP_FOUNDATION_PROMPT + '\n\n## Current Segment: Simulation Lab - Iterative Discussion\n\nYou are facilitating a follow-up discussion about an AI transformation scenario.\nThe executive team is exploring ideas, asking clarifying questions, or refining their approach.\n\nRespond in a conversational, supportive tone. Keep answers concise (2-3 sentences).\nFocus on practical next steps and real-world considerations.';
 
       userMessage = userPrompt || 'Continue the discussion.';
 
@@ -173,7 +169,7 @@ Focus on practical next steps and real-world considerations.`;
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Authorization': 'Bearer ' + OPENAI_API_KEY,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -222,7 +218,7 @@ Focus on practical next steps and real-world considerations.`;
           });
         }
 
-        throw new Error(`OpenAI API returned ${response.status}: ${errorText}`);
+        throw new Error('OpenAI API returned ' + response.status + ': ' + errorText);
       }
 
       // Stream the response
