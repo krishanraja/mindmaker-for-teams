@@ -72,11 +72,22 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
   };
 
   const loadAddendum = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('strategy_addendum')
       .select('*')
       .eq('workshop_session_id', workshopId)
-      .single();
+      .maybeSingle();
+
+    if (error) {
+      console.error('[StrategyAddendum] Load error:', error);
+      toast({ 
+        title: 'Error loading strategy data', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+      return;
+    }
+
     if (data) {
       setAddendum({
         targets_at_risk: data.targets_at_risk || '',
@@ -214,6 +225,10 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
       targets_at_risk: addendum.targets_at_risk,
       data_governance_changes: addendum.data_governance_changes,
       pilot_kpis: addendum.pilot_kpis,
+      updated_at: new Date().toISOString(),
+    }, {
+      onConflict: 'workshop_session_id',
+      ignoreDuplicates: false
     });
 
     if (error) {

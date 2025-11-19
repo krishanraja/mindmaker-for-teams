@@ -48,11 +48,21 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
   }, [bootcampPlanData]);
 
   const loadCharter = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('pilot_charter')
       .select('*')
       .eq('workshop_session_id', workshopId)
-      .single();
+      .maybeSingle();
+
+    if (error) {
+      console.error('[PilotCharter] Load error:', error);
+      toast({ 
+        title: 'Error loading pilot charter', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+      return;
+    }
 
     if (data) {
       setCharter({
@@ -78,6 +88,10 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
         workshop_session_id: workshopId,
         ...charter,
         pilot_budget: charter.pilot_budget ? parseFloat(charter.pilot_budget) : null,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'workshop_session_id',
+        ignoreDuplicates: false
       });
 
     if (error) {
@@ -96,6 +110,10 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
         workshop_session_id: workshopId,
         ...charter,
         pilot_budget: charter.pilot_budget ? parseFloat(charter.pilot_budget) : null,
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'workshop_session_id',
+        ignoreDuplicates: false
       });
 
     if (error) {
