@@ -148,7 +148,7 @@ async function getGeminiAccessToken(serviceAccountJson: string): Promise<string>
   const header = { alg: "RS256", typ: "JWT" };
   const claimSet = {
     iss: serviceAccount.client_email,
-    scope: "https://www.googleapis.com/auth/cloud-platform",
+    scope: "https://www.googleapis.com/auth/generative-language.retriever https://www.googleapis.com/auth/cloud-platform",
     aud: "https://oauth2.googleapis.com/token",
     exp: now + 3600,
     iat: now
