@@ -136,6 +136,22 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({
     setExpandedSection(expandedSection === section ? null : section);
   };
 
+  // Enforce hard caps on AI synthesis display
+  const limitedSynthesis = {
+    ...synthesis,
+    executiveSummary: synthesis.executiveSummary?.split(' ').slice(0, 140).join(' ') || '', // Hard 140 word cap
+    strengths: (synthesis.strengths || []).slice(0, 3).map(s => ({ // Max 3
+      ...s,
+      title: s.title?.slice(0, 100) || '', // ~12 words
+      evidence: s.evidence?.slice(0, 150) || '' // ~18 words
+    })),
+    gaps: (synthesis.gaps || []).slice(0, 3).map(g => ({ // Max 3
+      ...g,
+      title: g.title?.slice(0, 100) || '',
+      evidence: g.evidence?.slice(0, 150) || ''
+    }))
+  };
+
   return (
     <div className="space-y-8">
       {/* Executive Summary - Condensed */}
@@ -148,34 +164,34 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({
         </CardHeader>
         <CardContent>
           <p className="text-sm leading-relaxed text-foreground line-clamp-4">
-            {synthesis.executiveSummary}
+            {limitedSynthesis.executiveSummary}
           </p>
         </CardContent>
       </Card>
 
       {/* Journey Insights */}
-      {synthesis.journeyInsights && (
+      {limitedSynthesis.journeyInsights && (
         <Card className="border shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl">Workshop Journey Insights</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {synthesis.journeyInsights.mythsBusted && (
+            {limitedSynthesis.journeyInsights.mythsBusted && (
               <div>
                 <h4 className="font-semibold text-foreground mb-2">Myths Busted</h4>
-                <p className="text-sm text-muted-foreground">{synthesis.journeyInsights.mythsBusted}</p>
+                <p className="text-sm text-muted-foreground">{limitedSynthesis.journeyInsights.mythsBusted}</p>
               </div>
             )}
-            {synthesis.journeyInsights.surprisingFindings && (
+            {limitedSynthesis.journeyInsights.surprisingFindings && (
               <div>
                 <h4 className="font-semibold text-foreground mb-2">Surprising Findings</h4>
-                <p className="text-sm text-muted-foreground">{synthesis.journeyInsights.surprisingFindings}</p>
+                <p className="text-sm text-muted-foreground">{limitedSynthesis.journeyInsights.surprisingFindings}</p>
               </div>
             )}
-            {synthesis.journeyInsights.momentsOfClarity && (
+            {limitedSynthesis.journeyInsights.momentsOfClarity && (
               <div>
                 <h4 className="font-semibold text-foreground mb-2">Moments of Clarity</h4>
-                <p className="text-sm text-muted-foreground">{synthesis.journeyInsights.momentsOfClarity}</p>
+                <p className="text-sm text-muted-foreground">{limitedSynthesis.journeyInsights.momentsOfClarity}</p>
               </div>
             )}
           </CardContent>
@@ -188,10 +204,10 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({
         <div className="space-y-3">
           <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
-            Strengths ({synthesis.strengths.length})
+            Strengths ({limitedSynthesis.strengths.length})
           </h3>
           <div className="space-y-2">
-            {synthesis.strengths.slice(0, 3).map((strength, idx) => (
+            {limitedSynthesis.strengths.map((strength, idx) => (
               <Card key={idx} className="p-3 bg-green-50/50 dark:bg-green-950/10 border-green-200/50">
                 <h4 className="font-semibold text-sm mb-1 flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-600" />
@@ -207,10 +223,10 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({
         <div className="space-y-3">
           <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-600" />
-            Gaps ({synthesis.gaps.length})
+            Gaps ({limitedSynthesis.gaps.length})
           </h3>
           <div className="space-y-2">
-            {synthesis.gaps.slice(0, 3).map((gap, idx) => (
+            {limitedSynthesis.gaps.map((gap, idx) => (
               <Card key={idx} className="p-3 bg-amber-50/50 dark:bg-amber-950/10 border-amber-200/50">
                 <h4 className="font-semibold text-sm mb-1 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-600" />
@@ -228,7 +244,7 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({
         <CardContent className="p-6">
           <div className="flex items-center gap-6">
             <div className={`text-5xl font-black ${urgencyColors.text} tabular-nums`}>
-              {urgencyScore}
+              {Math.round(urgencyScore)}
               <span className="text-2xl text-muted-foreground">/100</span>
             </div>
             <div className="flex-1">
@@ -239,7 +255,7 @@ export const AISynthesisSection: React.FC<AISynthesisSectionProps> = ({
                 {urgencyScore >= 80 ? 'Critical' : urgencyScore >= 60 ? 'High' : urgencyScore >= 40 ? 'Moderate' : 'Low'} Urgency
               </Badge>
               <p className="text-xs text-muted-foreground line-clamp-2">
-                {synthesis.urgencyVerdict}
+                {limitedSynthesis.urgencyVerdict}
               </p>
             </div>
           </div>
