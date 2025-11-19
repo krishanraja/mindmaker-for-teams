@@ -139,6 +139,63 @@ async function verifyBothProviders(openAIKey: string, lovableKey: string) {
   console.log('🔄 Dual-provider fallback: READY (5s timeout)');
 }
 
+// Convert OpenAI JSON Schema to Gemini schema format
+function convertToGeminiSchema(schema: any): any {
+  if (!schema || typeof schema !== 'object') return schema;
+  
+  const result: any = {};
+  
+  // Handle type field
+  if (schema.type) {
+    if (Array.isArray(schema.type)) {
+      // Gemini doesn't support array of types, use the first non-null type
+      result.type = schema.type.find((t: string) => t !== 'null') || schema.type[0];
+      // If null was in the array, schema is nullable
+      if (schema.type.includes('null')) {
+        result.nullable = true;
+      }
+    } else {
+      result.type = schema.type;
+    }
+  }
+  
+  // Copy description if present
+  if (schema.description) {
+    result.description = schema.description;
+  }
+  
+  // Handle properties recursively
+  if (schema.properties) {
+    result.properties = {};
+    for (const [key, value] of Object.entries(schema.properties)) {
+      result.properties[key] = convertToGeminiSchema(value);
+    }
+  }
+  
+  // Handle items for arrays
+  if (schema.items) {
+    result.items = convertToGeminiSchema(schema.items);
+  }
+  
+  // Copy required fields
+  if (schema.required) {
+    result.required = schema.required;
+  }
+  
+  // Copy enum if present
+  if (schema.enum) {
+    result.enum = schema.enum;
+  }
+  
+  // Note: Gemini doesn't support these validation keywords, so we omit them:
+  // - additionalProperties
+  // - maxLength, minLength
+  // - maxItems, minItems
+  // - maximum, minimum
+  
+  return result;
+}
+
 // Get Google OAuth2 access token from service account
 async function getGeminiAccessToken(serviceAccountJson: string): Promise<string> {
   const serviceAccount = JSON.parse(serviceAccountJson);
@@ -230,7 +287,7 @@ async function callGeminiRAG(options: AICallOptions): Promise<string> {
       functionDeclarations: options.tools.map((tool: any) => ({
         name: tool.function.name,
         description: tool.function.description,
-        parameters: tool.function.parameters
+        parameters: convertToGeminiSchema(tool.function.parameters)
       }))
     }];
   }
