@@ -23,6 +23,10 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
   const [reportData, setReportData] = useState<any>(null);
   const [aiSynthesis, setAiSynthesis] = useState<any>(null);
   const [hasLoadedExisting, setHasLoadedExisting] = useState(false);
+  const [workshopConfig, setWorkshopConfig] = useState<{
+    duration: number;
+    completedSegments: string[];
+  }>({ duration: 4, completedSegments: [] });
   const { toast } = useToast();
 
   const loadExistingReport = async () => {
@@ -64,6 +68,20 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
   const fetchReport = async (forceRegenerate = false) => {
     try {
       setLoading(true);
+
+      // Fetch workshop duration config for conditional rendering
+      const { data: workshopData } = await supabase
+        .from('workshop_sessions')
+        .select('planned_duration_hours, segments_completed')
+        .eq('id', workshopId)
+        .single();
+
+      if (workshopData) {
+        setWorkshopConfig({
+          duration: workshopData.planned_duration_hours || 4,
+          completedSegments: workshopData.segments_completed || []
+        });
+      }
 
       // Check for existing report first
       if (!forceRegenerate) {
@@ -277,6 +295,13 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
     reality: aiSynthesis?.strengths?.[idx]?.title || 'Team validated AI capabilities through hands-on experimentation'
   })) || [];
 
+  // Conditional rendering flags based on duration and completed segments
+  const showFullPilotCharter = workshopConfig.duration >= 3 && 
+    workshopConfig.completedSegments.includes('draft');
+  const showSimulationDetails = workshopConfig.completedSegments.includes('crystal_ball') ||
+    workshopConfig.completedSegments.includes('simulation');
+  const showStrategicAlignment = workshopConfig.duration >= 2;
+
   return (
     <div className="space-y-8">
       {/* Status indicator and regenerate button */}
@@ -374,24 +399,26 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         <MythsVsReality items={mythsVsRealityData} />
       )}
 
-      {/* Strategic Alignment Grid */}
-            <StrategicAlignmentGrid
-              strategicGoals={contextData.company.strategicGoals}
-              derivedGoalsFromWorkshop={contextData.enrichedData?.derivedGoalsFromWorkshop}
-              bottleneckClusters={bottleneckClusters}
-              aiLeveragePoints={strategy?.ai_leverage_points}
-              derivedLeveragePoints={contextData.enrichedData?.derivedLeveragePoints}
-              pilotMilestones={{
-                d10: charter?.milestone_d10,
-                d30: charter?.milestone_d30,
-                d60: charter?.milestone_d60,
-                d90: charter?.milestone_d90,
-              }}
-              realisticNextSteps={contextData.enrichedData?.realisticNextSteps}
-            />
+      {/* Strategic Alignment Grid - Only show if >=2 hour session */}
+      {showStrategicAlignment && (
+        <StrategicAlignmentGrid
+          strategicGoals={contextData.company.strategicGoals}
+          derivedGoalsFromWorkshop={contextData.enrichedData?.derivedGoalsFromWorkshop}
+          bottleneckClusters={bottleneckClusters}
+          aiLeveragePoints={strategy?.ai_leverage_points}
+          derivedLeveragePoints={contextData.enrichedData?.derivedLeveragePoints}
+          pilotMilestones={{
+            d10: charter?.milestone_d10,
+            d30: charter?.milestone_d30,
+            d60: charter?.milestone_d60,
+            d90: charter?.milestone_d90,
+          }}
+          realisticNextSteps={contextData.enrichedData?.realisticNextSteps}
+        />
+      )}
 
-      {/* Simulation Performance - Aggregated View */}
-      {reportData.simulationMetrics?.count > 0 && (
+      {/* Simulation Performance - Aggregated View - Only show if simulation ran */}
+      {showSimulationDetails && reportData.simulationMetrics?.count > 0 && (
         <div className="space-y-6">
           <h3 className="text-2xl font-bold text-foreground">Simulation Performance</h3>
           
@@ -461,8 +488,35 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       {/* Urgency Score Gauge */}
       <UrgencyScoreGauge score={urgencyScore} />
 
-      {/* Pilot Charter Summary */}
-      <PilotCharterCard charter={charter} />
+      {/* Pilot Charter Card - Conditional rendering based on session duration */}
+      {showFullPilotCharter && charter && <PilotCharterCard charter={charter} />}
+      
+      {/* Show simplified pilot recommendation for shorter sessions */}
+      {!showFullPilotCharter && charter && (
+        <Card className="border-2 border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="w-5 h-5" />
+              Recommended Next Step
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-foreground mb-2">
+                {charter.pilot_owner ? `Pilot: ${charter.pilot_owner}` : 'Define 90-Day Pilot'}
+              </h4>
+              {charter.executive_sponsor && (
+                <p className="text-sm text-muted-foreground">
+                  Sponsor: {charter.executive_sponsor}
+                </p>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Schedule a follow-up session to develop full pilot charter with milestones and success criteria.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
