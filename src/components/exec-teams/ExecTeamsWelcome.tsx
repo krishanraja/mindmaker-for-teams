@@ -91,13 +91,13 @@ export const ExecTeamsWelcome: React.FC = () => {
                 </h2>
               </div>
               <CardDescription className="text-base md:text-2xl text-foreground/80 font-medium text-left">
-                From Hype to Strategy in 4 Hours
+                Increase Decision Velocity inside one session
               </CardDescription>
             </div>
 
             <p className="text-xs md:text-lg text-muted-foreground max-w-3xl text-left pt-2">
               Your executive team will run 2 real-world AI decision simulations, surface cognitive gaps, 
-              and leave with a 90-day pilot charter. No theory. No vendor pitches. Just strategic clarity.
+              and leave with a 90-day pilot charter. The accelerator that enables you to genuinely accelerate.
             </p>
           </div>
 
