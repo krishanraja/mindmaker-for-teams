@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.3";
+import { callWithFallback, getSegmentPrompt } from "../_shared/ai-fallback.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,6 +23,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const openAIKey = Deno.env.get('OPENAI_API_KEY')!;
+    const lovableKey = Deno.env.get('LOVABLE_API_KEY')!;
     
     const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -59,9 +61,7 @@ serve(async (req) => {
     }, {});
 
     // Generate AI synthesis
-    const prompt = `You are synthesizing bottleneck discussions from an executive AI strategy workshop.
-
-BOTTLENECK DATA:
+    const prompt = `BOTTLENECK DATA:
 ${Object.entries(clusteredData).map(([cluster, items]: [string, any]) => 
   `\n${cluster}:\n${items.map((text: string, i: number) => `  ${i + 1}. ${text}`).join('\n')}`
 ).join('\n')}
@@ -76,28 +76,21 @@ Format as JSON:
   "keyThemes": ["theme1", "theme2", "theme3"],
   "priorityActions": ["action1", "action2", "action3"],
   "executiveSummary": "summary text"
-}
+}`;
 
-Be concise, strategic, and action-oriented. Focus on business impact, not technical details.`;
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: 'You are an expert business strategist specializing in AI transformation.' },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-      }),
+    const result = await callWithFallback({
+      openAIKey: openAIKey,
+      lovableKey: lovableKey,
+      messages: [
+        { role: 'system', content: getSegmentPrompt('synthesis') },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7
     });
 
-    const aiData = await response.json();
-    const synthesisText = aiData.choices[0].message.content;
+    console.log(`📊 Huddle Synthesis: ${result.provider} (${result.latencyMs}ms)`);
+
+    const synthesisText = result.content;
 
     console.log('AI synthesis generated:', synthesisText.substring(0, 100));
 
