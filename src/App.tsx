@@ -13,6 +13,7 @@ import { MobileDotVoting } from "./pages/MobileDotVoting";
 import { MobilePreWorkshop } from "./pages/MobilePreWorkshop";
 import { MobileRegistration } from "./pages/MobileRegistration";
 import { MobileWorkingGroup } from "./pages/MobileWorkingGroup";
+import { MobilePostSessionReview } from "./pages/MobilePostSessionReview";
 import FacilitatorLogin from "./pages/FacilitatorLogin";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/mobile/effortless-map/:workshopId" element={<MobileEffortlessMap />} />
               <Route path="/mobile/voting/:workshopId" element={<MobileDotVoting />} />
               <Route path="/mobile/working-group/:workshopId" element={<MobileWorkingGroup />} />
+              <Route path="/mobile/post-session-review/:workshopId" element={<MobilePostSessionReview />} />
               <Route path="/pre-workshop/:intakeId/:participantHash" element={<MobilePreWorkshop />} />
               <Route path="/mobile-registration/:intakeId" element={<MobileRegistration />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
