@@ -127,10 +127,16 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
 
     setLoadingQR(true);
     try {
+      // Pass the current app URL so QR code points to the right domain
+      const appUrl = window.location.origin;
       console.log('[TieredExecutiveReport] Calling generate-post-session-qr with workshopId:', workshopId);
+      console.log('[TieredExecutiveReport] Using app URL:', appUrl);
       
       const { data, error } = await supabase.functions.invoke('generate-post-session-qr', {
-        body: { workshop_session_id: workshopId }
+        body: { 
+          workshop_session_id: workshopId,
+          app_url: appUrl
+        }
       });
 
       if (error) {
