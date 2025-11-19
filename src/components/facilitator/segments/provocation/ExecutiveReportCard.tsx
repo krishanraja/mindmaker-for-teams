@@ -348,7 +348,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         </Card>
         <Card className="text-center p-6 bg-primary/5 hover:bg-primary/10 transition-colors">
           <div className="text-6xl font-black text-primary tabular-nums">
-            {safeGet(contextData, 'prework.submissionCount', 0)}
+            {safeGet(contextData, 'workshop.participantCount', 0)}
           </div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mt-2">
             Participants

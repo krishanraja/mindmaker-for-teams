@@ -276,7 +276,7 @@ serve(async (req) => {
         })) || []
       },
       workshop: {
-        participantCount: workshop.participant_count || 0,
+        participantCount: (intake?.participants as any[] || []).length,
         bottlenecksIdentified: bottlenecks.data?.length || 0,
         bottleneckClusters: [...new Set(bottlenecks.data?.map(b => b.cluster_name).filter(Boolean))],
         topBottlenecks: bottlenecks.data?.slice(0, 5).map(b => b.bottleneck_text) || [],
