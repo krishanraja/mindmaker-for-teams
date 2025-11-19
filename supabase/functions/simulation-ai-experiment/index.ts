@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callWithFallback, WORKSHOP_FOUNDATION_PROMPT } from "../_shared/ai-fallback.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,15 +15,17 @@ serve(async (req) => {
   try {
     const { scenarioContext, userPrompt, mode = 'iterate', jargonLevel = 50 } = await req.json();
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
     console.log('🔍 CP0 Diagnostic - API Key Check:', {
-      keyExists: !!OPENAI_API_KEY,
-      keyLength: OPENAI_API_KEY?.length || 0,
-      keyPrefix: OPENAI_API_KEY?.substring(0, 7) || 'none'
+      openAIKeyExists: !!OPENAI_API_KEY,
+      lovableKeyExists: !!LOVABLE_API_KEY,
+      openAIKeyLength: OPENAI_API_KEY?.length || 0,
+      openAIKeyPrefix: OPENAI_API_KEY?.substring(0, 7) || 'none'
     });
 
-    if (!OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY not configured');
+    if (!OPENAI_API_KEY || !LOVABLE_API_KEY) {
+      throw new Error('API keys not configured');
     }
 
     console.log('🔍 CP0 Diagnostic - Request:', { 
@@ -44,8 +47,10 @@ serve(async (req) => {
     };
 
     if (mode === 'generate_simulation') {
-      // Initial simulation generation mode
-      systemPrompt = `You are Mindmaker AI, a senior management consultant presenting to C-suite executives.
+      // Initial simulation generation mode - use fallback system
+      systemPrompt = WORKSHOP_FOUNDATION_PROMPT + `
+
+## Current Segment: Simulation Lab
 
 ${getJargonGuidance(jargonLevel)}
 
@@ -126,48 +131,62 @@ CRITICAL RULES:
 5. Be specific to THIS scenario - no generic platitudes or jargon
 6. Return ONLY the JSON object`;
 
-      userMessage = `Generate an executive discussion guide for this scenario.`;
+      userMessage = scenarioContext?.currentState 
+        ? `Generate a simulation discussion guide for: ${scenarioContext.currentState}. Desired outcome: ${scenarioContext.desiredOutcome || 'improved efficiency and effectiveness'}.`
+        : 'Generate a general AI transformation scenario discussion guide.';
+
+      const result = await callWithFallback({
+        openAIKey: OPENAI_API_KEY,
+        lovableKey: LOVABLE_API_KEY,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage }
+        ],
+        maxTokens: 2000,
+        temperature: 0.7
+      });
+
+      console.log(`🎯 Simulation Generation: ${result.provider} (${result.latencyMs}ms)`);
+
+      return new Response(JSON.stringify({ content: result.content }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     } else {
-      // Iterative prompting mode
-      systemPrompt = `You are Mindmaker AI, an enterprise AI consultant helping a leadership team explore AI capabilities for their business scenario.
+      // Iterative mode - streaming (keep OpenAI only for now)
+      systemPrompt = WORKSHOP_FOUNDATION_PROMPT + `
 
-${getJargonGuidance(jargonLevel)}
+## Current Segment: Simulation Lab - Iterative Discussion
 
-CRITICAL: Base all advice ONLY on the scenario data provided. NEVER fabricate statistics, metrics, or specific examples.
-Use qualitative language when quantitative data isn't available.
+You are facilitating a follow-up discussion about an AI transformation scenario.
+The executive team is exploring ideas, asking clarifying questions, or refining their approach.
 
-SCENARIO CONTEXT:
-Current Situation: ${scenarioContext.currentState || 'Not specified'}
-Key Stakeholders: ${scenarioContext.stakeholders || 'Not specified'}
-Desired Outcome: ${scenarioContext.desiredOutcome || 'Not specified'}
-Constraints: ${scenarioContext.constraints || 'Not specified'}
+Respond in a conversational, supportive tone. Keep answers concise (2-3 sentences).
+Focus on practical next steps and real-world considerations.`;
 
-The team has a specific question about implementing AI for this scenario. Provide practical, specific guidance that acknowledges limitations and real-world implementation considerations. Keep your response concise and boardroom-ready. No made-up metrics.`;
+      userMessage = userPrompt || 'Continue the discussion.';
 
-      userMessage = userPrompt;
-    }
+      console.log('🔍 CP0 Diagnostic - Streaming Mode Request:', {
+        promptLength: userMessage.length,
+        hasScenarioContext: !!scenarioContext
+      });
 
-    const requestPayload = {
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage }
-      ],
-      max_tokens: mode === 'generate_simulation' ? 1000 : 600,
-      stream: mode === 'iterate',
-    };
-
-    console.log('🔍 CP0 Diagnostic - OpenAI Request:', {
-      model: requestPayload.model,
-      systemPromptLength: systemPrompt.length,
-      userMessageLength: userMessage.length,
-      maxTokens: requestPayload.max_completion_tokens,
-      stream: requestPayload.stream,
-      messageCount: requestPayload.messages.length
-    });
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage }
+          ],
+          max_tokens: 300,
+          temperature: 0.7,
+          stream: true
+        }),
+      });
       headers: {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
