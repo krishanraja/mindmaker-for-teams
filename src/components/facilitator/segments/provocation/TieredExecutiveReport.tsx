@@ -1,42 +1,54 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, AlertTriangle, CheckCircle2, Target, Clock } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { 
+  AlertCircle, 
+  TrendingUp, 
+  Target, 
+  CheckCircle2, 
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Zap,
+  BarChart3,
+  Sparkles,
+  QrCode
+} from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface ReportData {
-  urgency_score: number;
-  urgency_label: 'Low' | 'Moderate' | 'High';
-  exec_summary: string;
+  urgency: {
+    score: number;
+    label: string;
+    reasoning: string;
+  };
+  executive_summary: string;
   strengths: string[];
   gaps: string[];
   pilot_charter: {
-    title: string;
-    owner: string;
-    sponsor: string | null;
-    linked_goal: string | null;
-    expected_time_saving_percent: number | null;
-    key_metrics: string[];
-    milestones: {
-      day_10: string;
-      day_30: string;
-      day_60: string;
-      day_90: string;
-    };
-  } | null;
+    exists: boolean;
+    owner?: string;
+    sponsor?: string;
+    first_milestone?: string;
+    d90_goal?: string;
+  };
   appendix: {
     alignment: {
-      goals: string[];
+      strategic_goals: string[];
       bottlenecks: string[];
-      leverage_points: string[];
+      ai_leverage_points: string[];
     };
     simulations: {
       count: number;
       median_time_saved: number | null;
       median_quality_gain: number | null;
       highlights: string[];
+      surprises?: string[];
     };
     journey: string[];
   };
@@ -47,14 +59,22 @@ interface TieredExecutiveReportProps {
   companyName: string;
   workshopDate: string;
   participantCount: number;
+  workshopId: string;
 }
 
 export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
   report,
   companyName,
   workshopDate,
-  participantCount
+  participantCount,
+  workshopId
 }) => {
+  const [expandedEvidence, setExpandedEvidence] = useState(false);
+  const [showQRDialog, setShowQRDialog] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [reviewStats, setReviewStats] = useState<any>(null);
+  const [loadingQR, setLoadingQR] = useState(false);
+
   const getUrgencyColor = (label: string) => {
     switch (label) {
       case 'High': return 'destructive';
@@ -73,283 +93,331 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
     }
   };
 
+  const handleShowFeedbackQR = async () => {
+    setLoadingQR(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-post-session-qr', {
+        body: { workshop_session_id: workshopId }
+      });
+
+      if (error) throw error;
+
+      setQrCodeUrl(data.qr_url);
+      setReviewStats(data.review_stats);
+      setShowQRDialog(true);
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      toast({ title: 'Failed to generate QR code', variant: 'destructive' });
+    } finally {
+      setLoadingQR(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* TIER 1: Executive Header - Single screen, zero scrolling */}
+      {/* TIER 1: Executive Header */}
       <Card className="border-2 border-primary/20 bg-gradient-to-br from-background to-muted/20">
         <CardHeader className="pb-4">
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle className="text-3xl font-bold mb-2">{companyName}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                AI Readiness Workshop • {new Date(workshopDate).toLocaleDateString()} • {participantCount} participants
-              </p>
+              <CardTitle className="text-3xl font-bold">{companyName}</CardTitle>
+              <CardDescription className="text-base mt-2">
+                AI Leadership Workshop • {new Date(workshopDate).toLocaleDateString()} • {participantCount} Participants
+              </CardDescription>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground mb-1">Urgency Score</p>
-                <p className="text-4xl font-bold text-primary">{report.urgency_score}</p>
-              </div>
-              <Badge variant={getUrgencyColor(report.urgency_label)} className="h-fit px-4 py-2 text-base">
-                {getUrgencyIcon(report.urgency_label)}
-                <span className="ml-2">{report.urgency_label}</span>
-              </Badge>
-            </div>
+            <Badge variant={getUrgencyColor(report.urgency.label)} className="flex items-center gap-2 px-4 py-2">
+              {getUrgencyIcon(report.urgency.label)}
+              <span className="font-semibold">{report.urgency.label} Urgency</span>
+            </Badge>
           </div>
         </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Urgency Score</span>
+                <span className="text-2xl font-bold text-primary">{report.urgency.score}/100</span>
+              </div>
+              <Progress value={report.urgency.score} className="h-3" />
+              <p className="text-sm text-muted-foreground mt-2">{report.urgency.reasoning}</p>
+            </div>
+          </div>
+        </CardContent>
       </Card>
 
-      {/* TIER 2: Synthesized Story - Max 3 cards */}
-      <div className="space-y-4">
-        {/* Executive Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              Executive Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-base leading-relaxed">{report.exec_summary}</p>
-          </CardContent>
-        </Card>
+      {/* TIER 2: Synthesized Story */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-primary" />
+            Executive Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <p className="text-lg leading-relaxed">{report.executive_summary}</p>
 
-        {/* Strengths vs Gaps */}
-        <div className="grid md:grid-cols-2 gap-4">
-          <Card className="border-green-500/20">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2 text-green-600 dark:text-green-400">
-                <CheckCircle2 className="h-5 w-5" />
-                Strengths
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                Key Strengths
+              </h4>
+              <ul className="space-y-2">
                 {(report.strengths || []).map((strength, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-green-600 dark:text-green-400 font-bold mt-0.5">✓</span>
+                    <span className="text-green-600 mt-0.5">✓</span>
                     <span className="text-sm">{strength}</span>
                   </li>
                 ))}
               </ul>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card className="border-orange-500/20">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2 text-orange-600 dark:text-orange-400">
-                <AlertTriangle className="h-5 w-5" />
-                Gaps to Address
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
+            <div>
+              <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-orange-600" />
+                Priority Gaps
+              </h4>
+              <ul className="space-y-2">
                 {(report.gaps || []).map((gap, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-orange-600 dark:text-orange-400 font-bold mt-0.5">!</span>
+                    <span className="text-orange-600 mt-0.5">△</span>
                     <span className="text-sm">{gap}</span>
                   </li>
                 ))}
               </ul>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </div>
 
-        {/* 90-Day Pilot Charter (only if exists) */}
-        {report.pilot_charter && (
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                90-Day Pilot Charter
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-bold text-lg mb-2">{report.pilot_charter.title}</h4>
-                  <div className="grid md:grid-cols-2 gap-4 text-sm">
+          {/* Pilot Charter */}
+          {report.pilot_charter?.exists && (
+            <Card className="bg-muted/30 border-primary/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  90-Day Pilot Charter
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  {report.pilot_charter.owner && (
                     <div>
-                      <span className="text-muted-foreground">Owner:</span> <span className="font-semibold">{report.pilot_charter.owner}</span>
+                      <span className="font-medium">Pilot Owner:</span> {report.pilot_charter.owner}
                     </div>
-                    {report.pilot_charter.sponsor && (
-                      <div>
-                        <span className="text-muted-foreground">Sponsor:</span> <span className="font-semibold">{report.pilot_charter.sponsor}</span>
-                      </div>
-                    )}
-                    {report.pilot_charter.expected_time_saving_percent && (
-                      <div>
-                        <span className="text-muted-foreground">Expected Impact:</span> <span className="font-semibold text-primary">{report.pilot_charter.expected_time_saving_percent}% time saved</span>
-                      </div>
-                    )}
-                    {report.pilot_charter.linked_goal && (
-                      <div className="md:col-span-2">
-                        <span className="text-muted-foreground">Strategic Goal:</span> <span className="font-semibold">{report.pilot_charter.linked_goal}</span>
-                      </div>
-                    )}
-                  </div>
+                  )}
+                  {report.pilot_charter.sponsor && (
+                    <div>
+                      <span className="font-medium">Executive Sponsor:</span> {report.pilot_charter.sponsor}
+                    </div>
+                  )}
                 </div>
+                {report.pilot_charter.first_milestone && (
+                  <p className="text-sm"><span className="font-medium">First Milestone:</span> {report.pilot_charter.first_milestone}</p>
+                )}
+                {report.pilot_charter.d90_goal && (
+                  <p className="text-sm"><span className="font-medium">90-Day Goal:</span> {report.pilot_charter.d90_goal}</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </CardContent>
+      </Card>
 
-                {/* Milestones */}
-                <div className="bg-muted/30 p-4 rounded-lg">
-                  <h5 className="font-semibold text-sm mb-3">Milestones</h5>
-                  <div className="grid md:grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-primary font-bold">Day 10:</span> {report.pilot_charter.milestones.day_10}
-                    </div>
-                    <div>
-                      <span className="text-primary font-bold">Day 30:</span> {report.pilot_charter.milestones.day_30}
-                    </div>
-                    <div>
-                      <span className="text-primary font-bold">Day 60:</span> {report.pilot_charter.milestones.day_60}
-                    </div>
-                    <div>
-                      <span className="text-primary font-bold">Day 90:</span> {report.pilot_charter.milestones.day_90}
-                    </div>
-                  </div>
-                </div>
+      {/* TIER 3: Evidence Appendix */}
+      <Card>
+        <CardHeader>
+          <Button
+            variant="ghost"
+            className="w-full flex items-center justify-between p-0 h-auto"
+            onClick={() => setExpandedEvidence(!expandedEvidence)}
+          >
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Detailed Evidence & Analysis
+            </CardTitle>
+            {expandedEvidence ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </Button>
+        </CardHeader>
 
-                {/* Key Metrics */}
-                {report.pilot_charter.key_metrics && report.pilot_charter.key_metrics.length > 0 && (
-                  <div>
-                    <h5 className="font-semibold text-sm mb-2">Success Metrics</h5>
-                    <ul className="space-y-1 text-sm">
-                      {(report.pilot_charter.key_metrics || []).map((metric, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <span className="text-primary">•</span>
-                          <span>{metric}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+        {expandedEvidence && (
+          <CardContent className="space-y-6">
+            {/* Strategic Alignment - Card Grid */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Strategic Alignment</h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                <Card className="border-l-4 border-l-blue-500">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-blue-500" />
+                      <CardTitle className="text-base">Strategic Goals</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {(report.appendix?.alignment?.strategic_goals || []).map((goal, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm">{goal}</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <Card className="border-l-4 border-l-orange-500">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5 text-orange-500" />
+                      <CardTitle className="text-base">Bottlenecks</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {(report.appendix?.alignment?.bottlenecks || []).map((bottleneck, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="text-orange-500 text-sm mt-0.5">●</span>
+                        <p className="text-sm">{bottleneck}</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <Card className="border-l-4 border-l-green-500">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-green-500" />
+                      <CardTitle className="text-base">AI Leverage Points</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {(report.appendix?.alignment?.ai_leverage_points || []).map((point, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <Zap className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm">{point}</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Simulation Performance - Visual Metrics */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Simulation Performance</h3>
+              <div className="grid md:grid-cols-3 gap-4 mb-4">
+                <Card>
+                  <CardContent className="pt-6 text-center">
+                    <div className="text-3xl font-bold text-primary">{report.appendix?.simulations?.count || 0}</div>
+                    <p className="text-sm text-muted-foreground mt-1">Simulations Run</p>
+                  </CardContent>
+                </Card>
+
+                {report.appendix?.simulations?.median_time_saved !== null && (
+                  <Card>
+                    <CardContent className="pt-6 text-center">
+                      <div className="text-3xl font-bold text-green-600">{report.appendix.simulations.median_time_saved}%</div>
+                      <Progress value={report.appendix.simulations.median_time_saved} className="mt-2" />
+                      <p className="text-sm text-muted-foreground mt-1">Median Time Saved</p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {report.appendix?.simulations?.median_quality_gain !== null && (
+                  <Card>
+                    <CardContent className="pt-6 text-center">
+                      <div className="text-3xl font-bold text-blue-600">{report.appendix.simulations.median_quality_gain}%</div>
+                      <Progress value={report.appendix.simulations.median_quality_gain} className="mt-2" />
+                      <p className="text-sm text-muted-foreground mt-1">Quality Improvement</p>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
 
-      {/* TIER 3: Evidence Appendix - Collapsible */}
-      <Collapsible>
-        <Card>
-          <CardHeader>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between hover:bg-muted/50">
-                <CardTitle className="text-lg">Detailed Evidence & Analysis</CardTitle>
-                <ChevronDown className="h-5 w-5 transition-transform duration-200" />
-              </Button>
-            </CollapsibleTrigger>
-          </CardHeader>
-          <CollapsibleContent>
-            <CardContent className="space-y-6 pt-0">
-              {/* Strategic Alignment */}
-              <div>
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  Strategic Alignment
+              <div className="space-y-3">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Key Insights
                 </h4>
-                <div className="space-y-3">
-                  {(report.appendix?.alignment?.goals || []).length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">Strategic Goals:</p>
-                      <ul className="space-y-1">
-                        {(report.appendix?.alignment?.goals || []).map((goal, idx) => (
-                          <li key={idx} className="text-sm flex items-start gap-2">
-                            <span className="text-primary">•</span>
-                            <span>{goal}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {(report.appendix?.alignment?.bottlenecks || []).length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">Key Bottlenecks:</p>
-                      <ul className="space-y-1">
-                        {(report.appendix?.alignment?.bottlenecks || []).map((bottleneck, idx) => (
-                          <li key={idx} className="text-sm flex items-start gap-2">
-                            <span className="text-orange-500">•</span>
-                            <span>{bottleneck}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {(report.appendix?.alignment?.leverage_points || []).length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">AI Leverage Points:</p>
-                      <ul className="space-y-1">
-                        {(report.appendix?.alignment?.leverage_points || []).map((point, idx) => (
-                          <li key={idx} className="text-sm flex items-start gap-2">
-                            <span className="text-green-500">•</span>
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                <div className="flex flex-wrap gap-2">
+                  {(report.appendix?.simulations?.highlights || []).map((highlight, idx) => (
+                    <Badge key={idx} variant="secondary">{highlight}</Badge>
+                  ))}
                 </div>
               </div>
 
-              {/* Simulation Performance */}
-              {(report.appendix?.simulations?.count || 0) > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Simulation Performance
+              {/* Surprises Section */}
+              {report.appendix?.simulations?.surprises && report.appendix.simulations.surprises.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <h4 className="font-semibold flex items-center gap-2 text-amber-600 mb-2">
+                    <AlertCircle className="h-4 w-4" />
+                    Surprises & Anomalies
                   </h4>
-                  <div className="bg-muted/30 p-4 rounded-lg space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Simulations Run:</span>
-                      <span className="font-semibold">{report.appendix?.simulations?.count || 0}</span>
-                    </div>
-                    {report.appendix?.simulations?.median_time_saved && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Median Time Saved:</span>
-                        <span className="font-semibold text-primary">{report.appendix.simulations.median_time_saved}%</span>
-                      </div>
-                    )}
-                    {report.appendix?.simulations?.median_quality_gain && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Median Quality Gain:</span>
-                        <span className="font-semibold text-green-600 dark:text-green-400">{report.appendix.simulations.median_quality_gain}%</span>
-                      </div>
-                    )}
-                  </div>
-                  {(report.appendix?.simulations?.highlights || []).length > 0 && (
-                    <div className="mt-3">
-                      <p className="text-sm font-medium text-muted-foreground mb-2">Highlights:</p>
-                      <ul className="space-y-1">
-                        {(report.appendix?.simulations?.highlights || []).map((highlight, idx) => (
-                          <li key={idx} className="text-sm flex items-start gap-2">
-                            <span className="text-primary">→</span>
-                            <span>{highlight}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Workshop Journey */}
-              {(report.appendix?.journey || []).length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-3">Workshop Journey</h4>
                   <ul className="space-y-2">
-                    {(report.appendix?.journey || []).map((step, idx) => (
-                      <li key={idx} className="text-sm flex items-start gap-2">
-                        <span className="text-primary font-bold">{idx + 1}.</span>
-                        <span>{step}</span>
+                    {report.appendix.simulations.surprises.map((surprise, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <span className="text-amber-600 text-lg">⚠️</span>
+                        <span className="italic">{surprise}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
               )}
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
+            </div>
+
+            {/* Workshop Journey */}
+            {report.appendix?.journey && report.appendix.journey.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Workshop Journey</h3>
+                <div className="space-y-2">
+                  {report.appendix.journey.map((step, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-sm font-medium text-primary">{idx + 1}</span>
+                      </div>
+                      <p className="text-sm pt-1">{step}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Post-Session Feedback QR Button */}
+            <div className="mt-6 pt-6 border-t">
+              <Button 
+                variant="outline" 
+                onClick={handleShowFeedbackQR}
+                className="w-full"
+                disabled={loadingQR}
+              >
+                <QrCode className="h-4 w-4 mr-2" />
+                {loadingQR ? 'Loading...' : 'Share Feedback QR Code'}
+              </Button>
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* QR Code Dialog */}
+      <Dialog open={showQRDialog} onOpenChange={setShowQRDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Participant Feedback</DialogTitle>
+            <DialogDescription>
+              Scan this QR code to share your thoughts on the session
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            {qrCodeUrl && (
+              <div className="bg-white p-4 rounded-lg">
+                <QRCodeSVG value={qrCodeUrl} size={256} />
+              </div>
+            )}
+            {reviewStats && reviewStats.count > 0 && (
+              <div className="text-sm text-center space-y-1">
+                <p className="font-semibold">Current Averages ({reviewStats.count} responses):</p>
+                <p>AI Leadership Confidence: <span className="font-bold text-primary">{reviewStats.avg_confidence}/10</span></p>
+                <p>Session Enjoyment: <span className="font-bold text-primary">{reviewStats.avg_enjoyment}/10</span></p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
