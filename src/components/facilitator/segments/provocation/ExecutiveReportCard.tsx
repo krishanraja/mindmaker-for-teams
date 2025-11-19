@@ -32,7 +32,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       .eq('workshop_session_id', workshopId)
       .order('created_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (data && !error) {
       setReportData(data.report_data);
