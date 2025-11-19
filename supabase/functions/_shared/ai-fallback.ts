@@ -145,15 +145,13 @@ function convertToGeminiSchema(schema: any): any {
   
   const result: any = {};
   
-  // Handle type field
+  // Handle type field - CRITICAL: Gemini uses string types, not arrays
   if (schema.type) {
     if (Array.isArray(schema.type)) {
-      // Gemini doesn't support array of types, use the first non-null type
-      result.type = schema.type.find((t: string) => t !== 'null') || schema.type[0];
-      // If null was in the array, schema is nullable
-      if (schema.type.includes('null')) {
-        result.nullable = true;
-      }
+      // Find the first non-null type
+      const nonNullType = schema.type.find((t: string) => t !== 'null');
+      result.type = nonNullType || 'string';
+      // Note: Gemini doesn't have explicit nullable support in schema
     } else {
       result.type = schema.type;
     }
@@ -164,34 +162,41 @@ function convertToGeminiSchema(schema: any): any {
     result.description = schema.description;
   }
   
-  // Handle properties recursively
-  if (schema.properties) {
+  // Handle object properties recursively
+  if (schema.properties && typeof schema.properties === 'object') {
     result.properties = {};
     for (const [key, value] of Object.entries(schema.properties)) {
+      // Recursively convert each property
       result.properties[key] = convertToGeminiSchema(value);
     }
   }
   
-  // Handle items for arrays
+  // Handle array items recursively
   if (schema.items) {
     result.items = convertToGeminiSchema(schema.items);
   }
   
-  // Copy required fields
-  if (schema.required) {
+  // Copy required array
+  if (Array.isArray(schema.required)) {
     result.required = schema.required;
   }
   
   // Copy enum if present
-  if (schema.enum) {
+  if (Array.isArray(schema.enum)) {
     result.enum = schema.enum;
   }
   
-  // Note: Gemini doesn't support these validation keywords, so we omit them:
+  // Copy format if present (e.g., "date-time", "email")
+  if (schema.format) {
+    result.format = schema.format;
+  }
+  
+  // Explicitly omit OpenAI-specific validation keywords that Gemini doesn't support:
   // - additionalProperties
-  // - maxLength, minLength
+  // - maxLength, minLength  
   // - maxItems, minItems
   // - maximum, minimum
+  // - pattern
   
   return result;
 }
@@ -283,13 +288,37 @@ async function callGeminiRAG(options: AICallOptions): Promise<string> {
   
   // Add tools if provided (convert OpenAI format to Gemini format)
   if (options.tools) {
+    const convertedTools = options.tools.map((tool: any) => ({
+      name: tool.function.name,
+      description: tool.function.description,
+      parameters: convertToGeminiSchema(tool.function.parameters)
+    }));
+    
     requestBody.tools = [{
-      functionDeclarations: options.tools.map((tool: any) => ({
-        name: tool.function.name,
-        description: tool.function.description,
-        parameters: convertToGeminiSchema(tool.function.parameters)
-      }))
+      functionDeclarations: convertedTools
     }];
+    
+    // Add tool config if toolChoice is specified
+    if (options.toolChoice) {
+      // Convert OpenAI toolChoice to Gemini toolConfig
+      if (options.toolChoice.type === 'function') {
+        requestBody.toolConfig = {
+          functionCallingConfig: {
+            mode: 'ANY',
+            allowedFunctionNames: [options.toolChoice.function.name]
+          }
+        };
+      } else if (options.toolChoice === 'auto') {
+        requestBody.toolConfig = {
+          functionCallingConfig: {
+            mode: 'AUTO'
+          }
+        };
+      }
+    }
+    
+    // Log converted schema for debugging (only first 500 chars to avoid log spam)
+    console.log(`📋 Gemini tool schema (converted): ${JSON.stringify(convertedTools[0].parameters).substring(0, 500)}...`);
   }
   
   const response = await fetch(
