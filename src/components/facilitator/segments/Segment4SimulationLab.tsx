@@ -21,6 +21,7 @@ import { SimulationInterface } from "./simulation/SimulationInterface";
 import { TaskBreakdownCanvas, Task } from "./simulation/TaskBreakdownCanvas";
 import { GuardrailDesigner, Guardrail } from "./simulation/GuardrailDesigner";
 import { ParsedSimulation, extractTasksFromSimulation, extractGuardrailsFromSimulation } from "@/lib/ai-response-parser";
+import { useSegmentSummary } from '@/hooks/useSegmentSummary';
 
 interface Segment4SimulationLabProps {
   workshopId: string;
@@ -31,6 +32,7 @@ type Phase = 'setup' | 'simulation' | 'tasks' | 'guardrails' | 'complete';
 
 export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4SimulationLabProps) => {
   const { toast } = useToast();
+  const { writeSegmentSummary } = useSegmentSummary();
   const [selectedSimulation, setSelectedSimulation] = useState<string | null>(null);
   const [currentPhase, setCurrentPhase] = useState<Phase>('setup');
   const [scenarioContext, setScenarioContext] = useState<any>({});
@@ -148,6 +150,19 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
       toast({
         title: "Simulation Saved",
         description: "AI simulation results captured successfully"
+      });
+
+      // Write segment summary for final report
+      await writeSegmentSummary(workshopId, 'crystal_ball', {
+        headline: `AI reduced cycle time by ${automationPct}% in ${simulation?.title || 'simulation'}`,
+        key_points: [
+          `${taskBreakdown.filter(t => t.category === 'ai-capable').length} tasks fully AI-capable`,
+          `${automationPct}% automation potential identified`,
+          `Guardrails established for quality control`
+        ],
+        primary_metric: automationPct,
+        primary_metric_label: 'Time saved',
+        segment_data: { simulation_name: simulation?.title }
       });
 
       // Reset

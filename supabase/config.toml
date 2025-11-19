@@ -47,3 +47,9 @@ verify_jwt = false
 
 [functions.generate-strategy-insights]
 verify_jwt = false
+
+[functions.write-segment-summary]
+verify_jwt = false
+
+[functions.generate-final-report]
+verify_jwt = false
