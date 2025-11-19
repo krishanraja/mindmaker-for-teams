@@ -195,6 +195,19 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
     strategy,
     bottlenecks = []
   } = reportData;
+
+  // Comprehensive structure validation
+  console.log('[ExecutiveReportCard] Data structure validation:', {
+    hasContextData: !!contextData,
+    hasWorkshop: !!contextData?.workshop,
+    hasPrework: !!contextData?.prework,
+    hasCompany: !!contextData?.company,
+    hasPreWorkshop: !!contextData?.preWorkshop,
+    workshopKeys: contextData?.workshop ? Object.keys(contextData.workshop) : [],
+    preworkKeys: contextData?.prework ? Object.keys(contextData.prework) : [],
+    urgencyScore,
+    roiMetricsCount: Object.keys(roiMetrics || {}).length
+  });
   const bottleneckClusters: string[] = Array.from(
     new Set(
       (bottlenecks || [])
@@ -286,7 +299,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card className="text-center p-6 bg-primary/5 hover:bg-primary/10 transition-colors">
           <div className="text-6xl font-black text-primary tabular-nums">
-            {contextData.workshop.bottlenecksIdentified}
+            {safeGet(contextData, 'workshop.bottlenecksIdentified', 0)}
           </div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mt-2">
             Bottlenecks
@@ -294,7 +307,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         </Card>
         <Card className="text-center p-6 bg-primary/5 hover:bg-primary/10 transition-colors">
           <div className="text-6xl font-black text-primary tabular-nums">
-            {contextData.workshop.opportunitiesPrioritized}
+            {safeGet(contextData, 'workshop.opportunitiesPrioritized', 0)}
           </div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mt-2">
             Opportunities
@@ -302,7 +315,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         </Card>
         <Card className="text-center p-6 bg-primary/5 hover:bg-primary/10 transition-colors">
           <div className="text-6xl font-black text-primary tabular-nums">
-            {contextData.workshop.simulationsRun}
+            {safeGet(contextData, 'workshop.simulationsRun', 0)}
           </div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mt-2">
             Simulations
@@ -310,7 +323,7 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         </Card>
         <Card className="text-center p-6 bg-primary/5 hover:bg-primary/10 transition-colors">
           <div className="text-6xl font-black text-primary tabular-nums">
-            {contextData.prework.submissionCount}
+            {safeGet(contextData, 'prework.submissionCount', 0)}
           </div>
           <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mt-2">
             Participants
@@ -331,14 +344,16 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         <CardContent className="p-4">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
             <div>
-              <span className="font-bold text-foreground">{contextData.company.name}</span>
-              <span className="text-muted-foreground"> | {contextData.company.industry}</span>
+              <span className="font-bold text-foreground">{safeGet(contextData, 'company.name', 'Company Name')}</span>
+              <span className="text-muted-foreground"> | {safeGet(contextData, 'company.industry', 'Industry')}</span>
             </div>
             <Badge variant="outline" className="font-normal">
-              AI Experience: {contextData.preWorkshop.aiExperience}
+              AI Experience: {safeGet(contextData, 'preWorkshop.aiExperience', 'Not specified')}
             </Badge>
             <Badge variant="outline" className="font-normal">
-              2026 Goals: {contextData.company.strategicGoals !== 'Not specified' ? contextData.company.strategicGoals : 'TBD'}
+              2026 Goals: {safeGet(contextData, 'company.strategicGoals', 'Not specified') !== 'Not specified' 
+                ? safeGet(contextData, 'company.strategicGoals', 'TBD') 
+                : 'TBD'}
             </Badge>
           </div>
         </CardContent>
