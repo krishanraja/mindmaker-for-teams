@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Target, AlertCircle, Zap, Calendar } from 'lucide-react';
 
 interface StrategicAlignmentGridProps {
-  strategicGoals?: string;
+  strategicGoals?: string; // Legacy
+  strategicGoalsArray?: string[]; // NEW: Clean extracted goals array
   derivedGoalsFromWorkshop?: string[];
   aiLeveragePoints?: any[];
   derivedLeveragePoints?: any[];
@@ -20,6 +21,7 @@ interface StrategicAlignmentGridProps {
 
 export const StrategicAlignmentGrid: React.FC<StrategicAlignmentGridProps> = ({
   strategicGoals,
+  strategicGoalsArray = [],
   derivedGoalsFromWorkshop = [],
   aiLeveragePoints = [],
   derivedLeveragePoints = [],
@@ -27,6 +29,26 @@ export const StrategicAlignmentGrid: React.FC<StrategicAlignmentGridProps> = ({
   realisticNextSteps = [],
   bottleneckClusters
 }) => {
+  // Build display goals from clean data
+  const displayGoals = React.useMemo(() => {
+    // Priority 1: Use strategicGoalsArray if available (clean extracted goals)
+    if (strategicGoalsArray && strategicGoalsArray.length > 0) {
+      return strategicGoalsArray.slice(0, 3);
+    }
+    
+    // Priority 2: Use derivedGoalsFromWorkshop
+    if (derivedGoalsFromWorkshop && derivedGoalsFromWorkshop.length > 0) {
+      return derivedGoalsFromWorkshop.slice(0, 3);
+    }
+    
+    // Priority 3: Try to parse legacy strategicGoals string (for backward compat)
+    if (strategicGoals && strategicGoals !== 'Not specified') {
+      const parsed = strategicGoals.split(/[,;]/).map(g => g.trim()).filter(g => g.length > 10);
+      if (parsed.length > 0) return parsed.slice(0, 3);
+    }
+    
+    return [];
+  }, [strategicGoalsArray, derivedGoalsFromWorkshop, strategicGoals]);
   return (
     <Card className="border shadow-sm">
       <CardHeader className="pb-4">
@@ -48,49 +70,21 @@ export const StrategicAlignmentGrid: React.FC<StrategicAlignmentGridProps> = ({
               <Target className="w-5 h-5 text-primary" />
               2026 Strategic Goals
             </h4>
-            {(() => {
-              // Parse strategic goals into clean bullet points
-              const parseGoals = (goalsText?: string): string[] => {
-                if (!goalsText || goalsText === 'Not specified') return [];
-                if (goalsText.includes(',')) {
-                  return goalsText
-                    .split(',')
-                    .map(g => g.trim())
-                    .filter(g => g.length > 10)
-                    .slice(0, 3);
-                }
-                return [goalsText.slice(0, 140)];
-              };
-              
-              const goals = parseGoals(strategicGoals);
-              
-              return goals.length > 0 ? (
-                <div className="space-y-2">
-                  {goals.map((goal, idx) => (
-                    <div key={idx} className="p-3 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-lg">
-                      <p className="text-sm font-semibold text-foreground leading-relaxed">
-                        {goal}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : derivedGoalsFromWorkshop.length > 0 ? (
-                <div className="space-y-2">
-                  <div className="text-xs text-muted-foreground italic mb-2">
-                    Derived from workshop activities:
-                  </div>
-                  {derivedGoalsFromWorkshop.slice(0, 3).map((goal, idx) => (
-                    <div key={idx} className="p-2 bg-primary/5 border border-primary/10 rounded text-sm text-foreground">
+            {displayGoals.length > 0 ? (
+              <div className="space-y-2">
+                {displayGoals.map((goal, idx) => (
+                  <div key={idx} className="p-3 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-lg">
+                    <p className="text-sm font-semibold text-foreground leading-relaxed">
                       {goal}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm text-muted-foreground italic">
-                  No strategic goals captured
-                </div>
-              );
-            })()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground italic">
+                No strategic goals captured
+              </div>
+            )}
           </div>
 
           {/* Column 2: Key Bottlenecks */}

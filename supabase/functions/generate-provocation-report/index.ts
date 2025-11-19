@@ -108,30 +108,53 @@ serve(async (req) => {
 
     const urgencyScore = Math.round(calculateUrgencyScore());
 
-    // Extract strategic goals from strategy addendum if intake doesn't have them
-    const extractedStrategicGoals = strategy?.data?.targets_at_risk 
-      ? strategy.data.targets_at_risk.match(/'([^']+)'/g)?.map(g => g.replace(/'/g, '')) || []
-      : [];
-    
-    // Build derived goals from workshop activities
-    const derivedGoals: string[] = [];
-    if (strategy?.data?.targets_at_risk) {
-      derivedGoals.push(`Mitigate strategic risks: ${strategy.data.targets_at_risk.slice(0, 100)}`);
+    // Extract clean strategic goals from targets_at_risk narrative
+    const extractStrategicGoalsFromNarrative = (targetsText: string): string[] => {
+      // Pattern 1: Extract quoted goals like 'One growing revenue stream'
+      const quotedGoals = targetsText.match(/'([^']+)'/g)?.map(g => g.replace(/'/g, '')) || [];
+      
+      // Pattern 2: Extract "strategic goals of X and Y" pattern
+      const goalsMatch = targetsText.match(/strategic goals of ['"](.*?)['"](?:\s+and\s+['"](.*?)['"])?/i);
+      if (goalsMatch) {
+        const goals = [goalsMatch[1], goalsMatch[2]].filter(Boolean);
+        if (goals.length > 0) return goals;
+      }
+      
+      // Fallback to quoted goals (filter for meaningful length)
+      return quotedGoals.filter(g => g.length > 10 && g.length < 80);
+    };
+
+    // Build clean strategic goals array
+    const strategicGoalsArray: string[] = [];
+
+    // Priority 1: Intake explicit goals
+    if (workshop.exec_intakes?.strategic_objectives_2026) {
+      strategicGoalsArray.push(workshop.exec_intakes.strategic_objectives_2026);
     }
+
+    // Priority 2: Extract from strategy addendum narrative
+    if (strategy?.data?.targets_at_risk) {
+      const extractedGoals = extractStrategicGoalsFromNarrative(strategy.data.targets_at_risk);
+      strategicGoalsArray.push(...extractedGoals);
+    }
+
+    // Priority 3: Derive from workshop activities (used later in contextData)
+    const derivedGoalsFromWorkshopActivities: string[] = [];
     if (bottlenecks.data && bottlenecks.data.length > 0) {
       const topClusters = [...new Set(bottlenecks.data.map(b => b.cluster_name).filter(Boolean))].slice(0, 2);
       if (topClusters.length > 0) {
-        derivedGoals.push(`Address operational bottlenecks in: ${topClusters.join(', ')}`);
+        topClusters.forEach(cluster => {
+          derivedGoalsFromWorkshopActivities.push(`Streamline ${cluster.toLowerCase()}`);
+        });
       }
     }
 
-    // Prioritize: 1) Intake goals, 2) Derived goals, 3) Extracted strategy goals, 4) Professional TBD
-    const strategicGoalsText = workshop.exec_intakes?.strategic_objectives_2026 || 
-                               (derivedGoals.length > 0 
-                                 ? derivedGoals.join('; ')
-                                 : extractedStrategicGoals.length > 0 
-                                   ? extractedStrategicGoals.join(', ')
-                                   : 'Strategic goals to be defined during pilot planning');
+    // Final strategic goals text for backward compatibility
+    const strategicGoalsText = strategicGoalsArray.length > 0
+      ? strategicGoalsArray.join(', ')
+      : derivedGoalsFromWorkshopActivities.length > 0
+        ? derivedGoalsFromWorkshopActivities.join(', ')
+        : 'Strategic goals to be defined during pilot planning';
 
     const getRiskLabel = (tolerance: number): string => {
       if (tolerance >= 75) return 'High';
@@ -370,7 +393,10 @@ serve(async (req) => {
           workingGroupInputs: workingInputs.data?.length || 0,
           consensusArea: consensusCategory
         },
+        strategicGoalsArray: strategicGoalsArray,
         derivedGoalsFromWorkshop: derivedGoalsFromWorkshop,
+        derivedGoalsFromWorkshopActivities: derivedGoalsFromWorkshopActivities,
+        strategicGoalsForDisplay: strategicGoalsArray.length > 0 ? strategicGoalsArray : derivedGoalsFromWorkshopActivities,
         derivedLeveragePoints,
         realisticNextSteps
       }
@@ -431,8 +457,15 @@ Return this exact JSON structure:
 Industry: ${contextData.company.industry}
 AI Experience: ${contextData.preWorkshop.aiExperience}
 Company: ${contextData.company.name}
-2026 Goals: ${contextData.company.strategicGoals.slice(0, 200)}...
 
+=== 2026 STRATEGIC GOALS ===
+${strategicGoalsArray.length > 0 
+  ? strategicGoalsArray.map((goal, idx) => `${idx + 1}. ${goal}`).join('\n')
+  : 'Strategic priorities identified during workshop:\n' + derivedGoalsFromWorkshopActivities.map((goal, idx) => `${idx + 1}. ${goal}`).join('\n')}
+
+IMPORTANT: When referring to these goals in your synthesis, rephrase them naturally in executive language. Do NOT copy-paste the raw text. Frame them in the context of AI readiness and operational efficiency.
+
+=== OPERATIONAL CONTEXT ===
 Bottlenecks Identified: ${contextData.workshop.bottlenecksIdentified}
 Top Clusters: ${contextData.workshop.bottleneckClusters.slice(0, 2).join(', ')}
 
