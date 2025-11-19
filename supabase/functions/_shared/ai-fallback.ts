@@ -78,6 +78,7 @@ Tone: Confident but realistic, emphasizing quick wins and measurable outcomes.`
 interface AICallOptions {
   openAIKey: string;
   lovableKey: string;
+  geminiServiceAccount?: string;
   messages: Array<{ role: string; content: string }>;
   maxTokens?: number;
   temperature?: number;
@@ -88,7 +89,7 @@ interface AICallOptions {
 
 interface AICallResult {
   content: string;
-  provider: 'openai' | 'lovable-gemini';
+  provider: 'openai' | 'lovable-gemini' | 'gemini-rag';
   latencyMs: number;
   toolCalls?: any;
 }
@@ -136,6 +137,150 @@ async function verifyBothProviders(openAIKey: string, lovableKey: string) {
   }
 
   console.log('🔄 Dual-provider fallback: READY (5s timeout)');
+}
+
+// Get Google OAuth2 access token from service account
+async function getGeminiAccessToken(serviceAccountJson: string): Promise<string> {
+  const serviceAccount = JSON.parse(serviceAccountJson);
+  
+  // Create JWT for Google OAuth2
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: "RS256", typ: "JWT" };
+  const claimSet = {
+    iss: serviceAccount.client_email,
+    scope: "https://www.googleapis.com/auth/cloud-platform",
+    aud: "https://oauth2.googleapis.com/token",
+    exp: now + 3600,
+    iat: now
+  };
+  
+  const jwtHeader = btoa(JSON.stringify(header)).replace(/=/g, '');
+  const jwtClaimSet = btoa(JSON.stringify(claimSet)).replace(/=/g, '');
+  
+  // Import private key
+  const pemKey = serviceAccount.private_key
+    .replace(/-----BEGIN PRIVATE KEY-----/, '')
+    .replace(/-----END PRIVATE KEY-----/, '')
+    .replace(/\s/g, '');
+  const binaryKey = Uint8Array.from(atob(pemKey), c => c.charCodeAt(0));
+  
+  const cryptoKey = await crypto.subtle.importKey(
+    "pkcs8",
+    binaryKey,
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  
+  // Sign JWT
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${jwtHeader}.${jwtClaimSet}`);
+  const signature = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", cryptoKey, data);
+  const signatureBase64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+  
+  const jwt = `${jwtHeader}.${jwtClaimSet}.${signatureBase64}`;
+  
+  // Exchange JWT for access token
+  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`
+  });
+  
+  if (!tokenResponse.ok) {
+    const errorText = await tokenResponse.text();
+    throw new Error(`OAuth2 token error: ${errorText}`);
+  }
+  
+  const tokenData = await tokenResponse.json();
+  return tokenData.access_token;
+}
+
+async function callGeminiRAG(options: AICallOptions): Promise<string> {
+  if (!options.geminiServiceAccount) {
+    throw new Error("Gemini service account not provided");
+  }
+  
+  console.log("🔮 Calling Gemini RAG (custom trained model)...");
+  
+  const accessToken = await getGeminiAccessToken(options.geminiServiceAccount);
+  const serviceAccount = JSON.parse(options.geminiServiceAccount);
+  
+  // Convert OpenAI format messages to Gemini format
+  const geminiContents = options.messages.map(msg => ({
+    role: msg.role === "assistant" ? "model" : "user",
+    parts: [{ text: msg.content }]
+  }));
+  
+  // Build request body
+  const requestBody: any = {
+    contents: geminiContents,
+    generationConfig: {
+      temperature: options.temperature || 0.7,
+      maxOutputTokens: options.maxTokens || 8192
+    }
+  };
+  
+  // Add tools if provided (convert OpenAI format to Gemini format)
+  if (options.tools) {
+    requestBody.tools = [{
+      functionDeclarations: options.tools.map((tool: any) => ({
+        name: tool.function.name,
+        description: tool.function.description,
+        parameters: tool.function.parameters
+      }))
+    }];
+  }
+  
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        "x-goog-user-project": serviceAccount.project_id
+      },
+      body: JSON.stringify(requestBody)
+    }
+  );
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Gemini RAG error: ${response.status} - ${errorText}`);
+  }
+  
+  const data = await response.json();
+  const candidate = data.candidates?.[0];
+  
+  if (!candidate) {
+    throw new Error("No candidate in Gemini response");
+  }
+  
+  // Extract content and function calls
+  const parts = candidate.content?.parts || [];
+  const textPart = parts.find((p: any) => p.text);
+  const functionCall = parts.find((p: any) => p.functionCall);
+  
+  if (functionCall && options.tools) {
+    // Convert Gemini function call to OpenAI format
+    return JSON.stringify({
+      content: textPart?.text || "",
+      toolCalls: [{
+        id: functionCall.functionCall.name,
+        type: "function",
+        function: {
+          name: functionCall.functionCall.name,
+          arguments: JSON.stringify(functionCall.functionCall.args)
+        }
+      }]
+    });
+  }
+  
+  return textPart?.text || "";
 }
 
 async function callOpenAI(options: AICallOptions): Promise<string> {
@@ -220,22 +365,60 @@ export async function callWithFallback(options: AICallOptions): Promise<AICallRe
     providersVerified = true;
   }
 
-  const timeoutPromise = new Promise<never>((_, reject) => 
+  console.log("🤖 3-tier AI fallback: Gemini RAG → OpenAI → Lovable AI");
+
+  // Try Gemini RAG first (if credentials provided)
+  if (options.geminiServiceAccount) {
+    const geminiTimeout = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('GEMINI_TIMEOUT')), 5000)
+    );
+    const geminiStart = Date.now();
+
+    try {
+      const result = await Promise.race([
+        callGeminiRAG(options),
+        geminiTimeout
+      ]);
+      
+      const latency = Date.now() - geminiStart;
+      console.log(`✅ Gemini RAG response: ${latency}ms`);
+      
+      if (options.tools && result.includes('toolCalls')) {
+        const parsed = JSON.parse(result);
+        return {
+          content: parsed.content || '',
+          provider: 'gemini-rag',
+          latencyMs: latency,
+          toolCalls: parsed.toolCalls
+        };
+      }
+      
+      return {
+        content: result,
+        provider: 'gemini-rag',
+        latencyMs: latency
+      };
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      console.log(`⚠️ Gemini RAG failed (${errorMsg}), falling back to OpenAI`);
+    }
+  }
+
+  // Try OpenAI as second option
+  const openAITimeout = new Promise<never>((_, reject) => 
     setTimeout(() => reject(new Error('OPENAI_TIMEOUT')), 5000)
   );
-
-  const startTime = Date.now();
+  const openAIStart = Date.now();
 
   try {
     const result = await Promise.race([
       callOpenAI(options),
-      timeoutPromise
+      openAITimeout
     ]);
     
-    const latency = Date.now() - startTime;
+    const latency = Date.now() - openAIStart;
     console.log(`✅ OpenAI response: ${latency}ms`);
     
-    // Parse tool calls if present
     if (options.tools && result.includes('toolCalls')) {
       const parsed = JSON.parse(result);
       return {
@@ -253,36 +436,31 @@ export async function callWithFallback(options: AICallOptions): Promise<AICallRe
     };
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-    
-    if (errorMsg === 'OPENAI_TIMEOUT') {
-      console.log('⏱️ OpenAI timeout (>5s), switching to Lovable AI');
-    } else {
-      console.log(`❌ OpenAI failed: ${errorMsg}, switching to Lovable AI`);
-    }
+    console.log(`⚠️ OpenAI failed (${errorMsg}), falling back to Lovable AI`);
+  }
 
-    const fallbackStart = Date.now();
-    const lovableResult = await callLovableAI(options);
-    const fallbackLatency = Date.now() - fallbackStart;
-    
-    console.log(`✅ Lovable AI response: ${fallbackLatency}ms`);
-    
-    // Parse tool calls if present
-    if (options.tools && lovableResult.includes('toolCalls')) {
-      const parsed = JSON.parse(lovableResult);
-      return {
-        content: parsed.content || '',
-        provider: 'lovable-gemini',
-        latencyMs: fallbackLatency,
-        toolCalls: parsed.toolCalls
-      };
-    }
-    
+  // Last resort: Lovable AI
+  const lovableStart = Date.now();
+  const lovableResult = await callLovableAI(options);
+  const lovableLatency = Date.now() - lovableStart;
+  
+  console.log(`✅ Lovable AI response: ${lovableLatency}ms`);
+  
+  if (options.tools && lovableResult.includes('toolCalls')) {
+    const parsed = JSON.parse(lovableResult);
     return {
-      content: lovableResult,
+      content: parsed.content || '',
       provider: 'lovable-gemini',
-      latencyMs: fallbackLatency
+      latencyMs: lovableLatency,
+      toolCalls: parsed.toolCalls
     };
   }
+  
+  return {
+    content: lovableResult,
+    provider: 'lovable-gemini',
+    latencyMs: lovableLatency
+  };
 }
 
 export function getSegmentPrompt(segment: string): string {

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.3";
+import { callWithFallback } from "../_shared/ai-fallback.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,7 +21,9 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY')!;
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
+    const geminiServiceAccount = Deno.env.get('GEMINI_SERVICE_ACCOUNT_KEY');
     
     const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -368,139 +371,128 @@ IMPORTANT: The derived_insights section contains strategic goals, AI leverage po
 
 Generate a report following the exact JSON schema provided in the tools.`;
 
-    // Call Lovable AI with tool calling for structured output
-    console.log('[generate-final-report] Calling Lovable AI...');
+    // Call AI with 3-tier fallback (Gemini RAG → OpenAI → Lovable AI)
+    console.log('[generate-final-report] Calling AI with fallback...');
     
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        tools: [{
-          type: 'function',
-          function: {
-            name: 'generate_executive_report',
-            description: 'Generate a structured executive report from workshop data',
-            parameters: {
-              type: 'object',
-              properties: {
-                urgency: {
-                  type: 'object',
-                  properties: {
-                    score: { type: 'number' },
-                    label: { type: 'string' },
-                    reasoning: { type: 'string', maxLength: 200 }
-                  },
-                  required: ['score', 'label', 'reasoning']
+    const aiResult = await callWithFallback({
+      openAIKey: openAIApiKey,
+      lovableKey: lovableApiKey,
+      geminiServiceAccount,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.7,
+      maxTokens: 8192,
+      tools: [{
+        type: 'function',
+        function: {
+          name: 'generate_executive_report',
+          description: 'Generate a structured executive report from workshop data',
+          parameters: {
+            type: 'object',
+            properties: {
+              urgency: {
+                type: 'object',
+                properties: {
+                  score: { type: 'number' },
+                  label: { type: 'string' },
+                  reasoning: { type: 'string', maxLength: 200 }
                 },
-                executive_summary: { type: 'string', maxLength: 300 },
-                strengths: {
-                  type: 'array',
-                  items: { type: 'string', maxLength: 120 },
-                  minItems: 3,
-                  maxItems: 5
-                },
-                gaps: {
-                  type: 'array',
-                  items: { type: 'string', maxLength: 120 },
-                  minItems: 3,
-                  maxItems: 5
-                },
-                pilot_charter: {
-                  type: 'object',
-                  properties: {
-                    exists: { type: 'boolean' },
-                    owner: { type: 'string', maxLength: 100 },
-                    sponsor: { type: 'string', maxLength: 100 },
-                    first_milestone: { type: 'string', maxLength: 150 },
-                    d90_goal: { type: 'string', maxLength: 150 }
-                  },
-                  required: ['exists']
-                },
-                appendix: {
-                  type: 'object',
-                  properties: {
-                    alignment: {
-                      type: 'object',
-                      properties: {
-                        strategic_goals: {
-                          type: 'array',
-                          items: { type: 'string', maxLength: 60 },
-                          maxItems: 5
-                        },
-                        bottlenecks: {
-                          type: 'array',
-                          items: { type: 'string', maxLength: 80 },
-                          maxItems: 5
-                        },
-                        ai_leverage_points: {
-                          type: 'array',
-                          items: { type: 'string', maxLength: 80 },
-                          maxItems: 5
-                        }
-                      },
-                      required: ['strategic_goals', 'bottlenecks', 'ai_leverage_points']
-                    },
-                    simulations: {
-                      type: 'object',
-                      properties: {
-                        count: { type: 'number' },
-                        median_time_saved: { type: ['number', 'null'] },
-                        median_quality_gain: { type: ['number', 'null'] },
-                        highlights: {
-                          type: 'array',
-                          items: { type: 'string', maxLength: 100 },
-                          maxItems: 3
-                        },
-                        surprises: {
-                          type: 'array',
-                          items: { type: 'string', maxLength: 120 },
-                          maxItems: 3
-                        }
-                      },
-                      required: ['count', 'highlights', 'surprises']
-                    },
-                    journey: {
-                      type: 'array',
-                      items: { type: 'string', maxLength: 100 },
-                      maxItems: 6
-                    }
-                  },
-                  required: ['alignment', 'simulations', 'journey']
-                }
+                required: ['score', 'label', 'reasoning']
               },
-              required: ['urgency', 'executive_summary', 'strengths', 'gaps', 'pilot_charter', 'appendix'],
-              additionalProperties: false
-            }
+              executive_summary: { type: 'string', maxLength: 300 },
+              strengths: {
+                type: 'array',
+                items: { type: 'string', maxLength: 120 },
+                minItems: 3,
+                maxItems: 5
+              },
+              gaps: {
+                type: 'array',
+                items: { type: 'string', maxLength: 120 },
+                minItems: 3,
+                maxItems: 5
+              },
+              pilot_charter: {
+                type: 'object',
+                properties: {
+                  exists: { type: 'boolean' },
+                  owner: { type: 'string', maxLength: 100 },
+                  sponsor: { type: 'string', maxLength: 100 },
+                  first_milestone: { type: 'string', maxLength: 150 },
+                  d90_goal: { type: 'string', maxLength: 150 }
+                },
+                required: ['exists']
+              },
+              appendix: {
+                type: 'object',
+                properties: {
+                  alignment: {
+                    type: 'object',
+                    properties: {
+                      strategic_goals: {
+                        type: 'array',
+                        items: { type: 'string', maxLength: 60 },
+                        maxItems: 5
+                      },
+                      bottlenecks: {
+                        type: 'array',
+                        items: { type: 'string', maxLength: 80 },
+                        maxItems: 5
+                      },
+                      ai_leverage_points: {
+                        type: 'array',
+                        items: { type: 'string', maxLength: 80 },
+                        maxItems: 5
+                      }
+                    },
+                    required: ['strategic_goals', 'bottlenecks', 'ai_leverage_points']
+                  },
+                  simulations: {
+                    type: 'object',
+                    properties: {
+                      count: { type: 'number' },
+                      median_time_saved: { type: ['number', 'null'] },
+                      median_quality_gain: { type: ['number', 'null'] },
+                      highlights: {
+                        type: 'array',
+                        items: { type: 'string', maxLength: 100 },
+                        maxItems: 3
+                      },
+                      surprises: {
+                        type: 'array',
+                        items: { type: 'string', maxLength: 120 },
+                        maxItems: 3
+                      }
+                    },
+                    required: ['count', 'highlights', 'surprises']
+                  },
+                  journey: {
+                    type: 'array',
+                    items: { type: 'string', maxLength: 100 },
+                    maxItems: 6
+                  }
+                },
+                required: ['alignment', 'simulations', 'journey']
+              }
+            },
+            required: ['urgency', 'executive_summary', 'strengths', 'gaps', 'pilot_charter', 'appendix'],
+            additionalProperties: false
           }
-        }],
-        tool_choice: { type: 'function', function: { name: 'generate_executive_report' } }
-      })
+        }
+      }],
+      toolChoice: { type: 'function', function: { name: 'generate_executive_report' } }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[generate-final-report] AI API error:', response.status, errorText);
-      throw new Error(`AI API error: ${response.status}`);
-    }
-
-    const aiResponse = await response.json();
-    console.log('[generate-final-report] AI response received');
+    console.log(`[generate-final-report] AI response received from ${aiResult.provider} in ${aiResult.latencyMs}ms`);
 
     // Extract tool call result
-    const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) {
+    if (!aiResult.toolCalls || aiResult.toolCalls.length === 0) {
       throw new Error('No tool call in AI response');
     }
 
-    let reportData = JSON.parse(toolCall.function.arguments);
+    let reportData = JSON.parse(aiResult.toolCalls[0].function.arguments);
 
     // Validation: Check for quality issues (but don't truncate)
     const validateText = (text: string, fieldName: string): boolean => {
