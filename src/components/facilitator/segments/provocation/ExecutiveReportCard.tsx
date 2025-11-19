@@ -101,15 +101,34 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       if (error) throw error;
 
       if (data?.reportData && data?.aiSynthesis) {
+        console.log('[ExecutiveReportCard] Report fetched:', {
+          urgencyScore: data.reportData?.urgencyScore,
+          participantCount: data.reportData?.contextData?.workshop?.participantCount,
+          strategicGoals: data.reportData?.contextData?.company?.strategicGoals?.slice(0, 100),
+          hasAiSynthesis: !!data.aiSynthesis,
+          strengthsCount: data.aiSynthesis?.strengths?.length,
+          gapsCount: data.aiSynthesis?.gaps?.length,
+          execSummaryWords: data.aiSynthesis?.executiveSummary?.split(' ').length
+        });
+
         setReportData(data.reportData);
         setAiSynthesis(data.aiSynthesis);
 
-        // Save to database
-        await supabase.from('provocation_reports').insert({
-          workshop_session_id: workshopId,
-          report_data: data.reportData,
-          ai_synthesis: JSON.stringify(data.aiSynthesis),
-        });
+        // Save to database using UPSERT to allow updates
+        const { error: saveError } = await supabase
+          .from('provocation_reports')
+          .upsert({
+            workshop_session_id: workshopId,
+            report_data: data.reportData,
+            ai_synthesis: JSON.stringify(data.aiSynthesis),
+          }, {
+            onConflict: 'workshop_session_id'
+          });
+
+        if (saveError) {
+          console.error('[ExecutiveReportCard] Error saving report:', saveError);
+          throw new Error(`Failed to save report: ${saveError.message}`);
+        }
 
         setHasLoadedExisting(true);
       }
