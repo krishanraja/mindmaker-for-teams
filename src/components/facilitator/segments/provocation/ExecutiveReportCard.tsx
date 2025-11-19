@@ -241,59 +241,64 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
         </Button>
       </div>
 
-      {/* Header with Company Context */}
-      <Card className="bg-card border shadow-sm">
-        <CardHeader className="pb-6">
-          <div className="flex justify-between items-start">
-            <div className="space-y-4">
-              <div>
-                <h1 className="text-4xl font-semibold text-foreground mb-2">
-                  {contextData.company.name}
-                </h1>
-                <p className="text-muted-foreground text-lg">
-                  AI Leadership Assessment
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <span className="px-4 py-2 bg-muted border border-border rounded-md text-sm font-medium">
-                  {contextData.company.industry}
-                </span>
-                <span className="px-4 py-2 bg-muted border border-border rounded-md text-sm font-medium">
-                  AI Experience: {contextData.preWorkshop.aiExperience}
-                </span>
-                <span className="px-4 py-2 bg-muted border border-border rounded-md text-sm font-medium">
-                  {workshop.participant_count || 0} Participants
-                </span>
-              </div>
-            </div>
+      {/* Hero Metrics Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <Card className="text-center p-6 bg-primary/5 hover:bg-primary/10 transition-colors">
+          <div className="text-6xl font-black text-primary tabular-nums">
+            {contextData.workshop.bottlenecksIdentified}
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-card border border-border rounded-lg p-6 hover:border-primary/30 transition-colors">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-semibold">
-                Bottlenecks Identified
-              </div>
-              <div className="text-5xl font-bold text-foreground">
-                {contextData.workshop.bottlenecksIdentified}
-              </div>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mt-2">
+            Bottlenecks
+          </div>
+        </Card>
+        <Card className="text-center p-6 bg-primary/5 hover:bg-primary/10 transition-colors">
+          <div className="text-6xl font-black text-primary tabular-nums">
+            {contextData.workshop.opportunitiesPrioritized}
+          </div>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mt-2">
+            Opportunities
+          </div>
+        </Card>
+        <Card className="text-center p-6 bg-primary/5 hover:bg-primary/10 transition-colors">
+          <div className="text-6xl font-black text-primary tabular-nums">
+            {contextData.workshop.simulationsRun}
+          </div>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mt-2">
+            Simulations
+          </div>
+        </Card>
+        <Card className="text-center p-6 bg-primary/5 hover:bg-primary/10 transition-colors">
+          <div className="text-6xl font-black text-primary tabular-nums">
+            {contextData.prework.submissionCount}
+          </div>
+          <div className="text-xs uppercase tracking-widest text-muted-foreground font-bold mt-2">
+            Participants
+          </div>
+        </Card>
+        <Card className="text-center p-6 bg-gradient-to-br from-orange-500/10 to-red-500/10 border-2 border-orange-500/30">
+          <div className="text-6xl font-black text-orange-600 tabular-nums">
+            {urgencyScore}
+          </div>
+          <div className="text-xs uppercase tracking-widest text-orange-600 font-bold mt-2">
+            Urgency
+          </div>
+        </Card>
+      </div>
+
+      {/* Company Context - Compact */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+            <div>
+              <span className="font-bold text-foreground">{contextData.company.name}</span>
+              <span className="text-muted-foreground"> | {contextData.company.industry}</span>
             </div>
-            <div className="bg-card border border-border rounded-lg p-6 hover:border-primary/30 transition-colors">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-semibold">
-                Opportunities Prioritized
-              </div>
-              <div className="text-5xl font-bold text-foreground">
-                {contextData.workshop.opportunitiesPrioritized}
-              </div>
-            </div>
-            <div className="bg-card border border-border rounded-lg p-6 hover:border-primary/30 transition-colors">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2 font-semibold">
-                Simulations Completed
-              </div>
-              <div className="text-5xl font-bold text-foreground">
-                {contextData.workshop.simulationsRun}
-              </div>
-            </div>
+            <Badge variant="outline" className="font-normal">
+              AI Experience: {contextData.preWorkshop.aiExperience}
+            </Badge>
+            <Badge variant="outline" className="font-normal">
+              2026 Goals: {contextData.company.strategicGoals !== 'Not specified' ? contextData.company.strategicGoals : 'TBD'}
+            </Badge>
           </div>
         </CardContent>
       </Card>

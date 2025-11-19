@@ -112,9 +112,8 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
       phase: 'Pre-Workshop',
       icon: <FileText className="w-6 h-6 text-primary" />,
       insights: [
-        `Team anticipated ${preWorkData.anticipatedBottlenecks} bottlenecks`,
-        `Primary concerns: ${preWorkData.primaryConcerns.join(', ')}`,
-        `Experience level: ${preWorkData.experienceLevel}`
+        `${preWorkData.anticipatedBottlenecks} bottlenecks anticipated`,
+        `Experience: ${preWorkData.experienceLevel}`
       ]
     },
     {
@@ -122,16 +121,13 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
       icon: <Search className="w-6 h-6 text-primary" />,
       insights: [
         discoveryData.actualBottlenecks > 0
-          ? `Actually identified ${discoveryData.actualBottlenecks} bottleneck${discoveryData.actualBottlenecks !== 1 ? 's' : ''}${
+          ? `${discoveryData.actualBottlenecks} bottlenecks identified${
               preWorkData.anticipatedBottlenecks > 0
-                ? ` (${Math.abs(percentageChange)}% ${percentageChange >= 0 ? 'more' : 'fewer'} than anticipated)`
-                : preWorkData.anticipatedBottlenecks === 0 && discoveryData.actualBottlenecks > 0
-                ? ' (team anticipated none)'
+                ? ` (${Math.abs(percentageChange)}% ${percentageChange >= 0 ? 'more' : 'fewer'} than expected)`
                 : ''
             }`
-          : 'Team explored organizational friction points and bottlenecks',
-        discoveryData.topClusters.length > 0 ? `Top clusters: ${discoveryData.topClusters.join(', ')}` : 'Discussed patterns in operational constraints',
-        ...(discoveryData.mythsBusted.length > 0 ? [`Myths busted: ${discoveryData.mythsBusted[0]}`] : ['Calibrated team expectations on AI capabilities'])
+          : 'Explored organizational bottlenecks',
+        discoveryData.topClusters.length > 0 ? `Top: ${discoveryData.topClusters[0]}` : 'Patterns identified'
       ]
     },
     {
@@ -139,15 +135,9 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
       icon: <Beaker className="w-6 h-6 text-primary" />,
       insights: [
         experimentData.simulationsRun > 0 
-          ? `Ran ${experimentData.simulationsRun} live simulation${experimentData.simulationsRun !== 1 ? 's' : ''} with real scenarios`
-          : 'Prepared simulation frameworks for AI-augmented workflows',
-        experimentData.avgTimeSavings > 0 
-          ? `Average time savings: ${experimentData.avgTimeSavings}%`
-          : 'Explored potential efficiency gains from AI integration',
-        experimentData.avgQualityRating > 0 
-          ? `Average quality rating: ${experimentData.avgQualityRating}/10`
-          : 'Assessed quality considerations for AI outputs',
-        ...(experimentData.keyFindings.length > 0 ? [experimentData.keyFindings[0]] : ['Team identified high-impact automation opportunities'])
+          ? `${experimentData.simulationsRun} simulations: ${experimentData.avgTimeSavings}% avg time savings`
+          : 'Simulation frameworks prepared',
+        experimentData.keyFindings.length > 0 ? experimentData.keyFindings[0] : 'High-impact opportunities identified'
       ]
     },
     {
@@ -155,13 +145,9 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
       icon: <Shield className="w-6 h-6 text-primary" />,
       insights: [
         riskData.guardrailsCount > 0 
-          ? `Designed ${riskData.guardrailsCount} guardrail framework${riskData.guardrailsCount !== 1 ? 's' : ''}`
-          : 'Discussed guardrail requirements for safe AI deployment',
-        `Risk tolerance: ${riskData.riskTolerance}/100 (${riskData.riskLabel})`,
-        riskData.redFlagsCount > 0 
-          ? `Red flags identified: ${riskData.redFlagsCount}`
-          : 'Reviewed potential implementation risks',
-        riskData.topGuardrail || 'Established safety principles for pilot phase'
+          ? `${riskData.guardrailsCount} guardrails | Risk tolerance: ${riskData.riskTolerance}/100`
+          : `Risk tolerance: ${riskData.riskTolerance}/100 (${riskData.riskLabel})`,
+        riskData.topGuardrail || 'Safety principles established'
       ]
     },
     {
@@ -169,15 +155,9 @@ export const WorkshopJourneyMap: React.FC<WorkshopJourneyMapProps> = ({
       icon: <Wrench className="w-6 h-6 text-primary" />,
       insights: [
         taskData.totalTasks > 0 
-          ? `Analyzed ${taskData.totalTasks} task${taskData.totalTasks !== 1 ? 's' : ''} across simulations`
-          : 'Reviewed task decomposition approach for pilot workflows',
-        taskData.aiCapable > 0 
-          ? `AI-capable: ${taskData.aiCapable} (${taskData.aiCapablePct}%)`
-          : 'Identified automation opportunities within pilot scope',
-        taskData.humanOnly > 0 
-          ? `Human-only: ${taskData.humanOnly} (${taskData.humanOnlyPct}%)`
-          : 'Clarified human-in-the-loop requirements',
-        taskData.topAutomation || 'Prioritized quick-win automation targets'
+          ? `${taskData.totalTasks} tasks: ${taskData.aiCapablePct}% AI-capable`
+          : 'Task analysis completed',
+        taskData.topAutomation || 'Quick-win targets prioritized'
       ]
     },
     {
