@@ -35,6 +35,13 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       .maybeSingle();
 
     if (data && !error) {
+      const reportDataObj = data.report_data as any;
+      console.log('[ExecutiveReportCard] Loaded report_data structure:', {
+        hasContextData: !!reportDataObj?.contextData,
+        hasPreWorkshop: !!reportDataObj?.contextData?.preWorkshop,
+        hasWorkshop: !!reportDataObj?.workshop,
+        keys: Object.keys(reportDataObj || {})
+      });
       setReportData(data.report_data);
       
       // Parse AI synthesis if it's a string
@@ -153,7 +160,41 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
     );
   }
 
-  const { urgencyScore, roiMetrics, contextData, workshop, charter, strategy, bottlenecks } = reportData;
+  // Safe accessor to prevent crashes from null/undefined nested properties
+  const safeGet = (obj: any, path: string, defaultValue: any = null) => {
+    try {
+      return path.split('.').reduce((acc, part) => acc?.[part], obj) ?? defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  };
+
+  // Validate reportData structure before proceeding
+  if (!reportData || typeof reportData !== 'object') {
+    return (
+      <Card className="border-destructive">
+        <CardContent className="p-8 text-center space-y-4">
+          <div>
+            <p className="font-semibold text-foreground">Invalid Report Data</p>
+            <p className="text-sm text-muted-foreground">The report structure is corrupted or incomplete.</p>
+          </div>
+          <Button onClick={() => fetchReport(true)} variant="destructive">
+            Regenerate Report
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const {
+    urgencyScore = 0,
+    roiMetrics = {},
+    contextData = {},
+    workshop = {},
+    charter,
+    strategy,
+    bottlenecks = []
+  } = reportData;
   const bottleneckClusters: string[] = Array.from(
     new Set(
       (bottlenecks || [])
@@ -162,32 +203,32 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
     )
   );
 
-  // Prepare data for journey map
+  // Prepare data for journey map with safe accessors
   const journeyData = {
     preWorkData: {
-      anticipatedBottlenecks: contextData.preWorkshop.anticipatedBottlenecks?.length || 0,
-      primaryConcerns: contextData.preWorkshop.aiMyths?.slice(0, 2) || [],
-      experienceLevel: contextData.preWorkshop.aiExperience || 'experimenting'
+      anticipatedBottlenecks: safeGet(contextData, 'preWorkshop.anticipatedBottlenecks', []).length,
+      primaryConcerns: safeGet(contextData, 'preWorkshop.aiMyths', []).slice(0, 2),
+      experienceLevel: safeGet(contextData, 'preWorkshop.aiExperience', 'experimenting')
     },
     discoveryData: {
-      actualBottlenecks: contextData.workshop.bottlenecksIdentified || 0,
-      topClusters: contextData.workshop.bottleneckClusters?.slice(0, 2) || [],
-      mythsBusted: aiSynthesis?.journeyInsights?.mythsBusted ? [aiSynthesis.journeyInsights.mythsBusted] : []
+      actualBottlenecks: safeGet(contextData, 'workshop.bottlenecksIdentified', 0),
+      topClusters: safeGet(contextData, 'workshop.bottleneckClusters', []).slice(0, 2),
+      mythsBusted: safeGet(aiSynthesis, 'journeyInsights.mythsBusted') ? [aiSynthesis.journeyInsights.mythsBusted] : []
     },
     experimentData: {
-      simulationsRun: contextData.workshop.simulationsRun || 0,
-      avgTimeSavings: contextData.simulations?.avgTimeSavings || 0,
-      avgQualityRating: contextData.simulations?.avgQualityRating || 0,
-      keyFindings: aiSynthesis?.journeyInsights?.surprisingFindings ? [aiSynthesis.journeyInsights.surprisingFindings] : []
+      simulationsRun: safeGet(contextData, 'workshop.simulationsRun', 0),
+      avgTimeSavings: safeGet(contextData, 'simulations.avgTimeSavings', 0),
+      avgQualityRating: safeGet(contextData, 'simulations.avgQualityRating', 0),
+      keyFindings: safeGet(aiSynthesis, 'journeyInsights.surprisingFindings') ? [aiSynthesis.journeyInsights.surprisingFindings] : []
     },
-    riskData: contextData.enrichedData?.riskData || {
+    riskData: safeGet(contextData, 'enrichedData.riskData', null) || {
       guardrailsCount: 0,
       riskTolerance: 50,
       riskLabel: 'Balanced',
       redFlagsCount: 0,
       topGuardrail: 'Guardrails to be designed'
     },
-    taskData: contextData.enrichedData?.taskData || {
+    taskData: safeGet(contextData, 'enrichedData.taskData', null) || {
       totalTasks: 0,
       aiCapable: 0,
       aiCapablePct: 0,
@@ -196,22 +237,22 @@ export const ExecutiveReportCard: React.FC<ExecutiveReportCardProps> = ({ worksh
       topAutomation: 'Task analysis to be completed'
     },
     strategyData: {
-      topOpportunities: contextData.workshop.opportunitiesPrioritized || 0,
-      workingGroupInputs: contextData.strategy?.workingGroupInputs?.length || 0,
-      consensusArea: contextData.enrichedData?.strategyData?.consensusArea || 'Strategic alignment',
-      addendum: contextData.strategy ? {
-        targetsAtRisk: contextData.strategy.targetsAtRisk,
-        dataGovernance: contextData.strategy.dataGovernance,
-        pilotKPIs: contextData.strategy.pilotKPIs,
+      topOpportunities: safeGet(contextData, 'workshop.opportunitiesPrioritized', 0),
+      workingGroupInputs: safeGet(contextData, 'strategy.workingGroupInputs', []).length,
+      consensusArea: safeGet(contextData, 'enrichedData.strategyData.consensusArea', 'Strategic alignment'),
+      addendum: safeGet(contextData, 'strategy') ? {
+        targetsAtRisk: safeGet(contextData, 'strategy.targetsAtRisk'),
+        dataGovernance: safeGet(contextData, 'strategy.dataGovernance'),
+        pilotKPIs: safeGet(contextData, 'strategy.pilotKPIs'),
       } : undefined,
-      charter: contextData.charter?.pilotOwner || contextData.charter?.executiveSponsor ? {
-        pilotOwner: contextData.charter.pilotOwner,
-        executiveSponsor: contextData.charter.executiveSponsor,
+      charter: safeGet(contextData, 'charter.pilotOwner') || safeGet(contextData, 'charter.executiveSponsor') ? {
+        pilotOwner: safeGet(contextData, 'charter.pilotOwner'),
+        executiveSponsor: safeGet(contextData, 'charter.executiveSponsor'),
         milestones: {
-          d90: contextData.charter.milestones?.d90
+          d90: safeGet(contextData, 'charter.milestones.d90')
         }
       } : undefined,
-      huddleSynthesis: contextData.enrichedData?.huddleInsights?.actions?.length ? {
+      huddleSynthesis: safeGet(contextData, 'enrichedData.huddleInsights.actions', []).length ? {
         priorityActions: contextData.enrichedData.huddleInsights.actions
       } : undefined
     }
