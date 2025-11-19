@@ -106,14 +106,29 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
   };
 
   const handleShowFeedbackQR = async () => {
+    if (!workshopId) {
+      toast({
+        title: 'Error',
+        description: 'Workshop ID is missing',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setLoadingQR(true);
     try {
+      console.log('[TieredExecutiveReport] Calling generate-post-session-qr with workshopId:', workshopId);
+      
       const { data, error } = await supabase.functions.invoke('generate-post-session-qr', {
         body: { workshop_session_id: workshopId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[TieredExecutiveReport] Edge function error:', error);
+        throw error;
+      }
 
+      console.log('[TieredExecutiveReport] QR generation response:', data);
       setQrCodeUrl(data.qr_url);
       setReviewStats(data.review_stats);
       setShowQRDialog(true);

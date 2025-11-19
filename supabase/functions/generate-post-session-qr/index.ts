@@ -13,14 +13,20 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    console.log('[generate-post-session-qr] Request body:', JSON.stringify(body));
+    console.log('[generate-post-session-qr] Request received');
+    console.log('[generate-post-session-qr] Full body:', JSON.stringify(body));
+    console.log('[generate-post-session-qr] Body keys:', Object.keys(body));
     
     // Handle both parameter names for compatibility
     const workshop_session_id = body.workshop_session_id || body.workshopId;
+    console.log('[generate-post-session-qr] Extracted workshop_session_id:', workshop_session_id);
 
     if (!workshop_session_id) {
-      console.error('[generate-post-session-qr] Missing workshop_session_id in body:', body);
-      throw new Error('workshop_session_id is required');
+      console.error('[generate-post-session-qr] Missing workshop_session_id. Body received:', JSON.stringify(body));
+      return new Response(
+        JSON.stringify({ error: 'workshop_session_id is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
     console.log('[generate-post-session-qr] Processing for workshop:', workshop_session_id);
