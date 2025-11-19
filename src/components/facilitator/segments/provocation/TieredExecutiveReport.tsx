@@ -125,7 +125,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {report.strengths.map((strength, idx) => (
+                {(report.strengths || []).map((strength, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="text-green-600 dark:text-green-400 font-bold mt-0.5">✓</span>
                     <span className="text-sm">{strength}</span>
@@ -144,7 +144,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
-                {report.gaps.map((gap, idx) => (
+                {(report.gaps || []).map((gap, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="text-orange-600 dark:text-orange-400 font-bold mt-0.5">!</span>
                     <span className="text-sm">{gap}</span>
@@ -214,7 +214,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                   <div>
                     <h5 className="font-semibold text-sm mb-2">Success Metrics</h5>
                     <ul className="space-y-1 text-sm">
-                      {report.pilot_charter.key_metrics.map((metric, idx) => (
+                      {(report.pilot_charter.key_metrics || []).map((metric, idx) => (
                         <li key={idx} className="flex items-start gap-2">
                           <span className="text-primary">•</span>
                           <span>{metric}</span>
@@ -249,11 +249,11 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                   Strategic Alignment
                 </h4>
                 <div className="space-y-3">
-                  {report.appendix.alignment.goals.length > 0 && (
+                  {(report.appendix?.alignment?.goals || []).length > 0 && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">Strategic Goals:</p>
                       <ul className="space-y-1">
-                        {report.appendix.alignment.goals.map((goal, idx) => (
+                        {(report.appendix?.alignment?.goals || []).map((goal, idx) => (
                           <li key={idx} className="text-sm flex items-start gap-2">
                             <span className="text-primary">•</span>
                             <span>{goal}</span>
@@ -262,11 +262,11 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                       </ul>
                     </div>
                   )}
-                  {report.appendix.alignment.bottlenecks.length > 0 && (
+                  {(report.appendix?.alignment?.bottlenecks || []).length > 0 && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">Key Bottlenecks:</p>
                       <ul className="space-y-1">
-                        {report.appendix.alignment.bottlenecks.map((bottleneck, idx) => (
+                        {(report.appendix?.alignment?.bottlenecks || []).map((bottleneck, idx) => (
                           <li key={idx} className="text-sm flex items-start gap-2">
                             <span className="text-orange-500">•</span>
                             <span>{bottleneck}</span>
@@ -275,11 +275,11 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                       </ul>
                     </div>
                   )}
-                  {report.appendix.alignment.leverage_points.length > 0 && (
+                  {(report.appendix?.alignment?.leverage_points || []).length > 0 && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">AI Leverage Points:</p>
                       <ul className="space-y-1">
-                        {report.appendix.alignment.leverage_points.map((point, idx) => (
+                        {(report.appendix?.alignment?.leverage_points || []).map((point, idx) => (
                           <li key={idx} className="text-sm flex items-start gap-2">
                             <span className="text-green-500">•</span>
                             <span>{point}</span>
@@ -292,7 +292,7 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
               </div>
 
               {/* Simulation Performance */}
-              {report.appendix.simulations.count > 0 && (
+              {(report.appendix?.simulations?.count || 0) > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
@@ -301,26 +301,26 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
                   <div className="bg-muted/30 p-4 rounded-lg space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Simulations Run:</span>
-                      <span className="font-semibold">{report.appendix.simulations.count}</span>
+                      <span className="font-semibold">{report.appendix?.simulations?.count || 0}</span>
                     </div>
-                    {report.appendix.simulations.median_time_saved && (
+                    {report.appendix?.simulations?.median_time_saved && (
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Median Time Saved:</span>
                         <span className="font-semibold text-primary">{report.appendix.simulations.median_time_saved}%</span>
                       </div>
                     )}
-                    {report.appendix.simulations.median_quality_gain && (
+                    {report.appendix?.simulations?.median_quality_gain && (
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Median Quality Gain:</span>
                         <span className="font-semibold text-green-600 dark:text-green-400">{report.appendix.simulations.median_quality_gain}%</span>
                       </div>
                     )}
                   </div>
-                  {report.appendix.simulations.highlights.length > 0 && (
+                  {(report.appendix?.simulations?.highlights || []).length > 0 && (
                     <div className="mt-3">
                       <p className="text-sm font-medium text-muted-foreground mb-2">Highlights:</p>
                       <ul className="space-y-1">
-                        {report.appendix.simulations.highlights.map((highlight, idx) => (
+                        {(report.appendix?.simulations?.highlights || []).map((highlight, idx) => (
                           <li key={idx} className="text-sm flex items-start gap-2">
                             <span className="text-primary">→</span>
                             <span>{highlight}</span>
@@ -333,11 +333,11 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
               )}
 
               {/* Workshop Journey */}
-              {report.appendix.journey.length > 0 && (
+              {(report.appendix?.journey || []).length > 0 && (
                 <div>
                   <h4 className="font-semibold mb-3">Workshop Journey</h4>
                   <ul className="space-y-2">
-                    {report.appendix.journey.map((step, idx) => (
+                    {(report.appendix?.journey || []).map((step, idx) => (
                       <li key={idx} className="text-sm flex items-start gap-2">
                         <span className="text-primary font-bold">{idx + 1}.</span>
                         <span>{step}</span>
