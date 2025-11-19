@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.generate-final-report]
 verify_jwt = false
+
+[functions.generate-post-session-qr]
+verify_jwt = false
