@@ -411,8 +411,7 @@ Return this exact JSON structure:
 === COMPANY CONTEXT ===
 Industry: ${contextData.company.industry}
 AI Experience: ${contextData.preWorkshop.aiExperience}
-    const userPrompt = `Workshop Data Summary:
-Company: ${contextData.company.name} | ${contextData.company.industry}
+Company: ${contextData.company.name}
 2026 Goals: ${contextData.company.strategicGoals.slice(0, 200)}...
 
 Bottlenecks Identified: ${contextData.workshop.bottlenecksIdentified}
