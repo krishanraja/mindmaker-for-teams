@@ -113,10 +113,25 @@ serve(async (req) => {
       ? strategy.data.targets_at_risk.match(/'([^']+)'/g)?.map(g => g.replace(/'/g, '')) || []
       : [];
     
+    // Build derived goals from workshop activities
+    const derivedGoals: string[] = [];
+    if (strategy?.data?.targets_at_risk) {
+      derivedGoals.push(`Mitigate strategic risks: ${strategy.data.targets_at_risk.slice(0, 100)}`);
+    }
+    if (bottlenecks.data && bottlenecks.data.length > 0) {
+      const topClusters = [...new Set(bottlenecks.data.map(b => b.cluster_name).filter(Boolean))].slice(0, 2);
+      if (topClusters.length > 0) {
+        derivedGoals.push(`Address operational bottlenecks in: ${topClusters.join(', ')}`);
+      }
+    }
+
+    // Prioritize: 1) Intake goals, 2) Derived goals, 3) Extracted strategy goals, 4) Professional TBD
     const strategicGoalsText = workshop.exec_intakes?.strategic_objectives_2026 || 
-                               (extractedStrategicGoals.length > 0 
-                                 ? extractedStrategicGoals.join(', ')
-                                 : 'Not specified');
+                               (derivedGoals.length > 0 
+                                 ? derivedGoals.join('; ')
+                                 : extractedStrategicGoals.length > 0 
+                                   ? extractedStrategicGoals.join(', ')
+                                   : 'Strategic goals to be defined during pilot planning');
 
     const getRiskLabel = (tolerance: number): string => {
       if (tolerance >= 75) return 'High';
@@ -372,10 +387,14 @@ serve(async (req) => {
 
 ${getJargonGuidance(jargonLevel)}
 
-IRON RULES:
-- Executive Summary: 110-140 words HARD CAP. Count every word.
-- Strengths: EXACTLY 3 items, each ≤18 words
-- Gaps: EXACTLY 3 items, each ≤18 words
+CRITICAL WORD LIMITS (COUNT EVERY WORD - VIOLATING THESE WILL RESULT IN REJECTION):
+- Executive Summary: 90-100 words MAXIMUM. This is a HARD CAP.
+- Strengths: EXACTLY 3 items (no more, no less)
+  - Each evidence: ≤18 words
+  - Each impact: ≤15 words
+- Gaps: EXACTLY 3 items (no more, no less)
+  - Each evidence: ≤18 words
+  - Each recommendation: ≤15 words
 - Evidence MUST reference specific metrics from workshop (e.g., "42% time saved", "37/57 tasks AI-capable")
 - NEVER invent data not present in input
 - Focus on ONE priority 90-day pilot only
@@ -391,7 +410,7 @@ ANTI-FABRICATION RULES:
 
 Return this exact JSON structure:
 {
-  "executiveSummary": "<110-140 words>",
+  "executiveSummary": "<90-100 words MAXIMUM>",
   "strengths": [
     {"title": "<max 12 words>", "evidence": "<max 18 words with metric>", "impact": "<max 15 words>"}
   ],
@@ -445,7 +464,7 @@ Generate synthesis using ONLY this data. Follow word limits EXACTLY.`;
           { role: 'user', content: userPrompt }
         ],
         max_tokens: 3000,
-        temperature: 0.7,
+        temperature: 0.5,
       }),
     });
 
@@ -460,11 +479,50 @@ Generate synthesis using ONLY this data. Follow word limits EXACTLY.`;
     
     console.log('AI response received, parsing...');
 
+    // Helper function to truncate text to word limit
+    const truncateToWords = (text: string, maxWords: number): string => {
+      const words = text.trim().split(/\s+/);
+      if (words.length <= maxWords) return text;
+      return words.slice(0, maxWords).join(' ') + '...';
+    };
+
     let synthesis;
     try {
       // Extract JSON from potential markdown code blocks
       const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
       synthesis = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(aiContent);
+      
+      // POST-PROCESSING: Force-enforce word limits even if LLM ignored prompts
+      if (synthesis.executiveSummary) {
+        synthesis.executiveSummary = truncateToWords(synthesis.executiveSummary, 100);
+      }
+      
+      // Force exactly 3 strengths
+      if (synthesis.strengths && Array.isArray(synthesis.strengths)) {
+        synthesis.strengths = synthesis.strengths.slice(0, 3);
+        synthesis.strengths = synthesis.strengths.map((s: any) => ({
+          title: s.title,
+          evidence: truncateToWords(s.evidence || '', 18),
+          impact: truncateToWords(s.impact || '', 15)
+        }));
+      }
+      
+      // Force exactly 3 gaps
+      if (synthesis.gaps && Array.isArray(synthesis.gaps)) {
+        synthesis.gaps = synthesis.gaps.slice(0, 3);
+        synthesis.gaps = synthesis.gaps.map((g: any) => ({
+          title: g.title,
+          evidence: truncateToWords(g.evidence || '', 18),
+          recommendation: truncateToWords(g.recommendation || '', 15)
+        }));
+      }
+
+      console.log('Post-processing applied:', {
+        execSummaryWords: synthesis.executiveSummary?.split(' ').length,
+        strengthsCount: synthesis.strengths?.length,
+        gapsCount: synthesis.gaps?.length
+      });
+      
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
       console.error('Raw AI content:', aiContent);
