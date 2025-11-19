@@ -192,12 +192,13 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
         </Button>
       </div>
 
-      <TieredExecutiveReport
-        report={report}
-        companyName={workshop?.exec_intakes?.company_name || 'Organization'}
-        workshopDate={workshop?.workshop_date || new Date().toISOString()}
-        participantCount={workshop?.participant_count || 0}
-      />
+        <TieredExecutiveReport
+          report={report}
+          companyName={workshop?.exec_intakes?.company_name || 'Organization'}
+          workshopDate={workshop?.workshop_date || new Date().toISOString()}
+          participantCount={workshop?.participant_count || 0}
+          workshopId={workshopId}
+        />
     </div>
   );
 };
