@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { AIInsightCard } from '../AIInsightCard';
 import { AIGenerateButton } from '@/components/ui/ai-generate-button';
+import { useSegmentSummary } from '@/hooks/useSegmentSummary';
 
 interface Segment2BottleneckBoardProps {
   workshopId: string;
@@ -16,6 +17,7 @@ interface Segment2BottleneckBoardProps {
 }
 
 export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = ({ workshopId, bootcampPlanData }) => {
+  const { writeSegmentSummary } = useSegmentSummary();
   const [activitySession, setActivitySession] = useState<any>(null);
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [clusteredSubmissions, setClusteredSubmissions] = useState<any[]>([]);
@@ -177,6 +179,18 @@ export const Segment2BottleneckBoard: React.FC<Segment2BottleneckBoardProps> = (
     setHasGeneratedSynthesis(true);
     toast({ title: 'Synthesis generated!' });
     await loadSynthesis();
+    
+    // Write segment summary for final report
+    const topClusters = [...new Set(submissions.map(s => s.cluster_name).filter(Boolean))].slice(0, 3);
+    if (topClusters.length > 0) {
+      await writeSegmentSummary(workshopId, 'time_machine', {
+        headline: `${submissions.length} bottlenecks identified across ${topClusters.length} key areas`,
+        key_points: topClusters.map(cluster => `${cluster}: ${submissions.filter(s => s.cluster_name === cluster).length} submissions`).slice(0, 3),
+        primary_metric: submissions.length,
+        primary_metric_label: 'Total bottlenecks',
+        segment_data: { top_clusters: topClusters }
+      });
+    }
     
     // Scroll to synthesis section
     setTimeout(() => {
