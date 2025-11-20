@@ -1,476 +1,420 @@
-import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, Sparkles, ChevronRight, Save, CheckCircle2, Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { SIMULATIONS, getSimulationById, getDisplayTitle } from "@/lib/simulation-constants";
-import { ContextCard } from "./simulation/ContextCard";
-import { SimulationInterface } from "./simulation/SimulationInterface";
-import { TaskBreakdownCanvas, Task } from "./simulation/TaskBreakdownCanvas";
-import { GuardrailDesigner, Guardrail } from "./simulation/GuardrailDesigner";
-import { ParsedSimulation, extractTasksFromSimulation, extractGuardrailsFromSimulation } from "@/lib/ai-response-parser";
-import { useSegmentSummary } from '@/hooks/useSegmentSummary';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { Zap, Users, UserCheck, UserX, MessageSquare, Clock, Trash2, AlertCircle } from 'lucide-react';
+import { SimulationInterface } from './simulation/SimulationInterface';
+import { TeamReaction } from '@/types/alignment';
 
 interface Segment4SimulationLabProps {
   workshopId: string;
   bootcampPlanData?: any;
 }
 
-type Phase = 'setup' | 'simulation' | 'tasks' | 'guardrails' | 'complete';
+interface SimulationResult {
+  id: string;
+  simulation_id: string;
+  team_reactions?: TeamReaction;
+  disagreement_points?: string[];
+  created_at: string;
+  [key: string]: any;
+}
 
-export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4SimulationLabProps) => {
-  const { toast } = useToast();
-  const { writeSegmentSummary } = useSegmentSummary();
-  const [selectedSimulation, setSelectedSimulation] = useState<string | null>(null);
-  const [currentPhase, setCurrentPhase] = useState<Phase>('setup');
-  const [scenarioContext, setScenarioContext] = useState<any>({});
-  const [generatedSimulation, setGeneratedSimulation] = useState<ParsedSimulation | null>(null);
-  const [taskBreakdown, setTaskBreakdown] = useState<Task[]>([]);
-  const [guardrails, setGuardrails] = useState<Guardrail | null>(null);
-  const [results, setResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [jargonLevel, setJargonLevel] = useState(33); // Default to plain English
-  const [promptIterations, setPromptIterations] = useState<any[]>([]);
+export const Segment4SimulationLab: React.FC<Segment4SimulationLabProps> = ({ 
+  workshopId,
+  bootcampPlanData 
+}) => {
+  const [currentPhase, setCurrentPhase] = useState<'setup' | 'simulation' | 'team_reaction' | 'complete'>('setup');
+  const [selectedSimulation, setSelectedSimulation] = useState<any>(null);
+  const [scenarioContext, setScenarioContext] = useState<any>(null);
+  const [generatedSimulation, setGeneratedSimulation] = useState<any>(null);
+  const [results, setResults] = useState<SimulationResult[]>([]);
+  const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  
+  // Battle Test #1: Team Reaction Tracking
+  const [impressed, setImpressed] = useState<string[]>([]);
+  const [skeptical, setSkeptical] = useState<string[]>([]);
+  const [neutral, setNeutral] = useState<string[]>([]);
+  const [disagreements, setDisagreements] = useState<string>('');
+  const [reviewTime, setReviewTime] = useState<number>(0);
 
+  // Simulation library
   const customerSimulations = useMemo(() => {
-    if (!bootcampPlanData) return [];
-    
-    const sims = [];
-    if (bootcampPlanData.simulation_1_id) {
-      sims.push({
-        id: bootcampPlanData.simulation_1_id,
-        snapshot: bootcampPlanData.simulation_1_snapshot
-      });
-    }
-    if (bootcampPlanData.simulation_2_id) {
-      sims.push({
-        id: bootcampPlanData.simulation_2_id,
-        snapshot: bootcampPlanData.simulation_2_snapshot
-      });
-    }
-    return sims;
+    if (!bootcampPlanData?.simulation_1_snapshot && !bootcampPlanData?.simulation_2_snapshot) return [];
+    return [
+      bootcampPlanData.simulation_1_snapshot,
+      bootcampPlanData.simulation_2_snapshot
+    ].filter(Boolean);
   }, [bootcampPlanData]);
 
-  const availableSimulations = useMemo(() => {
-    if (customerSimulations.length > 0) {
-      return customerSimulations;
+  const defaultSimulations = [
+    {
+      title: "Contract Review Acceleration",
+      currentState: "Legal team manually reviews 50+ vendor contracts monthly, taking 2-3 weeks per complex agreement",
+      challenge: "Board wants faster deal closure without compromising risk assessment",
+      constraints: ["Must maintain compliance standards", "Senior counsel approval still required"],
+      successCriteria: ["Reduce review time by 60%", "Zero missed compliance flags"]
     }
-    
-    // Fallback: show all simulations
-    return SIMULATIONS.map(sim => ({
-      id: sim.id,
-      snapshot: null
-    }));
-  }, [customerSimulations]);
+  ];
 
-  const hasPreselectedSimulations = customerSimulations.length > 0;
+  const availableSimulations = customerSimulations.length > 0 ? customerSimulations : defaultSimulations;
 
   useEffect(() => {
     loadResults();
   }, [workshopId]);
 
   const loadResults = async () => {
-    const { data, error } = await supabase
-      .from("simulation_results")
-      .select("*")
-      .eq("workshop_session_id", workshopId)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Error loading simulation results:", error);
-      return;
-    }
-
-    console.log('[DEBUG] Loaded simulation results:', data);
-    if (data && data.length > 0) {
-      console.log('[DEBUG] First result task_breakdown:', data[0]?.task_breakdown);
-      console.log('[DEBUG] First result quality_improvement_pct:', data[0]?.quality_improvement_pct);
-    }
-
-    setResults(data || []);
-  };
-
-  const handleDeleteExperiment = async (resultId: string) => {
-    const { error } = await supabase
-      .from('simulation_results')
-      .delete()
-      .eq('id', resultId);
-    
-    if (error) {
-      toast({ title: "Failed to delete experiment", variant: "destructive" });
-    } else {
-      setResults(prev => prev.filter(r => r.id !== resultId));
-      toast({ title: "Experiment deleted" });
-    }
-    setDeleteConfirm(null);
-  };
-
-  const handleSaveSimulation = async () => {
-    if (!selectedSimulation || !generatedSimulation || !taskBreakdown || !guardrails) return;
-
-    setLoading(true);
     try {
-      const simulation = getSimulationById(selectedSimulation);
-      const automationPct = taskBreakdown.length > 0 
-        ? Math.round(((taskBreakdown.filter(t => t.category === 'ai-capable').length + taskBreakdown.filter(t => t.category === 'ai-human').length * 0.5) / taskBreakdown.length) * 100)
-        : 0;
-
-      console.log('[DEBUG] Saving simulation with prompts:', promptIterations.length);
-
-      const { error } = await supabase.from("simulation_results").insert([{
-        workshop_session_id: workshopId,
-        simulation_id: selectedSimulation,
-        simulation_name: getSimulationById(selectedSimulation)?.title || selectedSimulation,
-        scenario_context: scenarioContext as any,
-        ai_outputs: generatedSimulation.sections as any,
-        prompts_used: promptIterations as any,
-        task_breakdown: taskBreakdown as any,
-        guardrails: guardrails as any,
-        before_snapshot: {},
-        after_snapshot: {},
-        time_savings_pct: automationPct,
-        quality_improvement_pct: 70,
-      }]);
+      const { data, error } = await supabase
+        .from('simulation_results')
+        .select('*')
+        .eq('workshop_session_id', workshopId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      toast({
-        title: "Simulation Saved",
-        description: "AI simulation results captured successfully"
-      });
-
-      // Write segment summary for final report
-      await writeSegmentSummary(workshopId, 'crystal_ball', {
-        headline: `AI reduced cycle time by ${automationPct}% in ${simulation?.title || 'simulation'}`,
-        key_points: [
-          `${taskBreakdown.filter(t => t.category === 'ai-capable').length} tasks fully AI-capable`,
-          `${automationPct}% automation potential identified`,
-          `Guardrails established for quality control`
-        ],
-        primary_metric: automationPct,
-        primary_metric_label: 'Time saved',
-        segment_data: { simulation_name: simulation?.title }
-      });
-
-      // Reset
-      setSelectedSimulation(null);
-      setCurrentPhase('setup');
-      setScenarioContext({});
-      setGeneratedSimulation(null);
-      setTaskBreakdown([]);
-      setGuardrails(null);
-      loadResults();
+      setResults(data || []);
     } catch (error) {
-      console.error("Error saving simulation:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save simulation results",
-        variant: "destructive"
-      });
+      console.error('Error loading results:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const selectedSnapshot = useMemo(() => {
-    if (!selectedSimulation) return null;
-    const sim = customerSimulations.find(s => s.id === selectedSimulation);
-    return sim?.snapshot || null;
-  }, [selectedSimulation, customerSimulations]);
+  const handleDeleteExperiment = async (resultId: string) => {
+    try {
+      const { error } = await supabase
+        .from('simulation_results')
+        .delete()
+        .eq('id', resultId);
 
-  const handleStartSimulation = (simId: string) => {
-    const sim = availableSimulations.find(s => s.id === simId);
-    const simInfo = getSimulationById(simId);
-    
-    setSelectedSimulation(simId);
-    setScenarioContext(sim?.snapshot || {
-      currentState: simInfo?.description || '',
-      desiredOutcome: `Analyze how AI could transform this ${simInfo?.title || 'workflow'}`,
-      constraints: 'Must be implementable within 90 days',
-      stakeholders: 'Executive team, operations, IT'
-    });
-    setCurrentPhase('simulation');
-    
-    // Auto-trigger generation after a brief delay
-    setTimeout(() => {
-      const generateBtn = document.querySelector('[data-generate-simulation]') as HTMLButtonElement;
-      generateBtn?.click();
-    }, 300);
-  };
+      if (error) throw error;
 
-  const handleSimulationGenerated = (simulation: ParsedSimulation) => {
-    setGeneratedSimulation(simulation);
-    
-    // Pre-populate task breakdown
-    const tasks = extractTasksFromSimulation(simulation);
-    setTaskBreakdown(tasks);
-    
-    // Pre-populate guardrails
-    const extractedGuardrails = extractGuardrailsFromSimulation(simulation);
-    if (extractedGuardrails) {
-      setGuardrails(extractedGuardrails);
+      toast({ title: 'Experiment deleted' });
+      loadResults();
+    } catch (error) {
+      console.error('Error deleting:', error);
+      toast({ title: 'Failed to delete', variant: 'destructive' });
+    } finally {
+      setDeleteConfirm(null);
     }
   };
 
+  const handleStartSimulation = (simulation: any) => {
+    setSelectedSimulation(simulation);
+    setScenarioContext({
+      simulationId: `sim-${Date.now()}`,
+      title: simulation.title,
+      currentState: simulation.currentState,
+      challenge: simulation.challenge,
+      constraints: simulation.constraints || [],
+      successCriteria: simulation.successCriteria || []
+    });
+    setCurrentPhase('simulation');
+  };
+
+  const handleSimulationGenerated = (simulation: any) => {
+    setGeneratedSimulation(simulation);
+    setCurrentPhase('team_reaction');
+  };
+
+  const handleSaveReaction = async () => {
+    if (!scenarioContext || !generatedSimulation) return;
+
+    try {
+      const teamReactions: TeamReaction = {
+        impressed: impressed,
+        skeptical: skeptical,
+        neutral: neutral,
+        key_disagreements: disagreements.split('\n').filter(d => d.trim())
+      };
+
+      const { data, error } = await supabase
+        .from('simulation_results')
+        .insert({
+          workshop_session_id: workshopId,
+          simulation_id: scenarioContext.simulationId,
+          team_reactions: teamReactions as any,
+          disagreement_points: teamReactions.key_disagreements,
+          scenario_context: scenarioContext
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Write segment summary
+      await supabase.functions.invoke('write-segment-summary', {
+        body: {
+          workshop_session_id: workshopId,
+          segment_number: 4,
+          segment_name: 'Battle Test #1: AI Performance',
+          summary_data: {
+            simulation_title: scenarioContext.title,
+            team_split: {
+              impressed: impressed.length,
+              skeptical: skeptical.length,
+              neutral: neutral.length
+            },
+            disagreement_count: teamReactions.key_disagreements.length,
+            review_time_minutes: reviewTime
+          }
+        }
+      });
+
+      toast({ title: 'Battle test results saved!' });
+      loadResults();
+      resetForm();
+    } catch (error) {
+      console.error('Error saving reaction:', error);
+      toast({ title: 'Failed to save', variant: 'destructive' });
+    }
+  };
+
+  const resetForm = () => {
+    setCurrentPhase('setup');
+    setSelectedSimulation(null);
+    setScenarioContext(null);
+    setGeneratedSimulation(null);
+    setImpressed([]);
+    setSkeptical([]);
+    setNeutral([]);
+    setDisagreements('');
+    setReviewTime(0);
+  };
+
+  if (loading) {
+    return <div className="p-8">Loading...</div>;
+  }
+
   return (
     <div className="space-y-6">
-      <Card className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10">
-        <div className="flex items-center gap-3 mb-3">
-          <Sparkles className="h-6 w-6" />
-          <h2 className="text-2xl font-bold">Battle Test #1: Can Your Team Agree on What AI Can Do?</h2>
-        </div>
-        <p className="text-muted-foreground mb-4">
-          We'll run live AI experiments on your workflows. Watch carefully: who thinks the AI is good enough? Who wants more oversight? These disagreements reveal your team's real risk appetite—not what they say in theory.
-        </p>
-        <div className="flex gap-2 mb-6">
-          <Badge variant="outline">Live AI Testing</Badge>
-          <Badge variant="outline">Task Decomposition</Badge>
-          <Badge variant="outline">Risk Assessment</Badge>
-        </div>
-
-        {/* Content Complexity controlled via context - set during session selection */}
+      {/* Header */}
+      <Card className="border-2 border-primary/20">
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Zap className="h-6 w-6 text-primary" />
+            Battle Test #1: Can Your Team Agree on What AI Can Do?
+          </CardTitle>
+          <CardDescription className="text-base">
+            Run live AI simulations and observe how your team reacts. The goal isn't to produce a perfect output—it's to surface where your team aligns or disagrees on AI performance.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Card className="bg-muted/50 border-primary/10">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                Facilitator Note
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm space-y-2">
+              <p>Your job: <strong>Observe, don't solve</strong></p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>Watch who's impressed vs. who's skeptical</li>
+                <li>Note what triggers disagreement (accuracy? tone? speed?)</li>
+                <li>Don't rush to consensus—tension is data</li>
+                <li>Track time to review and key sticking points</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </CardContent>
       </Card>
 
+      {/* Setup Phase */}
       {currentPhase === 'setup' && (
-        <Card className="p-6">
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <h3 className="font-semibold">
-                {hasPreselectedSimulations ? "Customer Pre-Selected Simulations" : "Available Simulations"}
-              </h3>
-              <Badge variant={hasPreselectedSimulations ? "default" : "outline"}>
-                {hasPreselectedSimulations ? "From Bootcamp Plan" : "Choose During Workshop"}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Pick a scenario from your business. We'll test AI live. Pay attention to who's impressed and who's skeptical—that's the alignment gap we're measuring.
-            </p>
-            <div className="grid md:grid-cols-2 gap-4">
-              {availableSimulations.map((sim) => {
-                const simInfo = getSimulationById(sim.id);
-                return (
-                  <Card
-                    key={sim.id}
-                    className="cursor-pointer transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] group relative overflow-hidden"
-                    onClick={() => handleStartSimulation(sim.id)}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <CardContent className="p-5 relative">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="space-y-2 flex-1">
-                          <div className="font-semibold text-base group-hover:text-primary transition-colors">
-                            {getDisplayTitle(sim.id)}
-                          </div>
-                          <div className="text-sm text-muted-foreground line-clamp-2">
-                            {simInfo?.description}
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0 mt-1" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {currentPhase === 'simulation' && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-2 text-sm">
-            <Badge variant="outline" className="bg-muted">Setup</Badge>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            <Badge variant="default">Generate</Badge>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            <Badge variant="outline">Tasks</Badge>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            <Badge variant="outline">Guardrails</Badge>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            <Badge variant="outline">Save</Badge>
-          </div>
-
-          {selectedSnapshot && <ContextCard snapshot={selectedSnapshot} />}
-          
-          <SimulationInterface
-            scenarioContext={scenarioContext}
-            onSimulationGenerated={handleSimulationGenerated}
-            generatedSimulation={generatedSimulation || undefined}
-            jargonLevel={jargonLevel}
-            workshopId={workshopId}
-            simulationId={selectedSimulation!}
-          />
-
-          <Button
-            onClick={() => setCurrentPhase('tasks')}
-            disabled={!generatedSimulation}
-            size="lg"
-            className="w-full"
-          >
-            Continue to Task Breakdown
-          </Button>
-        </div>
-      )}
-
-      {currentPhase === 'tasks' && (
-        <div className="space-y-6">
-          <Card className="p-4 bg-primary/5">
-            <p className="text-sm">
-              <strong>Review & Adjust:</strong> Tasks have been pre-populated from the Mindmaker AI simulation. Review and adjust as needed.
-            </p>
-          </Card>
-
-          <TaskBreakdownCanvas
-            workshopId={workshopId}
-            simulationId={selectedSimulation!}
-            initialTasks={taskBreakdown}
-            onBreakdownComplete={(breakdown) => {
-              setTaskBreakdown(breakdown.tasks);
-              setCurrentPhase('guardrails');
-            }}
-            scenarioContext={{
-              ...scenarioContext,
-              simulationId: selectedSimulation,
-              title: getSimulationById(selectedSimulation || '')?.title
-            }}
-            simulationResults={generatedSimulation}
-          />
-        </div>
-      )}
-
-      {currentPhase === 'guardrails' && (
-        <div className="space-y-6">
-          <Card className="p-4 bg-primary/5">
-            <p className="text-sm">
-              <strong>Review & Refine:</strong> Guardrails have been pre-populated from the Mindmaker AI simulation. Review and refine as needed.
-            </p>
-          </Card>
-
-          <GuardrailDesigner
-            workshopId={workshopId}
-            simulationId={selectedSimulation!}
-            aiOutputQuality={7}
-            initialGuardrail={guardrails || undefined}
-            scenarioContext={scenarioContext}
-            simulationResults={generatedSimulation}
-            onGuardrailsComplete={(guardrailData) => {
-              setGuardrails(guardrailData);
-              handleSaveSimulation();
-            }}
-          />
-        </div>
-      )}
-
-      {currentPhase === 'complete' && (
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Simulation Complete!</h3>
-          
-          <div className="space-y-4 mb-6">
-            <Card className="p-4 bg-muted/50">
-              <h4 className="font-semibold mb-2">Simulation Summary</h4>
-              <ul className="text-sm space-y-1">
-                <li>✓ Generated AI-powered simulation with Mindmaker AI</li>
-                <li>✓ Analyzed {taskBreakdown.length} discrete tasks</li>
-                <li>✓ Designed comprehensive guardrails</li>
-                <li>✓ Results based on AI analysis of your specific scenario</li>
-              </ul>
-            </Card>
-          </div>
-
-          <Button
-            onClick={() => {
-              setSelectedSimulation(null);
-              setCurrentPhase('setup');
-              setGeneratedSimulation(null);
-              setTaskBreakdown([]);
-              setGuardrails(null);
-            }}
-            variant="outline"
-            className="w-full mt-2"
-          >
-            Run Another Simulation
-          </Button>
-        </Card>
-      )}
-
-      {results.length > 0 && (
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Completed Experiments</h3>
-          <div className="space-y-3">
-            {results.map((result) => (
-              <Card key={result.id} className="p-4 bg-muted/30">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h4 className="font-semibold">{result.simulation_name}</h4>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(result.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">
-                      {result.prompts_used?.length || 0} prompts
-                    </Badge>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteConfirm(result.id)}
-                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground text-xs">AI Quality</p>
-                    <p className="text-lg font-bold">
-                      {result.quality_improvement_pct 
-                        ? Math.round(result.quality_improvement_pct / 10)
-                        : 0}/10
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Automation</p>
-                    <p className="text-lg font-bold text-green-600">{result.time_savings_pct?.toFixed(0)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Tasks</p>
-                    <p className="text-lg font-bold">{Array.isArray(result.task_breakdown) ? result.task_breakdown.length : 0}</p>
-                  </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Select a Simulation to Run</CardTitle>
+            <CardDescription>Choose a real workflow from your organization to test with AI</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {availableSimulations.map((sim, idx) => (
+              <Card key={idx} className="p-4 hover:border-primary/50 cursor-pointer transition-colors" onClick={() => handleStartSimulation(sim)}>
+                <h4 className="font-semibold mb-2">{sim.title}</h4>
+                <p className="text-sm text-muted-foreground mb-3">{sim.currentState}</p>
+                <div className="flex gap-2">
+                  <Badge variant="outline">{sim.constraints?.length || 0} constraints</Badge>
+                  <Badge variant="outline">{sim.successCriteria?.length || 0} success criteria</Badge>
                 </div>
               </Card>
             ))}
-          </div>
+          </CardContent>
         </Card>
       )}
 
+      {/* Simulation Phase */}
+      {currentPhase === 'simulation' && scenarioContext && (
+        <SimulationInterface
+          workshopId={workshopId}
+          simulationId={scenarioContext.simulationId}
+          scenarioContext={scenarioContext}
+          onSimulationGenerated={handleSimulationGenerated}
+        />
+      )}
+
+      {/* Team Reaction Tracking */}
+      {currentPhase === 'team_reaction' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Track Team Reactions
+            </CardTitle>
+            <CardDescription>
+              Observe and record how your team responded to the AI output. Who was impressed? Who had concerns? What were the sticking points?
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Review Time */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                How long did the team spend reviewing? (minutes)
+              </Label>
+              <Slider
+                value={[reviewTime]}
+                onValueChange={(val) => setReviewTime(val[0])}
+                min={0}
+                max={60}
+                step={1}
+              />
+              <div className="text-right text-sm text-muted-foreground">{reviewTime} minutes</div>
+            </div>
+
+            {/* Impressed */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <UserCheck className="h-4 w-4 text-green-600" />
+                Who was impressed or positive about the output?
+              </Label>
+              <Textarea
+                value={impressed.join('\n')}
+                onChange={(e) => setImpressed(e.target.value.split('\n').filter(n => n.trim()))}
+                placeholder="Enter names (one per line)&#10;e.g., Sarah (CFO)&#10;John (Head of Ops)"
+                rows={3}
+              />
+            </div>
+
+            {/* Skeptical */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <UserX className="h-4 w-4 text-red-600" />
+                Who was skeptical or raised concerns?
+              </Label>
+              <Textarea
+                value={skeptical.join('\n')}
+                onChange={(e) => setSkeptical(e.target.value.split('\n').filter(n => n.trim()))}
+                placeholder="Enter names (one per line)"
+                rows={3}
+              />
+            </div>
+
+            {/* Neutral */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-gray-600" />
+                Who stayed neutral or reserved judgment?
+              </Label>
+              <Textarea
+                value={neutral.join('\n')}
+                onChange={(e) => setNeutral(e.target.value.split('\n').filter(n => n.trim()))}
+                placeholder="Enter names (one per line)"
+                rows={3}
+              />
+            </div>
+
+            {/* Disagreements */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-orange-600" />
+                What specific disagreements surfaced?
+              </Label>
+              <Textarea
+                value={disagreements}
+                onChange={(e) => setDisagreements(e.target.value)}
+                placeholder="Note specific points of disagreement (one per line)&#10;e.g., CFO questioned accuracy of financial projections&#10;Head of Legal concerned about compliance language"
+                rows={4}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={handleSaveReaction} className="flex-1">
+                Save Battle Test Results
+              </Button>
+              <Button variant="outline" onClick={resetForm}>
+                Run Another Test
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Completed Battle Tests */}
+      {results.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Completed Battle Tests</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {results.map((result) => (
+              <Card key={result.id} className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h4 className="font-semibold">{result.simulation_title}</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(result.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setDeleteConfirm(result.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {result.team_reactions && (
+                  <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <UserCheck className="h-4 w-4 text-green-600" />
+                      <span>{result.team_reactions.impressed?.length || 0} impressed</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <UserX className="h-4 w-4 text-red-600" />
+                      <span>{result.team_reactions.skeptical?.length || 0} skeptical</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4 text-orange-600" />
+                      <span>{result.disagreement_points?.length || 0} disagreements</span>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Delete Confirmation */}
       <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Experiment?</AlertDialogTitle>
+            <AlertDialogTitle>Delete this battle test?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this simulation experiment. This action cannot be undone.
+              This will permanently remove this simulation and team reaction data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteConfirm && handleDeleteExperiment(deleteConfirm)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={() => deleteConfirm && handleDeleteExperiment(deleteConfirm)}>
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
