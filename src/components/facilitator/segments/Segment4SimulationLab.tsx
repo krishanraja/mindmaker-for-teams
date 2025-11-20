@@ -79,7 +79,7 @@ export const Segment4SimulationLab: React.FC<Segment4SimulationLabProps> = ({
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setResults(data || []);
+      setResults((data as any) || []);
     } catch (error) {
       console.error('Error loading results:', error);
     } finally {
@@ -143,7 +143,7 @@ export const Segment4SimulationLab: React.FC<Segment4SimulationLabProps> = ({
           team_reactions: teamReactions as any,
           disagreement_points: teamReactions.key_disagreements,
           scenario_context: scenarioContext
-        })
+        } as any)
         .select()
         .single();
 

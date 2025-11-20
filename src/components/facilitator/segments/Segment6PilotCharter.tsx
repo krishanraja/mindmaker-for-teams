@@ -57,7 +57,7 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({
         setCharter({
           pilot_owner: data.pilot_owner || '',
           executive_sponsor: data.executive_sponsor || '',
-          pilot_budget: data.pilot_budget || '',
+          pilot_budget: String(data.pilot_budget || ''),
           meeting_cadence: data.meeting_cadence || '',
           milestone_d10: data.milestone_d10 || '',
           milestone_d30: data.milestone_d30 || '',
@@ -103,7 +103,7 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({
           budget_agreement_level: budgetAgreement,
           kill_criteria_specificity: killCriteriaQuality,
           commitment_signals: commitmentSignals,
-        }, {
+        } as any, {
           onConflict: 'workshop_session_id'
         });
 
