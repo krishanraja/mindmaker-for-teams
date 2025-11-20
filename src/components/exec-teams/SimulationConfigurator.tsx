@@ -342,7 +342,7 @@ export const SimulationConfigurator: React.FC = () => {
                   <div className="mt-4 pt-4 border-t flex justify-between items-center">
                     <span className="font-semibold">Total Duration</span>
                     <span className="font-semibold">
-                      {AGENDA_SEGMENTS.reduce((sum, seg) => sum + seg.duration, 0)} minutes (4 hours)
+                      {AGENDA_SEGMENTS.reduce((sum, seg) => sum + seg.duration, 0)} minutes
                     </span>
                   </div>
                 </CardContent>

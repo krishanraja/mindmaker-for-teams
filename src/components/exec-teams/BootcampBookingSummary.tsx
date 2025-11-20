@@ -98,9 +98,9 @@ export const BootcampBookingSummary: React.FC = () => {
                 </Card>
 
                 <Card className="bg-accent/5">
-                  <CardHeader>
-                    <CardTitle className="text-xl">Agenda Timeline (4 Hours)</CardTitle>
-                  </CardHeader>
+            <CardHeader>
+              <CardTitle className="text-xl">Agenda Timeline</CardTitle>
+            </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
                       {bootcampPlan.agenda_config?.segments?.map((segment: any, index: number) => (
