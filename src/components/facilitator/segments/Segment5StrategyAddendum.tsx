@@ -283,8 +283,8 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
           <div className="flex items-center gap-3">
             <FileText className="h-6 w-6 text-primary" />
             <div>
-              <CardTitle className="text-2xl">Executive Strategy Dashboard</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">AI Readiness Assessment & Strategic Recommendations</p>
+              <CardTitle className="text-2xl">Battle Test #2: Can Your Team Agree on Strategic Trade-Offs?</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">Force your team to articulate risk tolerance, governance, and KPIs. Watch where they struggle—that's where your decision framework needs clarity.</p>
             </div>
           </div>
           {bootcampPlanData && (
@@ -302,8 +302,8 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
             <div className="flex items-center gap-3">
               <Gauge className="h-8 w-8 text-primary" />
               <div>
-                <h3 className="text-lg font-semibold">Pilot Readiness Score</h3>
-                <p className="text-sm text-muted-foreground">Based on workshop data quality</p>
+                <h3 className="text-lg font-semibold">Alignment Score</h3>
+                <p className="text-sm text-muted-foreground">Based on team's ability to converge on answers</p>
               </div>
             </div>
             <div className="text-right">

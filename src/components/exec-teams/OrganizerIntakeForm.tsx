@@ -191,9 +191,9 @@ export const OrganizerIntakeForm: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-accent/5">
       <Card className="w-full max-w-3xl border-2">
         <CardHeader>
-          <CardTitle className="text-3xl">Pre-Session Intake</CardTitle>
+          <CardTitle className="text-3xl">Alignment Sprint Application</CardTitle>
           <CardDescription className="text-lg">
-            Step {step} of 3 • Configure your executive bootcamp session
+            Step {step} of 3 • We'll use this to prep your custom agenda
           </CardDescription>
         </CardHeader>
 
@@ -321,9 +321,9 @@ export const OrganizerIntakeForm: React.FC = () => {
 
               <Alert className="border-primary/30 bg-primary/5">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Tip: Team Self-Registration Available</AlertTitle>
+                <AlertTitle>Most organizers skip this step</AlertTitle>
                 <AlertDescription>
-                  You can add a few key participants now, or use the QR code below to allow team members to self-register with their own information!
+                  You can send a QR code to your team closer to the date, or add participants now if you want us to send pre-work.
                 </AlertDescription>
               </Alert>
 

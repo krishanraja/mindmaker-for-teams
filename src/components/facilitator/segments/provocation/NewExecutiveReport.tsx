@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, RefreshCw, Target, AlertTriangle, Brain, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { TieredExecutiveReport } from './TieredExecutiveReport';
@@ -13,6 +14,7 @@ interface NewExecutiveReportProps {
 export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshopId }) => {
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
+  const [framework, setFramework] = useState<any>(null);
   const [report, setReport] = useState<any>(null);
   const [workshop, setWorkshop] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);

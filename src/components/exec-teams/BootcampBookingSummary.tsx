@@ -55,9 +55,9 @@ export const BootcampBookingSummary: React.FC = () => {
                 <CheckCircle2 className="w-12 h-12 text-primary" />
               </div>
             </div>
-            <CardTitle className="text-3xl">Your Bootcamp Plan is Ready</CardTitle>
+            <CardTitle className="text-3xl">Your Alignment Sprint Agenda is Ready</CardTitle>
             <CardDescription className="text-lg">
-              Review your custom agenda and book your half-day strategic session
+              Here's what we'll produce together in your working session
             </CardDescription>
           </CardHeader>
 
@@ -118,7 +118,7 @@ export const BootcampBookingSummary: React.FC = () => {
 
                 <Card className="bg-accent/5">
                   <CardHeader>
-                    <CardTitle className="text-xl">Required Pre-Work</CardTitle>
+                    <CardTitle className="text-xl">What to Bring</CardTitle>
                     <CardDescription>
                       Please prepare these materials before your session
                     </CardDescription>
@@ -137,9 +137,9 @@ export const BootcampBookingSummary: React.FC = () => {
 
                 <Card className="bg-accent/5">
                   <CardHeader>
-                    <CardTitle className="text-xl">Proposed Artifacts</CardTitle>
+                    <CardTitle className="text-xl">What You'll Walk Away With</CardTitle>
                     <CardDescription>
-                      You'll receive these deliverables during the live bootcamp
+                      You'll receive these deliverables during the live session
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
