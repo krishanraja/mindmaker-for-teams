@@ -230,10 +230,10 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
       <Card className="p-6 bg-gradient-to-br from-primary/10 to-secondary/10">
         <div className="flex items-center gap-3 mb-3">
           <Sparkles className="h-6 w-6" />
-          <h2 className="text-2xl font-bold">Interactive AI Lab</h2>
+          <h2 className="text-2xl font-bold">Battle Test #1: Can Your Team Agree on What AI Can Do?</h2>
         </div>
         <p className="text-muted-foreground mb-4">
-          Test AI capabilities live with your team. See what AI can actually do, then design guardrails based on real observations—not guesses.
+          We'll run live AI experiments on your workflows. Watch carefully: who thinks the AI is good enough? Who wants more oversight? These disagreements reveal your team's real risk appetite—not what they say in theory.
         </p>
         <div className="flex gap-2 mb-6">
           <Badge variant="outline">Live AI Testing</Badge>
@@ -256,7 +256,7 @@ export const Segment4SimulationLab = ({ workshopId, bootcampPlanData }: Segment4
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Select a business scenario to test with live AI. The team will see AI work in real-time.
+              Pick a scenario from your business. We'll test AI live. Pay attention to who's impressed and who's skeptical—that's the alignment gap we're measuring.
             </p>
             <div className="grid md:grid-cols-2 gap-4">
               {availableSimulations.map((sim) => {

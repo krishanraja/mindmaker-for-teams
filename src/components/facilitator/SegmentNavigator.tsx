@@ -12,13 +12,13 @@ interface SegmentNavigatorProps {
 }
 
 const SEGMENTS = [
-  { id: 1, name: 'Mythbuster', icon: Zap, duration: 15, color: 'text-blue-500' },
-  { id: 2, name: 'The Mirror', icon: Eye, duration: 45, color: 'text-purple-500' },
+  { id: 1, name: 'The Mirror: Beliefs', icon: Zap, duration: 15, color: 'text-blue-500' },
+  { id: 2, name: 'The Mirror: Bottlenecks', icon: Eye, duration: 45, color: 'text-purple-500' },
   { id: 3, name: 'The Time Machine', icon: Clock, duration: 45, color: 'text-green-500' },
-  { id: 4, name: 'The Crystal Ball', icon: Sparkles, duration: 60, color: 'text-yellow-500' },
-  { id: 5, name: 'The Rewrite', icon: FileText, duration: 45, color: 'text-orange-500' },
-  { id: 6, name: 'The Huddle', icon: Target, duration: 30, color: 'text-red-500' },
-  { id: 7, name: 'The Provocation', icon: Target, duration: 10, color: 'text-red-600' },
+  { id: 4, name: 'Battle Test #1: AI Performance', icon: Sparkles, duration: 60, color: 'text-yellow-500' },
+  { id: 5, name: 'Battle Test #2: Strategic Trade-Offs', icon: FileText, duration: 45, color: 'text-orange-500' },
+  { id: 6, name: 'Battle Test #3: Ownership & Gates', icon: Target, duration: 30, color: 'text-red-500' },
+  { id: 7, name: 'Decision Framework Delivery', icon: Target, duration: 10, color: 'text-red-600' },
 ];
 
 export const SegmentNavigator: React.FC<SegmentNavigatorProps> = ({

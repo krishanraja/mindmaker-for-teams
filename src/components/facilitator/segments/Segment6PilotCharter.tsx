@@ -220,7 +220,7 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Target className="h-6 w-6 text-primary" />
-              Segment 6: The Huddle - 90-Day Pilot Charter (30 minutes)
+              Battle Test #3: Can Your Team Agree on Who Owns It and How to Kill It?
             </CardTitle>
             <div className="flex items-center gap-2">
               {isSaving ? (
@@ -239,7 +239,7 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-muted-foreground">
-            <strong>Objective:</strong> Lock in commitment, ownership, and decision gates for the 90-day pilot.
+            <strong>Objective:</strong> Test whether your team can commit to ownership, budget, and clear kill criteria. If they can't fill this out together, they're not ready to execute—regardless of the technology.
           </p>
 
           {bootcampPlanData?.pilot_expectations && (
