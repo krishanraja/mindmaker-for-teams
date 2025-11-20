@@ -181,9 +181,6 @@ export const ExecTeamsWelcome: React.FC = () => {
               ))}
             </div>
 
-            {/* Rapid Insights Proof Section */}
-            <RapidInsightsProof />
-
             <div className="w-full px-2 md:px-4 flex flex-col items-center gap-2 md:gap-3 pt-3 md:pt-6">
               <Button 
                 onClick={() => setCurrentStep(2)}
@@ -196,6 +193,9 @@ export const ExecTeamsWelcome: React.FC = () => {
                 Takes 10 minutes • Sends pulse to your team • Generates custom agenda
               </p>
             </div>
+
+            {/* Rapid Insights Proof Section */}
+            <RapidInsightsProof />
           </div>
         </div>
       </div>
