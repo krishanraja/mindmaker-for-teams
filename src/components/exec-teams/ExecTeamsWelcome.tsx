@@ -106,8 +106,8 @@ export const ExecTeamsWelcome: React.FC = () => {
             <div ref={carouselRef} className="mobile-carousel">
               <div className="mobile-carousel-item">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="rounded-lg bg-primary/10 p-1.5">
-                    <Brain className="w-6 h-6 text-primary" />
+                  <div className="rounded-lg bg-primary/10 p-2 md:p-2.5">
+                    <Brain className="w-5 h-5 md:w-6 md:h-6 text-primary" strokeWidth={2} />
                   </div>
                   <h3 className="text-base font-semibold">Decision Simulations</h3>
                 </div>
@@ -118,8 +118,8 @@ export const ExecTeamsWelcome: React.FC = () => {
 
               <div className="mobile-carousel-item">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="rounded-lg bg-primary/10 p-1.5">
-                    <Target className="w-6 h-6 text-primary" />
+                  <div className="rounded-lg bg-primary/10 p-2 md:p-2.5">
+                    <Target className="w-5 h-5 md:w-6 md:h-6 text-primary" strokeWidth={2} />
                   </div>
                   <h3 className="text-base font-semibold">Cognitive Baseline</h3>
                 </div>
@@ -130,8 +130,8 @@ export const ExecTeamsWelcome: React.FC = () => {
 
               <div className="mobile-carousel-item">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="rounded-lg bg-primary/10 p-1.5">
-                    <Users className="w-6 h-6 text-primary" />
+                  <div className="rounded-lg bg-primary/10 p-2 md:p-2.5">
+                    <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" strokeWidth={2} />
                   </div>
                   <h3 className="text-base font-semibold">Leadership Alignment</h3>
                 </div>
@@ -142,8 +142,8 @@ export const ExecTeamsWelcome: React.FC = () => {
 
               <div className="mobile-carousel-item">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="rounded-lg bg-primary/10 p-1.5">
-                    <Zap className="w-6 h-6 text-primary" />
+                  <div className="rounded-lg bg-primary/10 p-2 md:p-2.5">
+                    <Zap className="w-5 h-5 md:w-6 md:h-6 text-primary" strokeWidth={2} />
                   </div>
                   <h3 className="text-base font-semibold">90-Day Pilot Charter</h3>
                 </div>
