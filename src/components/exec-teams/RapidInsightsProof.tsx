@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Clock } from 'lucide-react';
@@ -7,6 +7,8 @@ import scorePreview from '@/assets/mindmaker-leaders-preview-score.png';
 
 export const RapidInsightsProof: React.FC = () => {
   const [openDialog, setOpenDialog] = useState<string | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const proofImages = [
     {
@@ -23,6 +25,24 @@ export const RapidInsightsProof: React.FC = () => {
     },
   ];
 
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+
+    const handleScroll = () => {
+      const scrollLeft = carousel.scrollLeft;
+      const cardWidth = carousel.offsetWidth * 0.9; // 90vw
+      const gap = 16;
+      const paddingLeft = carousel.offsetWidth * 0.05; // 5vw
+      const adjustedScroll = scrollLeft - paddingLeft + (carousel.offsetWidth - cardWidth) / 2;
+      const newIndex = Math.round(adjustedScroll / (cardWidth + gap));
+      setActiveImageIndex(Math.max(0, Math.min(1, newIndex)));
+    };
+
+    carousel.addEventListener('scroll', handleScroll);
+    return () => carousel.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <section className="py-12 border-t border-border bg-accent/5">
       <div className="max-w-5xl mx-auto px-6">
@@ -35,7 +55,7 @@ export const RapidInsightsProof: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+        <div ref={carouselRef} className="mobile-carousel md:grid md:grid-cols-2 md:gap-6">
           {proofImages.map((image) => (
             <Dialog
               key={image.id}
@@ -43,12 +63,12 @@ export const RapidInsightsProof: React.FC = () => {
               onOpenChange={(open) => setOpenDialog(open ? image.id : null)}
             >
               <DialogTrigger asChild>
-                <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] overflow-hidden">
-                  <div className="relative">
+                <Card className="mobile-carousel-item md:h-auto cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] overflow-hidden bg-card">
+                  <div className="relative flex-1 flex items-center justify-center bg-muted/5">
                     <img
                       src={image.src}
                       alt={image.alt}
-                      className="w-full h-auto"
+                      className="w-full h-full object-contain"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
                       <span className="text-sm font-medium text-foreground">
@@ -56,7 +76,7 @@ export const RapidInsightsProof: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="p-4 bg-card">
+                  <div className="p-4 bg-card flex-shrink-0">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="w-3 h-3" />
                       <span>Generated during workshop</span>
@@ -75,6 +95,33 @@ export const RapidInsightsProof: React.FC = () => {
                 />
               </DialogContent>
             </Dialog>
+          ))}
+        </div>
+
+        {/* Dot Indicators - Mobile Only */}
+        <div className="flex md:hidden justify-center gap-2 mt-6">
+          {proofImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                const carousel = carouselRef.current;
+                if (carousel) {
+                  const cardWidth = carousel.offsetWidth * 0.9;
+                  const gap = 16;
+                  const paddingLeft = carousel.offsetWidth * 0.05;
+                  carousel.scrollTo({
+                    left: paddingLeft + index * (cardWidth + gap),
+                    behavior: 'smooth'
+                  });
+                }
+              }}
+              className={`h-2 rounded-full transition-all ${
+                activeImageIndex === index 
+                  ? 'w-8 bg-primary' 
+                  : 'w-2 bg-primary/30'
+              }`}
+              aria-label={`Go to image ${index + 1}`}
+            />
           ))}
         </div>
       </div>

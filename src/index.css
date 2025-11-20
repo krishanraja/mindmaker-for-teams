@@ -419,12 +419,12 @@ html {
   flex-shrink: 0;
 }
 
-/* Desktop: 2-column grid layout */
+/* Desktop: 4-column grid layout */
 @media (min-width: 768px) {
   .mobile-carousel {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
     overflow-x: visible;
     scroll-snap-type: none;
     padding: 0;
@@ -436,8 +436,28 @@ html {
     min-width: unset;
     width: 100%;
     height: auto;
-    min-height: 240px;
+    min-height: 220px;
     scroll-snap-align: unset;
+    padding: 16px 20px;
+  }
+}
+
+/* Tablet spacing refinement */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .mobile-carousel {
+    gap: 0.5rem;
+  }
+  
+  .mobile-carousel-item {
+    padding: 14px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Larger desktop comfortable spacing */
+@media (min-width: 1024px) {
+  .mobile-carousel {
+    gap: 0.875rem;
   }
 }
 
