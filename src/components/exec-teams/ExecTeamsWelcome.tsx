@@ -3,7 +3,7 @@ import { useExecTeams } from '@/contexts/ExecTeamsContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CardDescription } from '@/components/ui/card';
-import { Brain, Target, Users, Zap, Lock } from 'lucide-react';
+import { Brain, Target, Users, Zap, Lock, ChevronDown, ChevronUp } from 'lucide-react';
 import logo from '@/assets/mindmaker-logo-horizontal.png';
 import { RapidInsightsProof } from './RapidInsightsProof';
 
@@ -16,6 +16,7 @@ export const ExecTeamsWelcome: React.FC = () => {
   const [displayedText, setDisplayedText] = React.useState('');
   const [isTypingComplete, setIsTypingComplete] = React.useState(false);
   const [activeCardIndex, setActiveCardIndex] = React.useState(0);
+  const [showRealOutputs, setShowRealOutputs] = React.useState(false);
   const carouselRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -97,8 +98,7 @@ export const ExecTeamsWelcome: React.FC = () => {
             </div>
 
             <p className="text-xs md:text-lg text-muted-foreground max-w-3xl text-left pt-2">
-              Your executive team will run 2 real-world AI decision simulations, surface cognitive gaps, 
-              and leave with a 90-day pilot charter. The accelerator that enables you to genuinely accelerate.
+              You've got tools, consultants, vendors, and pilots. What's missing is a leadership team that can make AI-powered decisions at speed. We're the one-time accelerator that enables you to accelerate with conviction.
             </p>
           </div>
 
@@ -182,20 +182,31 @@ export const ExecTeamsWelcome: React.FC = () => {
             </div>
 
             <div className="w-full px-2 md:px-4 flex flex-col items-center gap-2 md:gap-3 pt-3 md:pt-6">
-              <Button 
-                onClick={() => setCurrentStep(2)}
-                size="lg"
-                className="w-full max-w-full text-sm md:text-base px-6 md:px-8 py-4 md:py-5 whitespace-normal"
-              >
-                Configure Your Session
-              </Button>
+              <div className="w-full flex flex-col md:flex-row gap-2 md:gap-3">
+                <Button 
+                  onClick={() => setCurrentStep(2)}
+                  size="lg"
+                  className="flex-1 text-sm md:text-base px-6 md:px-8 py-4 md:py-5 whitespace-normal"
+                >
+                  Configure Your Session
+                </Button>
+                <Button 
+                  onClick={() => setShowRealOutputs(!showRealOutputs)}
+                  size="lg"
+                  variant="outline"
+                  className="flex-1 text-sm md:text-base px-6 md:px-8 py-4 md:py-5 whitespace-normal flex items-center justify-center gap-2"
+                >
+                  Real Outputs
+                  {showRealOutputs ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </div>
               <p className="text-[10px] md:text-xs text-muted-foreground text-center px-2">
                 Takes 10 minutes • Sends pulse to your team • Generates custom agenda
               </p>
             </div>
 
             {/* Rapid Insights Proof Section */}
-            <RapidInsightsProof />
+            {showRealOutputs && <RapidInsightsProof />}
           </div>
         </div>
       </div>
