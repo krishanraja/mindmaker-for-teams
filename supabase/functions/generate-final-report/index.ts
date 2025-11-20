@@ -382,8 +382,9 @@ Generate a report following the exact JSON schema provided in the tools.`;
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      temperature: 0.7,
-      maxTokens: 8192,
+      modelOverride: { gemini: 'google/gemini-2.5-pro' },
+      temperature: 0.4,
+      maxTokens: 3000,
       tools: [{
         type: 'function',
         function: {

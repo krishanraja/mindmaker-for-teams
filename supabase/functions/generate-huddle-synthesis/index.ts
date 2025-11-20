@@ -88,13 +88,13 @@ Format as JSON:
       temperature: 0.7
     });
 
-    console.log(`📊 Huddle Synthesis: ${result.provider} (${result.latencyMs}ms)`);
+    console.log(`✅ Huddle Synthesis: ${result.provider} (${result.latencyMs}ms)`);
 
     const synthesisText = result.content;
 
-    console.log('AI synthesis generated:', synthesisText.substring(0, 100));
+    console.log('📄 AI synthesis generated:', synthesisText.substring(0, 100));
 
-    // Parse the JSON response
+    // Parse the JSON response with validation
     let parsedSynthesis;
     try {
       // Extract JSON from markdown code blocks if present
@@ -102,8 +102,21 @@ Format as JSON:
                         synthesisText.match(/(\{[\s\S]*\})/);
       const jsonString = jsonMatch ? jsonMatch[1] : synthesisText;
       parsedSynthesis = JSON.parse(jsonString);
+      
+      // Validate output structure
+      if (!parsedSynthesis.keyThemes || !Array.isArray(parsedSynthesis.keyThemes)) {
+        throw new Error('Invalid keyThemes structure');
+      }
+      if (!parsedSynthesis.priorityActions || !Array.isArray(parsedSynthesis.priorityActions)) {
+        throw new Error('Invalid priorityActions structure');
+      }
+      if (!parsedSynthesis.executiveSummary || typeof parsedSynthesis.executiveSummary !== 'string') {
+        throw new Error('Invalid executiveSummary structure');
+      }
+      
+      console.log('✓ Output validation passed');
     } catch (e) {
-      console.error('Failed to parse AI response as JSON:', e);
+      console.error('⚠️ Failed to parse/validate AI response:', e);
       parsedSynthesis = {
         keyThemes: ['Data quality and governance', 'Change management', 'Skills and training'],
         priorityActions: ['Establish data governance framework', 'Launch pilot program', 'Invest in upskilling'],
@@ -140,7 +153,30 @@ Format as JSON:
     );
 
   } catch (error: any) {
-    console.error('Error in generate-huddle-synthesis:', error);
+    console.error('❌ Error in generate-huddle-synthesis:', error);
+    
+    // Handle rate limit and payment errors gracefully
+    if (error.message?.includes('RATE_LIMIT_EXCEEDED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service temporarily unavailable due to high demand. Please try again in 1 minute.',
+        errorCode: 'RATE_LIMIT',
+        retryAfter: 60
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    if (error.message?.includes('PAYMENT_REQUIRED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service requires payment. Please contact support.',
+        errorCode: 'PAYMENT_REQUIRED'
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

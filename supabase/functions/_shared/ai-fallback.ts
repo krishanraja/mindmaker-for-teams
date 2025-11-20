@@ -85,6 +85,10 @@ interface AICallOptions {
   tools?: any;
   toolChoice?: any;
   stream?: boolean;
+  modelOverride?: {
+    openai?: string;
+    gemini?: string;
+  };
 }
 
 interface AICallResult {
@@ -377,7 +381,7 @@ async function callOpenAI(options: AICallOptions): Promise<string> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: options.modelOverride?.openai || 'gpt-4o-mini',
       messages: options.messages,
       max_tokens: options.maxTokens,
       temperature: options.temperature,
@@ -388,11 +392,25 @@ async function callOpenAI(options: AICallOptions): Promise<string> {
   });
 
   if (!response.ok) {
+    if (response.status === 429) {
+      throw new Error('RATE_LIMIT_EXCEEDED');
+    }
+    if (response.status === 402) {
+      throw new Error('PAYMENT_REQUIRED');
+    }
     const errorText = await response.text();
     throw new Error(`OpenAI error: ${response.status} - ${errorText}`);
   }
 
   const data = await response.json();
+  
+  // Comprehensive logging
+  console.log(JSON.stringify({
+    provider: 'openai',
+    model: options.modelOverride?.openai || 'gpt-4o-mini',
+    tokensUsed: data.usage?.total_tokens,
+    timestamp: new Date().toISOString()
+  }));
   
   // Handle tool calls
   if (options.tools && data.choices?.[0]?.message?.tool_calls) {
@@ -413,7 +431,7 @@ async function callLovableAI(options: AICallOptions): Promise<string> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
+      model: options.modelOverride?.gemini || 'google/gemini-2.5-flash',
       messages: options.messages,
       max_tokens: options.maxTokens,
       temperature: options.temperature,
@@ -424,11 +442,25 @@ async function callLovableAI(options: AICallOptions): Promise<string> {
   });
 
   if (!response.ok) {
+    if (response.status === 429) {
+      throw new Error('RATE_LIMIT_EXCEEDED');
+    }
+    if (response.status === 402) {
+      throw new Error('PAYMENT_REQUIRED');
+    }
     const errorText = await response.text();
     throw new Error(`Lovable AI error: ${response.status} - ${errorText}`);
   }
 
   const data = await response.json();
+  
+  // Comprehensive logging
+  console.log(JSON.stringify({
+    provider: 'lovable-gemini',
+    model: options.modelOverride?.gemini || 'google/gemini-2.5-flash',
+    tokensUsed: data.usage?.total_tokens,
+    timestamp: new Date().toISOString()
+  }));
   
   // Handle tool calls (Lovable AI uses same format as OpenAI)
   if (options.tools && data.choices?.[0]?.message?.tool_calls) {
@@ -439,6 +471,24 @@ async function callLovableAI(options: AICallOptions): Promise<string> {
   }
   
   return data.choices[0].message.content;
+}
+
+// Retry helper with exponential backoff
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>, 
+  maxRetries = 3
+): Promise<T> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      const delay = Math.min(1000 * Math.pow(2, i), 10000);
+      console.log(`⏳ Retry ${i + 1}/${maxRetries} after ${delay}ms`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error('Max retries exceeded');
 }
 
 // Track if providers have been verified (module-level variable)
