@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw, Target, AlertTriangle, Brain, TrendingUp } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { TieredExecutiveReport } from './TieredExecutiveReport';
+import { DecisionFrameworkDisplay } from './DecisionFrameworkDisplay';
 
 interface NewExecutiveReportProps {
   workshopId: string;
@@ -15,15 +14,14 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
   const [framework, setFramework] = useState<any>(null);
-  const [report, setReport] = useState<any>(null);
   const [workshop, setWorkshop] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadReport();
+    loadFramework();
   }, [workshopId]);
 
-  const loadReport = async () => {
+  const loadFramework = async () => {
     setLoading(true);
     setError(null);
 
@@ -38,29 +36,27 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
       if (workshopError) throw workshopError;
       setWorkshop(workshopData);
 
-      // Try to load existing report from reports table
-      const { data: existingReport } = await supabase
-        .from('provocation_reports')
+      // Try to load existing framework
+      const { data: existingFramework } = await supabase
+        .from('decision_frameworks')
         .select('*')
         .eq('workshop_session_id', workshopId)
-        .order('created_at', { ascending: false })
-        .limit(1)
         .maybeSingle();
 
-      if (existingReport?.report_data) {
-        console.log('[NewExecutiveReport] Loaded existing report:', existingReport);
-        setReport(existingReport.report_data);
+      if (existingFramework) {
+        console.log('[NewExecutiveReport] Loaded existing framework:', existingFramework);
+        setFramework(existingFramework);
         setLoading(false);
         return;
       }
 
-      // No existing report - generate new one
-      await generateReport();
+      // No existing framework - generate new one
+      await generateFramework();
     } catch (err) {
-      console.error('[NewExecutiveReport] Error loading report:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load report');
+      console.error('[NewExecutiveReport] Error loading framework:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load framework');
       toast({
-        title: 'Error loading report',
+        title: 'Error loading framework',
         description: err instanceof Error ? err.message : 'Unknown error',
         variant: 'destructive'
       });
@@ -68,47 +64,32 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
     }
   };
 
-  const generateReport = async () => {
+  const generateFramework = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      console.log('[NewExecutiveReport] Generating report for workshop:', workshopId);
+      console.log('[NewExecutiveReport] Generating framework for workshop:', workshopId);
       
-      const { data, error: functionError } = await supabase.functions.invoke('generate-final-report', {
+      const { data, error: functionError } = await supabase.functions.invoke('generate-decision-framework', {
         body: { workshop_session_id: workshopId }
       });
 
       if (functionError) throw functionError;
-      if (!data || !data.report) throw new Error('No report data returned');
+      if (!data || !data.framework) throw new Error('No framework data returned');
 
-      console.log('[NewExecutiveReport] Report generated successfully');
-      setReport(data.report);
-
-      // Save report to database
-      const { error: insertError } = await supabase
-        .from('provocation_reports')
-        .insert({
-          workshop_session_id: workshopId,
-          report_data: data.report,
-          generated_at: data.generated_at
-        });
-
-      if (insertError) {
-        console.error('[NewExecutiveReport] Error saving report:', insertError);
-      } else {
-        console.log('[NewExecutiveReport] Report saved to database');
-      }
+      console.log('[NewExecutiveReport] Framework generated successfully');
+      setFramework(data.framework);
 
       toast({
-        title: 'Report generated!',
-        description: 'Your executive report is ready'
+        title: 'Framework generated!',
+        description: 'Your decision framework is ready'
       });
     } catch (err) {
-      console.error('[NewExecutiveReport] Error generating report:', err);
-      setError(err instanceof Error ? err.message : 'Failed to generate report');
+      console.error('[NewExecutiveReport] Error generating framework:', err);
+      setError(err instanceof Error ? err.message : 'Failed to generate framework');
       toast({
-        title: 'Error generating report',
+        title: 'Error generating framework',
         description: err instanceof Error ? err.message : 'Unknown error',
         variant: 'destructive'
       });
@@ -119,7 +100,7 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
 
   const handleRegenerate = async () => {
     setRegenerating(true);
-    await generateReport();
+    await generateFramework();
     setRegenerating(false);
   };
 
@@ -128,8 +109,8 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-4">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Generating your executive report...</p>
-          <p className="text-sm text-muted-foreground">This may take 15-30 seconds</p>
+          <p className="text-muted-foreground">Building your decision framework...</p>
+          <p className="text-sm text-muted-foreground">Analyzing how your team decides together</p>
         </div>
       </div>
     );
@@ -140,9 +121,9 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
       <Card className="border-destructive/50">
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
-            <p className="text-destructive font-semibold">Failed to load report</p>
+            <p className="text-destructive font-semibold">Failed to load framework</p>
             <p className="text-sm text-muted-foreground">{error}</p>
-            <Button onClick={loadReport} variant="outline">
+            <Button onClick={loadFramework} variant="outline">
               <RefreshCw className="mr-2 h-4 w-4" />
               Retry
             </Button>
@@ -152,14 +133,14 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
     );
   }
 
-  if (!report) {
+  if (!framework) {
     return (
       <Card>
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
-            <p className="text-muted-foreground">No report available</p>
-            <Button onClick={generateReport}>
-              Generate Report
+            <p className="text-muted-foreground">No framework available</p>
+            <Button onClick={generateFramework}>
+              Generate Framework
             </Button>
           </div>
         </CardContent>
@@ -171,8 +152,8 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Executive Leadership Dashboard</h1>
-          <p className="text-base text-muted-foreground">Strategic AI Readiness Assessment & Recommendations</p>
+          <h1 className="text-3xl font-bold text-foreground">Your Decision Framework</h1>
+          <p className="text-base text-muted-foreground">How your team makes AI decisions together</p>
         </div>
         <Button
           onClick={handleRegenerate}
@@ -188,19 +169,19 @@ export const NewExecutiveReport: React.FC<NewExecutiveReportProps> = ({ workshop
           ) : (
             <>
               <RefreshCw className="mr-2 h-4 w-4" />
-              Regenerate Report
+              Regenerate Framework
             </>
           )}
         </Button>
       </div>
 
-        <TieredExecutiveReport
-          report={report}
-          companyName={workshop?.exec_intakes?.company_name || 'Organization'}
-          workshopDate={workshop?.workshop_date || new Date().toISOString()}
-          participantCount={Array.isArray(workshop?.exec_intakes?.participants) ? workshop.exec_intakes.participants.length : 0}
-          workshopId={workshopId}
-        />
+      <DecisionFrameworkDisplay
+        framework={framework}
+        companyName={workshop?.exec_intakes?.company_name || 'Organization'}
+        workshopDate={workshop?.workshop_date || new Date().toISOString()}
+        participantCount={Array.isArray(workshop?.exec_intakes?.participants) ? workshop.exec_intakes.participants.length : 0}
+        workshopId={workshopId}
+      />
     </div>
   );
 };
