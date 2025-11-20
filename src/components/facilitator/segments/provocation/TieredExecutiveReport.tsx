@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { NextStepsCard } from './NextStepsCard';
 import { 
   AlertCircle, 
   TrendingUp, 
@@ -320,6 +321,9 @@ export const TieredExecutiveReport: React.FC<TieredExecutiveReportProps> = ({
           )}
         </CardContent>
       </Card>
+
+      {/* Next Steps Card */}
+      <NextStepsCard companyName={companyName} />
 
       {/* TIER 3: Evidence Appendix */}
       <Card>

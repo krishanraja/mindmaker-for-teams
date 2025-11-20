@@ -3,6 +3,7 @@ export { BenchmarkComparisonChart } from './BenchmarkComparisonChart';
 export { CalendarBookingEmbed } from './CalendarBookingEmbed';
 export { CostFramingChart } from './CostFramingChart';
 export { ExecutiveReportCard } from './ExecutiveReportCard';
+export { NextStepsCard } from './NextStepsCard';
 export { PilotCharterCard } from './PilotCharterCard';
 export { SectionHeader } from './SectionHeader';
 export { StrategicAlignmentGrid } from './StrategicAlignmentGrid';
