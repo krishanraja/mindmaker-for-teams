@@ -202,11 +202,33 @@ function convertToGeminiSchema(schema: any): any {
   // - maximum, minimum
   // - pattern
   
+  // Validate schema conversion for debugging
+  if (result.type === 'object' && schema.properties && !result.properties) {
+    console.warn('⚠️ Schema conversion lost properties:', Object.keys(schema.properties));
+  }
+  if (result.type === 'array' && schema.items && !result.items) {
+    console.warn('⚠️ Schema conversion lost array items');
+  }
+  
   return result;
 }
 
+// Module-level OAuth2 token cache
+let cachedGeminiToken: { token: string; expiry: number } | null = null;
+
 // Get Google OAuth2 access token from service account
 async function getGeminiAccessToken(serviceAccountJson: string): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+  
+  // Return cached token if valid (5min buffer)
+  if (cachedGeminiToken && cachedGeminiToken.expiry > now + 300) {
+    console.log('✅ Using cached OAuth2 token (expires in', 
+      Math.floor((cachedGeminiToken.expiry - now) / 60), 'min)');
+    return cachedGeminiToken.token;
+  }
+  
+  console.log('🔄 Generating new OAuth2 token...');
+  
   const serviceAccount = JSON.parse(serviceAccountJson);
   
   // Create JWT for Google OAuth2
@@ -262,6 +284,13 @@ async function getGeminiAccessToken(serviceAccountJson: string): Promise<string>
   }
   
   const tokenData = await tokenResponse.json();
+  
+  // Cache for 1 hour
+  cachedGeminiToken = {
+    token: tokenData.access_token,
+    expiry: now + 3600
+  };
+  
   return tokenData.access_token;
 }
 
@@ -506,7 +535,7 @@ export async function callWithFallback(options: AICallOptions): Promise<AICallRe
   // Try Gemini RAG first (if credentials provided)
   if (options.geminiServiceAccount) {
     const geminiTimeout = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('GEMINI_TIMEOUT')), 5000)
+      setTimeout(() => reject(new Error('GEMINI_TIMEOUT')), 10000)
     );
     const geminiStart = Date.now();
 
@@ -542,7 +571,7 @@ export async function callWithFallback(options: AICallOptions): Promise<AICallRe
 
   // Try OpenAI as second option
   const openAITimeout = new Promise<never>((_, reject) => 
-    setTimeout(() => reject(new Error('OPENAI_TIMEOUT')), 5000)
+    setTimeout(() => reject(new Error('OPENAI_TIMEOUT')), 8000)
   );
   const openAIStart = Date.now();
 

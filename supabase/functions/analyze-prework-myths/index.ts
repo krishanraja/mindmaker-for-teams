@@ -100,7 +100,14 @@ Return myth-reality pairs that directly address these concerns. Focus on practic
 
     return new Response(JSON.stringify({ 
       myths: mythsData.myths,
-      raw_concerns: allConcerns 
+      raw_concerns: allConcerns,
+      _meta: {
+        provider: result.provider,
+        latencyMs: result.latencyMs,
+        model: result.provider === 'gemini-rag' 
+          ? 'gemini-2.0-flash' 
+          : (result.provider === 'openai' ? 'gpt-4o-mini' : 'google/gemini-2.5-flash')
+      }
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

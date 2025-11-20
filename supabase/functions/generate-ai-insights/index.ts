@@ -97,6 +97,15 @@ Be specific about team development approaches, not product strategy or technical
 
     const aiResponse = result.content;
     
+    // Store metadata for response
+    const aiMeta = {
+      provider: result.provider,
+      latencyMs: result.latencyMs,
+      model: result.provider === 'gemini-rag' 
+        ? 'gemini-2.0-flash' 
+        : (result.provider === 'openai' ? 'gpt-4o-mini' : 'google/gemini-2.5-flash')
+    };
+    
     // Parse the JSON response
     let insights;
     try {
@@ -131,7 +140,10 @@ Be specific about team development approaches, not product strategy or technical
 
     console.log('Generated AI insights:', insights);
 
-    return new Response(JSON.stringify({ insights }), {
+    return new Response(JSON.stringify({ 
+      insights,
+      _meta: aiMeta
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: any) {

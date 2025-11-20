@@ -98,7 +98,16 @@ Break down this SPECIFIC process into 5-8 discrete tasks that are DIRECTLY RELEV
     }
 
     return new Response(
-      JSON.stringify({ tasks: parsed.tasks }),
+      JSON.stringify({ 
+        tasks: parsed.tasks,
+        _meta: {
+          provider: result.provider,
+          latencyMs: result.latencyMs,
+          model: result.provider === 'gemini-rag' 
+            ? 'gemini-2.0-flash' 
+            : (result.provider === 'openai' ? 'gpt-4o-mini' : 'google/gemini-2.5-flash')
+        }
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

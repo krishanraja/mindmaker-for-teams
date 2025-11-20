@@ -575,7 +575,14 @@ Generate synthesis using ONLY this data. Follow word limits EXACTLY.`;
     return new Response(
       JSON.stringify({
         reportData,
-        aiSynthesis: synthesis
+        aiSynthesis: synthesis,
+        _meta: {
+          provider: result.provider,
+          latencyMs: result.latencyMs,
+          model: result.provider === 'gemini-rag' 
+            ? 'gemini-2.0-flash' 
+            : (result.provider === 'openai' ? 'gpt-4o-mini' : 'google/gemini-2.5-pro')
+        }
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

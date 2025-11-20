@@ -147,7 +147,14 @@ Format as JSON:
       JSON.stringify({ 
         synthesis: savedSynthesis || parsedSynthesis,
         bottleneckCount: bottlenecks.length,
-        clusterCount: Object.keys(clusteredData).length
+        clusterCount: Object.keys(clusteredData).length,
+        _meta: {
+          provider: result.provider,
+          latencyMs: result.latencyMs,
+          model: result.provider === 'gemini-rag' 
+            ? 'gemini-2.0-flash' 
+            : (result.provider === 'openai' ? 'gpt-4o-mini' : 'google/gemini-2.5-flash')
+        }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

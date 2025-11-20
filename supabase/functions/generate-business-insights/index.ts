@@ -112,6 +112,15 @@ Return ONLY valid JSON in this exact format:
 
     const content = result.content;
     
+    // Store metadata for response
+    const aiMeta = {
+      provider: result.provider,
+      latencyMs: result.latencyMs,
+      model: result.provider === 'gemini-rag' 
+        ? 'gemini-2.0-flash' 
+        : (result.provider === 'openai' ? 'gpt-4o-mini' : 'google/gemini-2.5-flash')
+    };
+    
     console.log('OpenAI response:', content);
 
     // Parse the JSON response
@@ -170,7 +179,10 @@ Return ONLY valid JSON in this exact format:
     console.log('Generated insights:', finalInsights);
 
     return new Response(
-      JSON.stringify(finalInsights),
+      JSON.stringify({
+        ...finalInsights,
+        _meta: aiMeta
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,

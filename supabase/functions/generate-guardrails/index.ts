@@ -135,7 +135,16 @@ Generate guardrails for this SPECIFIC scenario.`;
       parsed = JSON.parse(jsonMatch[0]);
     }
 
-    return new Response(JSON.stringify(parsed), {
+    return new Response(JSON.stringify({ 
+      ...parsed,
+      _meta: {
+        provider: result.provider,
+        latencyMs: result.latencyMs,
+        model: result.provider === 'gemini-rag' 
+          ? 'gemini-2.0-flash' 
+          : (result.provider === 'openai' ? 'gpt-4o-mini' : 'google/gemini-2.5-flash')
+      }
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
