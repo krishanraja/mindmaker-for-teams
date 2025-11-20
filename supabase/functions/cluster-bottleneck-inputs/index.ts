@@ -83,6 +83,15 @@ serve(async (req) => {
     console.log(`✅ Clustering generated via ${result.provider} in ${result.latencyMs}ms`);
 
     const clusterResult = JSON.parse(result.content);
+    
+    // Store metadata for response
+    const aiMeta = {
+      provider: result.provider,
+      latencyMs: result.latencyMs,
+      model: result.provider === 'gemini-rag' 
+        ? 'gemini-2.0-flash' 
+        : (result.provider === 'openai' ? 'gpt-4o-mini' : 'google/gemini-2.5-flash')
+    };
 
     // Update submissions with cluster assignments
     for (const cluster of clusterResult.clusters) {
@@ -98,7 +107,10 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ clusters: clusterResult.clusters }),
+      JSON.stringify({ 
+        clusters: clusterResult.clusters,
+        _meta: aiMeta
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error: any) {
