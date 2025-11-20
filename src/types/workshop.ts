@@ -130,5 +130,9 @@ export interface StrategyAddendum {
   targets_at_risk: string;
   data_governance_changes: string;
   pilot_kpis: string;
+  risk_alignment_level?: string;
+  governance_disagreements?: string[];
+  convergence_time_minutes?: number;
+  sticking_points?: string[];
   created_at: string;
 }

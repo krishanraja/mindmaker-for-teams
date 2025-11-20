@@ -1,27 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Target, Check, Clock, Shield, TrendingUp, AlertTriangle, ChevronDown, DollarSign, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAutosave } from '@/hooks/useAutosave';
-import { AIGenerateButton } from '@/components/ui/ai-generate-button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Target, AlertCircle, CheckCircle2, XCircle, HelpCircle } from 'lucide-react';
 
 interface Segment6PilotCharterProps {
   workshopId: string;
   bootcampPlanData?: any;
 }
 
-export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ workshopId, bootcampPlanData }) => {
+export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({
+  workshopId,
+  bootcampPlanData
+}) => {
   const [charter, setCharter] = useState({
     pilot_owner: '',
-    pilot_budget: '',
     executive_sponsor: '',
+    pilot_budget: '',
+    meeting_cadence: '',
     milestone_d10: '',
     milestone_d30: '',
     milestone_d60: '',
@@ -29,493 +31,405 @@ export const Segment6PilotCharter: React.FC<Segment6PilotCharterProps> = ({ work
     kill_criteria: '',
     extend_criteria: '',
     scale_criteria: '',
-    meeting_cadence: 'Weekly',
   });
 
-  const [strategyData, setStrategyData] = useState({
-    targets_at_risk: '',
-    data_governance_changes: '',
-    pilot_kpis: '',
-  });
-
-  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  // Battle Test #3: Commitment Signal Tracking
+  const [ownerClarity, setOwnerClarity] = useState<'clear' | 'vague' | 'contested'>('vague');
+  const [budgetAgreement, setBudgetAgreement] = useState<'aligned' | 'debated' | 'unclear'>('unclear');
+  const [killCriteriaQuality, setKillCriteriaQuality] = useState<'specific' | 'generic' | 'missing'>('missing');
+  const [observations, setObservations] = useState<string>('');
 
   useEffect(() => {
     loadCharter();
-    loadStrategyAddendum();
   }, [workshopId]);
 
-  // Pre-populate with customer pilot expectations if available
-  useEffect(() => {
-    if (bootcampPlanData?.pilot_expectations && charter.pilot_owner === '') {
-      const expectations = bootcampPlanData.pilot_expectations;
-      setCharter(prev => ({
-        ...prev,
-        pilot_owner: expectations.owner || '',
-        executive_sponsor: expectations.sponsor || '',
-        pilot_budget: expectations.budget_min ? `${expectations.budget_min}-${expectations.budget_max}` : '',
-      }));
-    }
-  }, [bootcampPlanData]);
-
   const loadCharter = async () => {
-    const { data, error } = await supabase
-      .from('pilot_charter')
-      .select('*')
-      .eq('workshop_session_id', workshopId)
-      .maybeSingle();
-
-    if (error) {
-      console.error('[PilotCharter] Load error:', error);
-      toast({ 
-        title: 'Error loading pilot charter', 
-        description: error.message,
-        variant: 'destructive' 
-      });
-      return;
-    }
-
-    if (data) {
-      setCharter({
-        pilot_owner: data.pilot_owner || '',
-        pilot_budget: data.pilot_budget?.toString() || '',
-        executive_sponsor: data.executive_sponsor || '',
-        milestone_d10: data.milestone_d10 || '',
-        milestone_d30: data.milestone_d30 || '',
-        milestone_d60: data.milestone_d60 || '',
-        milestone_d90: data.milestone_d90 || '',
-        kill_criteria: data.kill_criteria || '',
-        extend_criteria: data.extend_criteria || '',
-        scale_criteria: data.scale_criteria || '',
-        meeting_cadence: data.meeting_cadence || 'Weekly',
-      });
-    }
-  };
-
-  const loadStrategyAddendum = async () => {
-    const { data, error } = await supabase
-      .from('strategy_addendum')
-      .select('*')
-      .eq('workshop_session_id', workshopId)
-      .maybeSingle();
-
-    if (data && !error) {
-      setStrategyData({
-        targets_at_risk: data.targets_at_risk || '',
-        data_governance_changes: data.data_governance_changes || '',
-        pilot_kpis: data.pilot_kpis || '',
-      });
-    }
-  };
-
-  const handleAIGenerate = async () => {
-    setIsGeneratingAI(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-strategy-insights', {
+      const { data, error } = await supabase
+        .from('pilot_charter')
+        .select('*')
+        .eq('workshop_session_id', workshopId)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      if (data) {
+        setCharter({
+          pilot_owner: data.pilot_owner || '',
+          executive_sponsor: data.executive_sponsor || '',
+          pilot_budget: data.pilot_budget || '',
+          meeting_cadence: data.meeting_cadence || '',
+          milestone_d10: data.milestone_d10 || '',
+          milestone_d30: data.milestone_d30 || '',
+          milestone_d60: data.milestone_d60 || '',
+          milestone_d90: data.milestone_d90 || '',
+          kill_criteria: data.kill_criteria || '',
+          extend_criteria: data.extend_criteria || '',
+          scale_criteria: data.scale_criteria || '',
+        });
+        
+        if (data.owner_clarity_level) setOwnerClarity(data.owner_clarity_level as any);
+        if (data.budget_agreement_level) setBudgetAgreement(data.budget_agreement_level as any);
+        if (data.kill_criteria_specificity) setKillCriteriaQuality(data.kill_criteria_specificity as any);
+      } else if (bootcampPlanData?.pilot_expectations) {
+        setCharter({
+          ...charter,
+          pilot_owner: bootcampPlanData.pilot_expectations.pilot_owner || '',
+          executive_sponsor: bootcampPlanData.pilot_expectations.executive_sponsor || '',
+          pilot_budget: bootcampPlanData.pilot_expectations.pilot_budget || '',
+          meeting_cadence: bootcampPlanData.pilot_expectations.meeting_cadence || '',
+        });
+      }
+    } catch (error) {
+      console.error('Error loading charter:', error);
+    }
+  };
+
+  const saveCharter = async (currentCharter: typeof charter) => {
+    try {
+      const commitmentSignals = {
+        named_owner: !!currentCharter.pilot_owner,
+        named_sponsor: !!currentCharter.executive_sponsor,
+        specific_budget: !!currentCharter.pilot_budget && currentCharter.pilot_budget !== 'TBD',
+        wrote_kill_criteria: !!currentCharter.kill_criteria && currentCharter.kill_criteria.length > 20,
+      };
+
+      const { error } = await supabase
+        .from('pilot_charter')
+        .upsert({
+          workshop_session_id: workshopId,
+          ...currentCharter,
+          owner_clarity_level: ownerClarity,
+          budget_agreement_level: budgetAgreement,
+          kill_criteria_specificity: killCriteriaQuality,
+          commitment_signals: commitmentSignals,
+        }, {
+          onConflict: 'workshop_session_id'
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('[PilotCharter] Save error:', error);
+      throw error;
+    }
+  };
+
+  useAutosave({
+    data: charter,
+    saveFunction: saveCharter,
+    debounceMs: 1500,
+  });
+
+  const handleSave = async () => {
+    try {
+      await saveCharter(charter);
+      
+      const commitmentSignals = {
+        named_owner: !!charter.pilot_owner,
+        named_sponsor: !!charter.executive_sponsor,
+        specific_budget: !!charter.pilot_budget && charter.pilot_budget !== 'TBD',
+        wrote_kill_criteria: !!charter.kill_criteria && charter.kill_criteria.length > 20,
+      };
+
+      // Write segment summary
+      await supabase.functions.invoke('write-segment-summary', {
         body: {
           workshop_session_id: workshopId,
+          segment_number: 6,
+          segment_name: 'Battle Test #3: Commitment',
+          summary_data: {
+            owner_clarity: ownerClarity,
+            budget_agreement: budgetAgreement,
+            kill_criteria_quality: killCriteriaQuality,
+            commitment_signals: commitmentSignals,
+          }
         }
       });
 
-      if (error) throw error;
-
-      if (data) {
-        setStrategyData(prev => ({
-          targets_at_risk: data.targets_at_risk || prev.targets_at_risk,
-          data_governance_changes: data.data_governance || prev.data_governance_changes,
-          pilot_kpis: data.pilot_metrics || prev.pilot_kpis,
-        }));
-        toast({ title: 'AI suggestions generated successfully!' });
-      }
-    } catch (error: any) {
-      console.error('[PilotCharter] AI generation error:', error);
-      toast({ 
-        title: 'Error generating AI suggestions', 
-        description: error.message,
-        variant: 'destructive' 
-      });
-    } finally {
-      setIsGeneratingAI(false);
+      toast({ title: 'Battle test results saved!' });
+    } catch (error) {
+      toast({ title: 'Failed to save', variant: 'destructive' });
     }
   };
 
-  const handleSave = async () => {
-    const { error } = await supabase
-      .from('pilot_charter')
-      .upsert({
-        workshop_session_id: workshopId,
-        ...charter,
-        pilot_budget: charter.pilot_budget ? parseFloat(charter.pilot_budget) : null,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'workshop_session_id',
-        ignoreDuplicates: false
-      });
-
-    if (error) {
-      toast({ title: 'Error saving pilot charter', variant: 'destructive' });
-      return;
+  const getOwnerIcon = (level: string) => {
+    switch (level) {
+      case 'clear': return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+      case 'vague': return <HelpCircle className="h-4 w-4 text-yellow-600" />;
+      case 'contested': return <XCircle className="h-4 w-4 text-red-600" />;
+      default: return null;
     }
-
-    toast({ title: 'Pilot charter saved successfully!' });
   };
-
-  // Autosave callback - ALWAYS save, even if empty (deletion is valid)
-  const saveCharter = useCallback(async () => {
-    const { error } = await supabase
-      .from('pilot_charter')
-      .upsert({
-        workshop_session_id: workshopId,
-        ...charter,
-        pilot_budget: charter.pilot_budget ? parseFloat(charter.pilot_budget) : null,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'workshop_session_id',
-        ignoreDuplicates: false
-      });
-
-    if (error) {
-      console.error('[PilotCharter] Autosave error:', error);
-      throw error;
-    }
-  }, [workshopId, charter]);
-
-  const saveStrategyAddendum = useCallback(async () => {
-    const { error } = await supabase
-      .from('strategy_addendum')
-      .upsert({
-        workshop_session_id: workshopId,
-        ...strategyData,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'workshop_session_id',
-        ignoreDuplicates: false
-      });
-
-    if (error) {
-      console.error('[PilotCharter] Strategy autosave error:', error);
-      throw error;
-    }
-  }, [workshopId, strategyData]);
-
-  // Enable autosave with 1 second debounce
-  const { isSaving, lastSaved } = useAutosave({
-    data: charter,
-    saveFunction: saveCharter,
-    debounceMs: 1000,
-    enabled: true,
-  });
-
-  useAutosave({
-    data: strategyData,
-    saveFunction: saveStrategyAddendum,
-    debounceMs: 1000,
-    enabled: true,
-  });
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <Card className="border-2 border-primary/20">
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Target className="h-6 w-6 text-primary" />
+            Battle Test #3: Can Your Team Agree on Who Owns It and How to Kill It?
+          </CardTitle>
+          <CardDescription className="text-base">
+            The final test: Can this team commit to a specific owner, budget, and decision criteria? Or do they punt, defer, or remain vague?
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Card className="bg-muted/50 border-primary/10">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                Facilitator Note
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm space-y-2">
+              <p>Your job: <strong>Observe commitment signals</strong></p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>Can they name a specific owner? Or does everyone defer?</li>
+                <li>Do they state a real budget number or say "we'll figure it out"?</li>
+                <li>Can they write concrete kill criteria or stay generic?</li>
+                <li>Track the quality of their answers—clarity = commitment</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </CardContent>
+      </Card>
+
+      {/* Ownership Section */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-6 w-6 text-primary" />
-              Battle Test #3: Can Your Team Agree on Who Owns It and How to Kill It?
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              {isSaving ? (
-                <Badge variant="secondary" className="gap-1">
-                  <Clock className="h-3 w-3 animate-pulse" />
-                  Saving...
-                </Badge>
-              ) : lastSaved ? (
-                <Badge variant="outline" className="gap-1">
-                  <Check className="h-3 w-3" />
-                  Saved
-                </Badge>
-              ) : null}
+          <CardTitle className="text-lg">Ownership & Sponsorship</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Who will own this day-to-day?</Label>
+            <Input
+              value={charter.pilot_owner}
+              onChange={(e) => setCharter({ ...charter, pilot_owner: e.target.value })}
+              placeholder="Name and role (e.g., Sarah Chen, Head of Operations)"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Who will be the executive sponsor?</Label>
+            <Input
+              value={charter.executive_sponsor}
+              onChange={(e) => setCharter({ ...charter, executive_sponsor: e.target.value })}
+              placeholder="Name and role (e.g., John Smith, CFO)"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              {getOwnerIcon(ownerClarity)}
+              Owner clarity level
+            </Label>
+            <div className="flex gap-2">
+              <Button
+                variant={ownerClarity === 'clear' ? 'default' : 'outline'}
+                onClick={() => setOwnerClarity('clear')}
+                size="sm"
+              >
+                Clear (Named specific person)
+              </Button>
+              <Button
+                variant={ownerClarity === 'vague' ? 'default' : 'outline'}
+                onClick={() => setOwnerClarity('vague')}
+                size="sm"
+              >
+                Vague ("We'll figure it out")
+              </Button>
+              <Button
+                variant={ownerClarity === 'contested' ? 'default' : 'outline'}
+                onClick={() => setOwnerClarity('contested')}
+                size="sm"
+              >
+                Contested (Disagreement)
+              </Button>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Budget Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Budget & Resources</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <p className="text-muted-foreground">
-            <strong>Objective:</strong> Test whether your team can commit to ownership, budget, and clear kill criteria. If they can't fill this out together, they're not ready to execute—regardless of the technology.
-          </p>
-
-          {bootcampPlanData?.pilot_expectations && (
-            <Card className="bg-primary/10 border-2 border-primary/30">
-              <CardContent className="pt-4">
-                <h4 className="font-semibold text-base mb-2 flex items-center gap-2">
-                  <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded">From Customer Intake</span>
-                  Pilot Expectations
-                </h4>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  {bootcampPlanData.pilot_expectations.description && (
-                    <div className="col-span-2">
-                      <div className="font-medium">Pilot Description:</div>
-                      <div className="text-muted-foreground">{bootcampPlanData.pilot_expectations.description}</div>
-                    </div>
-                  )}
-                  {bootcampPlanData.pilot_expectations.owner && (
-                    <div>
-                      <div className="font-medium">Expected Owner:</div>
-                      <div className="text-muted-foreground">{bootcampPlanData.pilot_expectations.owner}</div>
-                    </div>
-                  )}
-                  {bootcampPlanData.pilot_expectations.budget_min && (
-                    <div>
-                      <div className="font-medium">Budget Range:</div>
-                      <div className="text-muted-foreground">
-                        ${bootcampPlanData.pilot_expectations.budget_min}k - ${bootcampPlanData.pilot_expectations.budget_max}k
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="border-2 border-blue-500/30 hover:border-blue-500/60 transition-all bg-blue-500/5">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <Users className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <Label className="text-lg font-semibold">Pilot Owner</Label>
-                </div>
-                <Input
-                  value={charter.pilot_owner}
-                  onChange={(e) => setCharter({ ...charter, pilot_owner: e.target.value })}
-                  placeholder="Name and role"
-                  className="text-xl font-medium h-14 border-2"
-                />
-                <p className="text-sm text-muted-foreground mt-2">
-                  Who will drive this pilot day-to-day?
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-blue-500/30 hover:border-blue-500/60 transition-all bg-blue-500/5">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <Target className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <Label className="text-lg font-semibold">Executive Sponsor</Label>
-                </div>
-                <Input
-                  value={charter.executive_sponsor}
-                  onChange={(e) => setCharter({ ...charter, executive_sponsor: e.target.value })}
-                  placeholder="C-level sponsor"
-                  className="text-xl font-medium h-14 border-2"
-                />
-                <p className="text-sm text-muted-foreground mt-2">
-                  Who has executive authority and budget?
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-green-500/30 hover:border-green-500/60 transition-all bg-green-500/5">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <DollarSign className="h-5 w-5 text-green-600" />
-                  </div>
-                  <Label className="text-lg font-semibold">Pilot Budget (USD)</Label>
-                </div>
-                <Input
-                  type="number"
-                  value={charter.pilot_budget}
-                  onChange={(e) => setCharter({ ...charter, pilot_budget: e.target.value })}
-                  placeholder="50000"
-                  className="text-xl font-medium h-14 border-2"
-                />
-                <p className="text-sm text-muted-foreground mt-2">
-                  Total budget allocated for this pilot
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 border-green-500/30 hover:border-green-500/60 transition-all bg-green-500/5">
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-green-500/10 rounded-lg">
-                    <Clock className="h-5 w-5 text-green-600" />
-                  </div>
-                  <Label className="text-lg font-semibold">Meeting Cadence</Label>
-                </div>
-                <Input
-                  value={charter.meeting_cadence}
-                  onChange={(e) => setCharter({ ...charter, meeting_cadence: e.target.value })}
-                  placeholder="Weekly, Bi-weekly"
-                  className="text-xl font-medium h-14 border-2"
-                />
-                <p className="text-sm text-muted-foreground mt-2">
-                  How often will the team check progress?
-                </p>
-              </CardContent>
-            </Card>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>What budget are we committing?</Label>
+            <Input
+              value={charter.pilot_budget}
+              onChange={(e) => setCharter({ ...charter, pilot_budget: e.target.value })}
+              placeholder="Specific amount (e.g., $50K for 3 months) or 'TBD'"
+            />
           </div>
 
-          <Card className="border-2 border-purple-500/30 bg-gradient-to-r from-purple-500/5 to-background">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Clock className="h-6 w-6 text-purple-600" />
-                Milestone Gating (D10/D30/D60/D90)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="relative">
-                <div className="absolute top-8 left-8 right-8 h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 hidden md:block" />
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
-                  {[
-                    { day: 'D10', label: 'Day 10', value: charter.milestone_d10, key: 'milestone_d10', placeholder: 'Team onboarded, data access secured...' },
-                    { day: 'D30', label: 'Day 30', value: charter.milestone_d30, key: 'milestone_d30', placeholder: 'First prototype tested...' },
-                    { day: 'D60', label: 'Day 60', value: charter.milestone_d60, key: 'milestone_d60', placeholder: 'User feedback incorporated, KPIs tracked...' },
-                    { day: 'D90', label: 'Day 90', value: charter.milestone_d90, key: 'milestone_d90', placeholder: 'Final decision: Kill, Extend, or Scale...' },
-                  ].map((milestone) => (
-                    <div key={milestone.key} className="flex flex-col items-center">
-                      <Badge className="mb-3 text-lg px-4 py-2 bg-purple-600 hover:bg-purple-700">{milestone.day}</Badge>
-                      <Textarea
-                        value={milestone.value}
-                        onChange={(e) => setCharter({ ...charter, [milestone.key]: e.target.value })}
-                        placeholder={milestone.placeholder}
-                        className="min-h-[120px] text-base leading-relaxed"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-2">
+            <Label>Budget agreement level</Label>
+            <div className="flex gap-2">
+              <Button
+                variant={budgetAgreement === 'aligned' ? 'default' : 'outline'}
+                onClick={() => setBudgetAgreement('aligned')}
+                size="sm"
+              >
+                Aligned (Specific number agreed)
+              </Button>
+              <Button
+                variant={budgetAgreement === 'debated' ? 'default' : 'outline'}
+                onClick={() => setBudgetAgreement('debated')}
+                size="sm"
+              >
+                Debated (Needed discussion)
+              </Button>
+              <Button
+                variant={budgetAgreement === 'unclear' ? 'default' : 'outline'}
+                onClick={() => setBudgetAgreement('unclear')}
+                size="sm"
+              >
+                Unclear (Punted decision)
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-          <Card className="border-2 border-orange-500/30 bg-gradient-to-r from-orange-500/5 to-background">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <AlertTriangle className="h-6 w-6 text-orange-600" />
-                Decision Gates
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Card className="border-2 border-red-500/30 hover:border-red-500/50 transition-all">
-                <CardContent className="pt-6">
-                  <Label className="text-lg font-semibold flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 bg-red-500/20 text-red-700 text-sm rounded-full">KILL</span>
-                    Stop the pilot
-                  </Label>
-                  <Textarea
-                    value={charter.kill_criteria}
-                    onChange={(e) => setCharter({ ...charter, kill_criteria: e.target.value })}
-                    placeholder="No measurable improvement, budget overrun by 50%..."
-                    className="min-h-[80px] text-base leading-relaxed"
-                  />
-                </CardContent>
-              </Card>
+      {/* Decision Criteria */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Decision Gates</CardTitle>
+          <CardDescription>When do we kill it? Extend it? Scale it?</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Kill Criteria (When do we stop?)</Label>
+            <Textarea
+              value={charter.kill_criteria}
+              onChange={(e) => setCharter({ ...charter, kill_criteria: e.target.value })}
+              placeholder="Be specific: 'If accuracy drops below 90% after 30 days' or 'If adoption is under 20% by day 60'"
+              rows={3}
+            />
+          </div>
 
-              <Card className="border-2 border-yellow-500/30 hover:border-yellow-500/50 transition-all">
-                <CardContent className="pt-6">
-                  <Label className="text-lg font-semibold flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 bg-yellow-500/20 text-yellow-700 text-sm rounded-full">EXTEND</span>
-                    Continue testing
-                  </Label>
-                  <Textarea
-                    value={charter.extend_criteria}
-                    onChange={(e) => setCharter({ ...charter, extend_criteria: e.target.value })}
-                    placeholder="Promising results but need more data..."
-                    className="min-h-[80px] text-base leading-relaxed"
-                  />
-                </CardContent>
-              </Card>
+          <div className="space-y-2">
+            <Label>Kill criteria quality</Label>
+            <div className="flex gap-2">
+              <Button
+                variant={killCriteriaQuality === 'specific' ? 'default' : 'outline'}
+                onClick={() => setKillCriteriaQuality('specific')}
+                size="sm"
+              >
+                Specific (Measurable thresholds)
+              </Button>
+              <Button
+                variant={killCriteriaQuality === 'generic' ? 'default' : 'outline'}
+                onClick={() => setKillCriteriaQuality('generic')}
+                size="sm"
+              >
+                Generic ("If it doesn't work out")
+              </Button>
+              <Button
+                variant={killCriteriaQuality === 'missing' ? 'default' : 'outline'}
+                onClick={() => setKillCriteriaQuality('missing')}
+                size="sm"
+              >
+                Missing (Couldn't define)
+              </Button>
+            </div>
+          </div>
 
-              <Card className="border-2 border-green-500/30 hover:border-green-500/50 transition-all">
-                <CardContent className="pt-6">
-                  <Label className="text-lg font-semibold flex items-center gap-2 mb-3">
-                    <span className="px-3 py-1 bg-green-500/20 text-green-700 text-sm rounded-full">SCALE</span>
-                    Roll out enterprise-wide
-                  </Label>
-                  <Textarea
-                    value={charter.scale_criteria}
-                    onChange={(e) => setCharter({ ...charter, scale_criteria: e.target.value })}
-                    placeholder="ROI proven, user adoption >70%, compliance cleared..."
-                    className="min-h-[80px] text-base leading-relaxed"
-                  />
-                </CardContent>
-              </Card>
-            </CardContent>
-          </Card>
+          <div className="space-y-2">
+            <Label>Extend Criteria (When do we continue?)</Label>
+            <Textarea
+              value={charter.extend_criteria}
+              onChange={(e) => setCharter({ ...charter, extend_criteria: e.target.value })}
+              placeholder="e.g., If we see 50% time savings and positive user feedback after 60 days"
+              rows={2}
+            />
+          </div>
 
-          <Card className="border-2 border-primary/30">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl">Key Questions for Your Team</CardTitle>
-                <AIGenerateButton
-                  onClick={handleAIGenerate}
-                  disabled={isGeneratingAI}
-                  size="sm"
-                >
-                  {isGeneratingAI ? 'Generating...' : 'Generate with AI'}
-                </AIGenerateButton>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                {
-                  title: 'Strategic Targets at Risk',
-                  field: 'targets_at_risk',
-                  icon: <AlertTriangle className="h-5 w-5 text-orange-600" />,
-                  prompt: 'Which 2026 strategic goals are threatened if we don\'t act now?',
-                  placeholder: 'e.g., Revenue growth target, customer retention goals...'
-                },
-                {
-                  title: 'Data & Governance Changes',
-                  field: 'data_governance_changes',
-                  icon: <Shield className="h-5 w-5 text-blue-600" />,
-                  prompt: 'What data governance must be in place for AI adoption?',
-                  placeholder: 'e.g., Data ownership policies, ethical AI guidelines...'
-                },
-                {
-                  title: '90-Day Pilot Metrics',
-                  field: 'pilot_kpis',
-                  icon: <TrendingUp className="h-5 w-5 text-green-600" />,
-                  prompt: 'How will we measure pilot success?',
-                  placeholder: 'e.g., 15% faster processing, 20% cost reduction...'
-                }
-              ].map(({ title, field, icon, prompt, placeholder }) => (
-                <Card key={field} className="border-2 hover:border-primary/50 transition-all">
-                  <Collapsible defaultOpen={true}>
-                    <CollapsibleTrigger className="w-full">
-                      <CardHeader className="cursor-pointer hover:bg-muted/50">
-                        <CardTitle className="flex items-center justify-between text-lg">
-                          <div className="flex items-center gap-3">
-                            {icon}
-                            {title}
-                          </div>
-                          <ChevronDown className="h-5 w-5" />
-                        </CardTitle>
-                      </CardHeader>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground mb-3 italic">{prompt}</p>
-                        <Textarea
-                          value={strategyData[field as keyof typeof strategyData]}
-                          onChange={(e) => setStrategyData({ ...strategyData, [field]: e.target.value })}
-                          placeholder={placeholder}
-                          className="min-h-[120px] text-base leading-relaxed"
-                        />
-                      </CardContent>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </Card>
-              ))}
-            </CardContent>
-          </Card>
+          <div className="space-y-2">
+            <Label>Scale Criteria (When do we go organization-wide?)</Label>
+            <Textarea
+              value={charter.scale_criteria}
+              onChange={(e) => setCharter({ ...charter, scale_criteria: e.target.value })}
+              placeholder="e.g., If 80% of pilot users actively use it and error rate is under 5%"
+              rows={2}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-          <Button onClick={handleSave} className="w-full" size="lg" variant="outline">
-            Manual Save Override
-          </Button>
+      {/* Milestones */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">90-Day Milestones</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Day 10 Milestone</Label>
+              <Input
+                value={charter.milestone_d10}
+                onChange={(e) => setCharter({ ...charter, milestone_d10: e.target.value })}
+                placeholder="e.g., AI model selected and tested"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Day 30 Milestone</Label>
+              <Input
+                value={charter.milestone_d30}
+                onChange={(e) => setCharter({ ...charter, milestone_d30: e.target.value })}
+                placeholder="e.g., 10 users trained and using daily"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Day 60 Milestone</Label>
+              <Input
+                value={charter.milestone_d60}
+                onChange={(e) => setCharter({ ...charter, milestone_d60: e.target.value })}
+                placeholder="e.g., Full team adoption, metrics tracked"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Day 90 Goal</Label>
+              <Input
+                value={charter.milestone_d90}
+                onChange={(e) => setCharter({ ...charter, milestone_d90: e.target.value })}
+                placeholder="e.g., Decision gate: kill, extend, or scale"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Observations */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Facilitator Observations</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Textarea
+            value={observations}
+            onChange={(e) => setObservations(e.target.value)}
+            placeholder="Note any hesitation, avoidance, or strong commitment signals you observed during this discussion"
+            rows={4}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Save Status */}
+      <Card className="bg-primary/5">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              Auto-saves as you type
+            </span>
+            <Button onClick={handleSave}>
+              Complete Battle Test #3
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

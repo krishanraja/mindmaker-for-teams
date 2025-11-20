@@ -1,167 +1,50 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
-import { FileText, QrCode, Target, TrendingUp, AlertTriangle, Award, Medal, Trophy, ArrowUp, ArrowDown, Minus, Sparkles, Loader2, Gauge, Check, Clock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { QRCodeSVG } from 'qrcode.react';
-import { getSimulationDisplayName } from '@/lib/simulation-constants';
 import { useEnhancedAutosave } from '@/hooks/useEnhancedAutosave';
-import { useSaveQueue } from '@/hooks/useSaveQueue';
-import { AIGenerateButton } from '@/components/ui/ai-generate-button';
+import { Scale, Clock, AlertCircle, MessageSquare } from 'lucide-react';
 
 interface Segment5StrategyAddendumProps {
   workshopId: string;
   bootcampPlanData?: any;
 }
 
-export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> = ({ workshopId, bootcampPlanData }) => {
-  const dataLoaded = useRef(false);
-  const strategyInsightsRef = useRef<HTMLDivElement>(null);
-  const [activitySession, setActivitySession] = useState<any>(null);
+export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> = ({
+  workshopId,
+  bootcampPlanData
+}) => {
   const [addendum, setAddendum] = useState({
     targets_at_risk: '',
     data_governance_changes: '',
     pilot_kpis: '',
   });
-  const [votingResults, setVotingResults] = useState<any[]>([]);
-  const [simulationResults, setSimulationResults] = useState<any[]>([]);
-  const [loadingData, setLoadingData] = useState(true);
+  
+  // Battle Test #2: Trade-off Alignment Tracking
   const [riskTolerance, setRiskTolerance] = useState(50);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [readinessScore, setReadinessScore] = useState(0);
+  const [governanceDisagreements, setGovernanceDisagreements] = useState<string>('');
+  const [stickingPoints, setStickingPoints] = useState<string>('');
+  const [convergenceTime, setConvergenceTime] = useState<number>(0);
+  const [alignmentLevel, setAlignmentLevel] = useState<'low' | 'medium' | 'high'>('medium');
 
   useEffect(() => {
     loadAddendum();
-    loadWorkshopData();
   }, [workshopId]);
 
-  useEffect(() => {
-    if (!loadingData) {
-      calculateReadinessScore();
-    }
-  }, [votingResults, simulationResults, loadingData]);
-
-  useEffect(() => {
-    // Only pre-populate if database data hasn't been loaded yet
-    if (bootcampPlanData && !dataLoaded.current && addendum.targets_at_risk === '') {
-      const initialTargets = bootcampPlanData.strategic_goals_2026?.join('\n• ') || '';
-      const competitiveLandscape = bootcampPlanData.competitive_landscape || '';
-      
-      setAddendum(prev => ({
-        ...prev,
-        targets_at_risk: initialTargets ? `Strategic targets:\n• ${initialTargets}\n\nCompetitive Context:\n${competitiveLandscape}` : '',
-      }));
-    }
-  }, [bootcampPlanData]);
-
-  const generateWorkingGroupQR = async () => {
-    const { data, error } = await supabase.functions.invoke('generate-activity-qr', {
-      body: { workshop_session_id: workshopId, activity_type: 'working_group' },
-    });
-    if (error) {
-      toast({ title: 'Error generating QR code', variant: 'destructive' });
-      return;
-    }
-    setActivitySession(data.activity_session);
-    toast({ title: 'Working group QR codes generated!' });
-  };
-
   const loadAddendum = async () => {
-    const { data, error } = await supabase
-      .from('strategy_addendum')
-      .select('*')
-      .eq('workshop_session_id', workshopId)
-      .maybeSingle();
-
-    if (error) {
-      console.error('[StrategyAddendum] Load error:', error);
-      toast({ 
-        title: 'Error loading strategy data', 
-        description: error.message,
-        variant: 'destructive' 
-      });
-      return;
-    }
-
-    if (data) {
-      setAddendum({
-        targets_at_risk: data.targets_at_risk || '',
-        data_governance_changes: data.data_governance_changes || '',
-        pilot_kpis: data.pilot_kpis || '',
-      });
-      dataLoaded.current = true;
-    }
-  };
-
-  const loadWorkshopData = async () => {
-    setLoadingData(true);
-    const { data: mapItems } = await supabase
-      .from('effortless_map_items')
-      .select('id, item_text, lane, vote_count')
-      .eq('workshop_session_id', workshopId)
-      .order('vote_count', { ascending: false })
-      .limit(5);
-    if (mapItems) {
-      setVotingResults(mapItems.filter(item => (item.vote_count || 0) > 0));
-    }
-    const { data: simulations } = await supabase
-      .from('simulation_results')
-      .select('*')
-      .eq('workshop_session_id', workshopId)
-      .order('created_at', { ascending: false });
-    if (simulations) {
-      setSimulationResults(simulations);
-    }
-    setLoadingData(false);
-  };
-
-  const calculateReadinessScore = () => {
-    let score = 0;
-    
-    // Strategic alignment (20 points)
-    if (votingResults.length > 0) score += 20;
-    
-    // AI performance confidence (30 points)
-    const avgQuality = simulationResults.reduce((sum, s) => sum + (s.quality_improvement_pct || 0), 0) / (simulationResults.length || 1);
-    score += Math.min(30, (avgQuality / 100) * 30);
-    
-    // Guardrails designed (20 points)
-    const guardrailsCount = simulationResults.filter(s => s.guardrails).length;
-    score += (guardrailsCount / Math.max(simulationResults.length, 1)) * 20;
-    
-    // Task breakdown completeness (15 points)
-    const taskBreakdownCount = simulationResults.filter(s => s.task_breakdown).length;
-    score += (taskBreakdownCount / Math.max(simulationResults.length, 1)) * 15;
-    
-    // Team engagement (15 points)
-    if (votingResults.length >= 3) score += 15;
-    else score += votingResults.length * 5;
-    
-    setReadinessScore(Math.round(score));
-  };
-
-  const getRiskLabel = (value: number) => {
-    if (value < 34) return 'Conservative (Maximum Oversight)';
-    if (value < 67) return 'Balanced';
-    return 'Aggressive (Trust AI Performance)';
-  };
-
-  const handleGenerateWithAI = async () => {
-    setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-strategy-insights', {
-        body: {
-          workshop_session_id: workshopId,
-          risk_tolerance: riskTolerance,
-        },
-      });
+      const { data, error } = await supabase
+        .from('strategy_addendum')
+        .select('*')
+        .eq('workshop_session_id', workshopId)
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') throw error;
 
       if (data) {
         setAddendum({
@@ -170,302 +53,282 @@ export const Segment5StrategyAddendum: React.FC<Segment5StrategyAddendumProps> =
           pilot_kpis: data.pilot_kpis || '',
         });
         
-        // CRITICAL: Force immediate save after AI generation
-        try {
-          await forceSave();
-        } catch (saveError) {
-          console.error('[Strategy] Failed to save after AI generation:', saveError);
+        if (data.governance_disagreements) {
+          setGovernanceDisagreements(data.governance_disagreements.join('\n'));
         }
-        
-        toast({ 
-          title: 'Strategy insights generated and saved!', 
-          description: `Created based on ${getRiskLabel(riskTolerance).toLowerCase()} approach` 
+        if (data.sticking_points) {
+          setStickingPoints(data.sticking_points.join('\n'));
+        }
+        if (data.convergence_time_minutes) {
+          setConvergenceTime(data.convergence_time_minutes);
+        }
+        if (data.risk_alignment_level) {
+          setAlignmentLevel(data.risk_alignment_level as any);
+        }
+      } else if (bootcampPlanData) {
+        // Pre-populate from bootcamp data if available
+        setAddendum({
+          targets_at_risk: bootcampPlanData.strategic_goals_2026?.[0] || '',
+          data_governance_changes: bootcampPlanData.data_governance_notes || '',
+          pilot_kpis: bootcampPlanData.pilot_metrics_notes || '',
         });
-        
-        // Scroll to strategy insights section
-        setTimeout(() => {
-          strategyInsightsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
       }
-    } catch (error: any) {
-      console.error('Error generating strategy insights:', error);
-      toast({ 
-        title: 'Error generating strategy insights', 
-        description: error.message,
-        variant: 'destructive' 
-      });
-    } finally {
-      setIsGenerating(false);
+    } catch (error) {
+      console.error('Error loading addendum:', error);
     }
   };
+
+  const saveAddendum = async (currentAddendum: typeof addendum) => {
+    try {
+      const governanceDisagreementsList = governanceDisagreements.split('\n').filter(d => d.trim());
+      const stickingPointsList = stickingPoints.split('\n').filter(s => s.trim());
+
+      const { error } = await supabase
+        .from('strategy_addendum')
+        .upsert({
+          workshop_session_id: workshopId,
+          ...currentAddendum,
+          governance_disagreements: governanceDisagreementsList,
+          sticking_points: stickingPointsList,
+          convergence_time_minutes: convergenceTime,
+          risk_alignment_level: alignmentLevel,
+        }, {
+          onConflict: 'workshop_session_id'
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('[StrategyAddendum] Save error:', error);
+      throw error;
+    }
+  };
+
+  const { forceSave } = useEnhancedAutosave({
+    data: addendum,
+    saveFunction: saveAddendum,
+    debounceMs: 1500,
+    enabled: true,
+    componentName: 'Strategy Addendum',
+  });
 
   const handleSave = async () => {
     try {
-      // CRITICAL: Force immediate save first, then flush any other pending saves
       await forceSave();
-      await flushAll();
-      toast({ 
-        title: 'All changes saved!', 
-        description: 'Strategy addendum saved immediately' 
+      
+      // Write segment summary
+      await supabase.functions.invoke('write-segment-summary', {
+        body: {
+          workshop_session_id: workshopId,
+          segment_number: 5,
+          segment_name: 'Battle Test #2: Trade-offs',
+          summary_data: {
+            risk_alignment_level: alignmentLevel,
+            disagreement_count: governanceDisagreements.split('\n').filter(d => d.trim()).length,
+            sticking_point_count: stickingPoints.split('\n').filter(s => s.trim()).length,
+            convergence_time_minutes: convergenceTime
+          }
+        }
       });
+
+      toast({ title: 'Battle test results saved!' });
     } catch (error) {
-      console.error('Error saving:', error);
-      toast({ 
-        title: 'Save failed', 
-        description: 'Could not save changes. Please try again.', 
-        variant: 'destructive' 
-      });
+      toast({ title: 'Failed to save', variant: 'destructive' });
     }
   };
 
-  // Autosave callback - ALWAYS save, even if empty (deletion is valid)
-  const saveAddendum = useCallback(async () => {
-    const { error } = await supabase.from('strategy_addendum').upsert({
-      workshop_session_id: workshopId,
-      targets_at_risk: addendum.targets_at_risk,
-      data_governance_changes: addendum.data_governance_changes,
-      pilot_kpis: addendum.pilot_kpis,
-      updated_at: new Date().toISOString(),
-    }, {
-      onConflict: 'workshop_session_id',
-      ignoreDuplicates: false
-    });
-
-    if (error) {
-      console.error('[StrategyAddendum] Autosave error:', error);
-      throw error;
-    }
-  }, [workshopId, addendum]);
-
-  // Enable autosave with 2 second debounce (strategic thinking needs more time)
-  const { isSaving, lastSaved, forceSave } = useEnhancedAutosave({
-    data: addendum,
-    saveFunction: saveAddendum,
-    debounceMs: 2000,
-    enabled: true,
-    componentName: 'StrategyAddendum',
-  });
-
-  const { flushAll } = useSaveQueue();
-
-  console.log('[StrategyAddendum] Current state:', { 
-    addendum, 
-    isSaving, 
-    lastSaved: lastSaved?.toISOString() 
-  });
-
-  const getRankIcon = (index: number) => {
-    if (index === 0) return <Trophy className="h-5 w-5 text-yellow-500" />;
-    if (index === 1) return <Medal className="h-5 w-5 text-gray-400" />;
-    if (index === 2) return <Award className="h-5 w-5 text-amber-600" />;
-    return <span className="font-bold text-lg text-muted-foreground">#{index + 1}</span>;
-  };
-
-  const getLaneColor = (lane: string) => {
-    switch (lane) {
-      case 'must_have': return 'bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-400';
-      case 'nice_to_have': return 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400';
-      case 'constraint': return 'bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400';
-      default: return 'bg-gray-500/10 border-gray-500/20';
-    }
-  };
-
-  const getMetricDelta = (value: number | null) => {
-    if (!value || value === 0) return { icon: <Minus className="h-4 w-4" />, color: 'text-muted-foreground' };
-    if (value > 0) return { icon: <ArrowUp className="h-4 w-4" />, color: 'text-green-600 dark:text-green-400' };
-    return { icon: <ArrowDown className="h-4 w-4" />, color: 'text-red-600 dark:text-red-400' };
+  const getRiskLabel = (value: number) => {
+    if (value < 34) return 'Conservative';
+    if (value < 67) return 'Balanced';
+    return 'Aggressive';
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <FileText className="h-6 w-6 text-primary" />
-            <div>
-              <CardTitle className="text-2xl">Battle Test #2: Can Your Team Agree on Strategic Trade-Offs?</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">Force your team to articulate risk tolerance, governance, and KPIs. Watch where they struggle—that's where your decision framework needs clarity.</p>
-            </div>
-          </div>
-          {bootcampPlanData && (
-            <div className="flex gap-2">
-              <Badge variant="outline">{bootcampPlanData.ai_experience_level || 'Not Set'}</Badge>
-              <Badge variant="outline">Risk: {bootcampPlanData.risk_tolerance || 'N/A'}/10</Badge>
-            </div>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-8">
-        {/* Pilot Readiness Score */}
-        <div className="p-6 bg-muted/30 rounded-lg border-2 border-border">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <Gauge className="h-8 w-8 text-primary" />
-              <div>
-                <h3 className="text-lg font-semibold">Alignment Score</h3>
-                <p className="text-sm text-muted-foreground">Based on team's ability to converge on answers</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className={`text-4xl font-bold ${
-                readinessScore >= 80 ? 'text-success' : 
-                readinessScore >= 60 ? 'text-warning' : 
-                'text-error'
-              }`}>
-                {readinessScore}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {readinessScore >= 80 ? 'Strong' : readinessScore >= 60 ? 'Moderate' : 'Needs Work'}
-              </div>
-            </div>
-          </div>
-          <div className="w-full bg-secondary rounded-full h-3">
-            <div 
-              className={`h-3 rounded-full transition-all duration-500 ${
-                readinessScore >= 80 ? 'bg-success' : 
-                readinessScore >= 60 ? 'bg-warning' : 
-                'bg-error'
-              }`}
-              style={{ width: `${readinessScore}%` }}
-            />
-          </div>
-          <div className="mt-3 grid grid-cols-5 gap-2 text-xs text-muted-foreground">
-            <div>Strategic Alignment</div>
-            <div>AI Performance</div>
-            <div>Guardrails</div>
-            <div>Task Breakdown</div>
-            <div>Team Engagement</div>
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <Card className="border-2 border-primary/20">
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Scale className="h-6 w-6 text-primary" />
+            Battle Test #2: Can Your Team Agree on Strategic Trade-Offs?
+          </CardTitle>
+          <CardDescription className="text-base">
+            Use the risk tolerance slider and strategy questions below to surface where your team aligns or diverges on AI adoption approach.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Card className="bg-muted/50 border-primary/10">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                Facilitator Note
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm space-y-2">
+              <p>Your job: <strong>Watch for convergence or divergence</strong></p>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                <li>When you move the risk slider, do heads nod or shake?</li>
+                <li>Note who wants to move fast vs. who wants more guardrails</li>
+                <li>Track sticking points: data governance? budget? ownership?</li>
+                <li>Time how long it takes to reach rough agreement (if at all)</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </CardContent>
+      </Card>
 
-        {/* AI-Assisted Strategy Generation */}
-        <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold">AI-Assisted Strategy Generation</h3>
-          </div>
+      {/* Risk Tolerance Slider */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Risk Tolerance Discussion</CardTitle>
+          <CardDescription>Move the slider and observe team reactions</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label className="flex justify-between">
-              <span>Risk Tolerance</span>
-              <span className="text-sm font-medium">{getRiskLabel(riskTolerance)}</span>
+              <span>Where should we be on the risk spectrum?</span>
+              <span className="font-semibold">{getRiskLabel(riskTolerance)}</span>
             </Label>
             <Slider
               value={[riskTolerance]}
-              onValueChange={(value) => setRiskTolerance(value[0])}
+              onValueChange={(val) => setRiskTolerance(val[0])}
               min={0}
               max={100}
               step={1}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Conservative</span>
-              <span>Aggressive</span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {riskTolerance < 34 && "Maximum human oversight, extensive validation required"}
-              {riskTolerance >= 34 && riskTolerance < 67 && "Balanced approach based on observed AI performance"}
-              {riskTolerance >= 67 && "Trust AI capabilities, streamlined oversight where appropriate"}
-            </p>
-          </div>
-          
-          <AIGenerateButton
-            onClick={handleGenerateWithAI}
-            disabled={isGenerating}
-            className="w-full"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              'Generate Strategy Insights'
-            )}
-          </AIGenerateButton>
-        </div>
-
-        <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border">
-          <div>
-            <h3 className="font-semibold">Collect Working Group Inputs</h3>
-            <p className="text-sm text-muted-foreground">Generate QR code for participants</p>
-          </div>
-          <Button onClick={generateWorkingGroupQR}><QrCode className="mr-2 h-4 w-4" />Generate QR</Button>
-        </div>
-
-        {activitySession && (
-          <div className="flex justify-center p-6 bg-background border rounded-lg">
-            <div className="text-center space-y-3">
-              <QRCodeSVG value={activitySession.qr_code_url} size={200} />
-              <p className="text-sm font-medium">Scan to submit inputs</p>
-            </div>
-          </div>
-        )}
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-semibold">Top Voted AI Opportunities</h2>
-            <Badge variant="outline" className="ml-auto">{votingResults.length} items</Badge>
-          </div>
-          {loadingData ? (
-            <div className="text-center py-8 text-muted-foreground">Loading...</div>
-          ) : votingResults.length === 0 ? (
-            <Card className="border-dashed"><CardContent className="p-8 text-center">
-              <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">No voting results yet</p>
-            </CardContent></Card>
-          ) : (
-            <div className="space-y-3">
-              {votingResults.map((item, idx) => (
-                <Card key={item.id}><CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    {getRankIcon(idx)}
-                    <Badge variant="outline" className={getLaneColor(item.lane)}>{item.lane.replace('_', ' ')}</Badge>
-                    <span className="flex-1 font-medium">{item.item_text}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-primary">{item.vote_count || 0}</span>
-                      <span className="text-sm text-muted-foreground">votes</span>
-                    </div>
-                  </div>
-                </CardContent></Card>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div ref={strategyInsightsRef} className="space-y-4 mt-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-semibold">Key Questions for Your Team</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              {isSaving ? (
-                <Badge variant="secondary" className="gap-1">
-                  <Clock className="h-3 w-3 animate-pulse" />
-                  Saving...
-                </Badge>
-              ) : lastSaved ? (
-                <Badge variant="outline" className="gap-1">
-                  <Check className="h-3 w-3" />
-                  Saved
-                </Badge>
-              ) : null}
+              <span>Conservative (Move slow, validate everything)</span>
+              <span>Aggressive (Move fast, learn by doing)</span>
             </div>
           </div>
 
-          <div><Label>Strategic Targets at Risk</Label>
-            <Textarea value={addendum.targets_at_risk} onChange={(e) => setAddendum({ ...addendum, targets_at_risk: e.target.value })} rows={4} /></div>
-          <div><Label>Data & Governance Changes</Label>
-            <Textarea value={addendum.data_governance_changes} onChange={(e) => setAddendum({ ...addendum, data_governance_changes: e.target.value })} rows={4} /></div>
-          <div><Label>90-Day Pilot Metrics</Label>
-            <Textarea value={addendum.pilot_kpis} onChange={(e) => setAddendum({ ...addendum, pilot_kpis: e.target.value })} rows={4} /></div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Disagreements on risk tolerance
+            </Label>
+            <Textarea
+              value={governanceDisagreements}
+              onChange={(e) => setGovernanceDisagreements(e.target.value)}
+              placeholder="Note who disagreed and why (one per line)&#10;e.g., CFO wants more validation, CMO wants faster deployment&#10;Legal concerned about compliance, CTO confident in guardrails"
+              rows={4}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-          <Button onClick={handleSave} size="lg" className="w-full" variant="outline">
-            Manual Save Override
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      {/* Strategic Trade-off Questions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Strategic Questions</CardTitle>
+          <CardDescription>Discuss these as a team and capture the conversation</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Which 2026 targets are at risk if we don't move on AI?</Label>
+            <Textarea
+              value={addendum.targets_at_risk}
+              onChange={(e) => setAddendum({ ...addendum, targets_at_risk: e.target.value })}
+              placeholder="e.g., Revenue growth targets, operational efficiency goals, customer satisfaction metrics"
+              rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>What data governance changes are needed?</Label>
+            <Textarea
+              value={addendum.data_governance_changes}
+              onChange={(e) => setAddendum({ ...addendum, data_governance_changes: e.target.value })}
+              placeholder="e.g., New data access policies, consent management, audit trails"
+              rows={3}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>How will we measure success?</Label>
+            <Textarea
+              value={addendum.pilot_kpis}
+              onChange={(e) => setAddendum({ ...addendum, pilot_kpis: e.target.value })}
+              placeholder="e.g., Time saved, quality improvement, cost reduction, adoption rate"
+              rows={3}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Alignment Tracking */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Track Team Alignment</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              How long did it take to reach rough consensus? (minutes)
+            </Label>
+            <Slider
+              value={[convergenceTime]}
+              onValueChange={(val) => setConvergenceTime(val[0])}
+              min={0}
+              max={90}
+              step={5}
+            />
+            <div className="text-right text-sm text-muted-foreground">{convergenceTime} minutes</div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>What were the main sticking points?</Label>
+            <Textarea
+              value={stickingPoints}
+              onChange={(e) => setStickingPoints(e.target.value)}
+              placeholder="Note points where the team got stuck or couldn't agree (one per line)&#10;e.g., Who owns data quality?&#10;What level of human review is needed?&#10;How much budget to allocate?"
+              rows={4}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Overall alignment level</Label>
+            <div className="flex gap-2">
+              <Button
+                variant={alignmentLevel === 'low' ? 'default' : 'outline'}
+                onClick={() => setAlignmentLevel('low')}
+                size="sm"
+              >
+                Low (Major disagreements)
+              </Button>
+              <Button
+                variant={alignmentLevel === 'medium' ? 'default' : 'outline'}
+                onClick={() => setAlignmentLevel('medium')}
+                size="sm"
+              >
+                Medium (Some friction)
+              </Button>
+              <Button
+                variant={alignmentLevel === 'high' ? 'default' : 'outline'}
+                onClick={() => setAlignmentLevel('high')}
+                size="sm"
+              >
+                High (Quick consensus)
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Save Status */}
+      <Card className="bg-primary/5">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              Auto-saves as you type
+            </span>
+            <Button onClick={handleSave}>
+              Complete Battle Test #2
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
