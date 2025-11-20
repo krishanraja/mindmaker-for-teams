@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callWithFallback } from '../_shared/ai-fallback.ts';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
@@ -75,34 +76,26 @@ Focus EXCLUSIVELY on:
 
 Be specific about team development approaches, not product strategy or technical implementation.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'You are an expert AI transformation consultant who generates precise, actionable business insights. Always respond with valid JSON only.' 
-          },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 1500,
-      }),
+    console.log('Calling AI with 3-tier fallback for insights generation...');
+
+    const result = await callWithFallback({
+      openAIKey: openAIApiKey,
+      lovableKey: Deno.env.get('LOVABLE_API_KEY')!,
+      geminiServiceAccount: Deno.env.get('GEMINI_SERVICE_ACCOUNT_KEY'),
+      messages: [
+        { 
+          role: 'system', 
+          content: 'You are an expert AI transformation consultant who generates precise, actionable business insights. Always respond with valid JSON only.' 
+        },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7,
+      maxTokens: 1500
     });
 
-    const data = await response.json();
-    
-    if (!response.ok) {
-      console.error('OpenAI API Error:', data);
-      throw new Error(`OpenAI API error: ${data.error?.message || 'Unknown error'}`);
-    }
+    console.log(`✅ AI insights generated via ${result.provider} in ${result.latencyMs}ms`);
 
-    const aiResponse = data.choices[0].message.content;
+    const aiResponse = result.content;
     
     // Parse the JSON response
     let insights;
@@ -141,8 +134,30 @@ Be specific about team development approaches, not product strategy or technical
     return new Response(JSON.stringify({ insights }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in generate-ai-insights function:', error);
+    
+    if (error.message?.includes('RATE_LIMIT_EXCEEDED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service temporarily unavailable due to high demand. Please try again in 1 minute.',
+        errorCode: 'RATE_LIMIT',
+        retryAfter: 60
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    if (error.message?.includes('PAYMENT_REQUIRED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service requires payment. Please contact support.',
+        errorCode: 'PAYMENT_REQUIRED'
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
     return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error occurred' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
