@@ -85,59 +85,95 @@ serve(async (req) => {
         hasScenarioContext: !!scenarioContext
       });
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + OPENAI_API_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage }
-          ],
-          max_tokens: 300,
-          temperature: 0.7,
-          stream: true
-        }),
-      });
+      // Retry logic with exponential backoff for streaming
+      const streamWithRetry = async (maxRetries = 3): Promise<Response> => {
+        for (let i = 0; i < maxRetries; i++) {
+          try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + OPENAI_API_KEY,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  { role: 'user', content: userMessage }
+                ],
+                max_tokens: 300,
+                temperature: 0.7,
+                stream: true
+              }),
+            });
 
-      console.log('🔍 CP0 Diagnostic - OpenAI Response Status:', {
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
+            console.log('🔍 CP0 Diagnostic - OpenAI Response Status:', {
+              ok: response.ok,
+              status: response.status,
+              statusText: response.statusText,
+              attempt: i + 1
+            });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('🚨 CP0 Diagnostic - OpenAI API Error:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorBody: errorText,
-          errorBodyLength: errorText.length
-        });
+            if (response.status === 429) {
+              throw new Error('RATE_LIMIT_EXCEEDED');
+            }
+            if (response.status === 402) {
+              throw new Error('PAYMENT_REQUIRED');
+            }
+            
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error('🚨 CP0 Diagnostic - OpenAI API Error:', {
+                status: response.status,
+                statusText: response.statusText,
+                errorBody: errorText,
+                attempt: i + 1
+              });
 
-        if (response.status === 429) {
+              if (response.status === 401) {
+                throw new Error('OpenAI API key is invalid or not configured.');
+              }
+
+              throw new Error('OpenAI API returned ' + response.status + ': ' + errorText);
+            }
+
+            return response;
+          } catch (error) {
+            if (i === maxRetries - 1) throw error;
+            const delay = Math.min(1000 * Math.pow(2, i), 10000);
+            console.log(`Retry attempt ${i + 1} after ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+        throw new Error('Max retries exceeded');
+      };
+
+      let response: Response;
+      try {
+        response = await streamWithRetry();
+      } catch (error: any) {
+        if (error.message?.includes('RATE_LIMIT_EXCEEDED')) {
           return new Response(JSON.stringify({
-            error: 'Rate limit exceeded. Please wait a moment and try again.'
+            error: 'AI service temporarily unavailable due to high demand. Please try again in 1 minute.',
+            errorCode: 'RATE_LIMIT',
+            retryAfter: 60
           }), {
             status: 429,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-
-        if (response.status === 401) {
+        
+        if (error.message?.includes('PAYMENT_REQUIRED')) {
           return new Response(JSON.stringify({
-            error: 'OpenAI API key is invalid or not configured.'
+            error: 'AI service requires payment. Please contact support.',
+            errorCode: 'PAYMENT_REQUIRED'
           }), {
-            status: 401,
+            status: 402,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-
-        throw new Error('OpenAI API returned ' + response.status + ': ' + errorText);
+        
+        throw error;
       }
 
       // Stream the response

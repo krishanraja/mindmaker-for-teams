@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.3";
+import { callWithFallback } from '../_shared/ai-fallback.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -482,33 +483,24 @@ Risk Tolerance: ${bootcamp?.risk_tolerance || 50}% (${getRiskLabel(bootcamp?.ris
 
 Generate synthesis using ONLY this data. Follow word limits EXACTLY.`;
 
-    console.log('Calling Lovable AI for synthesis...');
+    console.log('Calling AI with 3-tier fallback (Gemini RAG → OpenAI → Lovable)...');
 
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        max_tokens: 3000,
-        temperature: 0.5,
-      }),
+    const result = await callWithFallback({
+      openAIKey: Deno.env.get('OPENAI_API_KEY')!,
+      lovableKey: lovableApiKey,
+      geminiServiceAccount: Deno.env.get('GEMINI_SERVICE_ACCOUNT_KEY'),
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      modelOverride: { gemini: 'google/gemini-2.5-pro' }, // Use Pro for complex synthesis
+      temperature: 0.4, // More consistent outputs
+      maxTokens: 3000
     });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('Lovable AI error:', errorText);
-      throw new Error(`AI synthesis failed: ${aiResponse.status} ${errorText}`);
-    }
+    console.log(`✅ Synthesis generated via ${result.provider} in ${result.latencyMs}ms`);
 
-    const aiData = await aiResponse.json();
-    const aiContent = aiData.choices[0].message.content;
+    const aiContent = result.content;
     
     console.log('AI response received, parsing...');
 
@@ -592,6 +584,28 @@ Generate synthesis using ONLY this data. Follow word limits EXACTLY.`;
 
   } catch (error: any) {
     console.error('Error in generate-provocation-report:', error);
+    
+    if (error.message?.includes('RATE_LIMIT_EXCEEDED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service temporarily unavailable due to high demand. Please try again in 1 minute.',
+        errorCode: 'RATE_LIMIT',
+        retryAfter: 60
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    if (error.message?.includes('PAYMENT_REQUIRED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service requires payment. Please contact support.',
+        errorCode: 'PAYMENT_REQUIRED'
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       {

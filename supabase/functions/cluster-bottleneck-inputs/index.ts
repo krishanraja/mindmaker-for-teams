@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callWithFallback } from '../_shared/ai-fallback.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -48,41 +49,40 @@ serve(async (req) => {
       participant: s.participant_name
     }));
 
-    // Call OpenAI to cluster
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
+    // Call AI with 3-tier fallback to cluster
+    console.log('Calling AI with 3-tier fallback for clustering...');
+    
+    const result = await callWithFallback({
+      openAIKey: openaiKey,
+      lovableKey: Deno.env.get('LOVABLE_API_KEY')!,
+      geminiServiceAccount: Deno.env.get('GEMINI_SERVICE_ACCOUNT_KEY'),
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert at analyzing organizational bottlenecks and clustering them into themes. 
+          Given a list of bottlenecks, cluster them into 3-4 major themes. Return JSON with this structure:
           {
-            role: 'system',
-            content: `You are an expert at analyzing organizational bottlenecks and clustering them into themes. 
-            Given a list of bottlenecks, cluster them into 3-4 major themes. Return JSON with this structure:
-            {
-              "clusters": [
-                {
-                  "cluster_id": "unique-id",
-                  "cluster_name": "Theme name",
-                  "item_ids": ["id1", "id2"]
-                }
-              ]
-            }`
-          },
-          {
-            role: 'user',
-            content: JSON.stringify({ bottlenecks })
-          }
-        ],
-        temperature: 0.3,
-      }),
+            "clusters": [
+              {
+                "cluster_id": "unique-id",
+                "cluster_name": "Theme name",
+                "item_ids": ["id1", "id2"]
+              }
+            ]
+          }`
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({ bottlenecks })
+        }
+      ],
+      temperature: 0.3,
+      maxTokens: 1000
     });
 
-    const aiData = await response.json();
-    const clusterResult = JSON.parse(aiData.choices[0].message.content);
+    console.log(`✅ Clustering generated via ${result.provider} in ${result.latencyMs}ms`);
+
+    const clusterResult = JSON.parse(result.content);
 
     // Update submissions with cluster assignments
     for (const cluster of clusterResult.clusters) {
@@ -101,8 +101,30 @@ serve(async (req) => {
       JSON.stringify({ clusters: clusterResult.clusters }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in cluster-bottleneck-inputs:', error);
+    
+    if (error.message?.includes('RATE_LIMIT_EXCEEDED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service temporarily unavailable due to high demand. Please try again in 1 minute.',
+        errorCode: 'RATE_LIMIT',
+        retryAfter: 60
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    if (error.message?.includes('PAYMENT_REQUIRED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service requires payment. Please contact support.',
+        errorCode: 'PAYMENT_REQUIRED'
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
