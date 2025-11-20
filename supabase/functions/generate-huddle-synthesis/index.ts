@@ -60,20 +60,39 @@ serve(async (req) => {
       return acc;
     }, {});
 
-    // Generate AI synthesis
-    const prompt = `BOTTLENECK DATA:
+    // Generate AI synthesis - ALIGNMENT FOCUS
+    const prompt = `BOTTLENECK DATA FROM ALIGNMENT SPRINT:
 ${Object.entries(clusteredData).map(([cluster, items]: [string, any]) => 
   `\n${cluster}:\n${items.map((text: string, i: number) => `  ${i + 1}. ${text}`).join('\n')}`
 ).join('\n')}
 
-Generate a comprehensive synthesis with:
-1. **Key Themes** (3-5 major patterns across all bottlenecks)
-2. **Priority Actions** (Top 3 actionable recommendations)
-3. **Executive Summary** (2-3 paragraph overview highlighting urgency, impact, and strategic alignment)
+CONTEXT: This bottleneck identification was part of "The Mirror" segment - the team's first reflection on where AI might help. This reveals their CURRENT beliefs about constraints before battle-testing.
+
+Generate a synthesis focusing on ALIGNMENT INSIGHTS:
+
+1. **Key Themes** (3-5 patterns):
+   - What types of constraints dominate? (approval delays, data quality, communication friction, etc.)
+   - Are these bottlenecks AI-solvable or structural/cultural?
+   - What does the bottleneck pattern reveal about this team's decision-making culture?
+
+2. **Tension Indicators** (2-3 observations):
+   - Where do bottleneck types conflict? (e.g., "speed vs quality" bottlenecks suggest tension)
+   - Are there bottlenecks that require human judgment vs pure automation?
+   - Do any bottlenecks suggest misaligned priorities across functions?
+
+3. **Priority Actions** (Top 3 - ALIGNMENT FOCUSED):
+   NOT "implement X tool" - instead:
+   - "Test whether team agrees AI can address [cluster] in Battle Test #1"
+   - "Clarify ownership for [cross-functional bottleneck] before piloting"
+   - "Surface risk tolerance gap: some bottlenecks need speed, others need oversight"
+
+4. **Executive Summary** (2-3 paragraphs):
+   Frame this as: "What the bottleneck patterns reveal about this team's readiness to make AI decisions together"
 
 Format as JSON:
 {
   "keyThemes": ["theme1", "theme2", "theme3"],
+  "tensionIndicators": ["tension1", "tension2"],
   "priorityActions": ["action1", "action2", "action3"],
   "executiveSummary": "summary text"
 }`;
@@ -82,7 +101,7 @@ Format as JSON:
       openAIKey: openAIKey,
       lovableKey: lovableKey,
       messages: [
-        { role: 'system', content: getSegmentPrompt('synthesis') },
+        { role: 'system', content: 'You are an executive facilitator analyzing an Alignment Sprint workshop. Focus on decision-making patterns, not implementation recommendations.' },
         { role: 'user', content: prompt }
       ],
       temperature: 0.7
@@ -103,9 +122,13 @@ Format as JSON:
       const jsonString = jsonMatch ? jsonMatch[1] : synthesisText;
       parsedSynthesis = JSON.parse(jsonString);
       
-      // Validate output structure
+      // Validate output structure - UPDATED FOR ALIGNMENT SPRINT
       if (!parsedSynthesis.keyThemes || !Array.isArray(parsedSynthesis.keyThemes)) {
         throw new Error('Invalid keyThemes structure');
+      }
+      if (!parsedSynthesis.tensionIndicators || !Array.isArray(parsedSynthesis.tensionIndicators)) {
+        console.warn('Missing tensionIndicators - using empty array');
+        parsedSynthesis.tensionIndicators = [];
       }
       if (!parsedSynthesis.priorityActions || !Array.isArray(parsedSynthesis.priorityActions)) {
         throw new Error('Invalid priorityActions structure');
@@ -118,13 +141,14 @@ Format as JSON:
     } catch (e) {
       console.error('⚠️ Failed to parse/validate AI response:', e);
       parsedSynthesis = {
-        keyThemes: ['Data quality and governance', 'Change management', 'Skills and training'],
-        priorityActions: ['Establish data governance framework', 'Launch pilot program', 'Invest in upskilling'],
+        keyThemes: ['Workflow bottlenecks identified', 'Cross-functional dependencies', 'Decision-making delays'],
+        tensionIndicators: ['Speed vs oversight tension', 'Ownership clarity needed'],
+        priorityActions: ['Test alignment on bottleneck priorities in Battle Test #1', 'Clarify ownership before piloting', 'Surface risk tolerance differences'],
         executiveSummary: synthesisText
       };
     }
 
-    // Save synthesis to database
+    // Save synthesis to database - INCLUDE TENSION INDICATORS
     const { data: savedSynthesis, error: saveError } = await supabase
       .from('huddle_synthesis')
       .upsert({
@@ -132,6 +156,7 @@ Format as JSON:
         synthesis_text: parsedSynthesis.executiveSummary,
         key_themes: parsedSynthesis.keyThemes,
         priority_actions: parsedSynthesis.priorityActions,
+        // Store tension indicators in key_themes for backward compatibility
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'workshop_session_id'

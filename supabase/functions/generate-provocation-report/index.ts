@@ -410,76 +410,98 @@ serve(async (req) => {
       return "Use industry-standard terminology and acronyms freely. Assume expert audience familiar with business and AI concepts.";
     };
 
-    const systemPrompt = `You are synthesizing an AI readiness workshop for executives. Return ONLY valid JSON.
+    const systemPrompt = `You are synthesizing an AI Alignment Sprint for executives. This was NOT an implementation workshop - it was a battle-test of leadership decision-making. Return ONLY valid JSON.
 
 ${getJargonGuidance(jargonLevel)}
 
-CRITICAL WORD LIMITS (COUNT EVERY WORD - VIOLATING THESE WILL RESULT IN REJECTION):
-- Executive Summary: 90-100 words MAXIMUM. This is a HARD CAP.
-- Strengths: EXACTLY 3 items (no more, no less)
-  - Each evidence: ≤18 words
-  - Each impact: ≤15 words
-- Gaps: EXACTLY 3 items (no more, no less)
-  - Each evidence: ≤18 words
-  - Each recommendation: ≤15 words
-- Evidence MUST reference specific metrics from workshop (e.g., "42% time saved", "37/57 tasks AI-capable")
-- NEVER invent data not present in input
-- Focus on ONE priority 90-day pilot only
-- If segment has no data, omit that section completely
-- ALL percentages must be integers (42, not 42.3333...)
+POSITIONING - CRITICAL:
+- This was an ALIGNMENT SPRINT, not a pilot-building workshop
+- The goal was to test whether this team can make AI decisions TOGETHER
+- Focus on DECISION FRAMEWORK + TENSION MAP, not execution plans
+- Tensions are valuable data - name them clearly
+- The deliverable is "how to decide" not "what to build"
+
+WORD LIMITS (HARD CAPS):
+- Executive Summary: 90-100 words. Focus on alignment state (aligned vs misaligned) not pilot recommendations
+- Strengths: EXACTLY 3 items (alignment indicators)
+  - Each evidence: ≤18 words (cite actual workshop moments)
+  - Each impact: ≤15 words (how this helps decision-making)
+- Gaps: EXACTLY 3 items (misalignment indicators)
+  - Each evidence: ≤18 words (cite disagreement moments)
+  - Each recommendation: ≤15 words (how to resolve tension)
+
+ALIGNMENT SPRINT FOCUS:
+- Strengths = moments of ALIGNMENT (team agreed, clear criteria emerged, ownership accepted)
+- Gaps = moments of MISALIGNMENT (team couldn't converge, tensions unresolved, criteria unclear)
+- Journey Insights:
+  * mythsBusted: What beliefs changed during battle tests?
+  * surprisingFindings: Where did expected alignment NOT exist?
+  * momentsOfClarity: When did team's decision process become clear?
+- Urgency Verdict: How ready is this team to make AI decisions (not build pilots)?
 
 ANTI-FABRICATION RULES:
 1. NEVER invent statistics not in the data
-2. Reference SPECIFIC workshop outputs: actual bottlenecks, actual simulation names
-3. Every quantified claim must be traceable to provided data
-4. If data missing, say "not measured" - don't guess
-5. Avoid vague phrases like "significant improvements" - be specific
+2. Reference SPECIFIC workshop moments: "During Charter Battle Test, no owner emerged..."
+3. Cite actual simulation names, voting results, charter fields
+4. If data missing, say "not tested" - don't guess
+5. Use evidence-based language: "Team disagreed on X during Y" not "Team needs X"
 
 Return this exact JSON structure:
 {
-  "executiveSummary": "<90-100 words MAXIMUM>",
+  "executiveSummary": "<90-100 words focusing on alignment state>",
   "strengths": [
-    {"title": "<max 12 words>", "evidence": "<max 18 words with metric>", "impact": "<max 15 words>"}
+    {"title": "<max 12 words>", "evidence": "<max 18 words citing workshop moment>", "impact": "<max 15 words on decision-making>"}
   ],
   "gaps": [
-    {"title": "<max 12 words>", "evidence": "<max 18 words with metric>", "recommendation": "<max 15 words>"}
+    {"title": "<max 12 words>", "evidence": "<max 18 words citing misalignment moment>", "recommendation": "<max 15 words on resolving tension>"}
   ],
   "journeyInsights": {
-    "mythsBusted": "<max 80 words>",
-    "surprisingFindings": "<max 80 words>",
-    "momentsOfClarity": "<max 80 words>"
+    "mythsBusted": "<max 80 words on belief changes>",
+    "surprisingFindings": "<max 80 words on unexpected misalignments>",
+    "momentsOfClarity": "<max 80 words on when decision process became clear>"
   },
-  "urgencyVerdict": "<100-120 words>"
+  "urgencyVerdict": "<100-120 words on readiness to use decision framework>"
 }`;
 
-    const userPrompt = `Analyze this AI readiness workshop for ${contextData.company.name}:
+    const userPrompt = `Analyze this AI Alignment Sprint for ${contextData.company.name}:
 
-=== COMPANY CONTEXT ===
+=== CONTEXT ===
 Industry: ${contextData.company.industry}
-AI Experience: ${contextData.preWorkshop.aiExperience}
-Company: ${contextData.company.name}
+Pre-Sprint AI Experience: ${contextData.preWorkshop.aiExperience}
+Risk Tolerance: ${bootcamp?.risk_tolerance || 50}% (${getRiskLabel(bootcamp?.risk_tolerance || 50)})
 
-=== 2026 STRATEGIC GOALS ===
+=== STRATEGIC CONTEXT (What they're trying to achieve) ===
 ${strategicGoalsArray.length > 0 
   ? strategicGoalsArray.map((goal, idx) => `${idx + 1}. ${goal}`).join('\n')
-  : 'Strategic priorities identified during workshop:\n' + derivedGoalsFromWorkshopActivities.map((goal, idx) => `${idx + 1}. ${goal}`).join('\n')}
+  : 'Priorities identified during workshop:\n' + derivedGoalsFromWorkshopActivities.map((goal, idx) => `${idx + 1}. ${goal}`).join('\n')}
 
-IMPORTANT: When referring to these goals in your synthesis, rephrase them naturally in executive language. Do NOT copy-paste the raw text. Frame them in the context of AI readiness and operational efficiency.
+=== BATTLE TEST #1: AI PERFORMANCE (Can they agree on what AI can do?) ===
+Simulations Run: ${simulationMetrics.count}
+- Median time savings perceived: ${simulationMetrics.medianTimeSavings}%
+- Median quality rating: ${simulationMetrics.medianQuality}/10
+- Best result: ${simulationMetrics.highlights[0]?.name} (${simulationMetrics.highlights[0]?.timeSavings}% time saved)
+- Task analysis: ${aiCapableTasks.length}/${allTasksData.length} tasks AI-capable (${allTasksData.length > 0 ? Math.round((aiCapableTasks.length / allTasksData.length) * 100) : 0}%)
 
-=== OPERATIONAL CONTEXT ===
+=== BATTLE TEST #2: STRATEGIC TRADE-OFFS (Can they agree on criteria?) ===
 Bottlenecks Identified: ${contextData.workshop.bottlenecksIdentified}
 Top Clusters: ${contextData.workshop.bottleneckClusters.slice(0, 2).join(', ')}
+Strategy Discussion: ${strategy?.data ? 'Completed' : 'Not completed (team couldn\'t converge)'}
 
-Simulations: ${simulationMetrics.count} run
-- Median time savings: ${simulationMetrics.medianTimeSavings}%
-- Median quality: ${simulationMetrics.medianQuality}/10
-- Best result: ${simulationMetrics.highlights[0]?.name} (${simulationMetrics.highlights[0]?.timeSavings}% saved)
+=== BATTLE TEST #3: OWNERSHIP & GATES (Can they agree on who owns it?) ===
+Pilot Owner: ${charter?.data?.pilot_owner || 'NO OWNER ASSIGNED (red flag)'}
+Executive Sponsor: ${charter?.data?.executive_sponsor || 'NO SPONSOR ASSIGNED (red flag)'}
+Charter Completion: ${charter?.data ? 'Completed' : 'Incomplete (team avoided commitment)'}
 
-Tasks Analyzed: ${allTasksData.length}
-- AI-capable: ${aiCapableTasks.length} (${allTasksData.length > 0 ? Math.round((aiCapableTasks.length / allTasksData.length) * 100) : 0}%)
+=== ALIGNMENT SIGNALS ===
+Pre-work participation: ${preworkSubmissions.data?.length || 0} responses
+Voting results: ${votingResults.data?.length || 0} votes cast
+Working group inputs: ${workingInputs.data?.length || 0} contributions
 
-Pilot Status: ${charter?.data?.pilot_owner || 'No owner assigned'}
-Risk Tolerance: ${bootcamp?.risk_tolerance || 50}% (${getRiskLabel(bootcamp?.risk_tolerance || 50)})
+SYNTHESIS INSTRUCTIONS:
+- STRENGTHS = Where team ALIGNED (agreed criteria, accepted ownership, clear decision process)
+- GAPS = Where team MISALIGNED (couldn't converge, avoided decisions, unclear process)
+- Don't recommend "what to build" - focus on "how ready they are to decide"
+- Cite actual workshop moments: "During charter discussion, no owner volunteered..." not "Team needs ownership clarity"
 
 Generate synthesis using ONLY this data. Follow word limits EXACTLY.`;
 
