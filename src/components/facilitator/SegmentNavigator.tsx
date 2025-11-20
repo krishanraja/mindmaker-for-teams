@@ -27,22 +27,21 @@ export const SegmentNavigator: React.FC<SegmentNavigatorProps> = ({
   skippedSegments = [],
   onToggleSkip,
 }) => {
-  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [timeElapsed, setTimeElapsed] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
   const currentSegmentData = SEGMENTS.find(s => s.id === currentSegment);
 
   useEffect(() => {
-    if (isTimerRunning && timeRemaining > 0) {
+    if (isTimerRunning) {
       const interval = setInterval(() => {
-        setTimeRemaining(prev => prev - 1);
+        setTimeElapsed(prev => prev + 1);
       }, 1000);
       return () => clearInterval(interval);
     }
-  }, [isTimerRunning, timeRemaining]);
+  }, [isTimerRunning]);
 
   const startTimer = () => {
-    setTimeRemaining((currentSegmentData?.duration || 0) * 60);
     setIsTimerRunning(true);
   };
 
@@ -51,7 +50,7 @@ export const SegmentNavigator: React.FC<SegmentNavigatorProps> = ({
   };
 
   const resetTimer = () => {
-    setTimeRemaining((currentSegmentData?.duration || 0) * 60);
+    setTimeElapsed(0);
     setIsTimerRunning(false);
   };
 
@@ -69,7 +68,7 @@ export const SegmentNavigator: React.FC<SegmentNavigatorProps> = ({
       <div className="p-6 border-b space-y-4">
         <div>
           <h2 className="text-lg font-bold text-foreground mb-1">Workshop Progress</h2>
-          <p className="text-xs text-muted-foreground">Total Duration: {totalDuration} minutes</p>
+          <p className="text-xs text-muted-foreground">Estimated: ~{totalDuration} minutes <span className="text-muted-foreground/70">(flexible)</span></p>
         </div>
         
         {/* Progress Bar */}
@@ -88,7 +87,7 @@ export const SegmentNavigator: React.FC<SegmentNavigatorProps> = ({
         <Card className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <div className="text-center">
             <div className="text-5xl font-bold text-primary mb-2 tabular-nums">
-              {formatTime(timeRemaining)}
+              {formatTime(timeElapsed)}
             </div>
             <div className="text-sm font-medium text-foreground mb-3">
               {currentSegmentData?.name}

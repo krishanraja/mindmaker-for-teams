@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CardDescription } from '@/components/ui/card';
 import { Brain, Target, Users, Zap, Lock } from 'lucide-react';
 import logo from '@/assets/mindmaker-logo-horizontal.png';
+import { RapidInsightsProof } from './RapidInsightsProof';
 
 const FULL_TEXT = "DESIGN YOUR AI\nLEADERSHIP BOOTCAMP";
 
@@ -91,7 +92,7 @@ export const ExecTeamsWelcome: React.FC = () => {
                 </h2>
               </div>
               <CardDescription className="text-base md:text-2xl text-foreground/80 font-medium text-left">
-                Increase Decision Velocity inside one session
+                Increase Decision Velocity inside one session.
               </CardDescription>
             </div>
 
@@ -179,6 +180,9 @@ export const ExecTeamsWelcome: React.FC = () => {
                 />
               ))}
             </div>
+
+            {/* Rapid Insights Proof Section */}
+            <RapidInsightsProof />
 
             <div className="w-full px-2 md:px-4 flex flex-col items-center gap-2 md:gap-3 pt-3 md:pt-6">
               <Button 
