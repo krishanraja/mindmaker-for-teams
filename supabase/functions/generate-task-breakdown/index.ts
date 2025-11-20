@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { callWithFallback } from '../_shared/ai-fallback.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,9 +15,12 @@ serve(async (req) => {
   try {
     const { scenario_context, simulation_results, automation_preference = 50, simulation_id } = await req.json();
     
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    const GEMINI_SERVICE_ACCOUNT_KEY = Deno.env.get('GEMINI_SERVICE_ACCOUNT_KEY');
+    
+    if (!OPENAI_API_KEY || !LOVABLE_API_KEY) {
+      throw new Error('API keys not configured');
     }
 
     // Build AI prompt with automation guidance
@@ -34,6 +38,11 @@ serve(async (req) => {
 
 CONTEXT: This is a real executive workshop analyzing "${scenario_context?.currentState || 'a business process'}".
 
+CRITICAL VALIDATION RULES:
+- NEVER cite specific statistics, percentages, or timeframes not present in the data
+- Base task breakdown on the SPECIFIC SCENARIO provided
+- Use qualitative language ("significant", "moderate") instead of fabricated metrics
+
 ${getAutomationGuidance(automation_preference)}
 
 For each task, determine:
@@ -41,18 +50,7 @@ For each task, determine:
 - ai-human: AI drafts or assists, human reviews and refines
 - human-only: Requires judgment, relationships, or context AI doesn't have
 
-CRITICAL: Base your task breakdown on the SPECIFIC SCENARIO provided. If this is about "Board Deck Crisis Mode", tasks should be specific to board presentations (gathering data, drafting slides, incorporating feedback). If this is about "Contract Review", tasks should be specific to legal review (clause analysis, risk identification, redlining).
-
-Return ONLY valid JSON in this exact format:
-{
-  "tasks": [
-    {
-      "description": "Specific task related to the scenario",
-      "category": "ai-capable" | "ai-human" | "human-only",
-      "reasoning": "Why this category fits based on the scenario context"
-    }
-  ]
-}`;
+Return structured task breakdown.`;
 
     const simulationTitle = scenario_context?.title || scenario_context?.currentState || 'Unknown Simulation';
     const userPrompt = `SCENARIO: ${simulationTitle}
@@ -68,46 +66,34 @@ ${simulation_results ? `AI PERFORMANCE OBSERVED:
 - Quality improved: ${simulation_results.quality_improvement_pct}%
 - Cost savings: $${simulation_results.cost_savings_usd || 0}` : ''}
 
-Break down this SPECIFIC process into 5-8 discrete tasks that are DIRECTLY RELEVANT to the scenario above. Do not provide generic tasks. Each task should be something an executive would recognize as part of this specific workflow.`;
+Break down this SPECIFIC process into 5-8 discrete tasks that are DIRECTLY RELEVANT to the scenario above.`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7,
-      }),
+    console.log('🔧 Generating task breakdown for:', simulationTitle);
+
+    const result = await callWithFallback({
+      openAIKey: OPENAI_API_KEY,
+      lovableKey: LOVABLE_API_KEY,
+      geminiServiceAccount: GEMINI_SERVICE_ACCOUNT_KEY,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.7,
+      maxTokens: 1500
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI Gateway error:', response.status, errorText);
-      throw new Error(`AI Gateway error: ${response.status}`);
-    }
-
-    const aiData = await response.json();
-    const content = aiData.choices?.[0]?.message?.content;
-
-    if (!content) {
-      throw new Error('No content in AI response');
-    }
+    console.log(`✅ Task breakdown generated via ${result.provider} in ${result.latencyMs}ms`);
 
     // Parse JSON from AI response
     let parsed;
     try {
-      // Try to extract JSON if wrapped in markdown
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```\n([\s\S]*?)\n```/);
-      const jsonStr = jsonMatch ? jsonMatch[1] : content;
+      const jsonMatch = result.content.match(/```json\n([\s\S]*?)\n```/) || 
+                        result.content.match(/```\n([\s\S]*?)\n```/) ||
+                        result.content.match(/(\{[\s\S]*\})/);
+      const jsonStr = jsonMatch ? jsonMatch[1] : result.content;
       parsed = JSON.parse(jsonStr);
     } catch (e) {
-      console.error('Failed to parse AI response:', content);
+      console.error('❌ Failed to parse AI response:', result.content);
       throw new Error('Failed to parse AI response as JSON');
     }
 
@@ -116,8 +102,31 @@ Break down this SPECIFIC process into 5-8 discrete tasks that are DIRECTLY RELEV
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error) {
-    console.error('Error in generate-task-breakdown:', error);
+  } catch (error: any) {
+    console.error('❌ Error in generate-task-breakdown:', error);
+    
+    // Handle rate limit and payment errors gracefully
+    if (error.message?.includes('RATE_LIMIT_EXCEEDED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service temporarily unavailable due to high demand. Please try again in 1 minute.',
+        errorCode: 'RATE_LIMIT',
+        retryAfter: 60
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    if (error.message?.includes('PAYMENT_REQUIRED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service requires payment. Please contact support.',
+        errorCode: 'PAYMENT_REQUIRED'
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

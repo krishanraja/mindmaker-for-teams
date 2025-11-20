@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { callWithFallback } from '../_shared/ai-fallback.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,9 +15,12 @@ serve(async (req) => {
   try {
     const { scenario_context, simulation_results, ai_output_quality, risk_tolerance = 50 } = await req.json();
     
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const GEMINI_SERVICE_ACCOUNT_KEY = Deno.env.get('GEMINI_SERVICE_ACCOUNT_KEY');
+    
+    if (!OPENAI_API_KEY || !LOVABLE_API_KEY) {
+      throw new Error('API keys not configured');
     }
 
     const getRiskGuidance = (tolerance: number): string => {
@@ -31,6 +35,12 @@ serve(async (req) => {
 
     const systemPrompt = `You are an AI risk and governance expert helping executives design responsible guardrails for AI implementation.
 
+CRITICAL VALIDATION RULES:
+- NEVER cite specific statistics, percentages, or timeframes not present in the data
+- Base guardrails on the SPECIFIC SCENARIO and OBSERVED AI PERFORMANCE
+- Use qualitative language ("significant", "moderate") instead of fabricated metrics
+- Flag all assumptions explicitly with "ASSUMPTION:" prefix
+
 CONTEXT: This is based on a real executive workshop where the team experimented with AI on: "${scenario_context?.currentState || 'a business process'}".
 
 AI PERFORMANCE OBSERVED:
@@ -41,21 +51,7 @@ ${simulation_results?.org_changes ? `- Organizational Changes Identified: ${simu
 
 ${getRiskGuidance(risk_tolerance)}
 
-Your task is to generate:
-1. **riskIdentified**: What could go wrong with this specific AI use case? Be concrete and scenario-specific. (2-3 sentences)
-2. **humanCheckpoint**: Where must humans intervene? Define specific review points. (2-3 sentences)
-3. **validationRequired**: How will quality be verified over time? Define testing approach. (2-3 sentences)
-4. **redFlags**: Array of 3-5 specific conditions that should trigger immediate human override.
-
-Return ONLY valid JSON in this exact format:
-{
-  "guardrail": {
-    "riskIdentified": "string",
-    "humanCheckpoint": "string",
-    "validationRequired": "string",
-    "redFlags": ["string", "string", "string"]
-  }
-}`;
+Generate structured guardrails for this scenario.`;
 
     const simulationTitle = scenario_context?.title || scenario_context?.currentState || 'Unknown Simulation';
     const userPrompt = `SCENARIO: ${simulationTitle}
@@ -70,50 +66,104 @@ ${ai_output_quality < 7 ? '⚠️ Team observed significant limitations during t
 
 RISK TOLERANCE SETTING: ${risk_tolerance < 34 ? 'CONSERVATIVE' : risk_tolerance < 67 ? 'BALANCED' : 'AGGRESSIVE'} (${risk_tolerance}/100)
 
-Generate guardrails for this SPECIFIC scenario. Be concrete and actionable. Reference the actual business context.`;
+Generate guardrails for this SPECIFIC scenario.`;
 
-    console.log('Generating guardrails with prompt:', userPrompt);
+    console.log('🛡️ Generating guardrails for:', simulationTitle);
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-      }),
+    const result = await callWithFallback({
+      openAIKey: OPENAI_API_KEY,
+      lovableKey: LOVABLE_API_KEY,
+      geminiServiceAccount: GEMINI_SERVICE_ACCOUNT_KEY,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.5,
+      maxTokens: 1500,
+      tools: [{
+        type: "function",
+        function: {
+          name: "generate_guardrails",
+          description: "Return structured guardrails for AI implementation",
+          parameters: {
+            type: "object",
+            properties: {
+              guardrail: {
+                type: "object",
+                properties: {
+                  riskIdentified: { 
+                    type: "string", 
+                    description: "What could go wrong with this AI use case (2-3 sentences)" 
+                  },
+                  humanCheckpoint: { 
+                    type: "string", 
+                    description: "Where humans must intervene with specific review points (2-3 sentences)" 
+                  },
+                  validationRequired: { 
+                    type: "string", 
+                    description: "How quality will be verified over time (2-3 sentences)" 
+                  },
+                  redFlags: { 
+                    type: "array", 
+                    items: { type: "string" },
+                    description: "3-5 specific conditions triggering immediate human override" 
+                  }
+                },
+                required: ["riskIdentified", "humanCheckpoint", "validationRequired", "redFlags"]
+              }
+            },
+            required: ["guardrail"]
+          }
+        }
+      }],
+      toolChoice: { type: 'function', function: { name: 'generate_guardrails' } }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI API error:', response.status, errorText);
-      throw new Error(`AI API error: ${response.status}`);
+    console.log(`✅ Guardrails generated via ${result.provider} in ${result.latencyMs}ms`);
+
+    // Parse tool call response
+    let parsed;
+    if (result.toolCalls && result.toolCalls.length > 0) {
+      const toolCall = result.toolCalls[0];
+      parsed = JSON.parse(toolCall.function.arguments);
+    } else {
+      // Fallback to regex parsing if tool calling failed
+      const jsonMatch = result.content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No valid JSON found in AI response');
+      }
+      parsed = JSON.parse(jsonMatch[0]);
     }
-
-    const aiData = await response.json();
-    const content = aiData.choices[0].message.content;
-    
-    console.log('AI response:', content);
-
-    // Parse JSON from response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('No valid JSON found in AI response');
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]);
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error: any) {
-    console.error('Error in generate-guardrails:', error);
+    console.error('❌ Error in generate-guardrails:', error);
+    
+    // Handle rate limit and payment errors gracefully
+    if (error.message?.includes('RATE_LIMIT_EXCEEDED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service temporarily unavailable due to high demand. Please try again in 1 minute.',
+        errorCode: 'RATE_LIMIT',
+        retryAfter: 60
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    if (error.message?.includes('PAYMENT_REQUIRED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service requires payment. Please contact support.',
+        errorCode: 'PAYMENT_REQUIRED'
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
+import { callWithFallback } from '../_shared/ai-fallback.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,9 +16,12 @@ serve(async (req) => {
   try {
     const { workshop_session_id, risk_tolerance = 50 } = await req.json();
     
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const GEMINI_SERVICE_ACCOUNT_KEY = Deno.env.get('GEMINI_SERVICE_ACCOUNT_KEY');
+    
+    if (!OPENAI_API_KEY || !LOVABLE_API_KEY) {
+      throw new Error('API keys not configured');
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -70,6 +74,13 @@ serve(async (req) => {
 
     const systemPrompt = `You are an executive strategy advisor synthesizing workshop insights into actionable recommendations.
 
+CRITICAL VALIDATION RULES:
+- NEVER cite specific statistics, percentages, or timeframes not present in the data
+- If asked to quantify something without data, say "Insufficient data to quantify"
+- Flag all assumptions explicitly with "ASSUMPTION:" prefix
+- Reference actual workshop data points when making claims
+- Use qualitative language ("significant", "moderate") instead of fabricated metrics
+
 WORKSHOP CONTEXT:
 - Company: ${workshopSession?.exec_intakes?.company_name || 'Unknown'}
 - Industry: ${workshopSession?.exec_intakes?.industry || 'Not specified'}
@@ -87,66 +98,98 @@ ${simulations?.map(s => `- ${s.simulation_name}: ${s.time_savings_pct || 0}% tim
 
 ${getRiskGuidance(risk_tolerance)}
 
-Generate three sections:
-
-1. **Strategic Targets at Risk**: Which 2026 goals are most threatened by identified bottlenecks? What competitive pressures require urgent action? Be specific and reference actual strategic goals. (3-4 sentences)
-
-2. **Data & Governance Changes Required**: Based on the simulations conducted and guardrails needed, what data/governance infrastructure must change? Focus on prerequisites for AI adoption. (3-4 sentences)
-
-3. **90-Day Pilot Success Metrics**: Define measurable success criteria for the pilot based on simulation performance and task breakdowns. Include weekly/monthly checkpoints. (3-4 bullet points)
-
-Return ONLY valid JSON in this format:
-{
-  "targets_at_risk": "string",
-  "data_governance_changes": "string",
-  "pilot_kpis": "string"
-}`;
+Generate strategic insights in structured format.`;
 
     const userPrompt = `Risk tolerance: ${risk_tolerance < 34 ? 'CONSERVATIVE' : risk_tolerance < 67 ? 'BALANCED' : 'AGGRESSIVE'} (${risk_tolerance}/100)
 
 Generate strategy insights now.`;
 
-    console.log('Generating strategy insights for workshop:', workshop_session_id);
+    console.log('🎯 Generating strategy insights for workshop:', workshop_session_id);
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-      }),
+    const result = await callWithFallback({
+      openAIKey: OPENAI_API_KEY,
+      lovableKey: LOVABLE_API_KEY,
+      geminiServiceAccount: GEMINI_SERVICE_ACCOUNT_KEY,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      modelOverride: { gemini: 'google/gemini-2.5-pro' },
+      temperature: 0.5,
+      maxTokens: 2000,
+      tools: [{
+        type: "function",
+        function: {
+          name: "strategy_insights",
+          description: "Return strategic insights in structured format",
+          parameters: {
+            type: "object",
+            properties: {
+              targets_at_risk: { 
+                type: "string", 
+                description: "Which 2026 goals are most threatened by identified bottlenecks (3-4 sentences)" 
+              },
+              data_governance_changes: { 
+                type: "string", 
+                description: "Required data/governance infrastructure changes based on simulations (3-4 sentences)" 
+              },
+              pilot_kpis: { 
+                type: "string", 
+                description: "Measurable success criteria for 90-day pilot (3-4 bullet points)" 
+              }
+            },
+            required: ["targets_at_risk", "data_governance_changes", "pilot_kpis"]
+          }
+        }
+      }],
+      toolChoice: { type: 'function', function: { name: 'strategy_insights' } }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI API error:', response.status, errorText);
-      throw new Error(`AI API error: ${response.status}`);
+    console.log(`✅ Strategy insights generated via ${result.provider} in ${result.latencyMs}ms`);
+
+    // Parse tool call response
+    let parsed;
+    if (result.toolCalls && result.toolCalls.length > 0) {
+      const toolCall = result.toolCalls[0];
+      parsed = JSON.parse(toolCall.function.arguments);
+    } else {
+      // Fallback to regex parsing if tool calling failed
+      const jsonMatch = result.content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No valid JSON found in AI response');
+      }
+      parsed = JSON.parse(jsonMatch[0]);
     }
-
-    const aiData = await response.json();
-    const content = aiData.choices[0].message.content;
-    
-    console.log('AI response:', content);
-
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('No valid JSON found in AI response');
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]);
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error: any) {
-    console.error('Error in generate-strategy-insights:', error);
+    console.error('❌ Error in generate-strategy-insights:', error);
+    
+    // Handle rate limit and payment errors gracefully
+    if (error.message?.includes('RATE_LIMIT_EXCEEDED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service temporarily unavailable due to high demand. Please try again in 1 minute.',
+        errorCode: 'RATE_LIMIT',
+        retryAfter: 60
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    if (error.message?.includes('PAYMENT_REQUIRED')) {
+      return new Response(JSON.stringify({ 
+        error: 'AI service requires payment. Please contact support.',
+        errorCode: 'PAYMENT_REQUIRED'
+      }), {
+        status: 402,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
