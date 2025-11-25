@@ -19,24 +19,23 @@
 
 @layer base {
   :root {
-    /* === BASE COLORS - Soft Lavender Background === */
-    --background: 250 60% 97%;
-    --foreground: 240 10% 15%;
-    --muted: 250 40% 90%;
-    --muted-foreground: 215 28% 25%;  /* #2e3a4d */
+    /* === MINDMAKER COLOR SYSTEM - INK + MINT === */
+    --ink: 210 58% 11%;              /* #0e1a2b - Main structure, typography */
+    --mint: 158 82% 73%;             /* #7ef4c2 - Highlights, sparingly */
+    --off-white: 60 9% 96%;          /* #F7F7F5 - Background */
+    --light-grey: 60 5% 90%;         /* #E5E5E3 - Borders */
+    --mid-grey: 210 7% 62%;          /* #9AA0A6 - Secondary text */
+    --graphite: 200 5% 21%;          /* #333639 - Strong text */
 
-    /* === BRAND SYSTEM - Premium Purple === */
-    --primary: 248 73% 67%;          /* Main purple - #667eea */
-    --primary-100: 248 73% 97%;
-    --primary-200: 248 73% 90%;
-    --primary-400: 248 73% 75%;
-    --primary-600: 248 73% 55%;
+    /* === SEMANTIC MAPPINGS === */
+    --background: var(--off-white);
+    --foreground: var(--ink);
+    --muted: var(--light-grey);
+    --muted-foreground: var(--mid-grey);
+    --primary: var(--ink);
     --primary-foreground: 0 0% 100%;
-
-    /* === BRAND ACCENT === */
-    --accent: 263 70% 63%;
-    --accent-400: 263 70% 70%;
-    --accent-foreground: 0 0% 100%;
+    --accent: var(--mint);
+    --accent-foreground: var(--ink);
 
     /* === SEMANTIC COLORS === */
     --destructive: 0 84% 60%;
@@ -44,13 +43,12 @@
     --success: 142 76% 36%;
     --success-foreground: 355 100% 100%;
 
-    /* === SURFACE COLORS - Premium Cards === */
+    /* === SURFACE COLORS === */
     --card: 0 0% 100%;
     --card-foreground: var(--foreground);
-    --card-shadow: 250 50% 90%;
-    --border: 250 30% 92%;
-    --ring: 263 70% 63%;
-    --radius: 1rem;
+    --border: var(--light-grey);
+    --ring: var(--mint);
+    --radius: 0.5rem;
 
     /* === INPUT & POPOVER === */
     --input: 214 32% 91%;
@@ -61,25 +59,25 @@
     --secondary: 210 40% 96%;
     --secondary-foreground: var(--foreground);
 
-    /* === BRAND GRADIENTS === */
-    --gradient-brand: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
-    --gradient-subtle: linear-gradient(135deg, hsl(var(--primary-200)) 0%, hsl(var(--primary-400)) 100%);
+    /* === GRADIENTS === */
+    --gradient-brand: linear-gradient(135deg, hsl(var(--ink)) 0%, hsl(var(--mint)) 100%);
+    --gradient-subtle: linear-gradient(135deg, hsl(var(--mint) / 0.1) 0%, hsl(var(--mint) / 0.05) 100%);
   }
 
   .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
-    --muted: 222 32% 12%;
-    --muted-foreground: 215 20% 75%;
-    --card: 222 47% 9%;
-    --card-foreground: var(--foreground);
-    --border: 222 28% 18%;
-    --ring: 262 100% 63%;
-    --input: 222 28% 18%;
-    --popover: 222 47% 9%;
-    --popover-foreground: var(--foreground);
-    --secondary: 222 32% 12%;
-    --secondary-foreground: var(--foreground);
+    --background: var(--ink);
+    --foreground: var(--off-white);
+    --muted: var(--graphite);
+    --muted-foreground: var(--mid-grey);
+    --card: 210 50% 14%;
+    --card-foreground: var(--off-white);
+    --border: 210 40% 25%;
+    --ring: var(--mint);
+    --input: 210 40% 25%;
+    --popover: 210 50% 14%;
+    --popover-foreground: var(--off-white);
+    --secondary: var(--graphite);
+    --secondary-foreground: var(--off-white);
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 40% 98%;
     --success: 142 84% 24%;
@@ -220,29 +218,31 @@ html {
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* === PREMIUM HERO TEXT - Gradient + Shimmer === */
+  /* === PREMIUM HERO TEXT - Mint Highlight === */
   .premium-hero-text {
     font-family: 'Inter', system-ui, sans-serif;
-    @apply text-2xl sm:text-3xl md:text-4xl font-semibold leading-[1.2] tracking-[-0.03em] text-center max-w-2xl mx-auto;
-    background: linear-gradient(110deg, hsl(var(--primary)), 45%, hsl(var(--primary-400)), 55%, hsl(var(--primary)));
-    background-size: 250% 100%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 8s ease-in-out infinite;
+    @apply text-2xl sm:text-3xl md:text-4xl font-semibold leading-[1.2] tracking-[-0.03em] text-center max-w-2xl mx-auto text-white;
+  }
+
+  .mint-highlight {
+    @apply text-mint;
   }
 
   /* === BUTTON UTILITIES === */
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium border border-border bg-background hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors min-h-[44px];
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium border-2 border-mint text-mint hover:bg-mint/10 rounded-lg transition-all min-h-[44px];
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors min-h-[44px];
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-mint text-ink hover:bg-mint/90 hover:scale-105 shadow-lg hover:shadow-xl rounded-lg transition-all min-h-[44px];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-ink text-white hover:bg-ink/90 rounded-lg transition-colors min-h-[44px];
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors;
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium hover:bg-mint/10 hover:text-ink rounded-lg transition-colors;
   }
 
 
@@ -292,7 +292,7 @@ html {
     display: inline-block;
     width: 2px;
     height: 1em;
-    background-color: hsl(var(--primary));
+    background-color: hsl(var(--mint));
     animation: blink 1s step-end infinite;
     margin-left: 2px;
   }
