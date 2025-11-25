@@ -19,71 +19,66 @@
 
 @layer base {
   :root {
-    /* === BASE COLORS - Soft Lavender Background === */
-    --background: 250 60% 97%;
-    --foreground: 240 10% 15%;
-    --muted: 250 40% 90%;
-    --muted-foreground: 215 28% 25%;  /* #2e3a4d */
+    /* === MINDMAKER INK + MINT SYSTEM === */
+    --ink: 210 58% 11%;              /* #0e1a2b - primary structure */
+    --mint: 158 82% 73%;             /* #7ef4c2 - accent, sparingly */
+    --off-white: 60 9% 96%;          /* #F7F7F5 - background */
+    --light-grey: 60 5% 90%;         /* #E5E5E3 - borders */
+    --mid-grey: 210 7% 62%;          /* #9AA0A6 - secondary text */
+    --graphite: 200 5% 21%;          /* #333639 - strong text */
 
-    /* === BRAND SYSTEM - Premium Purple === */
-    --primary: 248 73% 67%;          /* Main purple - #667eea */
-    --primary-100: 248 73% 97%;
-    --primary-200: 248 73% 90%;
-    --primary-400: 248 73% 75%;
-    --primary-600: 248 73% 55%;
+    /* === SEMANTIC MAPPINGS === */
+    --background: var(--off-white);
+    --foreground: var(--ink);
+    --primary: var(--ink);
     --primary-foreground: 0 0% 100%;
+    --accent: var(--mint);
+    --accent-foreground: var(--ink);
+    --ring: var(--mint);
+    
+    /* === SURFACE COLORS === */
+    --card: 0 0% 100%;              /* Pure white cards */
+    --card-foreground: var(--ink);
+    --card-shadow: 210 40% 85%;
+    --border: var(--light-grey);
+    --muted: var(--light-grey);
+    --muted-foreground: var(--mid-grey);
+    --radius: 0.5rem;
 
-    /* === BRAND ACCENT === */
-    --accent: 263 70% 63%;
-    --accent-400: 263 70% 70%;
-    --accent-foreground: 0 0% 100%;
+    /* === INPUT & POPOVER === */
+    --input: var(--light-grey);
+    --popover: 0 0% 100%;
+    --popover-foreground: var(--ink);
+    
+    /* === SECONDARY SYSTEM === */
+    --secondary: var(--graphite);
+    --secondary-foreground: 0 0% 100%;
 
     /* === SEMANTIC COLORS === */
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
     --success: 142 76% 36%;
-    --success-foreground: 355 100% 100%;
-
-    /* === SURFACE COLORS - Premium Cards === */
-    --card: 0 0% 100%;
-    --card-foreground: var(--foreground);
-    --card-shadow: 250 50% 90%;
-    --border: 250 30% 92%;
-    --ring: 263 70% 63%;
-    --radius: 1rem;
-
-    /* === INPUT & POPOVER === */
-    --input: 214 32% 91%;
-    --popover: 0 0% 100%;
-    --popover-foreground: var(--foreground);
-    
-    /* === SECONDARY SYSTEM === */
-    --secondary: 210 40% 96%;
-    --secondary-foreground: var(--foreground);
+    --success-foreground: 0 0% 100%;
 
     /* === BRAND GRADIENTS === */
-    --gradient-brand: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
-    --gradient-subtle: linear-gradient(135deg, hsl(var(--primary-200)) 0%, hsl(var(--primary-400)) 100%);
+    --gradient-brand: linear-gradient(135deg, hsl(var(--ink)) 0%, hsl(var(--graphite)) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(var(--mint)) 0%, hsl(158 82% 80%) 100%);
   }
 
   .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
-    --muted: 222 32% 12%;
-    --muted-foreground: 215 20% 75%;
-    --card: 222 47% 9%;
-    --card-foreground: var(--foreground);
-    --border: 222 28% 18%;
-    --ring: 262 100% 63%;
-    --input: 222 28% 18%;
-    --popover: 222 47% 9%;
-    --popover-foreground: var(--foreground);
-    --secondary: 222 32% 12%;
-    --secondary-foreground: var(--foreground);
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 210 40% 98%;
-    --success: 142 84% 24%;
-    --success-foreground: 355 100% 100%;
+    --background: 210 58% 8%;       /* Darker ink */
+    --foreground: 60 9% 96%;        /* Off-white text */
+    --card: 210 58% 11%;            /* Ink for cards */
+    --card-foreground: 60 9% 96%;
+    --border: 200 5% 21%;           /* Graphite borders */
+    --muted: 200 5% 21%;
+    --muted-foreground: 210 7% 62%;
+    --ring: 158 82% 73%;            /* Mint ring */
+    --input: 200 5% 21%;
+    --popover: 210 58% 11%;
+    --popover-foreground: 60 9% 96%;
+    --secondary: 200 5% 21%;
+    --secondary-foreground: 60 9% 96%;
   }
 }
 
@@ -161,30 +156,29 @@ html {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
 
-  /* === CARD PATTERNS - Premium Style === */
+  /* === CARD PATTERNS - INK + MINT SYSTEM === */
   .card {
     background-color: hsl(var(--card));
     color: hsl(var(--card-foreground));
-    border: none;
-    border-radius: 1.5rem;
-    box-shadow: 0 4px 24px -8px hsl(var(--card-shadow));
-    padding: 2rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    padding: 1.5rem;
   }
 
   .premium-card {
     background-color: hsl(var(--card));
     color: hsl(var(--card-foreground));
-    border: none;
-    border-radius: 2rem;
-    box-shadow: 0 8px 32px -12px hsl(var(--card-shadow));
-    padding: 2.5rem;
+    border: 2px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 24px -8px hsl(var(--card-shadow));
+    padding: 1.5rem;
   }
 
   .icon-box {
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 1rem;
-    background-color: hsl(var(--primary) / 0.1);
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    background-color: hsl(var(--mint) / 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -218,31 +212,35 @@ html {
   .hero-heading {
     @apply text-4xl sm:text-5xl md:text-6xl font-bold leading-tight;
     font-family: 'Inter', system-ui, sans-serif;
+    color: hsl(var(--ink));
   }
 
-  /* === PREMIUM HERO TEXT - Gradient + Shimmer === */
+  .hero-heading span {
+    color: hsl(var(--mint));
+  }
+
+  /* === PREMIUM HERO TEXT === */
   .premium-hero-text {
     font-family: 'Inter', system-ui, sans-serif;
     @apply text-2xl sm:text-3xl md:text-4xl font-semibold leading-[1.2] tracking-[-0.03em] text-center max-w-2xl mx-auto;
-    background: linear-gradient(110deg, hsl(var(--primary)), 45%, hsl(var(--primary-400)), 55%, hsl(var(--primary)));
-    background-size: 250% 100%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 8s ease-in-out infinite;
+    color: hsl(var(--ink));
   }
 
-  /* === BUTTON UTILITIES === */
-  .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium border border-border bg-background hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors min-h-[44px];
-  }
-
+  /* === BUTTON UTILITIES - INK + MINT === */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors min-h-[44px];
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium bg-mint text-ink hover:bg-mint/90 rounded-lg transition-all hover:scale-105 hover:shadow-lg min-h-[44px];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium bg-ink text-white hover:bg-ink/90 rounded-lg transition-colors min-h-[44px];
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium border-2 border-mint text-mint hover:bg-mint/10 rounded-lg transition-colors min-h-[44px];
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors;
+    @apply inline-flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium hover:bg-muted rounded-lg transition-colors;
   }
 
 
@@ -292,7 +290,7 @@ html {
     display: inline-block;
     width: 2px;
     height: 1em;
-    background-color: hsl(var(--primary));
+    background-color: hsl(var(--mint));
     animation: blink 1s step-end infinite;
     margin-left: 2px;
   }

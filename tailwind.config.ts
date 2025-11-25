@@ -26,6 +26,12 @@ export default {
         'caption': ['0.875rem', { lineHeight: '1.4' }],
       },
       colors: {
+        ink: "hsl(var(--ink))",
+        mint: "hsl(var(--mint))",
+        "off-white": "hsl(var(--off-white))",
+        "light-grey": "hsl(var(--light-grey))",
+        "mid-grey": "hsl(var(--mid-grey))",
+        graphite: "hsl(var(--graphite))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         muted: "hsl(var(--muted))",
@@ -37,16 +43,11 @@ export default {
         ring: "hsl(var(--ring))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
-          100: "hsl(var(--primary-100))",
-          200: "hsl(var(--primary-200))",
-          400: "hsl(var(--primary-400))",
-          600: "hsl(var(--primary-600))",
-          foreground: "white",
+          foreground: "hsl(var(--primary-foreground))",
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
-          400: "hsl(var(--accent-400))",
-          foreground: "white",
+          foreground: "hsl(var(--accent-foreground))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

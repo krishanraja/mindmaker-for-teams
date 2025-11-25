@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription } from '@/components/ui/card';
 import { Brain, Target, FileText, Zap, Lock, ChevronDown, ChevronUp } from 'lucide-react';
-import logo from '@/assets/mindmaker-logo-horizontal.png';
+import logo from '@/assets/mindmaker-logo-rebrand.png';
 import { RapidInsightsProof } from './RapidInsightsProof';
 
 const FULL_TEXT = "ALIGN YOUR LEADERSHIP\nTEAM ON AI IN ONE SESSION";
