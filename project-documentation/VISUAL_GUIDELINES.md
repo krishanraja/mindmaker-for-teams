@@ -1,6 +1,15 @@
 # Visual Guidelines
 
-## Layout Principles
+**Last Updated:** 2025-11-25
+
+---
+
+## Visual Principles
+
+1. **Bold, Not Busy** - Strong elements, generous white space
+2. **Functional, Not Decorative** - Every visual serves purpose
+3. **Professional, Not Corporate** - Clean but not sterile
+4. **Modern, Not Trendy** - Timeless, not chasing fads
 
 ### Grid System
 

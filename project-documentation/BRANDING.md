@@ -1,46 +1,33 @@
-# Branding Guidelines
+# Branding
+
+**Last Updated:** 2025-11-25
+
+---
 
 ## Brand Voice
 
-### Core Principles
+**Professional but not corporate**  
+**Confident but not arrogant**  
+**Direct but not cold**  
+**Expert but not academic**
 
-**Plain English, Not Jargon:**
-- Say "How you decide" not "Decision-making framework"
-- Say "Where you didn't agree" not "Areas of misalignment"
-- Say "What slows you down" not "Organizational bottlenecks"
-- Say "What you'd automate" not "Automation opportunities"
+---
 
-**Empathetic, Not Academic:**
-- Say "This is hard" not "This presents challenges"
-- Say "You're not alone" not "Many organizations face this"
-- Say "Let's figure this out together" not "We will facilitate alignment"
+## Tone Attributes
 
-**Real-World, Not Theoretical:**
-- Say "Last Tuesday at 2pm" not "A recent time period"
-- Say "Your CFO didn't agree with your CTO" not "Stakeholders had differing perspectives"
-- Say "You spent 3 hours" not "Time was invested"
+### What We Are
+✅ **Practical** - Real work, not theory  
+✅ **Confident** - We've done this  
+✅ **Direct** - No fluff, clear value  
+✅ **Empowering** - You can do this  
+✅ **Operator-led** - Built from experience
 
-**Honest, Not Corporate:**
-- Say "We don't know yet" not "We'll leverage our methodology"
-- Say "This might not work" not "Success is contingent on various factors"
-- Say "You disagreed" not "Perspectives diverged"
-
-### Tone Attributes
-
-**Confident but humble:**
-- We know the workshop process works
-- We don't know what your team will discover
-- We're guides, not gurus
-
-**Direct but warm:**
-- No fluff or filler
-- No false enthusiasm ("Amazing!")
-- No corporate-speak ("synergies")
-
-**Practical but provocative:**
-- Show the data, then ask the hard question
-- Point out contradictions gently
-- Make patterns visible without judgment
+### What We're Not
+❌ **Salesy** - No hype or pressure  
+❌ **Academic** - No jargon or theory  
+❌ **Corporate** - No buzzwords  
+❌ **Casual** - Not a friend, a guide  
+❌ **Apologetic** - We know what works
 
 ## Terminology Standards
 
