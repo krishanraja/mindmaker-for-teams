@@ -56,3 +56,27 @@ verify_jwt = false
 
 [functions.generate-post-session-qr]
 verify_jwt = false
+
+[functions.ai-conversation]
+verify_jwt = false
+
+[functions.generate-prework-qr]
+verify_jwt = false
+
+[functions.generate-ai-insights]
+verify_jwt = false
+
+[functions.generate-huddle-synthesis]
+verify_jwt = false
+
+[functions.send-prework-emails]
+verify_jwt = false
+
+[functions.get-profile-context]
+verify_jwt = false
+
+[functions.generate-decision-framework]
+verify_jwt = false
+
+[functions.speech-to-text]
+verify_jwt = false
