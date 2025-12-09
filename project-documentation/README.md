@@ -2,6 +2,13 @@
 
 **Master Index**: Complete documentation for the MindMaker Leaders platform - an AI-powered executive alignment and decision-making workshop facilitation tool.
 
+## Standards & Guidelines
+
+- [MASTER_INSTRUCTIONS.md](./MASTER_INSTRUCTIONS.md) - **Vibe-coding standards and quality rules**
+- [PROJECT_NOTES.md](./PROJECT_NOTES.md) - **Running decisions and architectural state**
+- [../CHANGELOG.md](../CHANGELOG.md) - Change history per release
+- [../DEPLOY_CHECKLIST.md](../DEPLOY_CHECKLIST.md) - Pre/post deploy verification
+
 ## Core Documentation
 
 - [PURPOSE.md](./PURPOSE.md) - App purpose and mission
