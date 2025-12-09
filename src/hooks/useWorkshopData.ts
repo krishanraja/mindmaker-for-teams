@@ -1,6 +1,16 @@
+/**
+ * Workshop Data Hooks
+ * 
+ * Provides data fetching for workshop sessions, bootcamp plans, and activity sessions.
+ * All hooks follow the standard return shape pattern for consistency.
+ */
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkshopSession, BootcampPlan, ActivitySession } from '@/types/workshop';
+import { createScopedLogger } from '@/lib/logger';
+
+const log = createScopedLogger('useWorkshopData');
 
 export const useWorkshopSession = (workshopId: string | undefined) => {
   const [workshop, setWorkshop] = useState<WorkshopSession | null>(null);
@@ -21,6 +31,8 @@ export const useWorkshopSession = (workshopId: string | undefined) => {
     setLoading(true);
     setError(null);
     
+    log.info('Loading workshop session', { workshopId });
+    
     try {
       const { data, error: fetchError } = await supabase
         .from('workshop_sessions')
@@ -30,9 +42,11 @@ export const useWorkshopSession = (workshopId: string | undefined) => {
 
       if (fetchError) throw fetchError;
       setWorkshop(data as unknown as WorkshopSession);
+      log.info('Workshop loaded successfully', { workshopId });
     } catch (err) {
-      setError(err as Error);
-      console.error('Error loading workshop:', err);
+      const errorObj = err as Error;
+      setError(errorObj);
+      log.error('Error loading workshop', { workshopId, error: errorObj.message });
     } finally {
       setLoading(false);
     }
@@ -60,6 +74,8 @@ export const useBootcampPlan = (planId: string | undefined) => {
     setLoading(true);
     setError(null);
     
+    log.info('Loading bootcamp plan', { planId });
+    
     try {
       const { data, error: fetchError } = await supabase
         .from('bootcamp_plans')
@@ -69,9 +85,11 @@ export const useBootcampPlan = (planId: string | undefined) => {
 
       if (fetchError) throw fetchError;
       setBootcampPlan(data as unknown as BootcampPlan);
+      log.info('Bootcamp plan loaded successfully', { planId });
     } catch (err) {
-      setError(err as Error);
-      console.error('Error loading bootcamp plan:', err);
+      const errorObj = err as Error;
+      setError(errorObj);
+      log.error('Error loading bootcamp plan', { planId, error: errorObj.message });
     } finally {
       setLoading(false);
     }
@@ -91,6 +109,8 @@ export const useActivitySession = (workshopId: string | undefined, activityType:
     setLoading(true);
     setError(null);
     
+    log.info('Loading activity session', { workshopId, activityType });
+    
     try {
       const { data, error: fetchError } = await supabase
         .from('activity_sessions')
@@ -103,9 +123,11 @@ export const useActivitySession = (workshopId: string | undefined, activityType:
 
       if (fetchError) throw fetchError;
       setActivitySession(data as unknown as ActivitySession | null);
+      log.info('Activity session loaded', { workshopId, activityType, found: !!data });
     } catch (err) {
-      setError(err as Error);
-      console.error('Error loading activity session:', err);
+      const errorObj = err as Error;
+      setError(errorObj);
+      log.error('Error loading activity session', { workshopId, activityType, error: errorObj.message });
     } finally {
       setLoading(false);
     }

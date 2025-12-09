@@ -72,18 +72,50 @@ Running decisions log and architectural state for the MindMaker Leaders platform
 
 ---
 
+## MASTER INSTRUCTIONS Compliance Status
+
+### ✅ WORLD-CLASS (Fully Compliant)
+
+| Standard | Implementation |
+|----------|----------------|
+| AI Fallback Chain | 3-tier: OpenAI → Lovable → Gemini RAG with 5s timeouts |
+| Error Boundaries | React ErrorBoundary with structured logging |
+| Retry Logic | Exponential backoff (1s, 2s, 4s), max 3 retries |
+| CORS Handling | All edge functions have corsHeaders + OPTIONS |
+| LLM Logging | Provider, model, tokens, timestamp logged |
+| Edge Function Errors | Specific error codes (RATE_LIMIT, PAYMENT_REQUIRED) |
+| Fallback Data | Sensible defaults on parse/API failures |
+| Structured Logging | `src/lib/logger.ts` with session/trace IDs |
+| API Response Types | `src/types/api-response.ts` with helpers |
+
+### ⚠️ IN PROGRESS
+
+| Item | Status |
+|------|--------|
+| Logger integration | Integrated in hooks, error-boundary |
+| Session tracing | Available via `getSessionId()` |
+| Edge function format | Partial - needs standardization |
+
+### 📋 BACKLOG
+
+| Item | Priority |
+|------|----------|
+| Unit tests for utilities | MEDIUM |
+| Performance logging | LOW |
+| Pre-deploy automation | LOW |
+
+---
+
 ## Known Technical Debt
 
-1. **Inconsistent async return types**: Some functions return raw data, others return `{ data, error }`
+1. **Edge function logging format**: Mixed formats, should standardize
 2. **Missing unit tests**: No testing infrastructure currently in place
-3. **Logging format**: Mixed formats across edge functions
-4. **Session tracing**: No consistent trace IDs for debugging chains
+3. **Some hooks inconsistent**: Most now use logger, but some older hooks don't
 
 ---
 
 ## Upcoming Considerations
 
-- [ ] Standardize all async returns to `ApiResponse<T>` type
-- [ ] Add session/trace ID generation for debugging
-- [ ] Implement basic unit testing for utilities
-- [ ] Add performance logging for critical paths
+- [ ] Add unit testing infrastructure (Vitest recommended)
+- [ ] Standardize edge function logging format
+- [ ] Add performance metrics for critical paths
