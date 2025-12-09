@@ -1,82 +1,90 @@
 project_id = "bkyuxvschuwngtcdhsyg"
 
+# Email functions - require authentication
 [functions.send-canvas-email]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-assessment-notification]
-verify_jwt = false
-
-[functions.sync-to-google-sheets]
-verify_jwt = false
-
-[functions.generate-business-insights]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-exec-summary-email]
-verify_jwt = false
+verify_jwt = true
 
-[functions.generate-activity-qr]
-verify_jwt = false
+[functions.send-prework-emails]
+verify_jwt = true
 
-[functions.cluster-bottleneck-inputs]
-verify_jwt = false
+[functions.send-exec-pulse-emails]
+verify_jwt = true
+
+# AI generation functions - require authentication
+[functions.generate-business-insights]
+verify_jwt = true
+
+[functions.generate-ai-insights]
+verify_jwt = true
 
 [functions.generate-executive-pdf]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-workshop-insights]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-provocation-report]
+verify_jwt = true
+
+[functions.generate-task-breakdown]
+verify_jwt = true
+
+[functions.generate-guardrails]
+verify_jwt = true
+
+[functions.generate-strategy-insights]
+verify_jwt = true
+
+[functions.generate-final-report]
+verify_jwt = true
+
+[functions.generate-huddle-synthesis]
+verify_jwt = true
+
+[functions.generate-decision-framework]
+verify_jwt = true
+
+[functions.ai-conversation]
+verify_jwt = true
+
+[functions.simulation-ai-experiment]
+verify_jwt = true
+
+[functions.analyze-prework-myths]
+verify_jwt = true
+
+[functions.cluster-bottleneck-inputs]
+verify_jwt = true
+
+[functions.write-segment-summary]
+verify_jwt = true
+
+[functions.get-profile-context]
+verify_jwt = true
+
+# Data sync - require authentication
+[functions.sync-to-google-sheets]
+verify_jwt = true
+
+# QR code generators - must stay public for mobile participant access
+[functions.generate-activity-qr]
 verify_jwt = false
 
 [functions.generate-shared-prework-qr]
 verify_jwt = false
 
-[functions.simulation-ai-experiment]
-verify_jwt = false
-
-[functions.analyze-prework-myths]
-verify_jwt = false
-
-[functions.generate-task-breakdown]
-verify_jwt = false
-
-[functions.generate-guardrails]
-verify_jwt = false
-
-[functions.generate-strategy-insights]
-verify_jwt = false
-
-[functions.write-segment-summary]
-verify_jwt = false
-
-[functions.generate-final-report]
-verify_jwt = false
-
 [functions.generate-post-session-qr]
-verify_jwt = false
-
-[functions.ai-conversation]
 verify_jwt = false
 
 [functions.generate-prework-qr]
 verify_jwt = false
 
-[functions.generate-ai-insights]
-verify_jwt = false
-
-[functions.generate-huddle-synthesis]
-verify_jwt = false
-
-[functions.send-prework-emails]
-verify_jwt = false
-
-[functions.get-profile-context]
-verify_jwt = false
-
-[functions.generate-decision-framework]
-verify_jwt = false
-
+# Speech-to-text - keep public for mobile workshop participants
 [functions.speech-to-text]
 verify_jwt = false
